@@ -24,7 +24,7 @@ export function createOverlay() {
                 <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
                     <input type="checkbox" id="hot-mode-switch" style="opacity:0; width:0; height:0;">
                     <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                    <span id="slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                    <span id="slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
                 </label>
             </div>
 
@@ -39,7 +39,7 @@ export function createOverlay() {
                     <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
                         <input type="checkbox" id="predict-mode-switch" style="opacity:0; width:0; height:0;">
                         <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                        <span id="predict-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                        <span id="predict-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
                     </label>
                 </div>
             </div>
