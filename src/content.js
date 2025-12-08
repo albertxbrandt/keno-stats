@@ -4,6 +4,7 @@ import { initOverlay, injectFooterButton } from './overlay.js';
 import { loadHistory, updateHistoryUI } from './storage.js';
 import { calculatePrediction, autoPlayPlaceBet, updateAutoPlayUI } from './autoplay.js';
 import { updateHeatmap } from './heatmap.js';
+import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
 
 console.log('Keno Tracker loaded');
 
@@ -24,8 +25,12 @@ window.addEventListener('message', (event) => {
 	const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 	if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
 	console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses });
-	// Save
-	import('./storage.js').then(mod => mod.saveRound({ hits, misses, time: Date.now() }));
+	// Save - include drawn numbers and selected for future stats calculations
+	import('./storage.js').then(mod => mod.saveRound({ hits, misses, drawn, selected, time: Date.now() }));
+	// Update stats after new round
+	setTimeout(() => {
+		try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
+	}, 500);
 	// Auto Predict
 	if (state.isPredictMode) calculatePrediction();
 	// Auto Play Logic
@@ -56,5 +61,11 @@ loadHistory().then(() => {
 	try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
 	setTimeout(updateHeatmap, 2000);
 	setInterval(injectFooterButton, 1000);
+	// Initialize stats observer for multiplier bar
+	console.warn('[CONTENT] About to call initStatsObserver in 3s');
+	setTimeout(() => {
+		console.warn('[CONTENT] Calling initStatsObserver NOW');
+		initStatsObserver();
+	}, 3000);
 });
 
