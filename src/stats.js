@@ -180,14 +180,14 @@ export function updateMultiplierBarStats() {
                     bottom: '4px',
                     left: '4px',
                     right: '4px',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     color: '#fff',
                     fontWeight: 'bold',
                     textAlign: 'center',
                     pointerEvents: 'auto',
                     backgroundColor: 'rgba(0,0,0,0.8)',
                     borderRadius: '4px',
-                    padding: '3px 4px',
+                    padding: '4px',
                     textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -214,6 +214,8 @@ export function updateMultiplierBarStats() {
                 });
                 
                 container.style.position = 'relative';
+                // Add padding to bottom of container so multiplier text doesn't overlap
+                container.style.paddingBottom = '18px';
                 container.appendChild(statsOverlay);
             }
             
@@ -339,7 +341,7 @@ export function initStatsObserver() {
 /**
  * Show a modal with bet result details
  * @param {number} timestamp - Unix timestamp of the bet
- * @param {Array<number>} selectedNumbers - Numbers that were selected
+ * @param {Array<number>} selectedNumbers - Currently selected numbers (to highlight in modal)
  * @param {number} hitCount - How many of the selected numbers hit
  */
 function showBetResultModal(timestamp, selectedNumbers, hitCount) {
@@ -383,26 +385,13 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
 
     const dateStr = new Date(timestamp).toLocaleString();
     
-    // Reconstruct the original selected numbers from that round
-    // For new rounds: use round.selected (stored with the round data)
-    // For old rounds: hits + misses together = the original selection
-    //   (because hits are selected numbers that were drawn, 
-    //    and misses are drawn numbers that weren't selected)
-    let originalSelected;
-    if (round.selected && round.selected.length > 0) {
-        originalSelected = round.selected;
-    } else {
-        // Old format: reconstruct from hits + misses
-        originalSelected = [...(round.hits || []), ...(round.misses || [])].sort((a, b) => a - b);
-    }
+    // Use the stored hit and miss data from history
+    // round.hits = selected numbers that were drawn (GREEN)
+    // round.misses = drawn numbers that were NOT selected (RED)
+    const hits = (round.hits || []).sort((a,b) => a-b);
+    const misses = (round.misses || []).sort((a,b) => a-b);
     
-    const hitsFromOriginal = round.hits.filter(n => originalSelected.includes(n)).sort((a,b) => a-b);
-    const missesFromOriginal = originalSelected.filter(n => !round.hits.includes(n)).sort((a,b) => a-b);
-    
-    // Show what matched from CURRENT selection (for reference)
-    const currentMatches = selectedNumbers.filter(n => round.hits.includes(n)).sort((a,b) => a-b);
-    
-    console.log('[stats] Modal data:', { originalSelected, hitsFromOriginal, missesFromOriginal, currentMatches, selectedNumbers });
+    console.log('[stats] Modal data:', { hits, misses, drawn: round.drawn, selected: round.selected });
 
     modal.innerHTML = `
         <div style="position: relative; margin-bottom: 14px;">
@@ -428,23 +417,21 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
                 <h2 style="margin: 0 0 4px 0; color: #fff; font-size: 18px; font-weight: 600;">Bet Result</h2>
                 <p style="margin: 0; color: #fff; font-size: 11px;">${dateStr}</p>
-                <p style="margin: 3px 0 0 0; color: #00c853; font-size: 10px; font-weight: 500;">Selected: ${originalSelected.join(', ')}</p>
             </div>
         </div>
         
         <div style="margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, #00c85325, #00c85310); border-radius: 10px; border-left: 3px solid #00c853; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
             <p style="margin: 0 0 4px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Result</p>
-            <p style="margin: 0; font-size: 20px; font-weight: 700; color: #00c853;">${hitsFromOriginal.length}/${originalSelected.length}</p>
-            ${currentMatches.length !== hitsFromOriginal.length ? `<p style="margin: 6px 0 0 0; color: #ffa500; font-size: 10px;">Your selection matched ${currentMatches.length} from this round</p>` : ''}
+            <p style="margin: 0; font-size: 20px; font-weight: 700; color: #00c853;">${hits.length} Hits</p>
         </div>
         
         <div style="margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Hit Numbers (${hitsFromOriginal.length})</p>
+            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Hits (${hits.length})</p>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;" id="hits-board"></div>
         </div>
         
         <div style="margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Missed Numbers (${missesFromOriginal.length})</p>
+            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Misses (${misses.length})</p>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;" id="misses-board"></div>
         </div>
         
@@ -454,9 +441,9 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
         </div>
     `;
 
-    // Populate hits board
+    // Populate hits board (green - your selected numbers that were drawn)
     const hitsBoard = modal.querySelector('#hits-board');
-    hitsFromOriginal.forEach(num => {
+    hits.forEach(num => {
         const tile = document.createElement('div');
         Object.assign(tile.style, {
             width: '36px',
@@ -476,9 +463,9 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
         hitsBoard.appendChild(tile);
     });
 
-    // Populate misses board
+    // Populate misses board (red - drawn numbers you didn't select)
     const missesBoard = modal.querySelector('#misses-board');
-    missesFromOriginal.forEach(num => {
+    misses.forEach(num => {
         const tile = document.createElement('div');
         Object.assign(tile.style, {
             width: '36px',
@@ -502,8 +489,8 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
     const fullBoard = modal.querySelector('#full-board');
     for (let i = 1; i <= 40; i++) {
         const tile = document.createElement('div');
-        const isHit = round.hits.includes(i);
-        const wasOriginallySelected = originalSelected.includes(i);
+        const isHit = hits.includes(i);
+        const isMiss = misses.includes(i);
         const isCurrentlySelected = selectedNumbers.includes(i);
         
         let bgColor = '#2f4553';
@@ -511,28 +498,22 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
         let borderStyle = '2px solid #2f4553';
         let boxShadow = 'none';
         
-        if (isHit && wasOriginallySelected) {
-            // Hit your selection - gem gradient
+        if (isHit) {
+            // Hit - your selected number that was drawn (green)
             bgColor = 'linear-gradient(135deg, #00ff88, #00c853)';
             textColor = '#000';
             borderStyle = '2px solid #00ff88';
             boxShadow = '0 3px 8px rgba(0,200,83,0.4)';
-        } else if (wasOriginallySelected && !isHit) {
-            // Missed your selection - dark miss color
+        } else if (isMiss) {
+            // Miss - drawn number you didn't select (red)
             bgColor = '#071824';
             textColor = '#ff6b5b';
             borderStyle = '2px solid #ff6b5b';
             boxShadow = '0 3px 8px rgba(255,71,87,0.2)';
-        } else if (isHit) {
-            // Hit but not your selection - gem accent
-            bgColor = 'linear-gradient(135deg, #00c85350, #00a05030)';
-            textColor = '#00ff88';
-            borderStyle = '2px solid #00c853';
-            boxShadow = '0 3px 8px rgba(0,200,83,0.2)';
         }
         
-        // Add accent if currently selected (to show where the match came from)
-        if (isCurrentlySelected && !wasOriginallySelected) {
+        // Add dashed yellow border for currently selected numbers
+        if (isCurrentlySelected) {
             borderStyle = '3px dashed #ffa500';
         }
         
