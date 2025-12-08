@@ -1,0 +1,13 @@
+{
+  "name": "keno-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Keno Tracker extension - bundled build with esbuild",
+  "scripts": {
+    "build": "esbuild src/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser",
+    "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser"
+  },
+  "devDependencies": {
+    "esbuild": "^0.18.17"
+  }
+}
