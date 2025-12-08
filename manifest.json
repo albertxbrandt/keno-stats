@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Keno Tracker",
+  "name": "Keno Stats",
   "version": "1.0",
   "description": "Tracks Keno history and provides number stats on Stake.",
   "permissions": ["storage"],

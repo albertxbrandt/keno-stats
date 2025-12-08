@@ -1,4 +1,4 @@
-# Keno Tracker Extension
+# Keno Stats Extension
 
 A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com.
 

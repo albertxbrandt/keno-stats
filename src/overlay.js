@@ -73,7 +73,7 @@ export function createOverlay() {
         </div>
     `;
     document.body.appendChild(overlay);
-    // Match the site's font so the overlay blends in
+    // Find site font and apply to overlay for better integration
     try {
         const siteFont = window.getComputedStyle(document.body).fontFamily;
         if (siteFont) overlay.style.fontFamily = siteFont;

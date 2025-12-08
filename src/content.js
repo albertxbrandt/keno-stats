@@ -5,7 +5,7 @@ import { loadHistory, updateHistoryUI } from './storage.js';
 import { calculatePrediction, autoPlayPlaceBet, updateAutoPlayUI } from './autoplay.js';
 import { updateHeatmap } from './heatmap.js';
 
-console.log('Keno Tracker (bundled content) loaded');
+console.log('Keno Tracker loaded');
 
 // Message listener moved from original content.js
 window.addEventListener('message', (event) => {
