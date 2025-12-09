@@ -19,20 +19,12 @@ export function simulatePointerClick(el) {
 }
 
 export function findAndClickPlayButton() {
-    const candidates = Array.from(document.querySelectorAll('button, [role="button"], a'));
-    const validLabels = ["Play", "Place Bet", "Bet", "Spin", "Confirm", "Submit"];
-    for (const el of candidates) {
-        const text = (el.textContent || '').trim();
-        const testid = el.getAttribute && el.getAttribute('data-testid');
-        if (/my game play/i.test(text)) continue;
-        if (testid && /play|bet|confirm/i.test(testid)) {
-            simulatePointerClick(el);
-            return el;
-        }
-        if (validLabels.some(label => text.toLowerCase() === label.toLowerCase())) {
-            simulatePointerClick(el);
-            return el;
-        }
+    // Finding by data-testid="bet-button"
+    const betButton = document.querySelector('button[data-testid="bet-button"]');
+    if (betButton) {
+        simulatePointerClick(betButton);
+        return betButton;
     }
-    return null;
+
+   return null;
 }

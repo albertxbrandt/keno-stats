@@ -7,7 +7,7 @@ export function saveRound(round) {
     return storageApi.storage.local.get('history').then((res) => {
         let history = res.history || [];
         history.push(round);
-        if (history.length > 100) history = history.slice(-100);
+        // Store unlimited history (bet book needs full history)
         return storageApi.storage.local.set({ history }).then(() => {
             state.currentHistory = history;
             // Update UI live when a new round is saved

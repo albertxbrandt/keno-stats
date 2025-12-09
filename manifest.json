@@ -22,5 +22,14 @@
       "world": "MAIN",
       "run_at": "document_start"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["betbook.html", "betbook.js"],
+      "matches": [
+        "https://stake.com/casino/games/keno*",
+        "https://stake.us/casino/games/keno*"
+      ]
+    }
   ]
 }

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keno Stats Book</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="betbook.css">
+  <style>
+    body { font-family: Sora, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #1a2c38; color: #fff; margin: 0; }
+    header { background: #213743; padding: 1em; text-align: center; font-size: 1.5em; border-bottom: 2px solid #0f212e; font-weight: bold; }
+    .container { max-width: 900px; margin: 2em auto; padding: 2em; background: #213743; border-radius: 12px; box-shadow: 0 2px 12px #000a; }
+    .search-bar { margin-bottom: 1em; }
+    input[type="text"] { width: 100%; padding: 0.7em; border-radius: 6px; border: none; font-size: 1em; background: #2f4553; color: #fff; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1em; table-layout: fixed; }
+    th, td { padding: 0.6em; border-bottom: 1px solid #333; text-align: left; color: #fff; width: 33.33%; }
+    th { background: #2f4553; color: #fff; }
+    tr:hover { background: #2f4553; }
+    .hits { color: #4caf50; font-weight: bold; }
+    .misses { color: #f44336; font-weight: bold; }
+    .upload-btn { background: #2f4553; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 1em; cursor: pointer; margin-bottom: 1em; }
+    .upload-btn:hover { background: #3a5361; }
+    .sort-select { background: #2f4553; color: #fff; border: none; padding: 0.7em; border-radius: 6px; font-size: 1em; cursor: pointer; margin-bottom: 1em; margin-left: 1em; }
+    .controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1em; }
+    .controls .left-group { display: flex; align-items: center; }
+    .export-btn { background: #2f4553; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 1em; cursor: pointer; margin-bottom: 1em; margin-left: 1em; }
+    .export-btn:hover { background: #3a5361; }
+    .delete-btn { background: #f44336; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 1em; cursor: pointer; margin-bottom: 1em; }
+    .delete-btn:hover { background: #d32f2f; }
+    .export-btn:hover { background: #3a5361; }
+    .total-count { color: #fff; font-size: 1.1em; margin-bottom: 1em; font-weight: bold; }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 1em; margin-top: 1.5em; }
+    .pagination button { background: #2f4553; color: #fff; border: none; padding: 0.5em 1em; border-radius: 6px; cursor: pointer; }
+    .pagination button:hover:not(:disabled) { background: #3a5361; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pagination span { color: #fff; }
+    th { background: #2f4553; color: #fff; cursor: pointer; user-select: none; width: 33.33%; }
+    th:hover { background: #3a5361; }
+    .sort-arrow { margin-left: 5px; font-size: 0.8em; opacity: 0.5; }
+    .sort-arrow.active { opacity: 1; }
+    .context-menu { position: fixed; background: #2f4553; border: 1px solid #444; border-radius: 6px; padding: 0.5em 0; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10000; display: none; }
+    .context-menu-item { padding: 0.6em 1.2em; color: #fff; cursor: pointer; white-space: nowrap; }
+    .context-menu-item:hover { background: #f44336; }
+  </style>
+</head>
+<body>
+  <header>Keno Stats Book</header>
+  <div class="container">
+    <div class="controls">
+      <div class="left-group">
+        <button class="upload-btn" id="uploadBtn">Import Data</button>
+        <button class="export-btn" id="exportBtn">Export Data</button>
+      </div>
+      <button class="delete-btn" id="deleteBtn">Delete All Data</button>
+    </div>
+    <div class="total-count" id="totalCount">Total Bets: 0</div>
+    <input class="search-bar" type="text" id="searchInput" placeholder="Search by number, date, or result...">
+    <table id="betTable">
+      <thead>
+        <tr>
+          <th id="sortDate">Date <span class="sort-arrow active">▼</span></th>
+          <th id="sortHits">Hits <span class="sort-arrow">▼</span></th>
+          <th id="sortMisses">Misses <span class="sort-arrow">▼</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Bet rows will be injected here -->
+      </tbody>
+    </table>
+    <div class="pagination" id="pagination">
+      <button id="prevBtn">Previous</button>
+      <span id="pageInfo">Page 1</span>
+      <button id="nextBtn">Next</button>
+    </div>
+  </div>
+  <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="deleteMenuItem">Delete Bet</div>
+  </div>
+  <input type="file" id="fileInput" style="display:none" accept=".json,.csv">
+  <script src="betbook.js"></script>
+</body>
+</html>

@@ -69,6 +69,7 @@ export function createOverlay() {
             <div style="border-top:1px solid #444; padding-top:5px;">
                 HISTORY <button id="clear-btn" style="float:right; background:none; border:none; color:#f55; cursor:pointer;">Reset</button>
                 <div id="history-list" style="height:150px; overflow-y:auto; margin-top:5px; border:1px solid #333; background:#0f212e; padding:5px;"></div>
+                <button id="open-betbook-btn" style="width:100%; background:#ffd700; color:#222; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:8px;">Open Stats Book</button>
             </div>
         </div>
     `;
@@ -112,6 +113,13 @@ export function createOverlay() {
         });
     } catch (e) { console.warn('[overlay] switch transition setup failed', e); }
     // DRAG, CLOSE, and UI wiring
+    // Open Bet Book button wiring
+    const betBookBtn = document.getElementById('open-betbook-btn');
+    if (betBookBtn) {
+        betBookBtn.addEventListener('click', () => {
+            window.open(chrome.runtime.getURL('betbook.html'), '_blank');
+        });
+    }
     // --- Drag logic (allow moving the overlay by drag-handle) ---
     const handle = document.getElementById('drag-handle');
     let isDragging = false;
