@@ -44,6 +44,13 @@ export function updateHistoryUI(history) {
     const list = document.getElementById('history-list');
     if (!list) return;
     list.innerHTML = '';
+    
+    // Update sample size input max value
+    const sampleInput = document.getElementById('sample-size-input');
+    if (sampleInput) {
+        sampleInput.max = Math.max(history.length, 1);
+    }
+    
     history.slice().reverse().forEach((round, i) => {
         const div = document.createElement('div');
         div.style.borderBottom = '1px solid #333';

@@ -68,8 +68,8 @@ export function clearHighlight() {
 export function updateHeatmap() {
     if (!window.location.href.includes("keno")) return;
     if (state.currentHistory.length === 0) return;
-    let sample = state.currentHistory;
-    if (state.isHotMode) sample = state.currentHistory.slice(-5);
+    const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
     if (sample.length === 0) return;
     const counts = {};
     const totalGames = sample.length;

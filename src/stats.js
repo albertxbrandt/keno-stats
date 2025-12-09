@@ -15,6 +15,7 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
     const stats = {
         probabilities: {},
         lastOccurrences: {},
+        lastOccurrenceIndices: {},
         counts: {}
     };
 
@@ -23,6 +24,7 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
         stats.counts[i] = 0;
         stats.probabilities[i] = 0;
         stats.lastOccurrences[i] = null;
+        stats.lastOccurrenceIndices[i] = null;
     }
 
     // Analyze history (go from newest to oldest to find last occurrence)
@@ -61,8 +63,10 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
             // Record last occurrence (first time we see it in reversed history = most recent)
             if (stats.lastOccurrences[i] === null) {
                 stats.lastOccurrences[i] = round.time;
+                // Store the actual index in the original history array
+                stats.lastOccurrenceIndices[i] = state.currentHistory.length - 1 - idx;
                 if (idx < 3) {
-                    console.log(`[stats] Found last occurrence for ${i}×: ${new Date(round.time).toLocaleTimeString()}`);
+                    console.log(`[stats] Found last occurrence for ${i}×: ${new Date(round.time).toLocaleTimeString()}, index: ${stats.lastOccurrenceIndices[i]}`);
                 }
             }
         }
@@ -78,24 +82,29 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
 }
 
 /**
- * Format time difference for display
- * @param {number} timestamp - Unix timestamp
- * @returns {string} Human-readable time difference
+ * Format bet info for display by finding most recent matching bet
+ * @param {Array<number>} selectedNumbers - Currently selected numbers
+ * @param {number} targetHitCount - Target hit count to match
+ * @returns {string} Bet number and bets ago info
  */
-export function formatTimeSince(timestamp) {
-    if (!timestamp) return 'Never';
+export function formatTimeSince(selectedNumbers, targetHitCount) {
+    if (!selectedNumbers || selectedNumbers.length === 0) return 'Never';
     
-    const now = Date.now();
-    const diff = now - timestamp;
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return `${seconds}s ago`;
+    // Find the most recent bet that matches the target hit count
+    for (let i = state.currentHistory.length - 1; i >= 0; i--) {
+        const round = state.currentHistory[i];
+        const drawnNumbers = round.drawn || round.hits;
+        const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
+        const hitCount = matchingNumbers.length;
+        
+        if (hitCount === targetHitCount) {
+            const betNumber = i + 1;
+            const betsAgo = state.currentHistory.length - i;
+            return `Bet #${betNumber}<br>${betsAgo} Bets Ago`;
+        }
+    }
+    
+    return 'Never';
 }
 
 /**
@@ -167,9 +176,9 @@ export function updateMultiplierBarStats() {
             // Skip 0x - not relevant
             if (hitCount === 0 || hitCount > selectedCount) return;
             
-            const lastTime = formatTimeSince(stats.lastOccurrences[hitCount]);
+            const lastTime = formatTimeSince(selectedNumbers, hitCount);
             
-            console.log(`[stats] ${hitCount}×: last: ${lastTime} (timestamp: ${stats.lastOccurrences[hitCount]})`);
+            console.log(`[stats] ${hitCount}×: last: ${lastTime}`);
             
             let statsOverlay = container.querySelector('.keno-stats-overlay');
             if (!statsOverlay) {
@@ -180,18 +189,19 @@ export function updateMultiplierBarStats() {
                     bottom: '4px',
                     left: '4px',
                     right: '4px',
-                    fontSize: '12px',
+                    fontSize: '10px',
                     color: '#fff',
                     fontWeight: 'bold',
                     textAlign: 'center',
                     pointerEvents: 'auto',
                     backgroundColor: 'rgba(0,0,0,0.8)',
                     borderRadius: '4px',
-                    padding: '4px',
+                    padding: '2px 4px',
                     textShadow: '0 1px 2px rgba(0,0,0,0.5)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    lineHeight: '1.3'
                 });
                 
                 statsOverlay.addEventListener('mouseenter', () => {
@@ -209,17 +219,21 @@ export function updateMultiplierBarStats() {
                 });
                 
                 statsOverlay.addEventListener('click', () => {
-                    const timestamp = stats.lastOccurrences[hitCount];
-                    showBetResultModal(timestamp, selectedNumbers, hitCount);
+                    // Get fresh selected numbers at click time, not creation time
+                    const currentSelectedNumbers = getSelectedTileNumbers();
+                    showBetResultModal(currentSelectedNumbers, hitCount);
                 });
+                
+                // Store hit count in data attribute so we can update text later
+                statsOverlay.dataset.hitCount = hitCount;
                 
                 container.style.position = 'relative';
                 // Add padding to bottom of container so multiplier text doesn't overlap
-                container.style.paddingBottom = '18px';
+                container.style.paddingBottom = '28px';
                 container.appendChild(statsOverlay);
             }
             
-            statsOverlay.textContent = lastTime;
+            statsOverlay.innerHTML = lastTime;
         });
     } catch (error) {
         console.error('[stats] Error updating multiplier bar:', error);
@@ -340,17 +354,34 @@ export function initStatsObserver() {
 
 /**
  * Show a modal with bet result details
- * @param {number} timestamp - Unix timestamp of the bet
  * @param {Array<number>} selectedNumbers - Currently selected numbers (to highlight in modal)
- * @param {number} hitCount - How many of the selected numbers hit
+ * @param {number} targetHitCount - How many of the selected numbers should have hit
  */
-function showBetResultModal(timestamp, selectedNumbers, hitCount) {
-    // Find the round in history
-    const round = state.currentHistory.find(r => r.time === timestamp);
-    if (!round) {
-        console.error('[stats] Round not found:', timestamp);
+function showBetResultModal(selectedNumbers, targetHitCount) {
+    // Find the most recent bet that matches the target hit count
+    let betIndex = -1;
+    let round = null;
+    
+    // Search from newest to oldest
+    for (let i = state.currentHistory.length - 1; i >= 0; i--) {
+        const r = state.currentHistory[i];
+        const drawnNumbers = r.drawn || r.hits;
+        const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
+        const hitCount = matchingNumbers.length;
+        
+        if (hitCount === targetHitCount) {
+            betIndex = i;
+            round = r;
+            break;
+        }
+    }
+    
+    if (!round || betIndex === -1) {
+        console.error('[stats] No bet found matching', targetHitCount, 'hits for selection:', selectedNumbers);
         return;
     }
+    
+    console.log('[stats] Found matching bet at index:', betIndex, 'bet number:', betIndex + 1);
 
     // Create modal background
     const modalBg = document.createElement('div');
@@ -383,7 +414,11 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
         color: '#fff'
     });
 
-    const dateStr = new Date(timestamp).toLocaleString();
+    const dateStr = new Date(round.time).toLocaleString();
+    
+    // Calculate bet number and bets ago from the index
+    const betNumber = betIndex + 1;
+    const betsAgo = state.currentHistory.length - betIndex;
     
     // Use the stored hit and miss data from history
     // round.hits = selected numbers that were drawn (GREEN)
@@ -416,7 +451,8 @@ function showBetResultModal(timestamp, selectedNumbers, hitCount) {
             ">×</button>
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
                 <h2 style="margin: 0 0 4px 0; color: #fff; font-size: 18px; font-weight: 600;">Bet Result</h2>
-                <p style="margin: 0; color: #fff; font-size: 11px;">${dateStr}</p>
+                <p style="margin: 0 0 2px 0; color: #74b9ff; font-size: 12px; font-weight: 600;">Bet #${betNumber} - ${betsAgo} Bets Ago</p>
+                <p style="margin: 0; color: #aaa; font-size: 11px;">${dateStr}</p>
             </div>
         </div>
         

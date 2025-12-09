@@ -11,7 +11,7 @@ export function createOverlay() {
     Object.assign(overlay.style, { position: 'fixed', top: '80px', right: '20px', width: '240px', backgroundColor: 'transparent', color: '#fff', padding: '0', borderRadius: '8px', zIndex: '999999', fontFamily: 'monospace', border: '1px solid #1a2c38', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', fontSize: '11px', display: 'block', overflow: 'visible' });
     overlay.innerHTML = `
         <div id="drag-handle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; user-select: none; background:#1a2c38; padding:8px 12px; border-top-left-radius:8px; border-top-right-radius:8px;">
-            <h3 id="mode-title" style="margin:0; color:#fff; font-weight:bold; pointer-events:none;">Tracker: 100</h3>
+            <h3 id="mode-title" style="margin:0; color:#fff; font-weight:bold; pointer-events:none;">Keno Stats Tracker</h3>
             <div style="display:flex; gap:10px; align-items:center;">
                 <span id="tracker-status" style="color:#f55; font-size:16px; pointer-events:none;">●</span>
                 <span id="close-overlay" style="cursor:pointer; font-weight:bold; color:#fff; font-size:14px;">✕</span>
@@ -19,13 +19,10 @@ export function createOverlay() {
         </div>
 
         <div id="keno-overlay-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px;">
-            <div style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
-                <span id="hot5-label" style="color:#ff7675; font-weight:600;">Hot 5</span>
-                <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
-                    <input type="checkbox" id="hot-mode-switch" style="opacity:0; width:0; height:0;">
-                    <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                    <span id="slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
-                </label>
+            <div style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                <span id="sample-label" style="color:#ff7675; font-weight:600; cursor:help;" title="Last 5 Bets">Sample Size</span>
+                <input type="number" id="sample-size-input" min="1" value="5"
+                    style="width:64px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
             </div>
 
             <div style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
@@ -59,10 +56,13 @@ export function createOverlay() {
                         style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     <button id="autoplay-btn" style="flex:1; background:#00b894; color:#000; border:none; padding:4px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Play</button>
                 </div>
-                <div style="display:flex; align-items:center; gap:5px;">
+                <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
                     <span style="color:#aaa; font-size:10px;">Predictions:</span>
                         <input type="number" id="autoplay-pred-count" min="1" max="10" value="3" 
                         style="width:48px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                </div>
+                <div id="autoplay-timer" style="color:#74b9ff; font-size:10px; text-align:center; display:none;">
+                    Timer: <span id="autoplay-timer-value">0:00</span>
                 </div>
             </div>
             
@@ -169,35 +169,23 @@ export function createOverlay() {
     const closeBtn = document.getElementById('close-overlay');
     if (closeBtn) closeBtn.addEventListener('click', ()=>{ state.isOverlayVisible=false; overlay.style.display='none'; });
 
-    const sliderDot = document.getElementById('slider-dot');
-    const title = document.getElementById('mode-title');
-    const hotSwitch = document.getElementById('hot-mode-switch');
-    if (hotSwitch) {
-        // initialize visual state
-            if (state.isHotMode) {
-            if (sliderDot) { sliderDot.style.transform = 'translateX(14px)'; sliderDot.style.backgroundColor = '#ff7675'; }
-            if (title) { title.innerText = 'Tracker: Hot 5'; title.style.color = '#ff7675'; }
-            updateHeatmap();
+    const sampleInput = document.getElementById('sample-size-input');
+    const sampleLabel = document.getElementById('sample-label');
+    if (sampleInput) {
+        sampleInput.value = state.sampleSize || 5;
+        sampleInput.max = Math.max(state.currentHistory.length, 1);
+        if (sampleLabel) {
+            sampleLabel.title = `Last ${sampleInput.value} Bets`;
         }
-        hotSwitch.checked = !!state.isHotMode;
-        hotSwitch.addEventListener('change', (e)=>{
-            state.isHotMode = e.target.checked;
-            if (sliderDot) {
-                sliderDot.style.transform = state.isHotMode ? 'translateX(14px)' : 'translateX(0px)';
-                sliderDot.style.backgroundColor = state.isHotMode ? '#ff7675' : 'white';
-            }
-            // update track background for clearer visual cue
-            try {
-                const parentLabel = hotSwitch.closest('label');
-                if (parentLabel) {
-                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'slider-dot');
-                    if (track) track.style.backgroundColor = state.isHotMode ? '#333' : '#444';
-                }
-            } catch (err) {}
-            if (title) {
-                title.innerText = state.isHotMode ? 'Tracker: Hot 5' : 'Tracker: 100';
-                // default title is white; when hot use the red accent
-                title.style.color = state.isHotMode ? '#ff7675' : '#ffffff';
+        sampleInput.addEventListener('input', ()=>{
+            let val = parseInt(sampleInput.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            const max = Math.max(state.currentHistory.length, 1);
+            if (val > max) val = max;
+            state.sampleSize = val;
+            sampleInput.value = val;
+            if (sampleLabel) {
+                sampleLabel.title = `Last ${val} Bets`;
             }
             updateHeatmap();
             if (state.isPredictMode) calculatePrediction();
@@ -242,8 +230,23 @@ export function createOverlay() {
     if (apBtn) apBtn.addEventListener('click', ()=>{
         const roundsInput = document.getElementById('autoplay-rounds');
         const roundsToPlay = parseInt(roundsInput.value) || 5;
-        if (state.isAutoPlayMode) { state.isAutoPlayMode = false; state.autoPlayRoundsRemaining = 0; }
-        else { state.isAutoPlayMode = true; state.autoPlayRoundsRemaining = roundsToPlay; const rawPredCount = parseInt(document.getElementById('autoplay-pred-count').value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount,1),40); console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount); autoPlayPlaceBet(); }
+        if (state.isAutoPlayMode) { 
+            state.isAutoPlayMode = false; 
+            state.autoPlayRoundsRemaining = 0;
+            if (state.autoPlayStartTime) {
+                state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
+            }
+        }
+        else { 
+            state.isAutoPlayMode = true; 
+            state.autoPlayRoundsRemaining = roundsToPlay; 
+            state.autoPlayStartTime = Date.now();
+            state.autoPlayElapsedTime = 0;
+            const rawPredCount = parseInt(document.getElementById('autoplay-pred-count').value) || 3; 
+            state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount,1),40); 
+            console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount); 
+            autoPlayPlaceBet(); 
+        }
         updateAutoPlayUI();
     });
     const apPredCount = document.getElementById('autoplay-pred-count');

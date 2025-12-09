@@ -19,7 +19,8 @@ function isTileSelected(tile) {
 
 export function getTopPredictions(count) {
     const counts = {};
-    let sample = state.isHotMode ? state.currentHistory.slice(-5) : state.currentHistory;
+    const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
     sample.forEach(round => {
         const allHits = [...round.hits, ...round.misses];
         allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
@@ -44,18 +45,41 @@ export function generateRandomPrediction(count) {
 export function updateAutoPlayUI() {
     const apStatus = document.getElementById('autoplay-status');
     const apBtn = document.getElementById('autoplay-btn');
+    const timerDiv = document.getElementById('autoplay-timer');
+    const timerValue = document.getElementById('autoplay-timer-value');
+    
     if (apStatus) {
         if (state.isAutoPlayMode) {
             apStatus.innerText = `Playing: ${state.autoPlayRoundsRemaining}`;
             apStatus.style.color = '#74b9ff';
         } else {
-            apStatus.innerText = 'Ready';
-            apStatus.style.color = '#aaa';
+            if (state.autoPlayElapsedTime > 0) {
+                const mins = Math.floor(state.autoPlayElapsedTime / 60);
+                const secs = state.autoPlayElapsedTime % 60;
+                apStatus.innerText = `Done (${mins}:${secs.toString().padStart(2, '0')})`;
+                apStatus.style.color = '#00b894';
+            } else {
+                apStatus.innerText = 'Ready';
+                apStatus.style.color = '#aaa';
+            }
         }
     }
     if (apBtn) {
         apBtn.innerText = state.isAutoPlayMode ? 'Stop' : 'Play';
         apBtn.style.backgroundColor = state.isAutoPlayMode ? '#ff7675' : '#00b894';
+    }
+    if (timerDiv) {
+        if (state.isAutoPlayMode) {
+            timerDiv.style.display = 'block';
+            if (state.autoPlayStartTime && timerValue) {
+                const elapsed = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                timerValue.innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+        } else {
+            timerDiv.style.display = 'none';
+        }
     }
 }
 
@@ -64,7 +88,8 @@ export function calculatePrediction(countOverride) {
     const count = parseInt((input && input.value) || countOverride) || 3;
     if (state.currentHistory.length === 0) return [];
     const counts = {};
-    let sample = state.isHotMode ? state.currentHistory.slice(-5) : state.currentHistory;
+    const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
     sample.forEach(round => {
         const allHits = [...round.hits, ...round.misses];
         allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });

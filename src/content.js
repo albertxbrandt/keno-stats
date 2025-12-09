@@ -45,8 +45,10 @@ window.addEventListener('message', (event) => {
 				autoPlayPlaceBet();
 			} else {
 				state.isAutoPlayMode=false;
+				if (state.autoPlayStartTime) {
+					state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
+				}
 				try { updateAutoPlayUI(); } catch (e) {}
-				const apStatus = document.getElementById('autoplay-status'); if (apStatus) apStatus.innerText='Finished!';
 				console.log('[AutoPlay] Finished all rounds');
 			}
 		},1500);
@@ -61,6 +63,12 @@ loadHistory().then(() => {
 	try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
 	setTimeout(updateHeatmap, 2000);
 	setInterval(injectFooterButton, 1000);
+	// Update autoplay timer every second while active
+	setInterval(() => {
+		if (state.isAutoPlayMode) {
+			try { updateAutoPlayUI(); } catch (e) {}
+		}
+	}, 1000);
 	// Initialize stats observer for multiplier bar
 	console.warn('[CONTENT] About to call initStatsObserver in 3s');
 	setTimeout(() => {
