@@ -2,6 +2,39 @@
 import { state } from './state.js';
 import { getDrawn } from './storage.js';
 
+// Cache for pattern analysis results
+const patternCache = {
+  data: new Map(), // key: `${patternSize}-${historyLength}` -> { patterns, stats, timestamp }
+  maxAge: 300000, // 5 minutes
+  
+  get(patternSize, historyLength) {
+    const key = `${patternSize}-${historyLength}`;
+    const cached = this.data.get(key);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.maxAge) {
+      console.log('[patterns] Using cached data for size', patternSize);
+      return cached;
+    }
+    return null;
+  },
+  
+  set(patternSize, historyLength, patterns, stats) {
+    const key = `${patternSize}-${historyLength}`;
+    this.data.set(key, {
+      patterns,
+      stats,
+      timestamp: Date.now()
+    });
+  },
+  
+  clear() {
+    this.data.clear();
+  }
+};
+
+// Clear cache when history changes (expose globally)
+window.__keno_clearPatternCache = () => patternCache.clear();
+
 /**
  * Generate all combinations of size k from an array
  */
@@ -30,14 +63,26 @@ function getCombinations(arr, k) {
  * of a specific size that appear together
  * @param {number} patternSize - Size of pattern to find (3-10)
  * @param {number} topN - How many top patterns to return (default 10)
+ * @param {boolean} useCache - Whether to use cached results (default true)
  * @returns {Array<Object>} Array of pattern objects with numbers, frequency, and occurrences
  */
-export function findCommonPatterns(patternSize, topN = 10) {
+export function findCommonPatterns(patternSize, topN = 10, useCache = true) {
   if (!patternSize || patternSize < 3 || patternSize > 10) {
     console.warn('[patterns] Invalid pattern size:', patternSize);
     return [];
   }
 
+  const historyLength = state.currentHistory.length;
+  
+  // Check cache first
+  if (useCache) {
+    const cached = patternCache.get(patternSize, historyLength);
+    if (cached && cached.patterns) {
+      return cached.patterns.slice(0, topN);
+    }
+  }
+
+  console.log('[patterns] Computing patterns for size', patternSize);
   const patternCounts = {}; // Map of pattern key -> { numbers: [], count: number, occurrences: [] }
 
   // Analyze history
@@ -65,12 +110,22 @@ export function findCommonPatterns(patternSize, topN = 10) {
     });
   });
 
-  // Sort by frequency and return top N
+  // Sort by frequency
   const sortedPatterns = Object.values(patternCounts)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, topN);
+    .sort((a, b) => b.count - a.count);
 
-  return sortedPatterns;
+  // Cache the full result
+  if (useCache) {
+    const stats = {
+      totalCombinations: sortedPatterns.length,
+      avgAppearance: sortedPatterns.length > 0
+        ? (sortedPatterns.reduce((sum, p) => sum + p.count, 0) / sortedPatterns.length).toFixed(1)
+        : 0
+    };
+    patternCache.set(patternSize, historyLength, sortedPatterns, stats);
+  }
+
+  return sortedPatterns.slice(0, topN);
 }
 
 /**
@@ -81,7 +136,16 @@ export function findCommonPatterns(patternSize, topN = 10) {
 export function getPatternStats(patternSize) {
   if (state.currentHistory.length === 0) return { totalCombinations: 0, avgAppearance: 0 };
 
-  const patterns = findCommonPatterns(patternSize, 1000); // Get all patterns
+  const historyLength = state.currentHistory.length;
+  
+  // Check cache first
+  const cached = patternCache.get(patternSize, historyLength);
+  if (cached && cached.stats) {
+    return cached.stats;
+  }
+
+  // Trigger computation which will cache the results
+  const patterns = findCommonPatterns(patternSize, 1000);
   const totalCombinations = patterns.length;
   const avgAppearance = patterns.length > 0
     ? (patterns.reduce((sum, p) => sum + p.count, 0) / patterns.length).toFixed(1)
@@ -95,14 +159,77 @@ export function getPatternStats(patternSize) {
  * @param {number} patternSize - The size of patterns to find (3-10)
  */
 export function showPatternAnalysisModal(patternSize) {
-  const patterns = findCommonPatterns(patternSize, 15);
-  const stats = getPatternStats(patternSize);
+  // Show loading modal first
+  showLoadingModal();
+  
+  // Use setTimeout to allow the loading modal to render
+  setTimeout(() => {
+    try {
+      const patterns = findCommonPatterns(patternSize, 15);
+      const stats = getPatternStats(patternSize);
 
-  if (patterns.length === 0) {
-    alert(`No pattern data available.\nPlay more rounds to analyze patterns of size ${patternSize}.`);
-    return;
-  }
+      // Remove loading modal
+      const loadingModal = document.getElementById('keno-pattern-loading');
+      if (loadingModal) loadingModal.remove();
 
+      if (patterns.length === 0) {
+        alert(`No pattern data available.\nPlay more rounds to analyze patterns of size ${patternSize}.`);
+        return;
+      }
+
+      // Show results modal
+      showResultsModal(patternSize, patterns, stats);
+    } catch (error) {
+      console.error('[patterns] Error analyzing patterns:', error);
+      const loadingModal = document.getElementById('keno-pattern-loading');
+      if (loadingModal) loadingModal.remove();
+      alert('Error analyzing patterns. Please try again.');
+    }
+  }, 100);
+}
+
+/**
+ * Show loading modal
+ */
+function showLoadingModal() {
+  const existingLoading = document.getElementById('keno-pattern-loading');
+  if (existingLoading) existingLoading.remove();
+
+  const loadingModal = document.createElement('div');
+  loadingModal.id = 'keno-pattern-loading';
+  Object.assign(loadingModal.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '1000001',
+    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+  });
+
+  loadingModal.innerHTML = `
+    <div style="background: #1a2c38; padding: 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+      <div style="display: inline-block; width: 50px; height: 50px; border: 4px solid #333; border-top-color: #74b9ff; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <div style="margin-top: 20px; color: #74b9ff; font-size: 16px; font-weight: bold;">Analyzing Patterns...</div>
+      <style>
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      </style>
+    </div>
+  `;
+
+  document.body.appendChild(loadingModal);
+}
+
+/**
+ * Show results modal with patterns
+ */
+function showResultsModal(patternSize, patterns, stats) {
   // Remove existing modal if any
   const existingModal = document.getElementById('keno-pattern-modal');
   if (existingModal) existingModal.remove();

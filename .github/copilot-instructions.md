@@ -136,11 +136,25 @@ const topPicks = sorted.slice(0, count).map((entry) => parseInt(entry[0]));
 
 Analyzes historical data to find number combinations of a specific size (3-10) that frequently appear together in drawn numbers:
 
-- **`findCommonPatterns(patternSize, topN)`**: Generates all combinations of patternSize numbers from drawn results, ranks by frequency
+- **`findCommonPatterns(patternSize, topN, useCache)`**: Generates all combinations of patternSize numbers from drawn results, ranks by frequency; supports caching to improve performance on large datasets
 - **`getPatternStats(patternSize)`**: Calculates total unique patterns and average appearance rate for given size
-- **`showPatternAnalysisModal(patternSize)`**: Displays modal UI with top 15 patterns and statistics
+- **`showPatternAnalysisModal(patternSize)`**: Displays loading modal, computes patterns asynchronously via setTimeout, then shows results modal with top 15 patterns and statistics
+- **`showLoadingModal()`**: Creates animated spinner modal to provide UI feedback during computation
+- **`showResultsModal(patternSize, patterns, stats)`**: Displays pattern cards with occurrence dropdowns and click-to-select functionality
 - Uses combination algorithm to find all possible N-number sets that appeared together in the 20 drawn numbers
 - Example: Size 5 finds which 5-number combinations (like [3, 12, 18, 25, 37]) appeared together most often
+
+#### Pattern Caching System
+
+Pattern analysis uses a Map-based caching system to avoid recomputing expensive combinatorial calculations:
+
+- **Cache key format**: `${patternSize}-${historyLength}` ensures cache invalidates when history changes
+- **Cache TTL**: 5 minutes (300,000ms) - results expire after this duration to balance freshness vs performance
+- **Cache structure**: `patternCache` Map with methods: `get(key)`, `set(key, value)`, `clear()`
+- **Cache invalidation**: Automatically cleared via `window.__keno_clearPatternCache()` when `saveRound()` adds new data
+- **Performance**: Cache hit logs "[patterns] Using cached data"; miss triggers computation and stores result
+- **Global hook**: `window.__keno_clearPatternCache` exposed for manual cache clearing from console/UI
+- **Async UI**: Loading modal renders via setTimeout(100ms) to allow spinner display before blocking computation starts
 
 ## Selector & DOM Queries
 
@@ -194,6 +208,7 @@ Footer button injection point: `document.querySelector('.game-footer .stack')`
 8. **Auto-play simulation**: Verify prediction algorithm ranks numbers correctly and round count decrements properly
 9. **Stats observer**: Check console for `[STATS] initStatsObserver called` and multiplier bar updates on tile clicks
 10. **Module isolation**: Import errors show as "Cannot find module" - ensure all imports use relative paths (`./module.js`)
+11. **Pattern caching**: Check console for "[patterns] Using cached data" on repeated queries; verify `window.__keno_clearPatternCache()` exists
 
 ## Common Pitfalls & Anti-Patterns
 
@@ -206,6 +221,9 @@ Footer button injection point: `document.querySelector('.game-footer .stack')`
 - **Build after changes**: Must run `npm run build` after any `src/` file edits; browser only loads `dist/content.bundle.js`
 - **State mutations**: Directly mutate `state` object properties; avoid creating new objects (breaks references)
 - **Window hooks**: Functions exposed via `window.__keno_*` must be set in module's top-level scope, not inside functions
+- **Observer timing**: `initStatsObserver()` retries if tiles container not found; don't call before DOM ready
+- **Round data format**: New rounds need `drawn` and `selected` arrays for stats calculations; old format only had `hits`/`misses`
+- **Pattern cache invalidation**: Always call `window.__keno_clearPatternCache()` in `saveRound()` to prevent stale data
 - **Observer timing**: `initStatsObserver()` retries if tiles container not found; don't call before DOM ready
 - **Round data format**: New rounds need `drawn` and `selected` arrays for stats calculations; old format only had `hits`/`misses`
 

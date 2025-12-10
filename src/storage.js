@@ -90,6 +90,10 @@ export function saveRound(round) {
             if (window.__keno_updateHeatmap) {
                 try { window.__keno_updateHeatmap(); } catch (e) { console.warn('[storage] updateHeatmap failed', e); }
             }
+            // Clear pattern cache when new data arrives
+            if (window.__keno_clearPatternCache) {
+                try { window.__keno_clearPatternCache(); } catch (e) { console.warn('[storage] clearPatternCache failed', e); }
+            }
             return history;
         });
     });
