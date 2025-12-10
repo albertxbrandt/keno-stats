@@ -5,6 +5,7 @@ import { loadHistory, updateHistoryUI } from './storage.js';
 import { calculatePrediction, autoPlayPlaceBet, updateAutoPlayUI } from './autoplay.js';
 import { updateHeatmap } from './heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
+import './patterns.js'; // Import pattern analysis module (sets up window hooks)
 
 console.log('Keno Tracker loaded');
 
@@ -21,7 +22,7 @@ window.addEventListener('message', (event) => {
 	const hits = []; const misses = [];
 	selected.forEach(num => { if (drawn.includes(num)) hits.push(num); });
 	drawn.forEach(num => { if (!selected.includes(num)) misses.push(num); });
-	hits.sort((a,b)=>a-b); misses.sort((a,b)=>a-b);
+	hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 	const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 	if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
 	console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses });
@@ -39,19 +40,19 @@ window.addEventListener('message', (event) => {
 		// update UI immediately so Playing: <num> reflects remaining rounds
 		try { updateAutoPlayUI(); } catch (e) { console.warn('[content] updateAutoPlayUI failed', e); }
 		// schedule next bet or finish
-		setTimeout(()=>{
+		setTimeout(() => {
 			if (state.autoPlayRoundsRemaining > 0) {
 				console.log('[AutoPlay] Rounds remaining, placing next bet:', state.autoPlayRoundsRemaining);
 				autoPlayPlaceBet();
 			} else {
-				state.isAutoPlayMode=false;
+				state.isAutoPlayMode = false;
 				if (state.autoPlayStartTime) {
 					state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
 				}
-				try { updateAutoPlayUI(); } catch (e) {}
+				try { updateAutoPlayUI(); } catch (e) { }
 				console.log('[AutoPlay] Finished all rounds');
 			}
-		},1500);
+		}, 1500);
 	}
 });
 
@@ -66,7 +67,7 @@ loadHistory().then(() => {
 	// Update autoplay timer every second while active
 	setInterval(() => {
 		if (state.isAutoPlayMode) {
-			try { updateAutoPlayUI(); } catch (e) {}
+			try { updateAutoPlayUI(); } catch (e) { }
 		}
 	}, 1000);
 	// Initialize stats observer for multiplier bar

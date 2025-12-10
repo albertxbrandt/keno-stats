@@ -66,6 +66,19 @@ export function createOverlay() {
                 </div>
             </div>
             
+            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+                <div style="margin-bottom:8px;">
+                    <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
+                </div>
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <span style="color:#aaa; font-size:11px; white-space:nowrap;">Size:</span>
+                    <input type="number" id="pattern-target" min="3" max="10" value="5" placeholder="3-10"
+                        style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                    <button id="analyze-pattern-btn" style="flex:1; background:#ffd700; color:#222; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Analyze</button>
+                </div>
+                <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
+            </div>
+            
             <div style="border-top:1px solid #444; padding-top:5px;">
                 HISTORY <button id="clear-btn" style="float:right; background:none; border:none; color:#f55; cursor:pointer;">Reset</button>
                 <div id="history-list" style="height:150px; overflow-y:auto; margin-top:5px; border:1px solid #333; background:#0f212e; padding:5px;"></div>
@@ -167,7 +180,7 @@ export function createOverlay() {
         document.addEventListener('touchend', () => { isDragging = false; overlay.style.transition = ''; });
     }
     const closeBtn = document.getElementById('close-overlay');
-    if (closeBtn) closeBtn.addEventListener('click', ()=>{ state.isOverlayVisible=false; overlay.style.display='none'; });
+    if (closeBtn) closeBtn.addEventListener('click', () => { state.isOverlayVisible = false; overlay.style.display = 'none'; });
 
     const sampleInput = document.getElementById('sample-size-input');
     const sampleLabel = document.getElementById('sample-label');
@@ -177,7 +190,7 @@ export function createOverlay() {
         if (sampleLabel) {
             sampleLabel.title = `Last ${sampleInput.value} Bets`;
         }
-        sampleInput.addEventListener('input', ()=>{
+        sampleInput.addEventListener('input', () => {
             let val = parseInt(sampleInput.value, 10);
             if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
@@ -201,7 +214,7 @@ export function createOverlay() {
             if (window.__keno_calculatePrediction) window.__keno_calculatePrediction();
         }
         predictSwitch.checked = !!state.isPredictMode;
-        predictSwitch.addEventListener('change', (e)=>{
+        predictSwitch.addEventListener('change', (e) => {
             state.isPredictMode = e.target.checked;
             if (pDot) {
                 pDot.style.transform = state.isPredictMode ? 'translateX(14px)' : 'translateX(0px)';
@@ -214,53 +227,76 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'predict-slider-dot');
                     if (track) track.style.backgroundColor = state.isPredictMode ? '#2a3b4a' : '#444';
                 }
-            } catch (err) {}
+            } catch (err) { }
             if (state.isPredictMode) { calculatePrediction(); }
             else { if (window.__keno_clearHighlight) window.__keno_clearHighlight(); }
         });
     }
 
     const predictCount = document.getElementById('predict-count');
-    if (predictCount) predictCount.addEventListener('change', ()=>{ if (state.isPredictMode) calculatePrediction(); });
+    if (predictCount) predictCount.addEventListener('change', () => { if (state.isPredictMode) calculatePrediction(); });
 
     const clearBtn = document.getElementById('clear-btn');
-    if (clearBtn) clearBtn.addEventListener('click', ()=>{ clearHistory().then(h=>{ updateHistoryUI(h); updateHeatmap(); if (window.__keno_clearHighlight) window.__keno_clearHighlight(); }); });
+    if (clearBtn) clearBtn.addEventListener('click', () => { clearHistory().then(h => { updateHistoryUI(h); updateHeatmap(); if (window.__keno_clearHighlight) window.__keno_clearHighlight(); }); });
 
     const apBtn = document.getElementById('autoplay-btn');
-    if (apBtn) apBtn.addEventListener('click', ()=>{
+    if (apBtn) apBtn.addEventListener('click', () => {
         const roundsInput = document.getElementById('autoplay-rounds');
         const roundsToPlay = parseInt(roundsInput.value) || 5;
-        if (state.isAutoPlayMode) { 
-            state.isAutoPlayMode = false; 
+        if (state.isAutoPlayMode) {
+            state.isAutoPlayMode = false;
             state.autoPlayRoundsRemaining = 0;
             if (state.autoPlayStartTime) {
                 state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
             }
         }
-        else { 
-            state.isAutoPlayMode = true; 
-            state.autoPlayRoundsRemaining = roundsToPlay; 
+        else {
+            state.isAutoPlayMode = true;
+            state.autoPlayRoundsRemaining = roundsToPlay;
             state.autoPlayStartTime = Date.now();
             state.autoPlayElapsedTime = 0;
-            const rawPredCount = parseInt(document.getElementById('autoplay-pred-count').value) || 3; 
-            state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount,1),40); 
-            console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount); 
-            autoPlayPlaceBet(); 
+            const rawPredCount = parseInt(document.getElementById('autoplay-pred-count').value) || 3;
+            state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount, 1), 40);
+            console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount);
+            autoPlayPlaceBet();
         }
         updateAutoPlayUI();
     });
     const apPredCount = document.getElementById('autoplay-pred-count');
-    if (apPredCount) apPredCount.addEventListener('change', ()=>{ const rawVal = parseInt(apPredCount.value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawVal,1),40); console.log('[AutoPlay] Prediction count updated to:', state.autoPlayPredictionCount); });
+    if (apPredCount) apPredCount.addEventListener('change', () => { const rawVal = parseInt(apPredCount.value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawVal, 1), 40); console.log('[AutoPlay] Prediction count updated to:', state.autoPlayPredictionCount); });
+
+    const analyzePatternBtn = document.getElementById('analyze-pattern-btn');
+    if (analyzePatternBtn) {
+        analyzePatternBtn.addEventListener('click', () => {
+            const targetInput = document.getElementById('pattern-target');
+            const patternSize = parseInt(targetInput.value);
+
+            if (isNaN(patternSize) || patternSize < 3 || patternSize > 10) {
+                alert('Please enter a valid pattern size between 3 and 10');
+                return;
+            }
+
+            if (state.currentHistory.length < 10) {
+                alert('Not enough history data. Play at least 10 rounds to analyze patterns.');
+                return;
+            }
+
+            // Call the pattern analysis function
+            if (window.__keno_showPatternAnalysis) {
+                window.__keno_showPatternAnalysis(patternSize);
+            }
+        });
+    }
 }
 
 // Try to inject footer button periodically (original behavior)
 export function injectFooterButton() {
     if (!window.location.href.includes('keno')) {
-        const existingBtn = document.getElementById('keno-toggle-btn'); if (existingBtn) existingBtn.remove(); const overlay = document.getElementById('keno-tracker-overlay'); if (overlay) overlay.style.display='none'; return;
+        const existingBtn = document.getElementById('keno-toggle-btn'); if (existingBtn) existingBtn.remove(); const overlay = document.getElementById('keno-tracker-overlay'); if (overlay) overlay.style.display = 'none'; return;
     }
     const footerStack = document.querySelector('.game-footer .stack');
     if (!footerStack || document.getElementById('keno-toggle-btn')) return;
-    const btn = document.createElement('div'); btn.id='keno-toggle-btn'; Object.assign(btn.style,{display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',padding:'0 10px',opacity:'0.7',transition:'opacity 0.2s'});
+    const btn = document.createElement('div'); btn.id = 'keno-toggle-btn'; Object.assign(btn.style, { display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: '0 10px', opacity: '0.7', transition: 'opacity 0.2s' });
     btn.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
             <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -269,8 +305,8 @@ export function injectFooterButton() {
         </svg>
         <span style="margin-left:5px; font-size:12px; font-weight:bold; color:#fff;">Tracker</span>
     `;
-    btn.addEventListener('mouseenter', ()=>btn.style.opacity='1'); btn.addEventListener('mouseleave', ()=>btn.style.opacity='0.7');
-    btn.addEventListener('click', ()=>{ const overlay = document.getElementById('keno-tracker-overlay'); if (overlay) { state.isOverlayVisible = !state.isOverlayVisible; overlay.style.display = state.isOverlayVisible ? 'block' : 'none'; }});
+    btn.addEventListener('mouseenter', () => btn.style.opacity = '1'); btn.addEventListener('mouseleave', () => btn.style.opacity = '0.7');
+    btn.addEventListener('click', () => { const overlay = document.getElementById('keno-tracker-overlay'); if (overlay) { state.isOverlayVisible = !state.isOverlayVisible; overlay.style.display = state.isOverlayVisible ? 'block' : 'none'; } });
     footerStack.insertBefore(btn, footerStack.firstChild);
 }
 

@@ -17,7 +17,12 @@ A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com
 - **Prediction Mode**: See top predicted numbers based on historical frequency
 - **Hot 5 Mode**: Analyze the last 5 games for recent trends
 - **Auto-Play**: Automatically place bets using prediction algorithms
-- **History Tracking**: Keep a record of your last 100 rounds with hit/miss analysis
+- **Pattern Analysis**: Find common N-number combinations (3-10) that appear together
+  - View occurrence history with timestamps
+  - Click patterns to auto-select those numbers on the board
+  - See detailed stats for each pattern
+- **History Tracking**: Keep unlimited record of rounds with hit/miss analysis
+- **Bet Book**: Export and analyze your complete betting history
 
 ## Installation
 
@@ -38,6 +43,7 @@ A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com
 ## How It Works
 
 The extension intercepts Keno game data from Stake.com and:
+
 1. Extracts drawn numbers and your selected numbers
 2. Records hits and misses in local storage
 3. Calculates frequency statistics for a heatmap
