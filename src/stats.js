@@ -1,5 +1,6 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
 import { state } from './state.js';
+import { getHits, getMisses, getDrawn, getSelected } from './storage.js';
 
 /**
  * Calculate stats for selected tiles count
@@ -38,8 +39,7 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
         
         if (selectedNumbers.length > 0) {
             // Compare current selection with the drawn numbers from this round
-            // Use 'drawn' if available (new format), fallback to 'hits' (old format)
-            const drawnNumbers = round.drawn || round.hits;
+            const drawnNumbers = getDrawn(round);
             const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
             hitCount = matchingNumbers.length;
             
@@ -52,7 +52,7 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
             }
         } else {
             // Fallback to old behavior if no specific numbers provided
-            hitCount = round.hits.length;
+            hitCount = getHits(round).length;
         }
         
         // Record this round for ALL hit counts from hitCount down to 0
@@ -93,7 +93,7 @@ export function formatTimeSince(selectedNumbers, targetHitCount) {
     // Find the most recent bet that matches the target hit count
     for (let i = state.currentHistory.length - 1; i >= 0; i--) {
         const round = state.currentHistory[i];
-        const drawnNumbers = round.drawn || round.hits;
+        const drawnNumbers = getDrawn(round);
         const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
         const hitCount = matchingNumbers.length;
         
@@ -365,7 +365,7 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
     // Search from newest to oldest
     for (let i = state.currentHistory.length - 1; i >= 0; i--) {
         const r = state.currentHistory[i];
-        const drawnNumbers = r.drawn || r.hits;
+        const drawnNumbers = getDrawn(r);
         const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
         const hitCount = matchingNumbers.length;
         
@@ -421,12 +421,12 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
     const betsAgo = state.currentHistory.length - betIndex;
     
     // Use the stored hit and miss data from history
-    // round.hits = selected numbers that were drawn (GREEN)
-    // round.misses = drawn numbers that were NOT selected (RED)
-    const hits = (round.hits || []).sort((a,b) => a-b);
-    const misses = (round.misses || []).sort((a,b) => a-b);
+    // hits = selected numbers that were drawn (GREEN)
+    // misses = drawn numbers that were NOT selected (RED)
+    const hits = getHits(round).sort((a,b) => a-b);
+    const misses = getMisses(round).sort((a,b) => a-b);
     
-    console.log('[stats] Modal data:', { hits, misses, drawn: round.drawn, selected: round.selected });
+    console.log('[stats] Modal data:', { hits, misses, drawn: getDrawn(round), selected: getSelected(round) });
 
     modal.innerHTML = `
         <div style="position: relative; margin-bottom: 14px;">

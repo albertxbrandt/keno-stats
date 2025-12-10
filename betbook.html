@@ -40,6 +40,22 @@
     .context-menu { position: fixed; background: #2f4553; border: 1px solid #444; border-radius: 6px; padding: 0.5em 0; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10000; display: none; }
     .context-menu-item { padding: 0.6em 1.2em; color: #fff; cursor: pointer; white-space: nowrap; }
     .context-menu-item:hover { background: #f44336; }
+    .settings-btn { background: #2f4553; color: #fff; border: none; padding: 0.7em 1.2em; border-radius: 6px; font-size: 1em; cursor: pointer; margin-bottom: 1em; margin-left: 1em; }
+    .settings-btn:hover { background: #3a5361; }
+    .settings-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
+    .settings-content { background: #213743; border-radius: 12px; padding: 2em; max-width: 500px; width: 90%; border: 2px solid #0f212e; }
+    .settings-title { font-size: 1.5em; font-weight: bold; margin-bottom: 1em; color: #fff; }
+    .settings-close { background: #f44336; color: #fff; border: none; padding: 0.5em 1em; border-radius: 6px; cursor: pointer; margin-top: 1em; }
+    .settings-close:hover { background: #d32f2f; }
+    .column-toggle { margin: 0.5em 0; display: flex; align-items: center; color: #fff; }
+    .column-toggle input { margin-right: 0.5em; cursor: pointer; }
+    .column-toggle label { cursor: pointer; user-select: none; }
+    .hidden-column { display: none !important; }
+    .autocomplete-container { position: relative; }
+    .autocomplete-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #2f4553; border: 1px solid #444; border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; margin-top: 2px; }
+    .autocomplete-item { padding: 0.6em 1em; color: #fff; cursor: pointer; border-bottom: 1px solid #333; }
+    .autocomplete-item:hover, .autocomplete-item.selected { background: #3a5361; }
+    .autocomplete-item:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -49,15 +65,24 @@
       <div class="left-group">
         <button class="upload-btn" id="uploadBtn">Import Data</button>
         <button class="export-btn" id="exportBtn">Export Data</button>
+        <button class="settings-btn" id="settingsBtn">⚙️ Settings</button>
       </div>
       <button class="delete-btn" id="deleteBtn">Delete All Data</button>
     </div>
     <div class="total-count" id="totalCount">Total Bets: 0</div>
-    <input class="search-bar" type="text" id="searchInput" placeholder="Search by number, date, or result...">
+    <div class="autocomplete-container">
+      <input class="search-bar" type="text" id="searchInput" placeholder="Search: text or field:value (e.g., amount:1500.00 currency:gold risk:high)">
+      <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+    </div>
     <table id="betTable">
       <thead>
         <tr>
           <th id="sortDate">Date <span class="sort-arrow active">▼</span></th>
+          <th id="sortAmount">Amount <span class="sort-arrow">▼</span></th>
+          <th id="sortPayout">Payout <span class="sort-arrow">▼</span></th>
+          <th id="sortMultiplier">Multiplier <span class="sort-arrow">▼</span></th>
+          <th id="sortCurrency">Currency <span class="sort-arrow">▼</span></th>
+          <th id="sortRisk">Risk <span class="sort-arrow">▼</span></th>
           <th id="sortHits">Hits <span class="sort-arrow">▼</span></th>
           <th id="sortMisses">Misses <span class="sort-arrow">▼</span></th>
         </tr>
@@ -74,6 +99,44 @@
   </div>
   <div class="context-menu" id="contextMenu">
     <div class="context-menu-item" id="deleteMenuItem">Delete Bet</div>
+  </div>
+  <div class="settings-modal" id="settingsModal">
+    <div class="settings-content">
+      <div class="settings-title">Column Visibility</div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-date" checked>
+        <label for="toggle-date">Date</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-amount" checked>
+        <label for="toggle-amount">Amount</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-payout" checked>
+        <label for="toggle-payout">Payout</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-multiplier" checked>
+        <label for="toggle-multiplier">Multiplier</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-currency" checked>
+        <label for="toggle-currency">Currency</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-risk" checked>
+        <label for="toggle-risk">Risk</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-hits" checked>
+        <label for="toggle-hits">Hits</label>
+      </div>
+      <div class="column-toggle">
+        <input type="checkbox" id="toggle-misses" checked>
+        <label for="toggle-misses">Misses</label>
+      </div>
+      <button class="settings-close" id="settingsClose">Close</button>
+    </div>
   </div>
   <input type="file" id="fileInput" style="display:none" accept=".json,.csv">
   <script src="betbook.js"></script>

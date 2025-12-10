@@ -1,5 +1,6 @@
 // src/heatmap.js
 import { state } from './state.js';
+import { getHits, getMisses } from './storage.js';
 
 export function highlightRound(round) {
     const container = document.querySelector('div[data-testid="keno-tiles"]');
@@ -13,12 +14,14 @@ export function highlightRound(round) {
             tile.style.boxShadow = "";
             tile.style.transform = "";
         }
-        if (round.hits.includes(num)) {
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        if (hits.includes(num)) {
             tile.style.boxShadow = "inset 0 0 0 4px #00b894";
             tile.style.transition = "box-shadow 0.1s";
             tile.style.transform = "scale(1.05)";
             tile.style.zIndex = "10";
-        } else if (round.misses.includes(num)) {
+        } else if (misses.includes(num)) {
             tile.style.boxShadow = "inset 0 0 0 4px #ff7675";
             tile.style.transition = "box-shadow 0.1s";
         } else {
@@ -74,7 +77,9 @@ export function updateHeatmap() {
     const counts = {};
     const totalGames = sample.length;
     sample.forEach(round => {
-        const allDrawn = [...round.hits, ...round.misses];
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allDrawn = [...hits, ...misses];
         allDrawn.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
     });
     const container = document.querySelector('div[data-testid="keno-tiles"]');

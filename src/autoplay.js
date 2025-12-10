@@ -1,6 +1,6 @@
 // src/autoplay.js
 import { state } from './state.js';
-import { saveRound } from './storage.js';
+import { saveRound, getHits, getMisses } from './storage.js';
 import { simulatePointerClick, findAndClickPlayButton } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 
@@ -22,7 +22,9 @@ export function getTopPredictions(count) {
     const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     sample.forEach(round => {
-        const allHits = [...round.hits, ...round.misses];
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allHits = [...hits, ...misses];
         allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
     });
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
@@ -91,7 +93,9 @@ export function calculatePrediction(countOverride) {
     const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     sample.forEach(round => {
-        const allHits = [...round.hits, ...round.misses];
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allHits = [...hits, ...misses];
         allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
     });
     const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);

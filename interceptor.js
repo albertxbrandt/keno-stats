@@ -53,10 +53,7 @@ if (!window.kenoInterceptorActive) {
                     
                     window.postMessage({
                         type: "KENO_DATA_FROM_PAGE",
-                        payload: {
-                            drawnNumbers: kenoData.state.drawnNumbers,
-                            selectedNumbers: kenoData.state.selectedNumbers
-                        }
+                        payload: kenoData // Send full kenoBet object
                     }, "*");
                 }
 

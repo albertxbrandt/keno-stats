@@ -15,8 +15,8 @@ window.addEventListener('message', (event) => {
 	const statusDot = document.getElementById('tracker-status');
 	if (statusDot) { statusDot.style.color = '#00b894'; statusDot.style.textShadow = '0 0 5px #00b894'; }
 	const data = event.data.payload || {};
-	const rawDrawn = data.drawnNumbers || [];
-	const rawSelected = data.selectedNumbers || [];
+	const rawDrawn = data.state?.drawnNumbers || [];
+	const rawSelected = data.state?.selectedNumbers || [];
 	const drawn = rawDrawn.map(n => n + 1);
 	const selected = rawSelected.map(n => n + 1);
 	const hits = []; const misses = [];
@@ -25,9 +25,23 @@ window.addEventListener('message', (event) => {
 	hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 	const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 	if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
-	console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses });
-	// Save - include drawn numbers and selected for future stats calculations
-	import('./storage.js').then(mod => mod.saveRound({ hits, misses, drawn, selected, time: Date.now() }));
+	console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses, fullData: data });
+	// Save full kenoBet structure - preserve all fields except user
+	const { user, state: originalState, ...kenoBetData } = data;
+	const betData = {
+		id: data.id,
+		kenoBet: {
+			...kenoBetData, // Spread all fields except user and state
+			state: {
+				...(originalState || {}), // Preserve all original state fields
+				drawnNumbers: drawn,
+				selectedNumbers: selected
+			}
+		},
+		time: Date.now()
+	};
+	console.log('[KENO] Saving bet data:', betData);
+	import('./storage.js').then(mod => mod.saveRound(betData));
 	// Update stats after new round
 	setTimeout(() => {
 		try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
