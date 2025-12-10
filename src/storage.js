@@ -16,7 +16,7 @@ export function getHits(bet) {
     if (bet.kenoBet && bet.kenoBet.state) {
         const drawn = bet.kenoBet.state.drawnNumbers || [];
         const selected = bet.kenoBet.state.selectedNumbers || [];
-        return selected.filter(num => drawn.includes(num)).sort((a,b) => a-b);
+        return selected.filter(num => drawn.includes(num)).sort((a, b) => a - b);
     }
     return [];
 }
@@ -34,7 +34,7 @@ export function getMisses(bet) {
     if (bet.kenoBet && bet.kenoBet.state) {
         const drawn = bet.kenoBet.state.drawnNumbers || [];
         const selected = bet.kenoBet.state.selectedNumbers || [];
-        return drawn.filter(num => !selected.includes(num)).sort((a,b) => a-b);
+        return drawn.filter(num => !selected.includes(num)).sort((a, b) => a - b);
     }
     return [];
 }
@@ -48,7 +48,7 @@ export function getDrawn(bet) {
     if (!bet) return [];
     // Old format
     if (bet.drawn) return bet.drawn;
-    if (bet.hits && bet.misses) return [...bet.hits, ...bet.misses].sort((a,b) => a-b);
+    if (bet.hits && bet.misses) return [...bet.hits, ...bet.misses].sort((a, b) => a - b);
     // New format
     if (bet.kenoBet && bet.kenoBet.state && bet.kenoBet.state.drawnNumbers) {
         return bet.kenoBet.state.drawnNumbers;
@@ -117,23 +117,23 @@ export function updateHistoryUI(history) {
     const list = document.getElementById('history-list');
     if (!list) return;
     list.innerHTML = '';
-    
+
     // Update sample size input max value
     const sampleInput = document.getElementById('sample-size-input');
     if (sampleInput) {
         sampleInput.max = Math.max(history.length, 1);
     }
-    
+
     history.slice().reverse().forEach((round, i) => {
         const div = document.createElement('div');
         div.style.borderBottom = '1px solid #333';
         div.style.padding = '4px 0';
         div.style.cursor = 'pointer';
-        
+
         // Calculate hits and misses from the new data structure
         const hits = getHits(round);
         const misses = getMisses(round);
-        
+
         div.addEventListener('mouseenter', () => {
             // visually highlight the hovered history entry
             div.style.backgroundColor = '#13313b';

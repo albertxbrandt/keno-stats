@@ -6,18 +6,18 @@ import { getDrawn } from './storage.js';
 const patternCache = {
   data: new Map(), // key: `${patternSize}-${historyLength}` -> { patterns, stats, timestamp }
   maxAge: 300000, // 5 minutes
-  
+
   get(patternSize, historyLength) {
     const key = `${patternSize}-${historyLength}`;
     const cached = this.data.get(key);
-    
+
     if (cached && (Date.now() - cached.timestamp) < this.maxAge) {
       console.log('[patterns] Using cached data for size', patternSize);
       return cached;
     }
     return null;
   },
-  
+
   set(patternSize, historyLength, patterns, stats) {
     const key = `${patternSize}-${historyLength}`;
     this.data.set(key, {
@@ -26,7 +26,7 @@ const patternCache = {
       timestamp: Date.now()
     });
   },
-  
+
   clear() {
     this.data.clear();
   }
@@ -47,14 +47,14 @@ export function savePattern(numbers, name = '') {
   return storageApi.storage.local.get('savedPatterns').then(res => {
     const savedPatterns = res.savedPatterns || [];
     const patternName = name || `Pattern ${savedPatterns.length + 1}`;
-    
+
     savedPatterns.push({
       id: Date.now(),
       numbers: numbers.sort((a, b) => a - b),
       name: patternName,
       createdAt: Date.now()
     });
-    
+
     return storageApi.storage.local.set({ savedPatterns }).then(() => savedPatterns);
   });
 }
@@ -120,7 +120,7 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
 
   const historyLength = state.currentHistory.length;
   const effectiveSampleSize = sampleSize > 0 ? Math.min(sampleSize, historyLength) : historyLength;
-  
+
   // Check cache first (cache key includes sample size)
   const cacheKey = `${patternSize}-${historyLength}-${effectiveSampleSize}`;
   if (useCache) {
@@ -135,10 +135,10 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
   const patternCounts = {}; // Map of pattern key -> { numbers: [], count: number, occurrences: [] }
 
   // Get the sample of history to analyze
-  const historyToAnalyze = effectiveSampleSize > 0 
+  const historyToAnalyze = effectiveSampleSize > 0
     ? state.currentHistory.slice(-effectiveSampleSize)
     : state.currentHistory;
-  
+
   const startIndex = historyLength - historyToAnalyze.length;
 
   // Analyze history
@@ -177,7 +177,7 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
       // Calculate average gap between occurrences
       const gaps = [];
       for (let i = 1; i < pattern.occurrences.length; i++) {
-        gaps.push(pattern.occurrences[i].roundIndex - pattern.occurrences[i-1].roundIndex);
+        gaps.push(pattern.occurrences[i].roundIndex - pattern.occurrences[i - 1].roundIndex);
       }
       pattern.avgGap = gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length;
       pattern.hotness = pattern.avgGap; // Lower is hotter
@@ -185,7 +185,7 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
       pattern.avgGap = historyLength;
       pattern.hotness = historyLength;
     }
-    
+
     // Last occurrence round index for recency sorting
     pattern.lastOccurrenceIndex = pattern.occurrences[pattern.occurrences.length - 1].roundIndex;
   });
@@ -221,7 +221,7 @@ export function getPatternStats(patternSize, sampleSize = 0) {
   const historyLength = state.currentHistory.length;
   const effectiveSampleSize = sampleSize > 0 ? Math.min(sampleSize, historyLength) : historyLength;
   const cacheKey = `${patternSize}-${historyLength}-${effectiveSampleSize}`;
-  
+
   // Check cache first
   const cached = patternCache.data.get(cacheKey);
   if (cached && cached.stats && (Date.now() - cached.timestamp) < patternCache.maxAge) {
@@ -247,12 +247,12 @@ export function getPatternStats(patternSize, sampleSize = 0) {
 export function showPatternAnalysisModal(patternSize, sortBy = 'frequency', sampleSize = 0) {
   // Show loading modal first
   showLoadingModal();
-  
+
   // Use setTimeout to allow the loading modal to render
   setTimeout(() => {
     try {
       let patterns = findCommonPatterns(patternSize, 100, true, sampleSize);
-      
+
       // Apply sorting
       if (sortBy === 'recent') {
         patterns.sort((a, b) => b.lastOccurrenceIndex - a.lastOccurrenceIndex);
@@ -260,7 +260,7 @@ export function showPatternAnalysisModal(patternSize, sortBy = 'frequency', samp
         patterns.sort((a, b) => a.hotness - b.hotness);
       }
       // Default 'frequency' is already sorted by count
-      
+
       patterns = patterns.slice(0, 15);
       const stats = getPatternStats(patternSize, sampleSize);
 
@@ -372,7 +372,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
   // Build content HTML
   const totalHistory = state.currentHistory.length;
   const analyzedCount = sampleSize > 0 ? Math.min(sampleSize, totalHistory) : totalHistory;
-  
+
   let html = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="margin: 0; color: #74b9ff; font-size: 20px;">Pattern Analysis: ${patternSize} Numbers</h2>
@@ -387,7 +387,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
             <h3 style="color: #74b9ff; font-size: 14px; margin: 0 0 10px 0;">💾 Saved Patterns (${savedPatterns.length})</h3>
             <div style="display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto;">
     `;
-    
+
     savedPatterns.forEach(savedPattern => {
       html += `
                 <div style="background: #1a2c38; padding: 8px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
@@ -399,13 +399,13 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
                 </div>
       `;
     });
-    
+
     html += `
             </div>
         </div>
     `;
   }
-  
+
   html += `
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px;">
             <div>
@@ -522,7 +522,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.remove();
   });
-  
+
   // Refresh button listener
   const refreshBtn = document.getElementById('pattern-refresh-btn');
   if (refreshBtn) {
@@ -542,7 +542,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
       e.stopPropagation();
       const numbers = btn.dataset.numbers.split(',').map(n => parseInt(n));
       const name = prompt('Enter a name for this pattern (optional):') || `Pattern ${savedPatterns.length + 1}`;
-      
+
       savePattern(numbers, name).then(() => {
         btn.textContent = '✓ Saved';
         btn.style.background = '#00b894';
