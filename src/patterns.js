@@ -35,6 +35,51 @@ const patternCache = {
 // Clear cache when history changes (expose globally)
 window.__keno_clearPatternCache = () => patternCache.clear();
 
+// Saved patterns storage
+const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+
+/**
+ * Save a pattern to storage
+ * @param {Array<number>} numbers - Pattern numbers
+ * @param {string} name - Optional name for the pattern
+ */
+export function savePattern(numbers, name = '') {
+  return storageApi.storage.local.get('savedPatterns').then(res => {
+    const savedPatterns = res.savedPatterns || [];
+    const patternName = name || `Pattern ${savedPatterns.length + 1}`;
+    
+    savedPatterns.push({
+      id: Date.now(),
+      numbers: numbers.sort((a, b) => a - b),
+      name: patternName,
+      createdAt: Date.now()
+    });
+    
+    return storageApi.storage.local.set({ savedPatterns }).then(() => savedPatterns);
+  });
+}
+
+/**
+ * Get all saved patterns
+ */
+export function getSavedPatterns() {
+  return storageApi.storage.local.get('savedPatterns').then(res => {
+    return res.savedPatterns || [];
+  });
+}
+
+/**
+ * Delete a saved pattern
+ * @param {number} id - Pattern ID
+ */
+export function deleteSavedPattern(id) {
+  return storageApi.storage.local.get('savedPatterns').then(res => {
+    let savedPatterns = res.savedPatterns || [];
+    savedPatterns = savedPatterns.filter(p => p.id !== id);
+    return storageApi.storage.local.set({ savedPatterns }).then(() => savedPatterns);
+  });
+}
+
 /**
  * Generate all combinations of size k from an array
  */
@@ -285,10 +330,13 @@ function showLoadingModal() {
  * @param {string} sortBy - Current sort method
  * @param {number} sampleSize - Current sample size
  */
-function showResultsModal(patternSize, patterns, stats, sortBy = 'frequency', sampleSize = 0) {
+async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequency', sampleSize = 0) {
   // Remove existing modal if any
   const existingModal = document.getElementById('keno-pattern-modal');
   if (existingModal) existingModal.remove();
+
+  // Get saved patterns
+  const savedPatterns = await getSavedPatterns();
 
   // Create modal
   const modal = document.createElement('div');
@@ -330,7 +378,35 @@ function showResultsModal(patternSize, patterns, stats, sortBy = 'frequency', sa
             <h2 style="margin: 0; color: #74b9ff; font-size: 20px;">Pattern Analysis: ${patternSize} Numbers</h2>
             <button id="close-pattern-modal" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px;">✕</button>
         </div>
-        
+  `;
+
+  // Saved patterns section
+  if (savedPatterns.length > 0) {
+    html += `
+        <div style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #2a3b4a;">
+            <h3 style="color: #74b9ff; font-size: 14px; margin: 0 0 10px 0;">💾 Saved Patterns (${savedPatterns.length})</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto;">
+    `;
+    
+    savedPatterns.forEach(savedPattern => {
+      html += `
+                <div style="background: #1a2c38; padding: 8px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="saved-pattern-select" data-numbers="${savedPattern.numbers.join(',')}" style="flex: 1; cursor: pointer;" title="Click to select these numbers">
+                        <span style="color: #fff; font-size: 13px; font-weight: bold;">${savedPattern.numbers.join(', ')}</span>
+                        <span style="color: #666; font-size: 10px; margin-left: 8px;">${savedPattern.name}</span>
+                    </div>
+                    <button class="delete-pattern-btn" data-id="${savedPattern.id}" style="padding: 4px 8px; background: #ff7675; color: #fff; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; margin-left: 8px;">Delete</button>
+                </div>
+      `;
+    });
+    
+    html += `
+            </div>
+        </div>
+    `;
+  }
+  
+  html += `
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px;">
             <div>
                 <label style="color: #888; font-size: 11px; display: block; margin-bottom: 4px;">Sort By</label>
@@ -382,15 +458,20 @@ function showResultsModal(patternSize, patterns, stats, sortBy = 'frequency', sa
 
     html += `
             <div style="background: #0f212e; padding: 12px 15px; border-radius: 8px; border-left: 3px solid ${index < 3 ? '#00b894' : '#74b9ff'};">
-                <div id="${patternId}" data-numbers="${pattern.numbers.join(',')}" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" title="Click to select these numbers">
-                    <div style="flex: 1;">
-                        <span style="color: #aaa; font-size: 11px; margin-right: 8px;">#${index + 1}</span>
-                        <span style="color: #fff; font-weight: bold; font-size: 15px;">${pattern.numbers.join(', ')}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div id="${patternId}" data-numbers="${pattern.numbers.join(',')}" style="flex: 1; cursor: pointer;" title="Click to select these numbers">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <span style="color: #aaa; font-size: 11px; margin-right: 8px;">#${index + 1}</span>
+                                <span style="color: #fff; font-weight: bold; font-size: 15px;">${pattern.numbers.join(', ')}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #00b894; font-weight: bold; font-size: 16px;">${pattern.count}×</div>
+                                <div style="color: #888; font-size: 11px;">${percentage}%</div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="color: #00b894; font-weight: bold; font-size: 16px;">${pattern.count}×</div>
-                        <div style="color: #888; font-size: 11px;">${percentage}%</div>
-                    </div>
+                    <button class="save-pattern-btn" data-numbers="${pattern.numbers.join(',')}" style="margin-left: 10px; padding: 6px 12px; background: #2a3b4a; color: #74b9ff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; white-space: nowrap;" title="Save this pattern">💾 Save</button>
                 </div>
                 <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1a2c38;">
                     <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('${dropdownId}').style.display = document.getElementById('${dropdownId}').style.display === 'none' ? 'block' : 'none';">
@@ -453,6 +534,54 @@ function showResultsModal(patternSize, patterns, stats, sortBy = 'frequency', sa
       showPatternAnalysisModal(patternSize, newSortBy, newSample);
     });
   }
+
+  // Save pattern buttons
+  const saveButtons = document.querySelectorAll('.save-pattern-btn');
+  saveButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const numbers = btn.dataset.numbers.split(',').map(n => parseInt(n));
+      const name = prompt('Enter a name for this pattern (optional):') || `Pattern ${savedPatterns.length + 1}`;
+      
+      savePattern(numbers, name).then(() => {
+        btn.textContent = '✓ Saved';
+        btn.style.background = '#00b894';
+        setTimeout(() => {
+          modal.remove();
+          showPatternAnalysisModal(patternSize, sortBy, sampleSize);
+        }, 500);
+      });
+    });
+  });
+
+  // Delete saved pattern buttons
+  const deleteButtons = document.querySelectorAll('.delete-pattern-btn');
+  deleteButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.id);
+      if (confirm('Delete this saved pattern?')) {
+        deleteSavedPattern(id).then(() => {
+          modal.remove();
+          showPatternAnalysisModal(patternSize, sortBy, sampleSize);
+        });
+      }
+    });
+  });
+
+  // Saved pattern selection
+  const savedPatternSelects = document.querySelectorAll('.saved-pattern-select');
+  savedPatternSelects.forEach(el => {
+    el.addEventListener('click', () => {
+      const numbers = el.dataset.numbers.split(',').map(n => parseInt(n));
+      selectPatternNumbers(numbers);
+      // Visual feedback
+      el.style.backgroundColor = '#2a3b4a';
+      setTimeout(() => {
+        el.style.backgroundColor = '#1a2c38';
+      }, 300);
+    });
+  });
 
   // Add click handlers for each pattern to select numbers
   patterns.forEach((pattern, index) => {
