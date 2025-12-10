@@ -1,5 +1,6 @@
 // src/patterns.js - Pattern analysis for finding common number combinations
 import { state } from './state.js';
+import { getDrawn } from './storage.js';
 
 /**
  * Generate all combinations of size k from an array
@@ -41,7 +42,7 @@ export function findCommonPatterns(patternSize, topN = 10) {
 
   // Analyze history
   state.currentHistory.forEach((round, roundIndex) => {
-    const drawnNumbers = round.drawn || [...round.hits, ...round.misses];
+    const drawnNumbers = getDrawn(round);
 
     // Generate all combinations of patternSize from the drawn numbers
     const combinations = getCombinations(drawnNumbers, patternSize);
