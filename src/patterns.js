@@ -604,6 +604,14 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
  * @param {Array<number>} numbers - Numbers to select (1-40)
  */
 function selectPatternNumbers(numbers) {
+  // First, clear the table using the clear button
+  const clearButton = document.querySelector('button[data-testid="clear-table-button"]');
+  if (clearButton) {
+    clearButton.click();
+  } else {
+    console.warn('[patterns] Clear table button not found');
+  }
+
   const tilesContainer = document.querySelector('div[data-testid="keno-tiles"]');
   if (!tilesContainer) {
     console.warn('[patterns] Keno tiles container not found');
@@ -612,22 +620,7 @@ function selectPatternNumbers(numbers) {
 
   const tiles = tilesContainer.querySelectorAll('button');
 
-  // First, deselect all tiles
-  tiles.forEach((tile) => {
-    const tileNumber = parseInt(tile.textContent.trim().split('%')[0]);
-    if (isNaN(tileNumber)) return;
-
-    const isSelected =
-      tile.getAttribute('aria-pressed') === 'true' ||
-      tile.getAttribute('aria-checked') === 'true';
-
-    if (isSelected) {
-      // Click to deselect
-      tile.click();
-    }
-  });
-
-  // Wait a bit for deselection, then select the pattern numbers
+  // Wait a bit for clearing, then select the pattern numbers
   setTimeout(() => {
     tiles.forEach((tile) => {
       const tileNumber = parseInt(tile.textContent.trim().split('%')[0]);
@@ -643,7 +636,7 @@ function selectPatternNumbers(numbers) {
         }
       }
     });
-  }, 100);
+  }, 150);
 }
 
 // Expose function globally for overlay button
