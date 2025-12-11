@@ -151,7 +151,7 @@ export function updateHistoryUI(history) {
             if (window.__keno_clearHighlight) window.__keno_clearHighlight();
         });
         div.innerHTML = `
-            <span style="color:#888">#${history.length - startOffset - i}</span>
+            <span style="color:#888">#${history.length - i}</span>
             <span style="color:#00b894">H:${hits.length}</span>
             <span style="color:#ff7675">M:${misses.length}</span>
             <div style="color:#666; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
