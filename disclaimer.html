@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keno Stats - Disclaimer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: Sora, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      background: linear-gradient(135deg, #1a2c38 0%, #0f212e 100%);
+      color: #fff; 
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2em;
+    }
+    .container { 
+      max-width: 700px; 
+      background: #213743; 
+      border-radius: 16px; 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      padding: 3em;
+      border: 2px solid #2f4553;
+    }
+    .logo { 
+      text-align: center; 
+      font-size: 3em; 
+      margin-bottom: 0.5em;
+      color: #f9d71c;
+    }
+    h1 { 
+      text-align: center; 
+      font-size: 2em; 
+      margin-bottom: 1em; 
+      color: #fff;
+      font-weight: 700;
+    }
+    .disclaimer-box {
+      background: #2f4553;
+      border-left: 4px solid #f44336;
+      padding: 1.5em;
+      border-radius: 8px;
+      margin: 2em 0;
+      line-height: 1.6;
+    }
+    .disclaimer-box h2 {
+      color: #f44336;
+      font-size: 1.3em;
+      margin-bottom: 0.8em;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .disclaimer-box p {
+      margin-bottom: 1em;
+      color: #b8c5d0;
+    }
+    .disclaimer-box ul {
+      margin-left: 1.5em;
+      margin-bottom: 1em;
+    }
+    .disclaimer-box li {
+      margin-bottom: 0.5em;
+      color: #b8c5d0;
+    }
+    .disclaimer-box strong {
+      color: #fff;
+    }
+    .acceptance-box {
+      background: #1a2c38;
+      padding: 1.5em;
+      border-radius: 8px;
+      margin: 2em 0;
+      border: 2px solid #2f4553;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 1em;
+      margin-bottom: 1em;
+      cursor: pointer;
+      user-select: none;
+    }
+    .checkbox-container input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      margin-top: 0.2em;
+      accent-color: #4caf50;
+    }
+    .checkbox-container label {
+      cursor: pointer;
+      color: #fff;
+      font-size: 1.05em;
+      line-height: 1.5;
+    }
+    .button-container {
+      display: flex;
+      gap: 1em;
+      margin-top: 2em;
+    }
+    .btn {
+      flex: 1;
+      padding: 1em 2em;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+    .btn-accept {
+      background: #4caf50;
+      color: #fff;
+    }
+    .btn-accept:hover:not(:disabled) {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+    .btn-accept:disabled {
+      background: #2f4553;
+      color: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .btn-decline {
+      background: #f44336;
+      color: #fff;
+    }
+    .btn-decline:hover {
+      background: #d32f2f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 2em;
+      color: #6b7c8a;
+      font-size: 0.9em;
+    }
+    .warning-icon {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🎲</div>
+    <h1>Keno Stats Extension</h1>
+    
+    <div class="disclaimer-box">
+      <h2><span class="warning-icon">⚠️</span> Important Disclaimer</h2>
+      <p><strong>This extension is for statistical and educational purposes only.</strong></p>
+      
+      <p>Please read and understand the following before using this extension:</p>
+      
+      <ul>
+        <li><strong>No Guarantee of Winning:</strong> This tool does NOT guarantee wins, profits, or any positive outcomes. Gambling outcomes are based on random chance.</li>
+        <li><strong>Past Results Don't Predict Future:</strong> Historical data and patterns shown by this extension do not influence future game results.</li>
+        <li><strong>Gambling Risks:</strong> Gambling involves financial risk. You may lose money. Never gamble more than you can afford to lose.</li>
+        <li><strong>Addiction Warning:</strong> Gambling can be addictive. If you or someone you know has a gambling problem, please seek help immediately.</li>
+        <li><strong>Use at Your Own Risk:</strong> The developers of this extension are not responsible for any financial losses, damages, or consequences resulting from your use of this tool.</li>
+        <li><strong>Legal Compliance:</strong> You are responsible for ensuring gambling is legal in your jurisdiction and that you meet all age and legal requirements.</li>
+      </ul>
+      
+      <p><strong>This extension provides statistics and analysis tools only. All betting decisions and their consequences are solely your responsibility.</strong></p>
+    </div>
+
+    <div class="acceptance-box">
+      <div class="checkbox-container">
+        <input type="checkbox" id="acceptCheckbox">
+        <label for="acceptCheckbox">
+          I have read and understood the disclaimer above. I acknowledge that this extension is for statistical purposes only, does not guarantee winnings, and I accept full responsibility for my own gambling decisions and actions.
+        </label>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <button class="btn btn-decline" id="declineBtn">Decline & Uninstall</button>
+      <button class="btn btn-accept" id="acceptBtn" disabled>Accept & Continue</button>
+    </div>
+
+    <div class="footer">
+      Keno Stats v1.0 | For Statistical Analysis Only
+    </div>
+  </div>
+
+  <script src="disclaimer.js"></script>
+</body>
+</html>

@@ -5,8 +5,7 @@
   "description": "Tracks Keno history and provides number stats on Stake.",
   "permissions": ["storage", "management"],
   "background": {
-    "scripts": ["background.js"],
-    "type": "module"
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
