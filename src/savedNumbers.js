@@ -669,3 +669,4 @@ function selectNumbers(numbers) {
 window.__keno_showSavedNumbers = showSavedNumbersModal;
 window.__keno_updateRecentPlayed = updateRecentPlayedUI;
 window.__keno_selectNumbers = selectNumbers;
+window.__keno_analyzeCombination = analyzeCombinationHits;

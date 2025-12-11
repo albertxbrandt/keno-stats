@@ -930,12 +930,15 @@ export function showLivePatternAnalysis() {
           : `${trackingSize - pattern.lastFullHit} bet${trackingSize - pattern.lastFullHit > 1 ? 's' : ''} ago`;
 
       html += `
-        <div class="live-pattern-card" data-numbers="${pattern.numbers.join(',')}" style="background: #0f212e; padding: 10px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid ${isHot ? '#00b894' : '#74b9ff'}; cursor: pointer; transition: all 0.2s;">
+        <div class="live-pattern-card" data-numbers="${pattern.numbers.join(',')}" style="background: #0f212e; padding: 10px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid ${isHot ? '#00b894' : '#74b9ff'}; transition: all 0.2s; position: relative;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
             <span style="color: ${isHot ? '#00b894' : '#74b9ff'}; font-weight: bold; font-size: 11px;">#${index + 1}</span>
-            <span style="color: ${isHot ? '#00b894' : '#74b9ff'}; font-weight: bold; font-size: 12px;">${percentage}%</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button class="live-pattern-info-btn" data-numbers="${pattern.numbers.join(',')}" style="background: #2a3b4a; color: #74b9ff; border: none; padding: 3px 8px; border-radius: 3px; font-size: 9px; cursor: pointer; font-weight: bold; transition: background 0.2s;" onmouseover="this.style.background='#3a4b5a'" onmouseout="this.style.background='#2a3b4a'">ℹ️ Info</button>
+              <span style="color: ${isHot ? '#00b894' : '#74b9ff'}; font-weight: bold; font-size: 12px;">${percentage}%</span>
+            </div>
           </div>
-          <div style="color: #fff; font-size: 12px; font-weight: bold; margin-bottom: 4px; pointer-events: none;">
+          <div class="live-pattern-select" style="color: #fff; font-size: 12px; font-weight: bold; margin-bottom: 4px; cursor: pointer;">
             ${pattern.numbers.join(', ')}
           </div>
           <div style="color: #666; font-size: 10px; margin-bottom: 2px; pointer-events: none;">
@@ -954,16 +957,32 @@ export function showLivePatternAnalysis() {
     document.querySelectorAll('.live-pattern-card').forEach(card => {
       card.addEventListener('mouseenter', () => {
         card.style.background = '#1a2c38';
-        card.style.transform = 'translateX(-4px)';
       });
       card.addEventListener('mouseleave', () => {
         card.style.background = '#0f212e';
-        card.style.transform = 'translateX(0)';
       });
-      card.addEventListener('click', () => {
-        const numbers = card.dataset.numbers.split(',').map(n => parseInt(n));
+    });
+    
+    // Add click handlers to select numbers
+    document.querySelectorAll('.live-pattern-select').forEach(el => {
+      el.addEventListener('click', () => {
+        const numbers = el.textContent.split(', ').map(n => parseInt(n.trim()));
         if (window.__keno_selectNumbers) {
           window.__keno_selectNumbers(numbers);
+        }
+      });
+    });
+
+    // Add click handlers to info buttons
+    document.querySelectorAll('.live-pattern-info-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent card click
+        const numbers = btn.dataset.numbers.split(',').map(n => parseInt(n));
+        const comboName = `Live Pattern: ${numbers.join(', ')}`;
+        
+        // Call the same analysis function used by saved numbers
+        if (window.__keno_analyzeCombination) {
+          window.__keno_analyzeCombination(numbers, comboName);
         }
       });
     });
