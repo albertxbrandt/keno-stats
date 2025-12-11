@@ -455,6 +455,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
     const lastOccurrence = pattern.occurrences[pattern.occurrences.length - 1];
     const lastBetNumber = lastOccurrence.betNumber;
     const lastTime = new Date(lastOccurrence.time).toLocaleString();
+    const betsAgo = state.currentHistory.length - lastBetNumber;
 
     html += `
             <div style="background: #0f212e; padding: 12px 15px; border-radius: 8px; border-left: 3px solid ${index < 3 ? '#00b894' : '#74b9ff'};">
@@ -475,7 +476,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
                 </div>
                 <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1a2c38;">
                     <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('${dropdownId}').style.display = document.getElementById('${dropdownId}').style.display === 'none' ? 'block' : 'none';">
-                        <span style="color: #aaa; font-size: 11px;">Last seen: Bet #${lastBetNumber}</span>
+                        <span style="color: #aaa; font-size: 11px;">Last seen: Bet #${lastBetNumber} (${betsAgo} bet${betsAgo !== 1 ? 's' : ''} ago)</span>
                         <span style="color: #74b9ff; font-size: 11px;">▼ View all (${pattern.count})</span>
                     </div>
                     <div id="${dropdownId}" style="display: none; margin-top: 8px; max-height: 150px; overflow-y: auto; background: #14202b; border-radius: 4px; padding: 6px;">
