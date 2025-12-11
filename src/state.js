@@ -17,5 +17,6 @@ export const state = {
         patternAnalysis: true,
         recentPlays: true,
         history: true
-    }
+    },
+    panelOrder: ['sampleSize', 'predict', 'hitsMiss', 'autoplay', 'patternAnalysis', 'recentPlays', 'history']
 };

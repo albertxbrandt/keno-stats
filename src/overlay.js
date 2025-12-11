@@ -100,11 +100,12 @@ export function createOverlay() {
 
         <!-- Settings Tab Content -->
         <div id="keno-settings-content" class="tab-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px; display:none;">
-            <div style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <div style="color: #aaa; font-size: 12px; margin-bottom: 10px;">Show/Hide Panel Sections</div>
+            <div id="settings-list" style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="color: #aaa; font-size: 12px; margin-bottom: 10px;">Show/Hide Panel Sections (Drag to Reorder)</div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div class="settings-row" draggable="true" data-section="sampleSize" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">📊</span>
                         <span style="color: #fff; font-size: 12px;">Sample Size</span>
                     </div>
@@ -115,8 +116,9 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div class="settings-row" draggable="true" data-section="predict" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">🎯</span>
                         <span style="color: #fff; font-size: 12px;">Predict Mode</span>
                     </div>
@@ -127,8 +129,9 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div class="settings-row" draggable="true" data-section="hitsMiss" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">✅</span>
                         <span style="color: #fff; font-size: 12px;">Hits / Miss Display</span>
                     </div>
@@ -139,8 +142,9 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div class="settings-row" draggable="true" data-section="autoplay" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">▶️</span>
                         <span style="color: #fff; font-size: 12px;">Auto-Play</span>
                     </div>
@@ -151,8 +155,9 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div class="settings-row" draggable="true" data-section="patternAnalysis" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">🔍</span>
                         <span style="color: #fff; font-size: 12px;">Pattern Analysis</span>
                     </div>
@@ -163,8 +168,9 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div class="settings-row" draggable="true" data-section="recentPlays" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">🎲</span>
                         <span style="color: #fff; font-size: 12px;">Recent Plays</span>
                     </div>
@@ -175,8 +181,9 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0;">
+                <div class="settings-row" draggable="true" data-section="history" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">📜</span>
                         <span style="color: #fff; font-size: 12px;">History</span>
                     </div>
@@ -479,10 +486,119 @@ export function createOverlay() {
                 });
             });
         });
+        
+        // Initialize drag-and-drop for reordering
+        initializeDragAndDrop();
+    }
+
+    // Drag-and-drop functionality for reordering settings
+    function initializeDragAndDrop() {
+        const settingsList = document.getElementById('settings-list');
+        if (!settingsList) return;
+
+        const rows = settingsList.querySelectorAll('.settings-row');
+        let draggedElement = null;
+
+        rows.forEach(row => {
+            row.addEventListener('dragstart', (e) => {
+                draggedElement = row;
+                row.style.opacity = '0.5';
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            row.addEventListener('dragend', (e) => {
+                row.style.opacity = '1';
+                draggedElement = null;
+            });
+
+            row.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                if (draggedElement && draggedElement !== row) {
+                    const rect = row.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    
+                    if (e.clientY < midpoint) {
+                        row.parentNode.insertBefore(draggedElement, row);
+                    } else {
+                        row.parentNode.insertBefore(draggedElement, row.nextSibling);
+                    }
+                }
+            });
+
+            row.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Save the new order
+                savePanelOrder();
+            });
+        });
+    }
+
+    // Save the current order of settings rows
+    function savePanelOrder() {
+        const settingsList = document.getElementById('settings-list');
+        if (!settingsList) return;
+
+        const rows = settingsList.querySelectorAll('.settings-row');
+        const newOrder = Array.from(rows).map(row => row.dataset.section);
+        
+        state.panelOrder = newOrder;
+        
+        const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+        storageApi.storage.local.set({ panelOrder: state.panelOrder }, () => {
+            console.log('[Settings] Auto-saved panel order:', state.panelOrder);
+            reorderPanelSections();
+        });
     }
 
     // Load and apply saved panel visibility settings, then initialize switches
     loadPanelVisibilitySettings(initializeSettingsSwitches);
+}
+
+// Reorder the settings rows based on saved order
+function reorderSettingsRows() {
+    const settingsList = document.getElementById('settings-list');
+    if (!settingsList || !state.panelOrder) return;
+
+    const rows = settingsList.querySelectorAll('.settings-row');
+    const rowMap = new Map();
+    
+    rows.forEach(row => {
+        rowMap.set(row.dataset.section, row);
+    });
+
+    // Reorder based on state.panelOrder
+    state.panelOrder.forEach((sectionKey, index) => {
+        const row = rowMap.get(sectionKey);
+        if (row) {
+            settingsList.appendChild(row);
+        }
+    });
+}
+
+// Reorder the main panel sections based on saved order
+function reorderPanelSections() {
+    const trackerContent = document.getElementById('keno-overlay-content');
+    if (!trackerContent || !state.panelOrder) return;
+
+    const sections = new Map();
+    state.panelOrder.forEach(sectionKey => {
+        const section = trackerContent.querySelector(`[data-section="${sectionKey}"]`);
+        if (section) {
+            sections.set(sectionKey, section);
+        }
+    });
+
+    // Reorder by appending in the correct order
+    state.panelOrder.forEach(sectionKey => {
+        const section = sections.get(sectionKey);
+        if (section) {
+            trackerContent.appendChild(section);
+        }
+    });
 }
 
 /**
@@ -492,11 +608,21 @@ export function createOverlay() {
 function loadPanelVisibilitySettings(callback) {
     const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
     
-    storageApi.storage.local.get('panelVisibility', (result) => {
+    storageApi.storage.local.get(['panelVisibility', 'panelOrder'], (result) => {
         if (result.panelVisibility) {
             state.panelVisibility = { ...state.panelVisibility, ...result.panelVisibility };
         }
+        if (result.panelOrder) {
+            state.panelOrder = result.panelOrder;
+        }
+        
         applyPanelVisibility();
+        
+        // Reorder settings rows to match saved order
+        setTimeout(() => {
+            reorderSettingsRows();
+            reorderPanelSections();
+        }, 100);
         
         // Call callback after settings are loaded
         if (callback && typeof callback === 'function') {
