@@ -124,7 +124,11 @@ export function updateHistoryUI(history) {
         sampleInput.max = Math.max(history.length, 1);
     }
 
-    history.slice().reverse().forEach((round, i) => {
+    // Limit display to last 100 rounds
+    const displayHistory = history.slice(-100);
+    const startOffset = history.length - displayHistory.length;
+
+    displayHistory.slice().reverse().forEach((round, i) => {
         const div = document.createElement('div');
         div.style.borderBottom = '1px solid #333';
         div.style.padding = '4px 0';
@@ -147,7 +151,7 @@ export function updateHistoryUI(history) {
             if (window.__keno_clearHighlight) window.__keno_clearHighlight();
         });
         div.innerHTML = `
-            <span style="color:#888">#${history.length - i}</span>
+            <span style="color:#888">#${history.length - startOffset - i}</span>
             <span style="color:#00b894">H:${hits.length}</span>
             <span style="color:#ff7675">M:${misses.length}</span>
             <div style="color:#666; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
