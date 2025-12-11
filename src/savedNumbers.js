@@ -1,5 +1,6 @@
 // src/savedNumbers.js - Manage saved number combinations
 import { state } from './state.js';
+import { getDrawn, getSelected } from './storage.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -193,12 +194,12 @@ function analyzeCombinationHits(numbers, comboName) {
 
   // Check each round in history
   history.forEach((round, index) => {
-    const drawnNumbers = round.drawn || [];
+    const drawnNumbers = getDrawn(round);
     const allHit = numbers.every(num => drawnNumbers.includes(num));
 
     if (allHit) {
       hits.push({
-        betNumber: history.length - index,
+        historyIndex: index, // Store index for dynamic calculation
         time: round.time,
         drawn: drawnNumbers
       });
@@ -284,15 +285,16 @@ function showCombinationHitsModal(numbers, comboName, hits) {
       <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
     `;
 
-    // Sort hits by most recent first
-    hits.sort((a, b) => b.betNumber - a.betNumber).forEach(hit => {
-      const betsAgo = totalBets - hit.betNumber;
+    // Sort hits by most recent first (highest index = most recent)
+    hits.sort((a, b) => b.historyIndex - a.historyIndex).forEach(hit => {
+      const betNumber = hit.historyIndex + 1; // Convert 0-based index to 1-based bet number
+      const betsAgo = totalBets - betNumber; // How many bets ago this occurred
       const timeStr = new Date(hit.time).toLocaleString();
 
       html += `
         <div style="background: #0f212e; padding: 10px 12px; border-radius: 6px; border-left: 3px solid #00b894;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <span style="color: #00b894; font-weight: bold; font-size: 12px;">Bet #${hit.betNumber}</span>
+            <span style="color: #00b894; font-weight: bold; font-size: 12px;">Bet #${betNumber}</span>
             <span style="color: #888; font-size: 10px;">${betsAgo} bet${betsAgo !== 1 ? 's' : ''} ago</span>
           </div>
           <div style="color: #666; font-size: 10px;">${timeStr}</div>
