@@ -6,6 +6,7 @@ import { calculatePrediction, autoPlayPlaceBet, updateAutoPlayUI } from './autop
 import { updateHeatmap } from './heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './savedNumbers.js';
+import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './profitLoss.js';
 import './patterns.js'; // Import pattern analysis module (sets up window hooks)
 
 console.log('Keno Tracker loaded');
@@ -92,6 +93,11 @@ function initializeExtension() {
 
 	// Initialize
 	loadHistory().then(() => {
+		// Load profit/loss data
+		loadProfitLoss().then(() => {
+			try { updateProfitLossUI(); } catch (e) { console.warn('[content] updateProfitLossUI failed', e); }
+		});
+		
 		// Initialize UI after history has been loaded
 		initOverlay();
 		// Ensure history list in overlay shows current history

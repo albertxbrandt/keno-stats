@@ -68,6 +68,26 @@ export function createOverlay() {
                 </div>
             </div>
             
+            <div data-section="profitLoss" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="profitLoss-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="color:#ffd700; font-weight:bold;">💰 Profit/Loss</span>
+                    <select id="profit-currency-select" style="background:#14202b; border:1px solid #444; color:#fff; padding:2px 4px; border-radius:4px; font-size:10px; cursor:pointer;">
+                        <option value="btc">BTC</option>
+                    </select>
+                </div>
+                <div id="profitLoss-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; margin-bottom:6px;">
+                        <span style="color:#aaa; font-size:11px;">Session:</span>
+                        <span id="session-profit-value" style="font-weight:bold; font-size:11px;">0.00 BTC</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="color:#aaa; font-size:11px;">Total:</span>
+                        <span id="total-profit-value" style="font-weight:bold; font-size:11px;">0.00 BTC</span>
+                    </div>
+                    <button id="reset-session-profit-btn" style="width:100%; background:#2a3b4a; color:#74b9ff; border:none; padding:4px; border-radius:4px; font-size:9px; cursor:pointer; margin-top:4px;">Reset Session</button>
+                </div>
+            </div>
+            
             <div data-section="patternAnalysis" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
@@ -156,6 +176,19 @@ export function createOverlay() {
                     </div>
                     <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" class="panel-toggle" data-section="autoplay" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="profitLoss" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">💰</span>
+                        <span style="color: #fff; font-size: 12px;">Profit/Loss</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="profitLoss" style="opacity: 0; width: 0; height: 0;">
                         <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
                         <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
                     </label>
@@ -354,6 +387,66 @@ export function createOverlay() {
 
     const clearBtn = document.getElementById('clear-btn');
     if (clearBtn) clearBtn.addEventListener('click', () => { clearHistory().then(h => { updateHistoryUI(h); updateHeatmap(); if (window.__keno_clearHighlight) window.__keno_clearHighlight(); }); });
+
+    const resetSessionBtn = document.getElementById('reset-session-profit-btn');
+    if (resetSessionBtn) {
+        resetSessionBtn.addEventListener('click', () => {
+            if (window.__keno_resetSessionProfit) {
+                window.__keno_resetSessionProfit();
+            }
+        });
+    }
+
+    const currencySelect = document.getElementById('profit-currency-select');
+    if (currencySelect) {
+        currencySelect.addEventListener('change', (e) => {
+            if (window.__keno_changeCurrency) {
+                window.__keno_changeCurrency(e.target.value);
+            }
+        });
+    }
+
+    // Profit/Loss hover expand/collapse with pin functionality
+    const profitLossSection = document.querySelector('[data-section="profitLoss"]');
+    const profitLossDetails = document.getElementById('profitLoss-details');
+    const profitLossHeader = document.getElementById('profitLoss-header');
+    let profitLossPinned = false;
+    
+    if (profitLossSection && profitLossDetails && profitLossHeader) {
+        // Click to pin/unpin
+        profitLossHeader.addEventListener('click', (e) => {
+            // Don't toggle if clicking the currency select
+            if (e.target.id === 'profit-currency-select' || e.target.closest('#profit-currency-select')) {
+                return;
+            }
+            
+            profitLossPinned = !profitLossPinned;
+            
+            if (profitLossPinned) {
+                profitLossDetails.style.maxHeight = '200px';
+                profitLossDetails.style.opacity = '1';
+                profitLossHeader.style.backgroundColor = '#1a2c38';
+            } else {
+                profitLossDetails.style.maxHeight = '0';
+                profitLossDetails.style.opacity = '0';
+                profitLossHeader.style.backgroundColor = '';
+            }
+        });
+        
+        // Hover only works when not pinned
+        profitLossSection.addEventListener('mouseenter', () => {
+            if (!profitLossPinned) {
+                profitLossDetails.style.maxHeight = '200px';
+                profitLossDetails.style.opacity = '1';
+            }
+        });
+        profitLossSection.addEventListener('mouseleave', () => {
+            if (!profitLossPinned) {
+                profitLossDetails.style.maxHeight = '0';
+                profitLossDetails.style.opacity = '0';
+            }
+        });
+    }
 
     const apBtn = document.getElementById('autoplay-btn');
     if (apBtn) apBtn.addEventListener('click', () => {

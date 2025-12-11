@@ -79,6 +79,33 @@ export function saveRound(round) {
         // Store unlimited history (bet book needs full history)
         return storageApi.storage.local.set({ history }).then(() => {
             state.currentHistory = history;
+            
+            // Update profit/loss if data is available
+            if (round.kenoBet && round.kenoBet.amount && round.kenoBet.payout !== undefined) {
+                const betAmount = parseFloat(round.kenoBet.amount) || 0;
+                const payout = parseFloat(round.kenoBet.payout) || 0;
+                const profit = payout - betAmount;
+                const currency = (round.kenoBet.currency || 'btc').toLowerCase();
+                
+                // Update session profit only via profitLoss module if available
+                if (window.__keno_updateProfit) {
+                    try {
+                        window.__keno_updateProfit(profit, currency);
+                    } catch (e) {
+                        console.warn('[storage] updateProfit failed', e);
+                    }
+                }
+                
+                // Recalculate total profit from history
+                if (window.__keno_recalculateTotalProfit) {
+                    try {
+                        window.__keno_recalculateTotalProfit();
+                    } catch (e) {
+                        console.warn('[storage] recalculateTotalProfit failed', e);
+                    }
+                }
+            }
+            
             // Update UI live when a new round is saved
             try {
                 updateHistoryUI(history);
