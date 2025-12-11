@@ -5,6 +5,7 @@ import { loadHistory, updateHistoryUI } from './storage.js';
 import { calculatePrediction, autoPlayPlaceBet, updateAutoPlayUI } from './autoplay.js';
 import { updateHeatmap } from './heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
+import { trackPlayedNumbers, updateRecentPlayedUI } from './savedNumbers.js';
 import './patterns.js'; // Import pattern analysis module (sets up window hooks)
 
 console.log('Keno Tracker loaded');
@@ -16,7 +17,7 @@ storageApi.storage.local.get('disclaimerAccepted', (result) => {
 		console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
 		return;
 	}
-	
+
 	console.log('[Keno Tracker] Disclaimer accepted, initializing extension...');
 	initializeExtension();
 });
@@ -55,6 +56,12 @@ function initializeExtension() {
 		};
 		console.log('[KENO] Saving bet data:', betData);
 		import('./storage.js').then(mod => mod.saveRound(betData));
+
+		// Track the played numbers for recent plays section
+		trackPlayedNumbers(selected).then(() => {
+			updateRecentPlayedUI();
+		}).catch(err => console.error('[savedNumbers] trackPlayedNumbers failed:', err));
+
 		// Update stats after new round
 		setTimeout(() => {
 			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
@@ -89,6 +96,8 @@ function initializeExtension() {
 		initOverlay();
 		// Ensure history list in overlay shows current history
 		try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
+		// Initialize recent played UI
+		try { updateRecentPlayedUI(); } catch (e) { console.warn('[content] updateRecentPlayedUI failed', e); }
 		setTimeout(updateHeatmap, 2000);
 		setInterval(injectFooterButton, 1000);
 		// Update autoplay timer every second while active

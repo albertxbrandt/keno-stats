@@ -79,6 +79,16 @@ export function createOverlay() {
                 <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
             </div>
             
+            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="color:#00b894; font-weight:bold;">Recent Plays</span>
+                    <button id="view-saved-numbers-btn" style="background:#2a3b4a; color:#74b9ff; border:none; padding:3px 8px; border-radius:4px; font-size:9px; cursor:pointer; font-weight:bold;">Saved Combos</button>
+                </div>
+                <div id="recent-played-list" style="min-height:60px;">
+                    <div style="color:#666; font-size:10px; padding:8px; text-align:center;">No recent plays</div>
+                </div>
+            </div>
+            
             <div style="border-top:1px solid #444; padding-top:5px;">
                 History (Last 100) <button id="clear-btn" style="float:right; background:none; border:none; color:#f55; cursor:pointer;">Reset</button>
                 <div id="history-list" style="height:150px; overflow-y:auto; margin-top:5px; border:1px solid #333; background:#0f212e; padding:5px;"></div>
@@ -284,6 +294,15 @@ export function createOverlay() {
             // Call the pattern analysis function
             if (window.__keno_showPatternAnalysis) {
                 window.__keno_showPatternAnalysis(patternSize);
+            }
+        });
+    }
+
+    const viewSavedBtn = document.getElementById('view-saved-numbers-btn');
+    if (viewSavedBtn) {
+        viewSavedBtn.addEventListener('click', () => {
+            if (window.__keno_showSavedNumbers) {
+                window.__keno_showSavedNumbers();
             }
         });
     }
