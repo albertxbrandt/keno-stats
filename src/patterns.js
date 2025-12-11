@@ -853,17 +853,20 @@ export function showLivePatternAnalysis() {
       });
 
       if (hitCount > 0) {
+        const hitRate = (hitCount / actualSampleSize) * 100;
         patternCountsMap.set(pattern.join(','), {
           numbers: pattern,
           count: hitCount,
-          lastFullHit: lastFullHit
+          lastFullHit: lastFullHit,
+          hitRate: hitRate
         });
       }
     });
 
-    // Convert to array and sort by frequency
+    // Convert to array, filter low performers, and sort by hit rate (hot patterns first)
     let patterns = Array.from(patternCountsMap.values())
-      .sort((a, b) => b.count - a.count);
+      .filter(p => p.hitRate >= 10) // Only show patterns with 10%+ hit rate
+      .sort((a, b) => b.hitRate - a.hitRate); // Sort by hit rate percentage
 
     // Cache the results
     cachedResults = { patterns, totalGames: actualSampleSize, trackingSize: Math.min(history.length, 500) };
@@ -885,7 +888,9 @@ export function showLivePatternAnalysis() {
     // Calculate stats
     const totalGames = actualSampleSize;
     const uniquePatterns = patterns.length;
-    const avgAppearance = patterns.reduce((sum, p) => sum + p.count, 0) / uniquePatterns;
+    const avgHitRate = patterns.length > 0
+      ? (patterns.reduce((sum, p) => sum + p.hitRate, 0) / uniquePatterns).toFixed(1)
+      : '0.0';
 
     const computeTime = (performance.now() - startTime).toFixed(0);
 
@@ -898,8 +903,8 @@ export function showLivePatternAnalysis() {
             <div style="color: #666; font-size: 10px;">Patterns</div>
           </div>
           <div style="text-align: right;">
-            <div style="color: #74b9ff; font-size: 18px; font-weight: bold;">${avgAppearance.toFixed(1)}</div>
-            <div style="color: #666; font-size: 10px;">Avg Rate</div>
+            <div style="color: #74b9ff; font-size: 18px; font-weight: bold;">${avgHitRate}%</div>
+            <div style="color: #666; font-size: 10px;">Avg Hit Rate</div>
           </div>
         </div>
         <div style="color: #888; font-size: 10px; padding-top: 8px; border-top: 1px solid #1a2c38; display: flex; justify-content: space-between;">
@@ -912,8 +917,8 @@ export function showLivePatternAnalysis() {
     `;
 
     patterns.slice(0, 10).forEach((pattern, index) => {
-      const percentage = ((pattern.count / totalGames) * 100).toFixed(1);
-      const isHot = percentage >= 15;
+      const percentage = pattern.hitRate.toFixed(1);
+      const isHot = pattern.hitRate >= 20; // Hot if 20%+ hit rate
 
       const hitText = minHits === maxHits && minHits === patternSize
         ? `Full match (${patternSize}/${patternSize})`
@@ -962,7 +967,7 @@ export function showLivePatternAnalysis() {
         card.style.background = '#0f212e';
       });
     });
-    
+
     // Add click handlers to select numbers
     document.querySelectorAll('.live-pattern-select').forEach(el => {
       el.addEventListener('click', () => {
@@ -979,7 +984,7 @@ export function showLivePatternAnalysis() {
         e.stopPropagation(); // Prevent card click
         const numbers = btn.dataset.numbers.split(',').map(n => parseInt(n));
         const comboName = `Live Pattern: ${numbers.join(', ')}`;
-        
+
         // Call the same analysis function used by saved numbers
         if (window.__keno_analyzeCombination) {
           window.__keno_analyzeCombination(numbers, comboName);

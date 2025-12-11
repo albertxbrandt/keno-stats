@@ -249,7 +249,7 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
   // Convert hit counts to multipliers, then to profit/loss (multiplier - 1)
   const multipliers = hitCounts.map(hits => payouts[hits] || 0);
   const profitLoss = multipliers.map(mult => mult - 1); // -1 = lost bet, +X = profit
-  
+
   // Calculate cumulative profit/loss
   let cumulative = 0;
   const cumulativePL = profitLoss.map(pl => {
@@ -268,7 +268,7 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
   const minValue = Math.min(...cumulativePL, -1);
   const range = maxValue - minValue;
   const dataPoints = cumulativePL.length;
-  
+
   // Calculate zero line position
   const zeroY = padding.top + innerHeight * (maxValue / range);
 
@@ -307,7 +307,7 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
       <line x1="${padding.left}" y1="${y}" x2="${graphWidth - padding.right}" y2="${y}" stroke="#2a3b4a" stroke-width="0.5" opacity="0.3"/>
     `;
   }
-  
+
   // Add zero line
   yAxisLabels += `
     <line x1="${padding.left}" y1="${zeroY}" x2="${graphWidth - padding.right}" y2="${zeroY}" stroke="#666" stroke-width="1" stroke-dasharray="4,4"/>
@@ -324,7 +324,7 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
       <text x="${x}" y="${graphHeight - 5}" text-anchor="middle" fill="#666" font-size="9">#${betNumber}</text>
     `;
   }
-  
+
   // Calculate total profit/loss stats
   const totalPL = cumulative;
   const wins = profitLoss.filter(pl => pl > 0).length;
