@@ -391,6 +391,17 @@ function showCombinationHitsModal(numbers, comboName, hits) {
   const existing = document.getElementById('combo-hits-modal');
   if (existing) existing.remove();
 
+  // Load saved preferences
+  storageApi.storage.local.get(['graphRiskMode', 'graphLookback'], (result) => {
+    const savedRiskMode = result.graphRiskMode || 'high';
+    const savedLookback = result.graphLookback || 50;
+
+    buildModal(numbers, comboName, hits, savedRiskMode, savedLookback);
+  });
+}
+
+function buildModal(numbers, comboName, hits, initialRiskMode, initialLookback) {
+
   const modal = document.createElement('div');
   modal.id = 'combo-hits-modal';
   Object.assign(modal.style, {
@@ -423,8 +434,8 @@ function showCombinationHitsModal(numbers, comboName, hits) {
   const totalBets = state.currentHistory.length;
   const hitRate = totalBets > 0 ? ((hits.length / totalBets) * 100).toFixed(1) : '0.0';
 
-  // Generate payout graph HTML with numbers array
-  const payoutGraphHtml = generatePayoutGraph(numbers, 50, 'high');
+  // Generate payout graph HTML with saved preferences
+  const payoutGraphHtml = generatePayoutGraph(numbers, initialLookback, initialRiskMode);
 
   let html = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -503,13 +514,15 @@ function showCombinationHitsModal(numbers, comboName, hits) {
     const riskSelector = document.getElementById('risk-mode-selector');
     const lookbackInput = document.getElementById('lookback-input');
 
-    let currentRiskMode = 'high';
-    let currentLookback = 50;
+    let currentRiskMode = initialRiskMode;
+    let currentLookback = initialLookback;
 
     if (riskSelector) {
       currentRiskMode = riskSelector.value;
       riskSelector.addEventListener('change', (e) => {
         currentRiskMode = e.target.value;
+        // Save preference
+        storageApi.storage.local.set({ graphRiskMode: currentRiskMode });
         updateGraph();
       });
     }
@@ -527,6 +540,8 @@ function showCombinationHitsModal(numbers, comboName, hits) {
         if (isNaN(value)) value = 50;
 
         currentLookback = value;
+        // Save preference
+        storageApi.storage.local.set({ graphLookback: currentLookback });
         updateGraph();
       });
     }
