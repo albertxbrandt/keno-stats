@@ -675,6 +675,8 @@ export function showLivePatternAnalysis() {
   let minHits = 5;
   let maxHits = 5;
   let notHitIn = 0;
+  let lastHistoryLength = 0;
+  let cachedResults = null;
 
   const startBtn = document.getElementById('live-pattern-start');
   const statusDiv = document.getElementById('live-pattern-status');
@@ -764,15 +766,20 @@ export function showLivePatternAnalysis() {
       maxHitsInput.disabled = true;
       notHitInInput.disabled = true;
 
+      // Reset cache
+      lastHistoryLength = 0;
+      cachedResults = null;
+
       // Initial update
       updateLivePatterns();
 
-      // Update every 2 seconds
-      updateInterval = setInterval(updateLivePatterns, 2000);
+      // Update every 3 seconds (increased from 2 for better performance)
+      updateInterval = setInterval(updateLivePatterns, 3000);
     }
   });
 
   function updateLivePatterns() {
+    const startTime = performance.now();
     const history = state.currentHistory || [];
     const actualSampleSize = Math.min(sampleSize, history.length);
 
@@ -781,22 +788,43 @@ export function showLivePatternAnalysis() {
       return;
     }
 
+    // Skip update if history hasn't changed
+    if (history.length === lastHistoryLength && cachedResults !== null) {
+      const rangeText = minHits === maxHits ? `${minHits}` : `${minHits}-${maxHits}`;
+      statusText.textContent = `Up to date - Pattern size: ${patternSize}, Hits: ${rangeText} (cached)`;
+      return; // No new data, skip expensive computation
+    }
+
     const rangeText = minHits === maxHits ? `${minHits}` : `${minHits}-${maxHits}`;
     statusText.textContent = `Analyzing ${actualSampleSize} rounds... Pattern size: ${patternSize}, Hits: ${rangeText}`;
 
     // Get sample of recent rounds
     const sample = history.slice(-actualSampleSize);
 
+    lastHistoryLength = history.length;
+
     // Find all unique patterns and count partial hits
     const patternCountsMap = new Map();
 
-    // Generate all possible combinations for the pattern size
-    const allPatterns = findCommonPatterns(patternSize, 1000, false, actualSampleSize) || [];
+    // Generate top 100 patterns only for performance (was 1000)
+    const allPatterns = findCommonPatterns(patternSize, 100, false, actualSampleSize) || [];
 
     if (allPatterns.length === 0) {
       resultsDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">No patterns found</div>';
       return;
     }
+
+    // Pre-cache drawn numbers for all rounds (avoid repeated getDrawn() calls)
+    const historyForTracking = history.slice(-500);
+    const trackingDrawnCache = historyForTracking.map(round => {
+      const drawn = getDrawn(round);
+      return new Set(drawn); // Use Set for O(1) lookups
+    });
+
+    const sampleDrawnCache = sample.map(round => {
+      const drawn = getDrawn(round);
+      return new Set(drawn);
+    });
 
     // For each pattern, count how many rounds have at least minHits matches
     allPatterns.forEach(patternObj => {
@@ -804,23 +832,20 @@ export function showLivePatternAnalysis() {
       let hitCount = 0;
       let lastFullHit = -1; // Track when pattern last fully matched in ENTIRE history
 
-      // Check last 500 bets for last full hit
-      const historyForTracking = history.slice(-500);
-      historyForTracking.forEach((round, index) => {
-        const drawn = getDrawn(round);
-        const matches = pattern.filter(num => drawn.includes(num)).length;
-        
+      // Check last 500 bets for last full hit using cached Sets
+      trackingDrawnCache.forEach((drawnSet, index) => {
+        const matches = pattern.filter(num => drawnSet.has(num)).length;
+
         // Track full hits for "last hit" display - use last 500
         if (matches === patternSize) {
           lastFullHit = index;
         }
       });
 
-      // Count hits within range in sample only
-      sample.forEach(round => {
-        const drawn = getDrawn(round);
-        const matches = pattern.filter(num => drawn.includes(num)).length;
-        
+      // Count hits within range in sample only using cached Sets
+      sampleDrawnCache.forEach(drawnSet => {
+        const matches = pattern.filter(num => drawnSet.has(num)).length;
+
         // Count hits within range
         if (matches >= minHits && matches <= maxHits) {
           hitCount++;
@@ -839,6 +864,9 @@ export function showLivePatternAnalysis() {
     // Convert to array and sort by frequency
     let patterns = Array.from(patternCountsMap.values())
       .sort((a, b) => b.count - a.count);
+
+    // Cache the results
+    cachedResults = { patterns, totalGames: actualSampleSize, trackingSize: Math.min(history.length, 500) };
 
     // Filter by notHitIn if enabled (notHitIn > 0)
     if (notHitIn > 0) {
@@ -859,6 +887,8 @@ export function showLivePatternAnalysis() {
     const uniquePatterns = patterns.length;
     const avgAppearance = patterns.reduce((sum, p) => sum + p.count, 0) / uniquePatterns;
 
+    const computeTime = (performance.now() - startTime).toFixed(0);
+
     // Render results
     let html = `
       <div style="background: #0f212e; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
@@ -872,8 +902,9 @@ export function showLivePatternAnalysis() {
             <div style="color: #666; font-size: 10px;">Avg Rate</div>
           </div>
         </div>
-        <div style="color: #888; font-size: 10px; padding-top: 8px; border-top: 1px solid #1a2c38;">
-          Last updated: ${new Date().toLocaleTimeString()}
+        <div style="color: #888; font-size: 10px; padding-top: 8px; border-top: 1px solid #1a2c38; display: flex; justify-content: space-between;">
+          <span>Last updated: ${new Date().toLocaleTimeString()}</span>
+          <span style="color: ${computeTime < 100 ? '#00b894' : computeTime < 300 ? '#ffd700' : '#ff7675'};">${computeTime}ms</span>
         </div>
       </div>
       
@@ -887,16 +918,16 @@ export function showLivePatternAnalysis() {
       const hitText = minHits === maxHits && minHits === patternSize
         ? `Full match (${patternSize}/${patternSize})`
         : minHits === maxHits
-        ? `Exactly ${minHits} hits out of ${patternSize}`
-        : `${minHits}-${maxHits} hits out of ${patternSize}`;
+          ? `Exactly ${minHits} hits out of ${patternSize}`
+          : `${minHits}-${maxHits} hits out of ${patternSize}`;
 
       // Calculate bets ago for last full hit - use last 500 bets
       const trackingSize = Math.min(history.length, 500);
-      const betsAgo = pattern.lastFullHit === -1 
-        ? 'Never (last 500)' 
+      const betsAgo = pattern.lastFullHit === -1
+        ? 'Never (last 500)'
         : pattern.lastFullHit === trackingSize - 1
-        ? 'Just now' 
-        : `${trackingSize - pattern.lastFullHit} bet${trackingSize - pattern.lastFullHit > 1 ? 's' : ''} ago`;
+          ? 'Just now'
+          : `${trackingSize - pattern.lastFullHit} bet${trackingSize - pattern.lastFullHit > 1 ? 's' : ''} ago`;
 
       html += `
         <div class="live-pattern-card" data-numbers="${pattern.numbers.join(',')}" style="background: #0f212e; padding: 10px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid ${isHot ? '#00b894' : '#74b9ff'}; cursor: pointer; transition: all 0.2s;">
