@@ -246,25 +246,38 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
   const modeData = betMultipliers[riskMode];
   const payouts = (modeData && modeData[numberCount]) ? modeData[numberCount] : {};
 
-  // Convert hit counts to multipliers
+  // Convert hit counts to multipliers, then to profit/loss (multiplier - 1)
   const multipliers = hitCounts.map(hits => payouts[hits] || 0);
+  const profitLoss = multipliers.map(mult => mult - 1); // -1 = lost bet, +X = profit
+  
+  // Calculate cumulative profit/loss
+  let cumulative = 0;
+  const cumulativePL = profitLoss.map(pl => {
+    cumulative += pl;
+    return cumulative;
+  });
 
   // Calculate graph dimensions
   const graphWidth = 400;
   const graphHeight = 150;
-  const padding = { top: 10, right: 10, bottom: 30, left: 40 };
+  const padding = { top: 10, right: 10, bottom: 30, left: 50 };
   const innerWidth = graphWidth - padding.left - padding.right;
   const innerHeight = graphHeight - padding.top - padding.bottom;
 
-  const maxMultiplier = Math.max(...multipliers, 1);
-  const dataPoints = multipliers.length;
+  const maxValue = Math.max(...cumulativePL, 1);
+  const minValue = Math.min(...cumulativePL, -1);
+  const range = maxValue - minValue;
+  const dataPoints = cumulativePL.length;
+  
+  // Calculate zero line position
+  const zeroY = padding.top + innerHeight * (maxValue / range);
 
   // Generate SVG path for line
   let pathData = '';
-  const points = multipliers.map((mult, i) => {
+  const points = cumulativePL.map((cumPL, i) => {
     const x = padding.left + (i / Math.max(dataPoints - 1, 1)) * innerWidth;
-    const y = padding.top + innerHeight - (mult / maxMultiplier) * innerHeight;
-    return { x, y, mult, hits: hitCounts[i] };
+    const y = padding.top + innerHeight - ((cumPL - minValue) / range) * innerHeight;
+    return { x, y, cumPL, pl: profitLoss[i], mult: multipliers[i], hits: hitCounts[i] };
   });
 
   if (points.length > 0) {
@@ -274,24 +287,32 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
     }
   }
 
-  // Generate point circles
-  let circlesHtml = points.map(p =>
-    `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#74b9ff" stroke="#fff" stroke-width="1">
-      <title>${p.hits} hits = ${p.mult}x</title>
-    </circle>`
-  ).join('');
+  // Generate point circles with color based on profit/loss
+  let circlesHtml = points.map(p => {
+    const color = p.pl > 0 ? '#00b894' : p.pl < 0 ? '#ff7675' : '#888';
+    return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#fff" stroke-width="1">
+      <title>${p.hits} hits = ${p.mult}x (${p.pl >= 0 ? '+' : ''}${p.pl.toFixed(2)}x profit)</title>
+    </circle>`;
+  }).join('');
 
   // Generate Y-axis labels
   const yAxisSteps = 5;
   let yAxisLabels = '';
   for (let i = 0; i <= yAxisSteps; i++) {
-    const value = (maxMultiplier / yAxisSteps) * i;
+    const value = minValue + (range / yAxisSteps) * i;
     const y = padding.top + innerHeight - (i / yAxisSteps) * innerHeight;
+    const color = value >= 0 ? '#00b894' : '#ff7675';
     yAxisLabels += `
-      <text x="${padding.left - 5}" y="${y}" text-anchor="end" dominant-baseline="middle" fill="#666" font-size="10">${value.toFixed(1)}x</text>
-      <line x1="${padding.left}" y1="${y}" x2="${graphWidth - padding.right}" y2="${y}" stroke="#2a3b4a" stroke-width="0.5" opacity="0.5"/>
+      <text x="${padding.left - 5}" y="${y}" text-anchor="end" dominant-baseline="middle" fill="${color}" font-size="10">${value >= 0 ? '+' : ''}${value.toFixed(1)}x</text>
+      <line x1="${padding.left}" y1="${y}" x2="${graphWidth - padding.right}" y2="${y}" stroke="#2a3b4a" stroke-width="0.5" opacity="0.3"/>
     `;
   }
+  
+  // Add zero line
+  yAxisLabels += `
+    <line x1="${padding.left}" y1="${zeroY}" x2="${graphWidth - padding.right}" y2="${zeroY}" stroke="#666" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="${padding.left - 5}" y="${zeroY}" text-anchor="end" dominant-baseline="middle" fill="#888" font-size="10" font-weight="bold">0x</text>
+  `;
 
   // Generate X-axis labels (show every 10 bets)
   let xAxisLabels = '';
@@ -303,17 +324,38 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
       <text x="${x}" y="${graphHeight - 5}" text-anchor="middle" fill="#666" font-size="9">#${betNumber}</text>
     `;
   }
+  
+  // Calculate total profit/loss stats
+  const totalPL = cumulative;
+  const wins = profitLoss.filter(pl => pl > 0).length;
+  const losses = profitLoss.filter(pl => pl < 0).length;
+  const winRate = ((wins / profitLoss.length) * 100).toFixed(1);
 
   return `
     <div class="payout-graph-wrapper" style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h3 style="color: #74b9ff; font-size: 14px; margin: 0;">📈 Hit Frequency Graph</h3>
+        <h3 style="color: #74b9ff; font-size: 14px; margin: 0;">� Cumulative Profit/Loss</h3>
         <select id="risk-mode-selector" style="background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer;">
           <option value="high" ${riskMode === 'high' ? 'selected' : ''}>High Risk</option>
           <option value="medium" ${riskMode === 'medium' ? 'selected' : ''}>Medium Risk</option>
           <option value="low" ${riskMode === 'low' ? 'selected' : ''}>Low Risk</option>
           <option value="classic" ${riskMode === 'classic' ? 'selected' : ''}>Classic</option>
         </select>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; padding: 8px; background: #1a2c38; border-radius: 4px;">
+        <div style="text-align: center;">
+          <div style="color: ${totalPL >= 0 ? '#00b894' : '#ff7675'}; font-size: 16px; font-weight: bold;">${totalPL >= 0 ? '+' : ''}${totalPL.toFixed(2)}x</div>
+          <div style="color: #666; font-size: 9px;">Total P/L</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="color: #74b9ff; font-size: 16px; font-weight: bold;">${winRate}%</div>
+          <div style="color: #666; font-size: 9px;">Win Rate</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="color: #888; font-size: 16px; font-weight: bold;">${wins}W/${losses}L</div>
+          <div style="color: #666; font-size: 9px;">Record</div>
+        </div>
       </div>
       
       <div style="margin-bottom: 10px;">
@@ -327,21 +369,12 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
       <svg width="${graphWidth}" height="${graphHeight}" style="background: #0a1620; border-radius: 4px; display: block;">
         ${yAxisLabels}
         ${xAxisLabels}
-        <path d="${pathData}" fill="none" stroke="#74b9ff" stroke-width="2"/>
-        <path d="${pathData} L ${points[points.length - 1]?.x || 0} ${graphHeight - padding.bottom} L ${padding.left} ${graphHeight - padding.bottom} Z" 
-          fill="url(#gradient)" opacity="0.3"/>
+        <path d="${pathData}" fill="none" stroke="${totalPL >= 0 ? '#00b894' : '#ff7675'}" stroke-width="2"/>
         ${circlesHtml}
-        
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#74b9ff;stop-opacity:0.6" />
-            <stop offset="100%" style="stop-color:#74b9ff;stop-opacity:0" />
-          </linearGradient>
-        </defs>
       </svg>
 
       <div style="color: #666; font-size: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #1a2c38;">
-        Showing multipliers for ${numberCount} number${numberCount !== 1 ? 's' : ''} over last ${lookbackBets} bets
+        Shows cumulative profit/loss for ${numberCount} number${numberCount !== 1 ? 's' : ''} over last ${lookbackBets} bets. Green = profit, Red = loss
       </div>
     </div>
   `;
