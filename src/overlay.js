@@ -13,19 +13,21 @@ export function createOverlay() {
         <div id="drag-handle" style="display:flex; justify-content:space-between; align-items:center; cursor: move; user-select: none; background:#1a2c38; padding:8px 12px; border-top-left-radius:8px; border-top-right-radius:8px;">
             <h3 id="mode-title" style="margin:0; color:#fff; font-weight:bold; pointer-events:none;">Keno Stats Tracker</h3>
             <div style="display:flex; gap:10px; align-items:center;">
+                <span id="settings-icon" style="cursor:pointer; font-size:16px; color:#fff;" title="Settings">⚙️</span>
                 <span id="tracker-status" style="color:#f55; font-size:16px; pointer-events:none;">●</span>
                 <span id="close-overlay" style="cursor:pointer; font-weight:bold; color:#fff; font-size:14px;">✕</span>
             </div>
         </div>
 
-        <div id="keno-overlay-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px;">
-            <div style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <!-- Tracker Tab Content -->
+        <div id="keno-overlay-content" class="tab-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px; display:block;">
+            <div data-section="sampleSize" style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
                 <span id="sample-label" style="color:#ff7675; font-weight:600; cursor:help;" title="Last 5 Bets">Sample Size</span>
                 <input type="number" id="sample-size-input" min="1" value="5"
                     style="width:64px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
             </div>
 
-            <div style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="predict" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span id="predict-label" style="color:#74b9ff; font-weight:600;">Predict:</span>
@@ -41,12 +43,12 @@ export function createOverlay() {
                 </div>
             </div>
 
-            <div style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="hitsMiss" style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="color:#00b894">Hits: <span id="tracker-hits">-</span></div>
                 <div style="color:#ff7675">Miss: <span id="tracker-misses">-</span></div>
             </div>
 
-            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="autoplay" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span id="autoplay-label" style="color:#74b9ff; font-weight:bold;">Auto-Play:</span>
                     <span id="autoplay-status" style="color:#aaa; float:right;">Ready</span>
@@ -66,7 +68,7 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="patternAnalysis" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
                 </div>
@@ -79,7 +81,7 @@ export function createOverlay() {
                 <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
             </div>
             
-            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="recentPlays" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="color:#00b894; font-weight:bold;">Recent Plays</span>
                     <button id="view-saved-numbers-btn" style="background:#2a3b4a; color:#74b9ff; border:none; padding:3px 8px; border-radius:4px; font-size:9px; cursor:pointer; font-weight:bold;">Saved Combos</button>
@@ -89,10 +91,108 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div style="border-top:1px solid #444; padding-top:5px;">
+            <div data-section="history" style="border-top:1px solid #444; padding-top:5px;">
                 History (Last 100) <button id="clear-btn" style="float:right; background:none; border:none; color:#f55; cursor:pointer;">Reset</button>
                 <div id="history-list" style="height:150px; overflow-y:auto; margin-top:5px; border:1px solid #333; background:#0f212e; padding:5px;"></div>
                 <button id="open-betbook-btn" style="width:100%; background:#ffd700; color:#222; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:8px;">Open Stats Book</button>
+            </div>
+        </div>
+
+        <!-- Settings Tab Content -->
+        <div id="keno-settings-content" class="tab-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px; display:none;">
+            <div id="settings-list" style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="color: #aaa; font-size: 12px; margin-bottom: 10px;">Show/Hide Panel Sections (Drag to Reorder)</div>
+                
+                <div class="settings-row" draggable="true" data-section="sampleSize" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">📊</span>
+                        <span style="color: #fff; font-size: 12px;">Sample Size</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="sampleSize" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="predict" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">🎯</span>
+                        <span style="color: #fff; font-size: 12px;">Predict Mode</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="predict" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="hitsMiss" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">✅</span>
+                        <span style="color: #fff; font-size: 12px;">Hits / Miss Display</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="hitsMiss" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="autoplay" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">▶️</span>
+                        <span style="color: #fff; font-size: 12px;">Auto-Play</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="autoplay" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="patternAnalysis" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">🔍</span>
+                        <span style="color: #fff; font-size: 12px;">Pattern Analysis</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="patternAnalysis" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="recentPlays" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">🎲</span>
+                        <span style="color: #fff; font-size: 12px;">Recent Plays</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="recentPlays" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="history" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">📜</span>
+                        <span style="color: #fff; font-size: 12px;">History</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="history" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
             </div>
         </div>
     `;
@@ -306,7 +406,246 @@ export function createOverlay() {
             }
         });
     }
+
+    // View switching
+    const trackerContent = document.getElementById('keno-overlay-content');
+    const settingsContent = document.getElementById('keno-settings-content');
+    const settingsIcon = document.getElementById('settings-icon');
+    
+    let currentView = 'tracker'; // Track current view
+
+    function showTracker() {
+        if (trackerContent) trackerContent.style.display = 'block';
+        if (settingsContent) settingsContent.style.display = 'none';
+        if (settingsIcon) {
+            settingsIcon.textContent = '⚙️'; // Settings gear
+            settingsIcon.title = 'Settings';
+        }
+        currentView = 'tracker';
+    }
+
+    function showSettings() {
+        if (settingsContent) settingsContent.style.display = 'block';
+        if (trackerContent) trackerContent.style.display = 'none';
+        if (settingsIcon) {
+            settingsIcon.textContent = '🏠'; // Home icon
+            settingsIcon.title = 'Back to Tracker';
+        }
+        currentView = 'settings';
+    }
+
+    if (settingsIcon) {
+        settingsIcon.addEventListener('click', () => {
+            if (currentView === 'tracker') {
+                showSettings();
+            } else {
+                showTracker();
+            }
+        });
+    }
+
+    // Initialize settings toggle switches after loading settings
+    function initializeSettingsSwitches() {
+        const settingsToggles = document.querySelectorAll('#keno-settings-content .panel-toggle');
+        settingsToggles.forEach(toggle => {
+            const sectionKey = toggle.dataset.section;
+            
+            // Set initial state from state.panelVisibility
+            const isVisible = state.panelVisibility[sectionKey] !== false;
+            toggle.checked = isVisible;
+            
+            // Update visual state
+            const parent = toggle.closest('.settings-switch');
+            if (parent) {
+                const slider = parent.querySelector('.settings-slider');
+                const dot = parent.querySelector('.settings-slider-dot');
+                if (slider) slider.style.backgroundColor = isVisible ? '#00b894' : '#444';
+                if (dot) dot.style.transform = isVisible ? 'translateX(20px)' : 'translateX(0)';
+            }
+
+            toggle.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                
+                // Update visual state of switch
+                const parent = e.target.closest('.settings-switch');
+                if (parent) {
+                    const slider = parent.querySelector('.settings-slider');
+                    const dot = parent.querySelector('.settings-slider-dot');
+                    if (slider) slider.style.backgroundColor = isChecked ? '#00b894' : '#444';
+                    if (dot) dot.style.transform = isChecked ? 'translateX(20px)' : 'translateX(0)';
+                }
+                
+                // Update state
+                state.panelVisibility[sectionKey] = isChecked;
+                
+                // Auto-save to storage
+                const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+                storageApi.storage.local.set({ panelVisibility: state.panelVisibility }, () => {
+                    console.log('[Settings] Auto-saved panel visibility:', state.panelVisibility);
+                    applyPanelVisibility();
+                });
+            });
+        });
+        
+        // Initialize drag-and-drop for reordering
+        initializeDragAndDrop();
+    }
+
+    // Drag-and-drop functionality for reordering settings
+    function initializeDragAndDrop() {
+        const settingsList = document.getElementById('settings-list');
+        if (!settingsList) return;
+
+        const rows = settingsList.querySelectorAll('.settings-row');
+        let draggedElement = null;
+
+        rows.forEach(row => {
+            row.addEventListener('dragstart', (e) => {
+                draggedElement = row;
+                row.style.opacity = '0.5';
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            row.addEventListener('dragend', (e) => {
+                row.style.opacity = '1';
+                draggedElement = null;
+            });
+
+            row.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                if (draggedElement && draggedElement !== row) {
+                    const rect = row.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+                    
+                    if (e.clientY < midpoint) {
+                        row.parentNode.insertBefore(draggedElement, row);
+                    } else {
+                        row.parentNode.insertBefore(draggedElement, row.nextSibling);
+                    }
+                }
+            });
+
+            row.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Save the new order
+                savePanelOrder();
+            });
+        });
+    }
+
+    // Save the current order of settings rows
+    function savePanelOrder() {
+        const settingsList = document.getElementById('settings-list');
+        if (!settingsList) return;
+
+        const rows = settingsList.querySelectorAll('.settings-row');
+        const newOrder = Array.from(rows).map(row => row.dataset.section);
+        
+        state.panelOrder = newOrder;
+        
+        const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+        storageApi.storage.local.set({ panelOrder: state.panelOrder }, () => {
+            console.log('[Settings] Auto-saved panel order:', state.panelOrder);
+            reorderPanelSections();
+        });
+    }
+
+    // Load and apply saved panel visibility settings, then initialize switches
+    loadPanelVisibilitySettings(initializeSettingsSwitches);
 }
+
+// Reorder the settings rows based on saved order
+function reorderSettingsRows() {
+    const settingsList = document.getElementById('settings-list');
+    if (!settingsList || !state.panelOrder) return;
+
+    const rows = settingsList.querySelectorAll('.settings-row');
+    const rowMap = new Map();
+    
+    rows.forEach(row => {
+        rowMap.set(row.dataset.section, row);
+    });
+
+    // Reorder based on state.panelOrder
+    state.panelOrder.forEach((sectionKey, index) => {
+        const row = rowMap.get(sectionKey);
+        if (row) {
+            settingsList.appendChild(row);
+        }
+    });
+}
+
+// Reorder the main panel sections based on saved order
+function reorderPanelSections() {
+    const trackerContent = document.getElementById('keno-overlay-content');
+    if (!trackerContent || !state.panelOrder) return;
+
+    const sections = new Map();
+    state.panelOrder.forEach(sectionKey => {
+        const section = trackerContent.querySelector(`[data-section="${sectionKey}"]`);
+        if (section) {
+            sections.set(sectionKey, section);
+        }
+    });
+
+    // Reorder by appending in the correct order
+    state.panelOrder.forEach(sectionKey => {
+        const section = sections.get(sectionKey);
+        if (section) {
+            trackerContent.appendChild(section);
+        }
+    });
+}
+
+/**
+ * Load panel visibility settings from localStorage and apply them
+ * @param {Function} callback - Optional callback to run after loading settings
+ */
+function loadPanelVisibilitySettings(callback) {
+    const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+    
+    storageApi.storage.local.get(['panelVisibility', 'panelOrder'], (result) => {
+        if (result.panelVisibility) {
+            state.panelVisibility = { ...state.panelVisibility, ...result.panelVisibility };
+        }
+        if (result.panelOrder) {
+            state.panelOrder = result.panelOrder;
+        }
+        
+        applyPanelVisibility();
+        
+        // Reorder settings rows to match saved order
+        setTimeout(() => {
+            reorderSettingsRows();
+            reorderPanelSections();
+        }, 100);
+        
+        // Call callback after settings are loaded
+        if (callback && typeof callback === 'function') {
+            callback();
+        }
+    });
+}
+
+/**
+ * Apply panel visibility settings to the overlay
+ */
+function applyPanelVisibility() {
+    const sections = ['sampleSize', 'predict', 'hitsMiss', 'autoplay', 'patternAnalysis', 'recentPlays', 'history'];
+    
+    sections.forEach(sectionName => {
+        const element = document.querySelector(`[data-section="${sectionName}"]`);
+        if (element) {
+            element.style.display = state.panelVisibility[sectionName] ? 'block' : 'none';
+        }
+    });
+}
+
+
 
 // Try to inject footer button periodically (original behavior)
 export function injectFooterButton() {
