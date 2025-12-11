@@ -14,18 +14,19 @@ export function createOverlay() {
             <h3 id="mode-title" style="margin:0; color:#fff; font-weight:bold; pointer-events:none;">Keno Stats Tracker</h3>
             <div style="display:flex; gap:10px; align-items:center;">
                 <span id="tracker-status" style="color:#f55; font-size:16px; pointer-events:none;">●</span>
+                <span id="settings-icon" style="cursor:pointer; font-size:16px; color:#fff;" title="Panel Settings">⚙️</span>
                 <span id="close-overlay" style="cursor:pointer; font-weight:bold; color:#fff; font-size:14px;">✕</span>
             </div>
         </div>
 
         <div id="keno-overlay-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px;">
-            <div style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <div data-section="sampleSize" style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
                 <span id="sample-label" style="color:#ff7675; font-weight:600; cursor:help;" title="Last 5 Bets">Sample Size</span>
                 <input type="number" id="sample-size-input" min="1" value="5"
                     style="width:64px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
             </div>
 
-            <div style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="predict" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <span id="predict-label" style="color:#74b9ff; font-weight:600;">Predict:</span>
@@ -41,12 +42,12 @@ export function createOverlay() {
                 </div>
             </div>
 
-            <div style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="hitsMiss" style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="color:#00b894">Hits: <span id="tracker-hits">-</span></div>
                 <div style="color:#ff7675">Miss: <span id="tracker-misses">-</span></div>
             </div>
 
-            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="autoplay" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span id="autoplay-label" style="color:#74b9ff; font-weight:bold;">Auto-Play:</span>
                     <span id="autoplay-status" style="color:#aaa; float:right;">Ready</span>
@@ -66,7 +67,7 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="patternAnalysis" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
                 </div>
@@ -79,7 +80,7 @@ export function createOverlay() {
                 <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
             </div>
             
-            <div style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="recentPlays" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="color:#00b894; font-weight:bold;">Recent Plays</span>
                     <button id="view-saved-numbers-btn" style="background:#2a3b4a; color:#74b9ff; border:none; padding:3px 8px; border-radius:4px; font-size:9px; cursor:pointer; font-weight:bold;">Saved Combos</button>
@@ -89,7 +90,7 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div style="border-top:1px solid #444; padding-top:5px;">
+            <div data-section="history" style="border-top:1px solid #444; padding-top:5px;">
                 History (Last 100) <button id="clear-btn" style="float:right; background:none; border:none; color:#f55; cursor:pointer;">Reset</button>
                 <div id="history-list" style="height:150px; overflow-y:auto; margin-top:5px; border:1px solid #333; background:#0f212e; padding:5px;"></div>
                 <button id="open-betbook-btn" style="width:100%; background:#ffd700; color:#222; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:8px;">Open Stats Book</button>
@@ -304,6 +305,178 @@ export function createOverlay() {
             if (window.__keno_showSavedNumbers) {
                 window.__keno_showSavedNumbers();
             }
+        });
+    }
+
+    // Settings icon click handler
+    const settingsIcon = document.getElementById('settings-icon');
+    if (settingsIcon) {
+        settingsIcon.addEventListener('click', () => {
+            showSettingsModal();
+        });
+    }
+
+    // Load and apply saved panel visibility settings
+    loadPanelVisibilitySettings();
+}
+
+/**
+ * Load panel visibility settings from localStorage and apply them
+ */
+function loadPanelVisibilitySettings() {
+    const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+    
+    storageApi.storage.local.get('panelVisibility', (result) => {
+        if (result.panelVisibility) {
+            state.panelVisibility = { ...state.panelVisibility, ...result.panelVisibility };
+        }
+        applyPanelVisibility();
+    });
+}
+
+/**
+ * Apply panel visibility settings to the overlay
+ */
+function applyPanelVisibility() {
+    const sections = ['sampleSize', 'predict', 'hitsMiss', 'autoplay', 'patternAnalysis', 'recentPlays', 'history'];
+    
+    sections.forEach(sectionName => {
+        const element = document.querySelector(`[data-section="${sectionName}"]`);
+        if (element) {
+            element.style.display = state.panelVisibility[sectionName] ? 'block' : 'none';
+        }
+    });
+}
+
+/**
+ * Show settings modal for panel visibility
+ */
+function showSettingsModal() {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('keno-settings-modal');
+    if (existingModal) existingModal.remove();
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'keno-settings-modal';
+    Object.assign(modal.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: '1000000',
+        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+    });
+
+    const content = document.createElement('div');
+    Object.assign(content.style, {
+        backgroundColor: '#1a2c38',
+        padding: '25px',
+        borderRadius: '12px',
+        maxWidth: '450px',
+        width: '90%',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+        color: '#fff'
+    });
+
+    const sections = [
+        { key: 'sampleSize', label: 'Sample Size', icon: '📊' },
+        { key: 'predict', label: 'Predict Mode', icon: '🎯' },
+        { key: 'hitsMiss', label: 'Hits / Miss Display', icon: '✅' },
+        { key: 'autoplay', label: 'Auto-Play', icon: '▶️' },
+        { key: 'patternAnalysis', label: 'Pattern Analysis', icon: '🔍' },
+        { key: 'recentPlays', label: 'Recent Plays', icon: '🎲' },
+        { key: 'history', label: 'History', icon: '📜' }
+    ];
+
+    let html = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #74b9ff; font-size: 20px;">Panel Settings</h2>
+            <button id="close-settings-modal" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px;">✕</button>
+        </div>
+        
+        <div style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div style="color: #aaa; font-size: 12px; margin-bottom: 10px;">Show/Hide Panel Sections</div>
+    `;
+
+    sections.forEach(section => {
+        html += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">${section.icon}</span>
+                    <span style="color: #fff; font-size: 14px;">${section.label}</span>
+                </div>
+                <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                    <input type="checkbox" class="panel-toggle" data-section="${section.key}" ${state.panelVisibility[section.key] ? 'checked' : ''} style="opacity: 0; width: 0; height: 0;">
+                    <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: ${state.panelVisibility[section.key] ? '#00b894' : '#444'}; transition: 0.4s; border-radius: 24px;"></span>
+                    <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: ${state.panelVisibility[section.key] ? 'translateX(20px)' : 'translateX(0)'}; cursor: pointer;"></span>
+                </label>
+            </div>
+        `;
+    });
+
+    html += `
+        </div>
+        
+        <button id="save-settings-btn" style="width: 100%; padding: 12px; background: #00b894; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#00a085'" onmouseout="this.style.background='#00b894'">Save Settings</button>
+    `;
+
+    content.innerHTML = html;
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+
+    // Event listeners
+    const closeBtn = document.getElementById('close-settings-modal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => modal.remove());
+    }
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+
+    // Toggle switches
+    const toggles = document.querySelectorAll('.panel-toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('change', (e) => {
+            const sectionKey = e.target.dataset.section;
+            const isChecked = e.target.checked;
+            
+            // Update visual state of switch
+            const parent = e.target.closest('.settings-switch');
+            if (parent) {
+                const slider = parent.querySelector('.settings-slider');
+                const dot = parent.querySelector('.settings-slider-dot');
+                if (slider) slider.style.backgroundColor = isChecked ? '#00b894' : '#444';
+                if (dot) dot.style.transform = isChecked ? 'translateX(20px)' : 'translateX(0)';
+            }
+            
+            // Update state (will be saved when clicking Save)
+            state.panelVisibility[sectionKey] = isChecked;
+        });
+    });
+
+    // Save button
+    const saveBtn = document.getElementById('save-settings-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+            
+            storageApi.storage.local.set({ panelVisibility: state.panelVisibility }, () => {
+                console.log('[Settings] Panel visibility saved:', state.panelVisibility);
+                applyPanelVisibility();
+                
+                // Visual feedback
+                saveBtn.textContent = '✓ Saved!';
+                saveBtn.style.background = '#00b894';
+                setTimeout(() => {
+                    modal.remove();
+                }, 500);
+            });
         });
     }
 }

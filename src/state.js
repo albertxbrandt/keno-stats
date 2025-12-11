@@ -8,5 +8,14 @@ export const state = {
     autoPlayRoundsRemaining: 0,
     autoPlayPredictionCount: 3,
     autoPlayStartTime: null,
-    autoPlayElapsedTime: 0
+    autoPlayElapsedTime: 0,
+    panelVisibility: {
+        sampleSize: true,
+        predict: true,
+        hitsMiss: true,
+        autoplay: true,
+        patternAnalysis: true,
+        recentPlays: true,
+        history: true
+    }
 };
