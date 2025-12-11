@@ -4,6 +4,16 @@ import { getDrawn, getSelected } from './storage.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
+// Load bet multipliers data
+let betMultipliers = null;
+fetch(chrome.runtime.getURL('config/bet-multis.json'))
+  .then(res => res.json())
+  .then(data => {
+    betMultipliers = data;
+    console.log('[savedNumbers] Bet multipliers loaded');
+  })
+  .catch(err => console.error('[savedNumbers] Failed to load bet multipliers:', err));
+
 /**
  * Save a number combination
  * @param {Array<number>} numbers - Array of numbers (1-40)
@@ -211,6 +221,133 @@ function analyzeCombinationHits(numbers, comboName) {
 }
 
 /**
+ * Generate hit frequency line graph HTML
+ * @param {Array<number>} numbers - The numbers being analyzed
+ * @param {number} lookbackBets - How many bets to look back (default 50)
+ * @param {string} riskMode - Risk mode (high, medium, low, classic)
+ * @returns {string} HTML for hit frequency graph
+ */
+function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
+  if (!betMultipliers) {
+    return '<div style="color:#666; text-align:center; padding:10px;">Loading payout data...</div>';
+  }
+
+  const history = state.currentHistory || [];
+  const recentHistory = history.slice(-lookbackBets);
+  const numberCount = numbers.length;
+
+  // Calculate hit counts for each bet in the lookback period
+  const hitCounts = recentHistory.map(round => {
+    const drawnNumbers = getDrawn(round);
+    return numbers.filter(num => drawnNumbers.includes(num)).length;
+  });
+
+  // Get payout data for this risk mode and number count
+  const modeData = betMultipliers[riskMode];
+  const payouts = (modeData && modeData[numberCount]) ? modeData[numberCount] : {};
+
+  // Convert hit counts to multipliers
+  const multipliers = hitCounts.map(hits => payouts[hits] || 0);
+
+  // Calculate graph dimensions
+  const graphWidth = 400;
+  const graphHeight = 150;
+  const padding = { top: 10, right: 10, bottom: 30, left: 40 };
+  const innerWidth = graphWidth - padding.left - padding.right;
+  const innerHeight = graphHeight - padding.top - padding.bottom;
+
+  const maxMultiplier = Math.max(...multipliers, 1);
+  const dataPoints = multipliers.length;
+
+  // Generate SVG path for line
+  let pathData = '';
+  const points = multipliers.map((mult, i) => {
+    const x = padding.left + (i / Math.max(dataPoints - 1, 1)) * innerWidth;
+    const y = padding.top + innerHeight - (mult / maxMultiplier) * innerHeight;
+    return { x, y, mult, hits: hitCounts[i] };
+  });
+
+  if (points.length > 0) {
+    pathData = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+      pathData += ` L ${points[i].x} ${points[i].y}`;
+    }
+  }
+
+  // Generate point circles
+  let circlesHtml = points.map(p =>
+    `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#74b9ff" stroke="#fff" stroke-width="1">
+      <title>${p.hits} hits = ${p.mult}x</title>
+    </circle>`
+  ).join('');
+
+  // Generate Y-axis labels
+  const yAxisSteps = 5;
+  let yAxisLabels = '';
+  for (let i = 0; i <= yAxisSteps; i++) {
+    const value = (maxMultiplier / yAxisSteps) * i;
+    const y = padding.top + innerHeight - (i / yAxisSteps) * innerHeight;
+    yAxisLabels += `
+      <text x="${padding.left - 5}" y="${y}" text-anchor="end" dominant-baseline="middle" fill="#666" font-size="10">${value.toFixed(1)}x</text>
+      <line x1="${padding.left}" y1="${y}" x2="${graphWidth - padding.right}" y2="${y}" stroke="#2a3b4a" stroke-width="0.5" opacity="0.5"/>
+    `;
+  }
+
+  // Generate X-axis labels (show every 10 bets)
+  let xAxisLabels = '';
+  const xStep = Math.max(Math.floor(dataPoints / 5), 1);
+  for (let i = 0; i < dataPoints; i += xStep) {
+    const x = padding.left + (i / Math.max(dataPoints - 1, 1)) * innerWidth;
+    const betNumber = history.length - lookbackBets + i + 1;
+    xAxisLabels += `
+      <text x="${x}" y="${graphHeight - 5}" text-anchor="middle" fill="#666" font-size="9">#${betNumber}</text>
+    `;
+  }
+
+  return `
+    <div class="payout-graph-wrapper" style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="color: #74b9ff; font-size: 14px; margin: 0;">📈 Hit Frequency Graph</h3>
+        <select id="risk-mode-selector" style="background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer;">
+          <option value="high" ${riskMode === 'high' ? 'selected' : ''}>High Risk</option>
+          <option value="medium" ${riskMode === 'medium' ? 'selected' : ''}>Medium Risk</option>
+          <option value="low" ${riskMode === 'low' ? 'selected' : ''}>Low Risk</option>
+          <option value="classic" ${riskMode === 'classic' ? 'selected' : ''}>Classic</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 10px;">
+        <label style="color: #888; font-size: 11px; display: flex; align-items: center; gap: 8px;">
+          <span style="min-width: 80px;">Lookback bets:</span>
+          <input type="number" id="lookback-input" min="10" max="${Math.min(history.length, 200)}" value="${lookbackBets}" 
+            style="background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 4px 8px; font-size: 11px; width: 70px;">
+        </label>
+      </div>
+
+      <svg width="${graphWidth}" height="${graphHeight}" style="background: #0a1620; border-radius: 4px; display: block;">
+        ${yAxisLabels}
+        ${xAxisLabels}
+        <path d="${pathData}" fill="none" stroke="#74b9ff" stroke-width="2"/>
+        <path d="${pathData} L ${points[points.length - 1]?.x || 0} ${graphHeight - padding.bottom} L ${padding.left} ${graphHeight - padding.bottom} Z" 
+          fill="url(#gradient)" opacity="0.3"/>
+        ${circlesHtml}
+        
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#74b9ff;stop-opacity:0.6" />
+            <stop offset="100%" style="stop-color:#74b9ff;stop-opacity:0" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <div style="color: #666; font-size: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #1a2c38;">
+        Showing multipliers for ${numberCount} number${numberCount !== 1 ? 's' : ''} over last ${lookbackBets} bets
+      </div>
+    </div>
+  `;
+}
+
+/**
  * Show modal displaying when a combination hit
  * @param {Array<number>} numbers - The numbers being analyzed
  * @param {string} comboName - Name of the combination
@@ -253,6 +390,9 @@ function showCombinationHitsModal(numbers, comboName, hits) {
   const totalBets = state.currentHistory.length;
   const hitRate = totalBets > 0 ? ((hits.length / totalBets) * 100).toFixed(1) : '0.0';
 
+  // Generate payout graph HTML with numbers array
+  const payoutGraphHtml = generatePayoutGraph(numbers, 50, 'high');
+
   let html = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 style="margin: 0; color: #74b9ff; font-size: 18px;">📊 Combination Stats</h2>
@@ -273,6 +413,8 @@ function showCombinationHitsModal(numbers, comboName, hits) {
         </div>
       </div>
     </div>
+
+    ${payoutGraphHtml}
   `;
 
   if (hits.length === 0) {
@@ -322,6 +464,56 @@ function showCombinationHitsModal(numbers, comboName, hits) {
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.remove();
   });
+
+  // Risk mode selector and lookback input event listeners with dynamic update
+  function attachGraphControls() {
+    const riskSelector = document.getElementById('risk-mode-selector');
+    const lookbackInput = document.getElementById('lookback-input');
+
+    let currentRiskMode = 'high';
+    let currentLookback = 50;
+
+    if (riskSelector) {
+      currentRiskMode = riskSelector.value;
+      riskSelector.addEventListener('change', (e) => {
+        currentRiskMode = e.target.value;
+        updateGraph();
+      });
+    }
+
+    if (lookbackInput) {
+      currentLookback = parseInt(lookbackInput.value);
+      lookbackInput.addEventListener('change', (e) => {
+        let value = parseInt(e.target.value);
+        const min = parseInt(e.target.min);
+        const max = parseInt(e.target.max);
+
+        // Clamp value between min and max
+        if (value < min) value = min;
+        if (value > max) value = max;
+        if (isNaN(value)) value = 50;
+
+        currentLookback = value;
+        updateGraph();
+      });
+    }
+
+    function updateGraph() {
+      const newGraphHtml = generatePayoutGraph(numbers, currentLookback, currentRiskMode);
+
+      // Replace just the payout graph section
+      const graphContainer = content.querySelector('.payout-graph-wrapper');
+      if (graphContainer) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newGraphHtml;
+        graphContainer.replaceWith(tempDiv.firstElementChild);
+
+        // Re-attach event listeners to new controls
+        attachGraphControls();
+      }
+    }
+  }
+  attachGraphControls();
 }
 
 /**
@@ -476,3 +668,4 @@ function selectNumbers(numbers) {
 // Expose functions globally
 window.__keno_showSavedNumbers = showSavedNumbersModal;
 window.__keno_updateRecentPlayed = updateRecentPlayedUI;
+window.__keno_selectNumbers = selectNumbers;

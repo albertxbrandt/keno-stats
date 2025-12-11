@@ -540,5 +540,405 @@ function selectPatternNumbers(numbers) {
   }, 150);
 }
 
+/**
+ * Show live pattern analysis overlay
+ */
+export function showLivePatternAnalysis() {
+  // Remove existing overlay
+  const existing = document.getElementById('live-pattern-overlay');
+  if (existing) {
+    existing.remove();
+    return; // Toggle off
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'live-pattern-overlay';
+  Object.assign(overlay.style, {
+    position: 'fixed',
+    top: '50%',
+    right: '20px',
+    transform: 'translateY(-50%)',
+    width: '350px',
+    maxHeight: '80vh',
+    backgroundColor: '#1a2c38',
+    borderRadius: '12px',
+    boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+    zIndex: '999999',
+    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column'
+  });
+
+  overlay.innerHTML = `
+    <div id="live-pattern-header" style="padding: 15px; background: #0f212e; border-bottom: 2px solid #2a3b4a; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+      <h3 style="margin: 0; color: #74b9ff; font-size: 16px; pointer-events: none;">🔴 Live Pattern Analysis</h3>
+      <button id="close-live-pattern" style="background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; padding: 0; width: 24px; height: 24px;">✕</button>
+    </div>
+    
+    <div style="padding: 15px; background: #0f212e; border-bottom: 1px solid #2a3b4a;">
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <div style="flex: 1;">
+          <label style="color: #888; font-size: 11px; display: block; margin-bottom: 4px;">Pattern Size</label>
+          <input type="number" id="live-pattern-size" min="2" max="10" value="5" 
+            style="width: 100%; background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 6px 8px; font-size: 12px;">
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <div style="flex: 1;">
+          <label style="color: #888; font-size: 11px; display: block; margin-bottom: 4px;">Min Hits</label>
+          <input type="number" id="live-min-hits" min="1" max="10" value="5" 
+            style="width: 100%; background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 6px 8px; font-size: 12px;">
+        </div>
+        <div style="flex: 1;">
+          <label style="color: #888; font-size: 11px; display: block; margin-bottom: 4px;">Max Hits</label>
+          <input type="number" id="live-max-hits" min="1" max="10" value="5" 
+            style="width: 100%; background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 6px 8px; font-size: 12px;">
+        </div>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label style="color: #888; font-size: 11px; display: block; margin-bottom: 4px;">Sample Size</label>
+        <input type="number" id="live-sample-size" min="1" max="1000" value="100" 
+          style="width: 100%; background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 6px 8px; font-size: 12px;">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label style="color: #888; font-size: 11px; display: block; margin-bottom: 4px;">Not Hit In (0 = off)</label>
+        <input type="number" id="live-not-hit-in" min="0" max="1000" value="0" 
+          style="width: 100%; background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 6px 8px; font-size: 12px;">
+      </div>
+      <button id="live-pattern-start" style="width: 100%; background: #00b894; color: #fff; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">
+        ▶ Start Live Analysis
+      </button>
+    </div>
+    
+    <div id="live-pattern-status" style="padding: 10px 15px; background: #0a1620; border-bottom: 1px solid #2a3b4a; color: #888; font-size: 11px; display: none;">
+      <span id="status-text">Waiting to start...</span>
+    </div>
+    
+    <div id="live-pattern-results" style="flex: 1; overflow-y: auto; padding: 15px; background: #213743;">
+      <div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">
+        Configure settings above and start analysis
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Make overlay draggable
+  const header = document.getElementById('live-pattern-header');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  header.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    if (e.target.id === 'close-live-pattern') return;
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    isDragging = true;
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, overlay);
+    }
+  }
+
+  function dragEnd(e) {
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    el.style.top = '50%';
+    el.style.right = 'auto';
+    el.style.left = '50%';
+  }
+
+  // State for live analysis
+  let isRunning = false;
+  let updateInterval = null;
+  let patternSize = 5;
+  let sampleSize = 100;
+  let minHits = 5;
+  let maxHits = 5;
+  let notHitIn = 0;
+
+  const startBtn = document.getElementById('live-pattern-start');
+  const statusDiv = document.getElementById('live-pattern-status');
+  const statusText = document.getElementById('status-text');
+  const resultsDiv = document.getElementById('live-pattern-results');
+  const sizeInput = document.getElementById('live-pattern-size');
+  const sampleInput = document.getElementById('live-sample-size');
+  const minHitsInput = document.getElementById('live-min-hits');
+  const maxHitsInput = document.getElementById('live-max-hits');
+  const notHitInInput = document.getElementById('live-not-hit-in');
+
+  // Auto-update minHits and maxHits when pattern size changes
+  sizeInput.addEventListener('input', () => {
+    const size = parseInt(sizeInput.value);
+    if (!isNaN(size)) {
+      minHitsInput.max = size;
+      maxHitsInput.max = size;
+      if (parseInt(minHitsInput.value) > size) {
+        minHitsInput.value = size;
+      }
+      if (parseInt(maxHitsInput.value) > size) {
+        maxHitsInput.value = size;
+      }
+    }
+  });
+
+  // Close button
+  document.getElementById('close-live-pattern').addEventListener('click', () => {
+    if (updateInterval) clearInterval(updateInterval);
+    overlay.remove();
+  });
+
+  // Start/Stop button
+  startBtn.addEventListener('click', () => {
+    if (isRunning) {
+      // Stop
+      isRunning = false;
+      clearInterval(updateInterval);
+      startBtn.textContent = '▶ Start Live Analysis';
+      startBtn.style.background = '#00b894';
+      statusDiv.style.display = 'none';
+      sizeInput.disabled = false;
+      sampleInput.disabled = false;
+      minHitsInput.disabled = false;
+      maxHitsInput.disabled = false;
+      notHitInInput.disabled = false;
+    } else {
+      // Start
+      patternSize = parseInt(sizeInput.value);
+      sampleSize = parseInt(sampleInput.value);
+      minHits = parseInt(minHitsInput.value);
+      maxHits = parseInt(maxHitsInput.value);
+      notHitIn = parseInt(notHitInInput.value);
+
+      if (patternSize < 2 || patternSize > 10) {
+        alert('Pattern size must be between 2 and 10');
+        return;
+      }
+      if (sampleSize < 1 || sampleSize > 1000) {
+        alert('Sample size must be between 1 and 1000');
+        return;
+      }
+      if (minHits < 1 || minHits > patternSize) {
+        alert(`Min hits must be between 1 and ${patternSize}`);
+        return;
+      }
+      if (maxHits < 1 || maxHits > patternSize) {
+        alert(`Max hits must be between 1 and ${patternSize}`);
+        return;
+      }
+      if (minHits > maxHits) {
+        alert('Min hits cannot be greater than max hits');
+        return;
+      }
+      if (notHitIn < 0 || notHitIn > 1000) {
+        alert('Not hit in must be between 0 and 1000');
+        return;
+      }
+
+      isRunning = true;
+      startBtn.textContent = '⏸ Stop Analysis';
+      startBtn.style.background = '#ff7675';
+      statusDiv.style.display = 'block';
+      sizeInput.disabled = true;
+      sampleInput.disabled = true;
+      minHitsInput.disabled = true;
+      maxHitsInput.disabled = true;
+      notHitInInput.disabled = true;
+
+      // Initial update
+      updateLivePatterns();
+
+      // Update every 2 seconds
+      updateInterval = setInterval(updateLivePatterns, 2000);
+    }
+  });
+
+  function updateLivePatterns() {
+    const history = state.currentHistory || [];
+    const actualSampleSize = Math.min(sampleSize, history.length);
+
+    if (history.length === 0) {
+      resultsDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">No data available</div>';
+      return;
+    }
+
+    const rangeText = minHits === maxHits ? `${minHits}` : `${minHits}-${maxHits}`;
+    statusText.textContent = `Analyzing ${actualSampleSize} rounds... Pattern size: ${patternSize}, Hits: ${rangeText}`;
+
+    // Get sample of recent rounds
+    const sample = history.slice(-actualSampleSize);
+
+    // Find all unique patterns and count partial hits
+    const patternCountsMap = new Map();
+
+    // Generate all possible combinations for the pattern size
+    const allPatterns = findCommonPatterns(patternSize, 1000, false, actualSampleSize) || [];
+
+    if (allPatterns.length === 0) {
+      resultsDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">No patterns found</div>';
+      return;
+    }
+
+    // For each pattern, count how many rounds have at least minHits matches
+    allPatterns.forEach(patternObj => {
+      const pattern = patternObj.numbers;
+      let hitCount = 0;
+      let lastFullHit = -1; // Track when pattern last fully matched in ENTIRE history
+
+      // Check last 500 bets for last full hit
+      const historyForTracking = history.slice(-500);
+      historyForTracking.forEach((round, index) => {
+        const drawn = getDrawn(round);
+        const matches = pattern.filter(num => drawn.includes(num)).length;
+        
+        // Track full hits for "last hit" display - use last 500
+        if (matches === patternSize) {
+          lastFullHit = index;
+        }
+      });
+
+      // Count hits within range in sample only
+      sample.forEach(round => {
+        const drawn = getDrawn(round);
+        const matches = pattern.filter(num => drawn.includes(num)).length;
+        
+        // Count hits within range
+        if (matches >= minHits && matches <= maxHits) {
+          hitCount++;
+        }
+      });
+
+      if (hitCount > 0) {
+        patternCountsMap.set(pattern.join(','), {
+          numbers: pattern,
+          count: hitCount,
+          lastFullHit: lastFullHit
+        });
+      }
+    });
+
+    // Convert to array and sort by frequency
+    let patterns = Array.from(patternCountsMap.values())
+      .sort((a, b) => b.count - a.count);
+
+    // Filter by notHitIn if enabled (notHitIn > 0)
+    if (notHitIn > 0) {
+      const trackingSize = Math.min(history.length, 500);
+      patterns = patterns.filter(pattern => {
+        const betsAgo = pattern.lastFullHit === -1 ? Infinity : trackingSize - pattern.lastFullHit;
+        return betsAgo >= notHitIn;
+      });
+    }
+
+    if (patterns.length === 0) {
+      resultsDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">No patterns found with current filters</div>';
+      return;
+    }
+
+    // Calculate stats
+    const totalGames = actualSampleSize;
+    const uniquePatterns = patterns.length;
+    const avgAppearance = patterns.reduce((sum, p) => sum + p.count, 0) / uniquePatterns;
+
+    // Render results
+    let html = `
+      <div style="background: #0f212e; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div>
+            <div style="color: #00b894; font-size: 18px; font-weight: bold;">${uniquePatterns}</div>
+            <div style="color: #666; font-size: 10px;">Patterns</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: #74b9ff; font-size: 18px; font-weight: bold;">${avgAppearance.toFixed(1)}</div>
+            <div style="color: #666; font-size: 10px;">Avg Rate</div>
+          </div>
+        </div>
+        <div style="color: #888; font-size: 10px; padding-top: 8px; border-top: 1px solid #1a2c38;">
+          Last updated: ${new Date().toLocaleTimeString()}
+        </div>
+      </div>
+      
+      <div style="color: #888; font-size: 11px; margin-bottom: 8px; font-weight: bold;">Top Patterns:</div>
+    `;
+
+    patterns.slice(0, 10).forEach((pattern, index) => {
+      const percentage = ((pattern.count / totalGames) * 100).toFixed(1);
+      const isHot = percentage >= 15;
+
+      const hitText = minHits === maxHits && minHits === patternSize
+        ? `Full match (${patternSize}/${patternSize})`
+        : minHits === maxHits
+        ? `Exactly ${minHits} hits out of ${patternSize}`
+        : `${minHits}-${maxHits} hits out of ${patternSize}`;
+
+      // Calculate bets ago for last full hit - use last 500 bets
+      const trackingSize = Math.min(history.length, 500);
+      const betsAgo = pattern.lastFullHit === -1 
+        ? 'Never (last 500)' 
+        : pattern.lastFullHit === trackingSize - 1
+        ? 'Just now' 
+        : `${trackingSize - pattern.lastFullHit} bet${trackingSize - pattern.lastFullHit > 1 ? 's' : ''} ago`;
+
+      html += `
+        <div class="live-pattern-card" data-numbers="${pattern.numbers.join(',')}" style="background: #0f212e; padding: 10px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid ${isHot ? '#00b894' : '#74b9ff'}; cursor: pointer; transition: all 0.2s;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="color: ${isHot ? '#00b894' : '#74b9ff'}; font-weight: bold; font-size: 11px;">#${index + 1}</span>
+            <span style="color: ${isHot ? '#00b894' : '#74b9ff'}; font-weight: bold; font-size: 12px;">${percentage}%</span>
+          </div>
+          <div style="color: #fff; font-size: 12px; font-weight: bold; margin-bottom: 4px; pointer-events: none;">
+            ${pattern.numbers.join(', ')}
+          </div>
+          <div style="color: #666; font-size: 10px; margin-bottom: 2px; pointer-events: none;">
+            ${hitText} - Appeared ${pattern.count}/${totalGames} rounds
+          </div>
+          <div style="color: #888; font-size: 9px; pointer-events: none;">
+            Last full hit: ${betsAgo}
+          </div>
+        </div>
+      `;
+    });
+
+    resultsDiv.innerHTML = html;
+
+    // Add click handlers to pattern cards
+    document.querySelectorAll('.live-pattern-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.background = '#1a2c38';
+        card.style.transform = 'translateX(-4px)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.background = '#0f212e';
+        card.style.transform = 'translateX(0)';
+      });
+      card.addEventListener('click', () => {
+        const numbers = card.dataset.numbers.split(',').map(n => parseInt(n));
+        if (window.__keno_selectNumbers) {
+          window.__keno_selectNumbers(numbers);
+        }
+      });
+    });
+  }
+}
+
 // Expose function globally for overlay button
 window.__keno_showPatternAnalysis = showPatternAnalysisModal;
+window.__keno_showLivePatternAnalysis = showLivePatternAnalysis;

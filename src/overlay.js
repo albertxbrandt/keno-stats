@@ -72,12 +72,15 @@ export function createOverlay() {
                 <div style="margin-bottom:8px;">
                     <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
                 </div>
-                <div style="display:flex; gap:5px; align-items:center;">
+                <div style="display:flex; gap:5px; align-items:center; margin-bottom:8px;">
                     <span style="color:#aaa; font-size:11px; white-space:nowrap;">Size:</span>
                     <input type="number" id="pattern-target" min="3" max="10" value="5" placeholder="3-10"
                         style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     <button id="analyze-pattern-btn" style="flex:1; background:#ffd700; color:#222; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Analyze</button>
                 </div>
+                <button id="live-pattern-btn" style="width:100%; background:#00b894; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">
+                    🔴 Live Analysis
+                </button>
                 <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
             </div>
             
@@ -398,6 +401,15 @@ export function createOverlay() {
         });
     }
 
+    const livePatternBtn = document.getElementById('live-pattern-btn');
+    if (livePatternBtn) {
+        livePatternBtn.addEventListener('click', () => {
+            if (window.__keno_showLivePatternAnalysis) {
+                window.__keno_showLivePatternAnalysis();
+            }
+        });
+    }
+
     const viewSavedBtn = document.getElementById('view-saved-numbers-btn');
     if (viewSavedBtn) {
         viewSavedBtn.addEventListener('click', () => {
@@ -411,7 +423,7 @@ export function createOverlay() {
     const trackerContent = document.getElementById('keno-overlay-content');
     const settingsContent = document.getElementById('keno-settings-content');
     const settingsIcon = document.getElementById('settings-icon');
-    
+
     let currentView = 'tracker'; // Track current view
 
     function showTracker() {
@@ -449,11 +461,11 @@ export function createOverlay() {
         const settingsToggles = document.querySelectorAll('#keno-settings-content .panel-toggle');
         settingsToggles.forEach(toggle => {
             const sectionKey = toggle.dataset.section;
-            
+
             // Set initial state from state.panelVisibility
             const isVisible = state.panelVisibility[sectionKey] !== false;
             toggle.checked = isVisible;
-            
+
             // Update visual state
             const parent = toggle.closest('.settings-switch');
             if (parent) {
@@ -465,7 +477,7 @@ export function createOverlay() {
 
             toggle.addEventListener('change', (e) => {
                 const isChecked = e.target.checked;
-                
+
                 // Update visual state of switch
                 const parent = e.target.closest('.settings-switch');
                 if (parent) {
@@ -474,10 +486,10 @@ export function createOverlay() {
                     if (slider) slider.style.backgroundColor = isChecked ? '#00b894' : '#444';
                     if (dot) dot.style.transform = isChecked ? 'translateX(20px)' : 'translateX(0)';
                 }
-                
+
                 // Update state
                 state.panelVisibility[sectionKey] = isChecked;
-                
+
                 // Auto-save to storage
                 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
                 storageApi.storage.local.set({ panelVisibility: state.panelVisibility }, () => {
@@ -486,7 +498,7 @@ export function createOverlay() {
                 });
             });
         });
-        
+
         // Initialize drag-and-drop for reordering
         initializeDragAndDrop();
     }
@@ -514,11 +526,11 @@ export function createOverlay() {
             row.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
-                
+
                 if (draggedElement && draggedElement !== row) {
                     const rect = row.getBoundingClientRect();
                     const midpoint = rect.top + rect.height / 2;
-                    
+
                     if (e.clientY < midpoint) {
                         row.parentNode.insertBefore(draggedElement, row);
                     } else {
@@ -530,7 +542,7 @@ export function createOverlay() {
             row.addEventListener('drop', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 // Save the new order
                 savePanelOrder();
             });
@@ -544,9 +556,9 @@ export function createOverlay() {
 
         const rows = settingsList.querySelectorAll('.settings-row');
         const newOrder = Array.from(rows).map(row => row.dataset.section);
-        
+
         state.panelOrder = newOrder;
-        
+
         const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
         storageApi.storage.local.set({ panelOrder: state.panelOrder }, () => {
             console.log('[Settings] Auto-saved panel order:', state.panelOrder);
@@ -565,7 +577,7 @@ function reorderSettingsRows() {
 
     const rows = settingsList.querySelectorAll('.settings-row');
     const rowMap = new Map();
-    
+
     rows.forEach(row => {
         rowMap.set(row.dataset.section, row);
     });
@@ -607,7 +619,7 @@ function reorderPanelSections() {
  */
 function loadPanelVisibilitySettings(callback) {
     const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
-    
+
     storageApi.storage.local.get(['panelVisibility', 'panelOrder'], (result) => {
         if (result.panelVisibility) {
             state.panelVisibility = { ...state.panelVisibility, ...result.panelVisibility };
@@ -615,15 +627,15 @@ function loadPanelVisibilitySettings(callback) {
         if (result.panelOrder) {
             state.panelOrder = result.panelOrder;
         }
-        
+
         applyPanelVisibility();
-        
+
         // Reorder settings rows to match saved order
         setTimeout(() => {
             reorderSettingsRows();
             reorderPanelSections();
         }, 100);
-        
+
         // Call callback after settings are loaded
         if (callback && typeof callback === 'function') {
             callback();
@@ -636,7 +648,7 @@ function loadPanelVisibilitySettings(callback) {
  */
 function applyPanelVisibility() {
     const sections = ['sampleSize', 'predict', 'hitsMiss', 'autoplay', 'patternAnalysis', 'recentPlays', 'history'];
-    
+
     sections.forEach(sectionName => {
         const element = document.querySelector(`[data-section="${sectionName}"]`);
         if (element) {

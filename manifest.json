@@ -3,9 +3,14 @@
   "name": "Keno Stats",
   "version": "1.0",
   "description": "Tracks Keno history and provides number stats on Stake.",
-  "permissions": ["storage", "management"],
+  "permissions": [
+    "storage",
+    "management"
+  ],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js"
+    ],
     "type": "module"
   },
   "content_scripts": [
@@ -14,7 +19,9 @@
         "https://stake.com/casino/games/keno*",
         "https://stake.us/casino/games/keno*"
       ],
-      "js": ["dist/content.bundle.js"],
+      "js": [
+        "dist/content.bundle.js"
+      ],
       "run_at": "document_idle"
     },
     {
@@ -22,15 +29,25 @@
         "https://stake.com/casino/games/keno*",
         "https://stake.us/casino/games/keno*"
       ],
-      "js": ["interceptor.js"],
+      "js": [
+        "interceptor.js"
+      ],
       "world": "MAIN",
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["betbook.html", "betbook.js", "disclaimer.html", "disclaimer.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "betbook.html",
+        "betbook.js",
+        "disclaimer.html",
+        "disclaimer.js",
+        "config/bet-multis.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
