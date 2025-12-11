@@ -21,7 +21,7 @@ export function createOverlay() {
 
         <!-- Tracker Tab Content -->
         <div id="keno-overlay-content" class="tab-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px; display:block;">
-            <div data-section="sampleSize" style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <div data-section="sampleSize" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
                 <span id="sample-label" style="color:#ff7675; font-weight:600; cursor:help;" title="Last 5 Bets">Sample Size</span>
                 <input type="number" id="sample-size-input" min="1" value="5"
                     style="width:64px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
@@ -43,12 +43,12 @@ export function createOverlay() {
                 </div>
             </div>
 
-            <div data-section="hitsMiss" style="margin-bottom:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="hitsMiss" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="color:#00b894">Hits: <span id="tracker-hits">-</span></div>
                 <div style="color:#ff7675">Miss: <span id="tracker-misses">-</span></div>
             </div>
 
-            <div data-section="autoplay" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="autoplay" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span id="autoplay-label" style="color:#74b9ff; font-weight:bold;">Auto-Play:</span>
                     <span id="autoplay-status" style="color:#aaa; float:right;">Ready</span>
@@ -68,7 +68,7 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div data-section="patternAnalysis" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="patternAnalysis" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="margin-bottom:8px;">
                     <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
                 </div>
@@ -84,7 +84,7 @@ export function createOverlay() {
                 <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
             </div>
             
-            <div data-section="recentPlays" style="margin-bottom:15px; border-top:1px solid #444; padding-top:10px; background:#0f212e; padding:8px; border-radius:4px;">
+            <div data-section="recentPlays" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="color:#00b894; font-weight:bold;">Recent Plays</span>
                     <button id="view-saved-numbers-btn" style="background:#2a3b4a; color:#74b9ff; border:none; padding:3px 8px; border-radius:4px; font-size:9px; cursor:pointer; font-weight:bold;">Saved Combos</button>
@@ -94,9 +94,12 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div data-section="history" style="border-top:1px solid #444; padding-top:5px;">
-                History (Last 100) <button id="clear-btn" style="float:right; background:none; border:none; color:#f55; cursor:pointer;">Reset</button>
-                <div id="history-list" style="height:150px; overflow-y:auto; margin-top:5px; border:1px solid #333; background:#0f212e; padding:5px;"></div>
+            <div data-section="history" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="color:#fff; font-weight:bold;">History (Last 100)</span>
+                    <button id="clear-btn" style="background:none; border:none; color:#f55; cursor:pointer; font-size:11px;">Reset</button>
+                </div>
+                <div id="history-list" style="height:150px; overflow-y:auto; border:1px solid #333; background:#14202b; padding:5px; border-radius:4px;"></div>
                 <button id="open-betbook-btn" style="width:100%; background:#ffd700; color:#222; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:8px;">Open Stats Book</button>
             </div>
         </div>
