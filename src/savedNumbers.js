@@ -131,10 +131,16 @@ export function updateRecentPlayedUI() {
             <div style="color:#fff; font-size:11px; font-weight:bold;">${item.numbers.join(', ')}</div>
             ${savedCombo ? `<div style="color:#00b894; font-size:9px;">💾 ${savedCombo.name}</div>` : ''}
           </div>
-          <button class="${isSaved ? 'unsave' : 'save'}-combo-btn" data-numbers="${item.numbers.join(',')}" ${isSaved ? `data-id="${savedCombo.id}"` : ''} 
-            style="padding:4px 8px; background:${isSaved ? '#ff7675' : '#00b894'}; color:#fff; border:none; border-radius:4px; font-size:9px; cursor:pointer; white-space:nowrap;">
-            ${isSaved ? '✕' : '💾'}
-          </button>
+          <div style="display:flex; gap:4px;">
+            <button class="info-combo-btn" data-numbers="${item.numbers.join(',')}" data-name="${savedCombo ? savedCombo.name : 'Recent Play'}" 
+              style="padding:4px 8px; background:#2a3b4a; color:#74b9ff; border:none; border-radius:4px; font-size:9px; cursor:pointer; white-space:nowrap;">
+              ℹ️
+            </button>
+            <button class="${isSaved ? 'unsave' : 'save'}-combo-btn" data-numbers="${item.numbers.join(',')}" ${isSaved ? `data-id="${savedCombo.id}"` : ''} 
+              style="padding:4px 8px; background:${isSaved ? '#ff7675' : '#00b894'}; color:#fff; border:none; border-radius:4px; font-size:9px; cursor:pointer; white-space:nowrap;">
+              ${isSaved ? '✕' : '💾'}
+            </button>
+          </div>
         </div>
       `;
 
@@ -165,6 +171,154 @@ export function updateRecentPlayedUI() {
         }
       });
     });
+
+    document.querySelectorAll('.info-combo-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const numbers = btn.dataset.numbers.split(',').map(n => parseInt(n));
+        const name = btn.dataset.name;
+        analyzeCombinationHits(numbers, name);
+      });
+    });
+  });
+}
+
+/**
+ * Analyze when a combination hit all numbers
+ * @param {Array<number>} numbers - Numbers to analyze
+ * @param {string} comboName - Name of the combination
+ */
+function analyzeCombinationHits(numbers, comboName) {
+  const history = state.currentHistory || [];
+  const hits = [];
+
+  // Check each round in history
+  history.forEach((round, index) => {
+    const drawnNumbers = round.drawn || [];
+    const allHit = numbers.every(num => drawnNumbers.includes(num));
+
+    if (allHit) {
+      hits.push({
+        betNumber: history.length - index,
+        time: round.time,
+        drawn: drawnNumbers
+      });
+    }
+  });
+
+  // Show modal with results
+  showCombinationHitsModal(numbers, comboName, hits);
+}
+
+/**
+ * Show modal displaying when a combination hit
+ * @param {Array<number>} numbers - The numbers being analyzed
+ * @param {string} comboName - Name of the combination
+ * @param {Array} hits - Array of hit occurrences
+ */
+function showCombinationHitsModal(numbers, comboName, hits) {
+  // Remove existing modal
+  const existing = document.getElementById('combo-hits-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'combo-hits-modal';
+  Object.assign(modal.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '1000001',
+    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+  });
+
+  const content = document.createElement('div');
+  Object.assign(content.style, {
+    backgroundColor: '#1a2c38',
+    padding: '25px',
+    borderRadius: '12px',
+    maxWidth: '500px',
+    width: '90%',
+    maxHeight: '70vh',
+    overflow: 'auto',
+    boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
+    color: '#fff'
+  });
+
+  const totalBets = state.currentHistory.length;
+  const hitRate = totalBets > 0 ? ((hits.length / totalBets) * 100).toFixed(1) : '0.0';
+
+  let html = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; color: #74b9ff; font-size: 18px;">📊 Combination Stats</h2>
+      <button id="close-hits-modal" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px;">✕</button>
+    </div>
+
+    <div style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #00b894;">
+      <div style="color: #fff; font-size: 15px; font-weight: bold; margin-bottom: 8px;">${numbers.join(', ')}</div>
+      <div style="color: #888; font-size: 12px; margin-bottom: 12px;">${comboName}</div>
+      <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #1a2c38;">
+        <div>
+          <div style="color: #00b894; font-size: 20px; font-weight: bold;">${hits.length}</div>
+          <div style="color: #666; font-size: 10px;">Complete Hits</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="color: #74b9ff; font-size: 20px; font-weight: bold;">${hitRate}%</div>
+          <div style="color: #666; font-size: 10px;">Hit Rate</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (hits.length === 0) {
+    html += '<div style="color:#666; text-align:center; padding:30px 20px; background:#0f212e; border-radius:8px;">This combination has never hit all numbers in your bet history.</div>';
+  } else {
+    html += `
+      <div style="margin-bottom: 10px;">
+        <h3 style="color: #74b9ff; font-size: 14px; margin: 0 0 10px 0;">All Occurrences (${hits.length})</h3>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;">
+    `;
+
+    // Sort hits by most recent first
+    hits.sort((a, b) => b.betNumber - a.betNumber).forEach(hit => {
+      const betsAgo = totalBets - hit.betNumber;
+      const timeStr = new Date(hit.time).toLocaleString();
+
+      html += `
+        <div style="background: #0f212e; padding: 10px 12px; border-radius: 6px; border-left: 3px solid #00b894;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="color: #00b894; font-weight: bold; font-size: 12px;">Bet #${hit.betNumber}</span>
+            <span style="color: #888; font-size: 10px;">${betsAgo} bet${betsAgo !== 1 ? 's' : ''} ago</span>
+          </div>
+          <div style="color: #666; font-size: 10px;">${timeStr}</div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+  }
+
+  html += `
+    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
+      <div style="color: #666; font-size: 11px; line-height: 1.5;">
+        <strong style="color: #888;">Note:</strong> Shows all bets where every number in this combination appeared in the drawn numbers.
+      </div>
+    </div>
+  `;
+
+  content.innerHTML = html;
+  modal.appendChild(content);
+  document.body.appendChild(modal);
+
+  // Event listeners
+  document.getElementById('close-hits-modal')?.addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.remove();
   });
 }
 
@@ -227,7 +381,10 @@ export function showSavedNumbersModal() {
                 <div style="color: #fff; font-size: 14px; font-weight: bold; margin-bottom: 4px;">${combo.numbers.join(', ')}</div>
                 <div style="color: #888; font-size: 11px;">${combo.name}</div>
               </div>
-              <button class="delete-saved-btn" data-id="${combo.id}" style="padding: 6px 10px; background: #ff7675; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">Delete</button>
+              <div style="display:flex; gap:6px;">
+                <button class="info-saved-btn" data-numbers="${combo.numbers.join(',')}" data-name="${combo.name}" style="padding: 6px 10px; background: #2a3b4a; color: #74b9ff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">ℹ️ Info</button>
+                <button class="delete-saved-btn" data-id="${combo.id}" style="padding: 6px 10px; background: #ff7675; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">Delete</button>
+              </div>
             </div>
             <div style="color: #666; font-size: 10px;">Saved: ${date}</div>
           </div>
@@ -264,6 +421,14 @@ export function showSavedNumbersModal() {
             showSavedNumbersModal(); // Refresh modal
           });
         }
+      });
+    });
+
+    document.querySelectorAll('.info-saved-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const numbers = btn.dataset.numbers.split(',').map(n => parseInt(n));
+        const name = btn.dataset.name;
+        analyzeCombinationHits(numbers, name);
       });
     });
   });
