@@ -48,23 +48,25 @@ export function createOverlay() {
                 <div style="color:#ff7675">Miss: <span id="tracker-misses">-</span></div>
             </div>
 
-            <div data-section="autoplay" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
-                <div style="margin-bottom:8px;">
-                    <span id="autoplay-label" style="color:#74b9ff; font-weight:bold;">Auto-Play:</span>
-                    <span id="autoplay-status" style="color:#aaa; float:right;">Ready</span>
+            <div data-section="autoplay" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="autoplay-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span id="autoplay-label" style="color:#74b9ff; font-weight:bold;">Auto-Play</span>
+                    <span id="autoplay-status" style="color:#aaa; font-size:10px;">Ready</span>
                 </div>
-                <div style="display:flex; gap:5px; margin-bottom:6px;">
-                    <input type="number" id="autoplay-rounds" min="1" max="100" value="5" 
-                        style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                    <button id="autoplay-btn" style="flex:1; background:#00b894; color:#000; border:none; padding:4px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Play</button>
-                </div>
-                <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
-                    <span style="color:#aaa; font-size:10px;">Predictions:</span>
+                <div id="autoplay-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:flex; gap:5px; margin-top:8px; margin-bottom:6px;">
+                        <input type="number" id="autoplay-rounds" min="1" max="100" value="5" 
+                            style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        <button id="autoplay-btn" style="flex:1; background:#00b894; color:#000; border:none; padding:4px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Play</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:5px; margin-bottom:6px;">
+                        <span style="color:#aaa; font-size:10px;">Predictions:</span>
                         <input type="number" id="autoplay-pred-count" min="1" max="10" value="3" 
-                        style="width:48px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                </div>
-                <div id="autoplay-timer" style="color:#74b9ff; font-size:10px; text-align:center; display:none;">
-                    Timer: <span id="autoplay-timer-value">0:00</span>
+                            style="width:48px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                    </div>
+                    <div id="autoplay-timer" style="color:#74b9ff; font-size:10px; text-align:center; display:none;">
+                        Timer: <span id="autoplay-timer-value">0:00</span>
+                    </div>
                 </div>
             </div>
             
@@ -88,39 +90,45 @@ export function createOverlay() {
                 </div>
             </div>
             
-            <div data-section="patternAnalysis" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
-                <div style="margin-bottom:8px;">
+            <div data-section="patternAnalysis" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="patternAnalysis-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="color:#ffd700; font-weight:bold;">Pattern Analysis</span>
                 </div>
-                <div style="display:flex; gap:5px; align-items:center; margin-bottom:8px;">
-                    <span style="color:#aaa; font-size:11px; white-space:nowrap;">Size:</span>
-                    <input type="number" id="pattern-target" min="3" max="10" value="5" placeholder="3-10"
-                        style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                    <button id="analyze-pattern-btn" style="flex:1; background:#ffd700; color:#222; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Analyze</button>
+                <div id="patternAnalysis-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:flex; gap:5px; align-items:center; margin-top:8px; margin-bottom:8px;">
+                        <span style="color:#aaa; font-size:11px; white-space:nowrap;">Size:</span>
+                        <input type="number" id="pattern-target" min="3" max="10" value="5" placeholder="3-10"
+                            style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        <button id="analyze-pattern-btn" style="flex:1; background:#ffd700; color:#222; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">Analyze</button>
+                    </div>
+                    <button id="live-pattern-btn" style="width:100%; background:#00b894; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">
+                        🔴 Live Analysis
+                    </button>
+                    <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
                 </div>
-                <button id="live-pattern-btn" style="width:100%; background:#00b894; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">
-                    🔴 Live Analysis
-                </button>
-                <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
             </div>
             
-            <div data-section="recentPlays" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div data-section="recentPlays" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="recentPlays-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="color:#00b894; font-weight:bold;">Recent Plays</span>
                     <button id="view-saved-numbers-btn" style="background:#2a3b4a; color:#74b9ff; border:none; padding:3px 8px; border-radius:4px; font-size:9px; cursor:pointer; font-weight:bold;">Saved Combos</button>
                 </div>
-                <div id="recent-played-list" style="min-height:60px;">
-                    <div style="color:#666; font-size:10px; padding:8px; text-align:center;">No recent plays</div>
+                <div id="recentPlays-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div id="recent-played-list" style="min-height:60px; margin-top:8px;">
+                        <div style="color:#666; font-size:10px; padding:8px; text-align:center;">No recent plays</div>
+                    </div>
                 </div>
             </div>
             
-            <div data-section="history" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div data-section="history" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="history-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="color:#fff; font-weight:bold;">History (Last 100)</span>
                     <button id="clear-btn" style="background:none; border:none; color:#f55; cursor:pointer; font-size:11px;">Reset</button>
                 </div>
-                <div id="history-list" style="height:150px; overflow-y:auto; border:1px solid #333; background:#14202b; padding:5px; border-radius:4px;"></div>
-                <button id="open-betbook-btn" style="width:100%; background:#ffd700; color:#222; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:8px;">Open Stats Book</button>
+                <div id="history-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div id="history-list" style="height:150px; overflow-y:auto; border:1px solid #333; background:#14202b; padding:5px; border-radius:4px; margin-top:8px;"></div>
+                    <button id="open-betbook-btn" style="width:100%; background:#ffd700; color:#222; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:8px;">Open Stats Book</button>
+                </div>
             </div>
         </div>
 
@@ -444,6 +452,150 @@ export function createOverlay() {
             if (!profitLossPinned) {
                 profitLossDetails.style.maxHeight = '0';
                 profitLossDetails.style.opacity = '0';
+            }
+        });
+    }
+
+    // Auto-Play hover expand/collapse with pin functionality
+    const autoplaySection = document.querySelector('[data-section="autoplay"]');
+    const autoplayDetails = document.getElementById('autoplay-details');
+    const autoplayHeader = document.getElementById('autoplay-header');
+    let autoplayPinned = false;
+    
+    if (autoplaySection && autoplayDetails && autoplayHeader) {
+        autoplayHeader.addEventListener('click', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            autoplayPinned = !autoplayPinned;
+            
+            if (autoplayPinned) {
+                autoplayDetails.style.maxHeight = '200px';
+                autoplayDetails.style.opacity = '1';
+                autoplayHeader.style.backgroundColor = '#1a2c38';
+            } else {
+                autoplayDetails.style.maxHeight = '0';
+                autoplayDetails.style.opacity = '0';
+                autoplayHeader.style.backgroundColor = '';
+            }
+        });
+        
+        autoplaySection.addEventListener('mouseenter', () => {
+            if (!autoplayPinned) {
+                autoplayDetails.style.maxHeight = '200px';
+                autoplayDetails.style.opacity = '1';
+            }
+        });
+        autoplaySection.addEventListener('mouseleave', () => {
+            if (!autoplayPinned) {
+                autoplayDetails.style.maxHeight = '0';
+                autoplayDetails.style.opacity = '0';
+            }
+        });
+    }
+
+    // Pattern Analysis hover expand/collapse with pin functionality
+    const patternSection = document.querySelector('[data-section="patternAnalysis"]');
+    const patternDetails = document.getElementById('patternAnalysis-details');
+    const patternHeader = document.getElementById('patternAnalysis-header');
+    let patternPinned = false;
+    
+    if (patternSection && patternDetails && patternHeader) {
+        patternHeader.addEventListener('click', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            patternPinned = !patternPinned;
+            
+            if (patternPinned) {
+                patternDetails.style.maxHeight = '200px';
+                patternDetails.style.opacity = '1';
+                patternHeader.style.backgroundColor = '#1a2c38';
+            } else {
+                patternDetails.style.maxHeight = '0';
+                patternDetails.style.opacity = '0';
+                patternHeader.style.backgroundColor = '';
+            }
+        });
+        
+        patternSection.addEventListener('mouseenter', () => {
+            if (!patternPinned) {
+                patternDetails.style.maxHeight = '200px';
+                patternDetails.style.opacity = '1';
+            }
+        });
+        patternSection.addEventListener('mouseleave', () => {
+            if (!patternPinned) {
+                patternDetails.style.maxHeight = '0';
+                patternDetails.style.opacity = '0';
+            }
+        });
+    }
+
+    // Recent Plays hover expand/collapse with pin functionality
+    const recentPlaysSection = document.querySelector('[data-section="recentPlays"]');
+    const recentPlaysDetails = document.getElementById('recentPlays-details');
+    const recentPlaysHeader = document.getElementById('recentPlays-header');
+    let recentPlaysPinned = false;
+    
+    if (recentPlaysSection && recentPlaysDetails && recentPlaysHeader) {
+        recentPlaysHeader.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            recentPlaysPinned = !recentPlaysPinned;
+            
+            if (recentPlaysPinned) {
+                recentPlaysDetails.style.maxHeight = '300px';
+                recentPlaysDetails.style.opacity = '1';
+                recentPlaysHeader.style.backgroundColor = '#1a2c38';
+            } else {
+                recentPlaysDetails.style.maxHeight = '0';
+                recentPlaysDetails.style.opacity = '0';
+                recentPlaysHeader.style.backgroundColor = '';
+            }
+        });
+        
+        recentPlaysSection.addEventListener('mouseenter', () => {
+            if (!recentPlaysPinned) {
+                recentPlaysDetails.style.maxHeight = '300px';
+                recentPlaysDetails.style.opacity = '1';
+            }
+        });
+        recentPlaysSection.addEventListener('mouseleave', () => {
+            if (!recentPlaysPinned) {
+                recentPlaysDetails.style.maxHeight = '0';
+                recentPlaysDetails.style.opacity = '0';
+            }
+        });
+    }
+
+    // History hover expand/collapse with pin functionality
+    const historySection = document.querySelector('[data-section="history"]');
+    const historyDetails = document.getElementById('history-details');
+    const historyHeader = document.getElementById('history-header');
+    let historyPinned = false;
+    
+    if (historySection && historyDetails && historyHeader) {
+        historyHeader.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            historyPinned = !historyPinned;
+            
+            if (historyPinned) {
+                historyDetails.style.maxHeight = '300px';
+                historyDetails.style.opacity = '1';
+                historyHeader.style.backgroundColor = '#1a2c38';
+            } else {
+                historyDetails.style.maxHeight = '0';
+                historyDetails.style.opacity = '0';
+                historyHeader.style.backgroundColor = '';
+            }
+        });
+        
+        historySection.addEventListener('mouseenter', () => {
+            if (!historyPinned) {
+                historyDetails.style.maxHeight = '300px';
+                historyDetails.style.opacity = '1';
+            }
+        });
+        historySection.addEventListener('mouseleave', () => {
+            if (!historyPinned) {
+                historyDetails.style.maxHeight = '0';
+                historyDetails.style.opacity = '0';
             }
         });
     }
