@@ -813,8 +813,10 @@ export function showLivePatternAnalysis() {
       // Find all unique patterns and count partial hits
       const patternCountsMap = new Map();
 
-      // Generate top 100 patterns only for performance (was 1000)
-      const allPatterns = findCommonPatterns(patternSize, 100, false, actualSampleSize) || [];
+      // Generate patterns from LARGE history window (not just recent sample)
+      // This finds historically significant patterns, then we filter for recent buildups
+      const patternDiscoveryWindow = Math.min(history.length, 1000); // Use last 1000 rounds for pattern discovery
+      const allPatterns = findCommonPatterns(patternSize, 100, false, patternDiscoveryWindow) || [];
 
       if (allPatterns.length === 0) {
         resultsDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">No patterns found</div>';
@@ -872,7 +874,9 @@ export function showLivePatternAnalysis() {
         if (hitCount > 0) {
           const hitRate = (hitCount / actualSampleSize) * 100;
           const trackingSize = Math.min(history.length, 2000);
-          const betsAgoSinceFullHit = lastFullHit === -1 ? Infinity : trackingSize - lastFullHit;
+          // lastFullHit is 0-based index, where 0=oldest, (trackingSize-1)=newest
+          // So bets ago = (trackingSize - 1) - lastFullHit
+          const betsAgoSinceFullHit = lastFullHit === -1 ? Infinity : (trackingSize - 1) - lastFullHit;
           const hasRecentBuildup = recentBuildups.length > 0;
 
           patternCountsMap.set(pattern.join(','), {
