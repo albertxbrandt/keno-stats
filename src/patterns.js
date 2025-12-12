@@ -633,6 +633,7 @@ export function showLivePatternAnalysis() {
   let initialY;
   let xOffset = 0;
   let yOffset = 0;
+  let hasBeenDragged = false;
 
   header.addEventListener('mousedown', dragStart);
   document.addEventListener('mousemove', drag);
@@ -640,6 +641,21 @@ export function showLivePatternAnalysis() {
 
   function dragStart(e) {
     if (e.target.id === 'close-live-pattern') return;
+    
+    // On first drag, calculate position based on current visual location
+    if (!hasBeenDragged) {
+      const rect = overlay.getBoundingClientRect();
+      xOffset = rect.left;
+      yOffset = rect.top;
+      hasBeenDragged = true;
+      
+      // Switch from right-positioned to left-positioned
+      overlay.style.right = 'auto';
+      overlay.style.left = `${xOffset}px`;
+      overlay.style.top = `${yOffset}px`;
+      overlay.style.transform = 'none';
+    }
+    
     initialX = e.clientX - xOffset;
     initialY = e.clientY - yOffset;
     isDragging = true;
@@ -661,10 +677,8 @@ export function showLivePatternAnalysis() {
   }
 
   function setTranslate(xPos, yPos, el) {
-    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
-    el.style.top = '50%';
-    el.style.right = 'auto';
-    el.style.left = '50%';
+    el.style.left = `${xPos}px`;
+    el.style.top = `${yPos}px`;
   }
 
   // State for live analysis
