@@ -513,7 +513,7 @@ function selectPatternNumbers(numbers) {
     console.warn('[patterns] Clear table button not found');
   }
 
-  const tilesContainer = document.querySelector('div[data-testid="keno-tiles"]');
+  const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
   if (!tilesContainer) {
     console.warn('[patterns] Keno tiles container not found');
     return;

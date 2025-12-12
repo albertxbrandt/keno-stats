@@ -105,7 +105,7 @@ export function calculatePrediction(countOverride) {
 }
 
 export function autoPlayPlaceBet() {
-    const container = document.querySelector('div[data-testid="keno-tiles"]');
+    const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) return;
     const tiles = Array.from(container.querySelectorAll('button'));
     // Deselect currently selected

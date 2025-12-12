@@ -113,7 +113,7 @@ export function formatTimeSince(selectedNumbers, targetHitCount) {
  */
 export function getSelectedTileNumbers() {
     try {
-        const tilesContainer = document.querySelector('div[data-testid="keno-tiles"]');
+        const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
         if (!tilesContainer) return [];
 
         const tiles = Array.from(tilesContainer.querySelectorAll('button'));
@@ -310,7 +310,7 @@ function findMultiplierContainers() {
 export function initStatsObserver() {
     console.warn('[STATS] initStatsObserver called!!!');
     try {
-        const tilesContainer = document.querySelector('div[data-testid="keno-tiles"]');
+        const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
         if (!tilesContainer) {
             console.warn('[stats] Keno tiles container not found, retrying in 2s');
             setTimeout(initStatsObserver, 2000);

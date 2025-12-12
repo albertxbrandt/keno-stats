@@ -687,7 +687,7 @@ function selectNumbers(numbers) {
     clearButton.click();
   }
 
-  const tilesContainer = document.querySelector('div[data-testid="keno-tiles"]');
+  const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
   if (!tilesContainer) {
     console.warn('[savedNumbers] Keno tiles container not found');
     return;

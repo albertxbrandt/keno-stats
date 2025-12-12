@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { getHits, getMisses } from './storage.js';
 
 export function highlightRound(round) {
-    const container = document.querySelector('div[data-testid="keno-tiles"]');
+    const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) return;
     const tiles = container.querySelectorAll('button');
     tiles.forEach(tile => {
@@ -31,7 +31,7 @@ export function highlightRound(round) {
 }
 
 export function highlightPrediction(numbers) {
-    const container = document.querySelector('div[data-testid="keno-tiles"]');
+    const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) return;
     const tiles = container.querySelectorAll('button');
     tiles.forEach(t => { t.style.boxShadow = ""; t.style.opacity = "1"; t.style.transform = ""; t.style.borderColor = ""; });
@@ -56,7 +56,7 @@ export function clearHighlight() {
         if (window.__keno_calculatePrediction) window.__keno_calculatePrediction();
         return;
     }
-    const container = document.querySelector('div[data-testid="keno-tiles"]');
+    const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) return;
     const tiles = container.querySelectorAll('button');
     tiles.forEach(tile => {
@@ -82,7 +82,7 @@ export function updateHeatmap() {
         const allDrawn = [...hits, ...misses];
         allDrawn.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
     });
-    const container = document.querySelector('div[data-testid="keno-tiles"]');
+    const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) return;
     const tiles = container.querySelectorAll('button');
     tiles.forEach(tile => {
