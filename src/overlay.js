@@ -30,7 +30,7 @@ export function createOverlay() {
             <div data-section="predict" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span id="predict-label" style="color:#74b9ff; font-weight:600;">Predict:</span>
+                        <span id="predict-label" style="color:#74b9ff; font-weight:600;">Hot Tiles:</span>
                         <input type="number" id="predict-count" min="1" max="10" value="3" 
                             style="width:48px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
                     </div>
@@ -394,7 +394,21 @@ export function createOverlay() {
     if (predictCount) predictCount.addEventListener('change', () => { if (state.isPredictMode) calculatePrediction(); });
 
     const clearBtn = document.getElementById('clear-btn');
-    if (clearBtn) clearBtn.addEventListener('click', () => { clearHistory().then(h => { updateHistoryUI(h); updateHeatmap(); if (window.__keno_clearHighlight) window.__keno_clearHighlight(); }); });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to delete ALL bet history? This action cannot be undone!')) {
+                clearHistory().then(h => {
+                    updateHistoryUI(h); 
+                    updateHeatmap(); 
+                    if (window.__keno_clearHighlight) window.__keno_clearHighlight();
+                    if (window.__keno_recalculateTotalProfit) window.__keno_recalculateTotalProfit();
+                }).catch(err => {
+                    console.error('[overlay] Error clearing history:', err);
+                });
+            }
+        });
+    }
 
     const resetSessionBtn = document.getElementById('reset-session-profit-btn');
     if (resetSessionBtn) {
