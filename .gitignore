@@ -4,4 +4,4 @@ dist/
 *.log
 keno-tracker-plugin/
 data
-scripts
+scripts/output
