@@ -606,6 +606,14 @@ export function showLivePatternAnalysis() {
         <input type="number" id="live-not-hit-in" min="0" max="2000" value="0" 
           style="width: 100%; background: #1a2c38; color: #fff; border: 1px solid #2a3b4a; border-radius: 4px; padding: 6px 8px; font-size: 12px;">
       </div>
+      <div style="margin-bottom: 10px;">
+        <label style="display: flex; align-items: center; gap: 8px; color: #fff; font-size: 12px; cursor: pointer;">
+          <input type="checkbox" id="live-require-buildups" checked 
+            style="cursor: pointer; width: 18px; height: 18px; min-width: 18px; min-height: 18px; flex-shrink: 0; accent-color: #00b894; border: 2px solid #74b9ff; border-radius: 3px; background: #1a2c38; appearance: auto; -webkit-appearance: checkbox; -moz-appearance: checkbox; opacity: 1 !important; display: inline-block !important; position: relative; margin: 0;">
+          <span style="user-select: none;">Require Recent Buildups</span>
+        </label>
+        <div style="color: #666; font-size: 10px; margin-top: 4px; margin-left: 26px;">Show only patterns with min/max hits in sample</div>
+      </div>
       <button id="live-pattern-start" style="width: 100%; background: #00b894; color: #fff; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">
         ▶ Start Live Analysis
       </button>
@@ -641,21 +649,21 @@ export function showLivePatternAnalysis() {
 
   function dragStart(e) {
     if (e.target.id === 'close-live-pattern') return;
-    
+
     // On first drag, calculate position based on current visual location
     if (!hasBeenDragged) {
       const rect = overlay.getBoundingClientRect();
       xOffset = rect.left;
       yOffset = rect.top;
       hasBeenDragged = true;
-      
+
       // Switch from right-positioned to left-positioned
       overlay.style.right = 'auto';
       overlay.style.left = `${xOffset}px`;
       overlay.style.top = `${yOffset}px`;
       overlay.style.transform = 'none';
     }
-    
+
     initialX = e.clientX - xOffset;
     initialY = e.clientY - yOffset;
     isDragging = true;
@@ -689,6 +697,7 @@ export function showLivePatternAnalysis() {
   let minHits = 5;
   let maxHits = 5;
   let notHitIn = 0;
+  let requireBuildups = true;
   let lastHistoryLength = 0;
   let cachedResults = null;
 
@@ -701,6 +710,7 @@ export function showLivePatternAnalysis() {
   const minHitsInput = document.getElementById('live-min-hits');
   const maxHitsInput = document.getElementById('live-max-hits');
   const notHitInInput = document.getElementById('live-not-hit-in');
+  const requireBuildupsCheckbox = document.getElementById('live-require-buildups');
 
   // Auto-update minHits and maxHits when pattern size changes
   sizeInput.addEventListener('input', () => {
@@ -719,7 +729,10 @@ export function showLivePatternAnalysis() {
 
   // Close button
   document.getElementById('close-live-pattern').addEventListener('click', () => {
-    if (updateInterval) clearInterval(updateInterval);
+    if (updateInterval) {
+      window.removeEventListener('kenoNewRound', updateInterval);
+      updateInterval = null;
+    }
     overlay.remove();
   });
 
@@ -728,7 +741,10 @@ export function showLivePatternAnalysis() {
     if (isRunning) {
       // Stop
       isRunning = false;
-      clearInterval(updateInterval);
+      if (updateInterval) {
+        window.removeEventListener('kenoNewRound', updateInterval);
+        updateInterval = null;
+      }
       startBtn.textContent = '▶ Start Live Analysis';
       startBtn.style.background = '#00b894';
       statusDiv.style.display = 'none';
@@ -737,6 +753,7 @@ export function showLivePatternAnalysis() {
       minHitsInput.disabled = false;
       maxHitsInput.disabled = false;
       notHitInInput.disabled = false;
+      requireBuildupsCheckbox.disabled = false;
     } else {
       // Start
       patternSize = parseInt(sizeInput.value);
@@ -744,6 +761,7 @@ export function showLivePatternAnalysis() {
       minHits = parseInt(minHitsInput.value);
       maxHits = parseInt(maxHitsInput.value);
       notHitIn = parseInt(notHitInInput.value);
+      requireBuildups = requireBuildupsCheckbox.checked;
 
       if (patternSize < 2 || patternSize > 10) {
         alert('Pattern size must be between 2 and 10');
@@ -779,6 +797,7 @@ export function showLivePatternAnalysis() {
       minHitsInput.disabled = true;
       maxHitsInput.disabled = true;
       notHitInInput.disabled = true;
+      requireBuildupsCheckbox.disabled = true;
 
       // Reset cache
       lastHistoryLength = 0;
@@ -787,8 +806,14 @@ export function showLivePatternAnalysis() {
       // Initial update
       updateLivePatterns();
 
-      // Update every 3 seconds (increased from 2 for better performance)
-      updateInterval = setInterval(updateLivePatterns, 3000);
+      // Listen for new round events instead of polling
+      const handleNewRound = () => {
+        if (isRunning) updateLivePatterns();
+      };
+      window.addEventListener('kenoNewRound', handleNewRound);
+
+      // Store listener reference for cleanup
+      updateInterval = handleNewRound;
     }
   });
 
@@ -796,7 +821,7 @@ export function showLivePatternAnalysis() {
     const startTime = performance.now();
     const history = state.currentHistory || [];
     const actualSampleSize = Math.min(sampleSize, history.length);
-    const trackingSize = Math.min(history.length, 2000); // Declare at function scope
+    const trackingSize = Math.min(history.length, 1000); // Declare at function scope
     let patterns = []; // Declare at function scope
     const rangeText = minHits === maxHits ? `${minHits}` : `${minHits}-${maxHits}`; // Declare at function scope
 
@@ -829,8 +854,8 @@ export function showLivePatternAnalysis() {
 
       // Generate patterns from LARGE history window (not just recent sample)
       // This finds historically significant patterns, then we filter for recent buildups
-      const patternDiscoveryWindow = Math.min(history.length, 1000); // Use last 1000 rounds for pattern discovery
-      const allPatterns = findCommonPatterns(patternSize, 100, false, patternDiscoveryWindow) || [];
+      const patternDiscoveryWindow = Math.min(history.length, 500); // Use last 500 rounds for pattern discovery (reduced for performance)
+      const allPatterns = findCommonPatterns(patternSize, 50, false, patternDiscoveryWindow) || []; // Top 50 patterns (reduced for performance)
 
       if (allPatterns.length === 0) {
         resultsDiv.innerHTML = '<div style="color: #666; text-align: center; padding: 40px 20px; font-size: 12px;">No patterns found</div>';
@@ -838,8 +863,8 @@ export function showLivePatternAnalysis() {
       }
 
       // Pre-cache drawn numbers for all rounds (avoid repeated getDrawn() calls)
-      // Track up to 2000 rounds for better "Not Hit In" accuracy
-      const historyForTracking = history.slice(-2000);
+      // Track up to 1000 rounds for better "Not Hit In" accuracy (reduced for performance)
+      const historyForTracking = history.slice(-1000);
       const trackingDrawnCache = historyForTracking.map(round => {
         const drawn = getDrawn(round);
         return new Set(drawn); // Use Set for O(1) lookups
@@ -855,39 +880,28 @@ export function showLivePatternAnalysis() {
         const pattern = patternObj.numbers;
         let hitCount = 0;
         let lastFullHit = -1; // Track when pattern last fully matched in ENTIRE history
-        let recentBuildups = []; // Track recent 3/5 or 4/5 hits in last 3 rounds
+        let recentBuildups = []; // Track recent buildups
 
-        // Check last 500 bets for last full hit using cached Sets
+        // Single pass through tracking cache for full hits
         trackingDrawnCache.forEach((drawnSet, index) => {
           const matches = pattern.filter(num => drawnSet.has(num)).length;
-
-          // Track full hits for "last hit" display - use last 2000
           if (matches === patternSize) {
             lastFullHit = index;
           }
         });
 
-        // Track recent buildups based on minHits/maxHits within the sample
+        // Single pass through sample cache for buildups and hit counts
         sampleDrawnCache.forEach((drawnSet) => {
           const matches = pattern.filter(num => drawnSet.has(num)).length;
           if (matches >= minHits && matches <= maxHits) {
             recentBuildups.push(matches);
-          }
-        });
-
-        // Count hits within range in sample only using cached Sets
-        sampleDrawnCache.forEach(drawnSet => {
-          const matches = pattern.filter(num => drawnSet.has(num)).length;
-
-          // Count hits within range
-          if (matches >= minHits && matches <= maxHits) {
             hitCount++;
           }
         });
 
         if (hitCount > 0) {
           const hitRate = (hitCount / actualSampleSize) * 100;
-          const trackingSize = Math.min(history.length, 2000);
+          const trackingSize = Math.min(history.length, 1000);
           // lastFullHit is 0-based index, where 0=oldest, (trackingSize-1)=newest
           // So bets ago = (trackingSize - 1) - lastFullHit
           const betsAgoSinceFullHit = lastFullHit === -1 ? Infinity : (trackingSize - 1) - lastFullHit;
@@ -912,8 +926,11 @@ export function showLivePatternAnalysis() {
       let afterHitRate = allPatternsFromMap.filter(p => p.hitRate >= 10);
       console.log('[live-patterns] After hitRate >=10% filter:', afterHitRate.length);
 
-      let afterBuildup = afterHitRate.filter(p => p.hasRecentBuildup);
-      console.log('[live-patterns] After hasRecentBuildup filter:', afterBuildup.length,
+      // Conditionally apply buildup filter
+      let afterBuildup = requireBuildups
+        ? afterHitRate.filter(p => p.hasRecentBuildup)
+        : afterHitRate;
+      console.log('[live-patterns] After hasRecentBuildup filter (required:', requireBuildups, '):', afterBuildup.length,
         'Sample size:', actualSampleSize, 'Min/Max:', minHits, maxHits);
 
       // Update patterns with filtered and sorted results
