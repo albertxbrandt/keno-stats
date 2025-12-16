@@ -89,6 +89,14 @@ export function createOverlay() {
                                 style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                         </div>
                     </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px; margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">
+                        <span style="color:#aaa; font-size:10px;">Auto-Select Numbers</span>
+                        <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
+                            <input type="checkbox" id="momentum-autoselect-switch" style="opacity:0; width:0; height:0;">
+                            <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
+                            <span id="momentum-autoselect-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
+                        </label>
+                    </div>
                     <button id="select-momentum-btn" style="width:100%; background:#e17055; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Select Numbers</button>
                 </div>
             </div>
@@ -463,7 +471,7 @@ export function createOverlay() {
     const momentumStatus = document.getElementById('momentum-status');
     const momentumHeader = document.getElementById('momentum-header');
     const momentumDetails = document.getElementById('momentum-details');
-    
+
     // Collapsible momentum section
     if (momentumHeader && momentumDetails) {
         momentumHeader.addEventListener('click', (e) => {
@@ -478,7 +486,7 @@ export function createOverlay() {
             }
         });
     }
-    
+
     if (momentumSwitch) {
         // Initialize visual state
         if (state.isMomentumMode) {
@@ -509,19 +517,41 @@ export function createOverlay() {
                     if (track) track.style.backgroundColor = state.isMomentumMode ? '#2a3b4a' : '#444';
                 }
             } catch (err) { }
-            
+
             // Expand details when enabled
             if (state.isMomentumMode && momentumDetails) {
                 momentumDetails.style.maxHeight = '350px';
                 momentumDetails.style.opacity = '1';
             }
-            
+
             if (!state.isMomentumMode) {
                 if (window.__keno_clearHighlight) window.__keno_clearHighlight();
             }
         });
     }
-    
+
+    // Auto-select toggle handler
+    const autoSelectSwitch = document.getElementById('momentum-autoselect-switch');
+    const asDot = document.getElementById('momentum-autoselect-dot');
+    if (autoSelectSwitch) {
+        autoSelectSwitch.checked = !!state.momentumAutoSelect;
+        autoSelectSwitch.addEventListener('change', (e) => {
+            state.momentumAutoSelect = e.target.checked;
+            if (asDot) {
+                asDot.style.transform = state.momentumAutoSelect ? 'translateX(14px)' : 'translateX(0px)';
+                asDot.style.backgroundColor = state.momentumAutoSelect ? '#e17055' : 'white';
+            }
+            // Update auto-select track background
+            try {
+                const parentLabel = autoSelectSwitch.closest('label');
+                if (parentLabel) {
+                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'momentum-autoselect-dot');
+                    if (track) track.style.backgroundColor = state.momentumAutoSelect ? '#2a3b4a' : '#444';
+                }
+            } catch (err) { }
+        });
+    }
+
     if (selectMomentumBtn) {
         selectMomentumBtn.addEventListener('click', () => {
             if (window.__keno_selectMomentumNumbers) {

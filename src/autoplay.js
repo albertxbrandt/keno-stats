@@ -244,7 +244,7 @@ function getMomentumConfig() {
     const baselineInput = document.getElementById('momentum-baseline');
     const thresholdInput = document.getElementById('momentum-threshold');
     const poolInput = document.getElementById('momentum-pool');
-    
+
     return {
         patternSize: parseInt(countInput?.value) || 10,
         detectionWindow: parseInt(detectionInput?.value) || 5,
@@ -260,13 +260,13 @@ function getMomentumConfig() {
  */
 function shouldRefreshMomentum() {
     if (!state.isMomentumMode) return false;
-    
+
     const config = getMomentumConfig();
     const currentRound = state.currentHistory.length;
-    
+
     // First time or refresh interval reached
     if (state.momentumLastRefresh === 0) return true;
-    
+
     const roundsSinceRefresh = currentRound - state.momentumLastRefresh;
     return roundsSinceRefresh >= config.refreshFrequency;
 }
@@ -277,24 +277,33 @@ function shouldRefreshMomentum() {
 export function updateMomentumPredictions() {
     if (!state.isMomentumMode) return;
     if (!shouldRefreshMomentum()) return;
-    
+
     const config = getMomentumConfig();
-    
+
     try {
         const momentumNums = getMomentumPrediction(config.patternSize, config);
         state.momentumNumbers = momentumNums;
         state.momentumLastRefresh = state.currentHistory.length;
-        
+
         console.log(`[Momentum] Auto-refreshed at round ${state.momentumLastRefresh}:`, momentumNums);
-        
+
         // Update status display
         const momentumStatus = document.getElementById('momentum-status');
         if (momentumStatus) {
             momentumStatus.textContent = `Updated (${momentumNums.length})`;
         }
-        
-        // Auto-highlight the new predictions
-        highlightPrediction(momentumNums);
+
+        // Auto-select if toggle is enabled, otherwise just highlight
+        if (state.momentumAutoSelect) {
+            console.log('[Momentum] Auto-selecting numbers on board (delayed)');
+            // Delay to allow UI to fully update after round completion
+            setTimeout(() => {
+                selectMomentumNumbers();
+            }, 800);
+        } else {
+            // Just highlight the new predictions
+            highlightPrediction(momentumNums);
+        }
     } catch (e) {
         console.error('[Momentum] Auto-update failed:', e);
     }
@@ -309,16 +318,16 @@ export function selectMomentumNumbers() {
         console.log('[Momentum] Momentum mode not active');
         return;
     }
-    
+
     const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) {
         console.log('[Momentum] Keno board not found');
         return;
     }
-    
+
     // Get config from UI
     const config = getMomentumConfig();
-    
+
     // Generate momentum predictions
     let momentumNums = [];
     try {
@@ -330,18 +339,18 @@ export function selectMomentumNumbers() {
         console.error('[Momentum] Failed to generate predictions:', e);
         return;
     }
-    
+
     if (momentumNums.length === 0) {
         console.warn('[Momentum] No momentum numbers found');
         return;
     }
-    
+
     // Update status
     const momentumStatus = document.getElementById('momentum-status');
     if (momentumStatus) {
         momentumStatus.textContent = `Selected (${momentumNums.length})`;
     }
-    
+
     // Get tile mapping
     const tiles = Array.from(container.querySelectorAll('button'));
     const numToTile = {};
@@ -350,7 +359,7 @@ export function selectMomentumNumbers() {
         const num = parseInt(numText.split('%')[0]);
         if (!isNaN(num)) numToTile[num] = tile;
     });
-    
+
     // Clear board first
     const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
     if (clearButton) {
@@ -364,14 +373,14 @@ export function selectMomentumNumbers() {
             }
         }
     }
-    
-    // Select momentum numbers
+
+    // Select momentum numbers (delay to allow clear to complete)
     setTimeout(() => {
         let selectedCount = 0;
         momentumNums.forEach(num => {
             const tile = numToTile[num];
             if (!tile) return;
-            
+
             try {
                 simulatePointerClick(tile);
                 selectedCount++;
@@ -384,12 +393,12 @@ export function selectMomentumNumbers() {
                 }
             }
         });
-        
+
         console.log(`[Momentum] Selected ${selectedCount} momentum numbers:`, momentumNums);
-        
+
         // Highlight the selected numbers
         highlightPrediction(momentumNums);
-    }, 100);
+    }, 500);
 }
 
 // Expose functions for UI

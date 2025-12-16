@@ -97,16 +97,18 @@ function initializeExtension() {
 		loadProfitLoss().then(() => {
 			try { updateProfitLossUI(); } catch (e) { console.warn('[content] updateProfitLossUI failed', e); }
 		});
-		
+
 		// Initialize UI after history has been loaded
 		initOverlay();
 		// Ensure history list in overlay shows current history
 		try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
 		// Initialize recent played UI
 		try { updateRecentPlayedUI(); } catch (e) { console.warn('[content] updateRecentPlayedUI failed', e); }
-		setTimeout(updateHeatmap, 2000);
-		setInterval(injectFooterButton, 1000);
-		// Update autoplay timer every second while active
+		// Initial heatmap update
+		updateHeatmap();
+		// Check for footer button less frequently (performance optimization)
+		setInterval(injectFooterButton, 3000);
+		// Update autoplay timer every second (only runs when autoplay active)
 		setInterval(() => {
 			if (state.isAutoPlayMode) {
 				try { updateAutoPlayUI(); } catch (e) { }
@@ -118,15 +120,15 @@ function initializeExtension() {
 			console.warn('[CONTENT] Calling initStatsObserver NOW');
 			initStatsObserver();
 		}, 3000);
-		
+
 		// Keyboard shortcuts
 		document.addEventListener('keydown', (e) => {
 			// Only trigger on Keno page
 			if (!window.location.href.includes('keno')) return;
-			
+
 			// Ignore if typing in an input field
 			if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-			
+
 			// 'b' key - select all predicted numbers
 			if (e.key === 'b' || e.key === 'B') {
 				e.preventDefault();

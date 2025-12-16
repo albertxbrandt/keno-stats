@@ -149,7 +149,6 @@ export function clearHistory() {
 export function updateHistoryUI(history) {
     const list = document.getElementById('history-list');
     if (!list) return;
-    list.innerHTML = '';
 
     // Update sample size input max value
     const sampleInput = document.getElementById('sample-size-input');
@@ -157,38 +156,69 @@ export function updateHistoryUI(history) {
         sampleInput.max = Math.max(history.length, 1);
     }
 
-    // Limit display to last 100 rounds
+    // Performance optimization: Only update if the history list is visible or just changed
+    // Check if overlay is visible
+    const overlay = document.getElementById('keno-tracker-overlay');
+    if (!overlay || overlay.style.display === 'none') {
+        // Defer update until overlay is shown
+        return;
+    }
+
+    // Limit display to last 100 rounds for performance
     const displayHistory = history.slice(-100);
     const startOffset = history.length - displayHistory.length;
 
-    displayHistory.slice().reverse().forEach((round, i) => {
-        const div = document.createElement('div');
-        div.style.borderBottom = '1px solid #333';
-        div.style.padding = '4px 0';
-        div.style.cursor = 'pointer';
+    // Only fully rebuild if significantly different (avoid rebuilding on every single round)
+    const currentChildren = list.children.length;
+    const expectedChildren = Math.min(displayHistory.length, 100);
 
-        // Calculate hits and misses from the new data structure
+    // If just adding one round, prepend instead of full rebuild
+    if (currentChildren === expectedChildren - 1 && expectedChildren > 1) {
+        const round = displayHistory[displayHistory.length - 1];
         const hits = getHits(round);
         const misses = getMisses(round);
+        const div = createHistoryItem(round, history.length, hits, misses);
+        list.insertBefore(div, list.firstChild);
 
-        div.addEventListener('mouseenter', () => {
-            // visually highlight the hovered history entry
-            div.style.backgroundColor = '#13313b';
-            div.style.borderRadius = '4px';
-            // highlightRound is defined in heatmap module; call via window hook
-            if (window.__keno_highlightRound) window.__keno_highlightRound({ hits, misses });
-        });
-        div.addEventListener('mouseleave', () => {
-            div.style.backgroundColor = 'transparent';
-            div.style.borderRadius = '';
-            if (window.__keno_clearHighlight) window.__keno_clearHighlight();
-        });
-        div.innerHTML = `
-            <span style="color:#888">#${history.length - i}</span>
-            <span style="color:#00b894">H:${hits.length}</span>
-            <span style="color:#ff7675">M:${misses.length}</span>
-            <div style="color:#666; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
-        `;
+        // Remove last child if over limit
+        if (list.children.length > 100) {
+            list.removeChild(list.lastChild);
+        }
+        return;
+    }
+
+    // Full rebuild
+    list.innerHTML = '';
+    displayHistory.slice().reverse().forEach((round, i) => {
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const div = createHistoryItem(round, history.length - i, hits, misses);
         list.appendChild(div);
     });
+}
+
+// Helper function to create a history item element
+function createHistoryItem(round, roundNumber, hits, misses) {
+    const div = document.createElement('div');
+    div.style.borderBottom = '1px solid #333';
+    div.style.padding = '4px 0';
+    div.style.cursor = 'pointer';
+
+    div.addEventListener('mouseenter', () => {
+        div.style.backgroundColor = '#13313b';
+        div.style.borderRadius = '4px';
+        if (window.__keno_highlightRound) window.__keno_highlightRound({ hits, misses });
+    });
+    div.addEventListener('mouseleave', () => {
+        div.style.backgroundColor = 'transparent';
+        div.style.borderRadius = '';
+        if (window.__keno_clearHighlight) window.__keno_clearHighlight();
+    });
+    div.innerHTML = `
+        <span style="color:#888">#${roundNumber}</span>
+        <span style="color:#00b894">H:${hits.length}</span>
+        <span style="color:#ff7675">M:${misses.length}</span>
+        <div style="color:#666; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
+    `;
+    return div;
 }

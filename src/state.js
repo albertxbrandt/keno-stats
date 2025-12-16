@@ -7,6 +7,7 @@ export const state = {
     isMomentumMode: false,
     momentumNumbers: [],
     momentumLastRefresh: 0,
+    momentumAutoSelect: false,
     isOverlayVisible: true,
     isAutoPlayMode: false,
     autoPlayRoundsRemaining: 0,

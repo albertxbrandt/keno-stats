@@ -71,6 +71,8 @@ export function clearHighlight() {
 export function updateHeatmap() {
     if (!window.location.href.includes("keno")) return;
     if (state.currentHistory.length === 0) return;
+    // Only update heatmap if sample size panel is visible (performance optimization)
+    if (!state.panelVisibility || !state.panelVisibility.sampleSize) return;
     const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     if (sample.length === 0) return;
@@ -111,5 +113,6 @@ window.__keno_highlightRound = highlightRound;
 window.__keno_clearHighlight = clearHighlight;
 window.__keno_updateHeatmap = updateHeatmap;
 
-setInterval(updateHeatmap, 2000);
+// Note: updateHeatmap is called on-demand via storage.js saveRound() callback
+// No longer running on interval to improve performance with large datasets
 
