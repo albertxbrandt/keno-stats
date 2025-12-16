@@ -4,6 +4,66 @@ import { saveRound, getHits, getMisses } from './storage.js';
 import { simulatePointerClick, findAndClickPlayButton } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 
+export function selectPredictedNumbers() {
+    if (!state.isPredictMode || state.predictedNumbers.length === 0) {
+        console.log('[Keyboard] Predict mode not active or no predictions');
+        return;
+    }
+    
+    const container = document.querySelector('div[data-testid="game-keno"]');
+    if (!container) {
+        console.log('[Keyboard] Keno board not found');
+        return;
+    }
+    
+    const tiles = Array.from(container.querySelectorAll('button'));
+    const numToTile = {};
+    
+    tiles.forEach(tile => {
+        const numText = (tile.textContent || '').trim();
+        const num = parseInt(numText.split('%')[0]);
+        if (!isNaN(num)) numToTile[num] = tile;
+    });
+    
+    // First, clear the board using the clear button
+    const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
+    if (clearButton) {
+        console.log('[Keyboard] Clearing board using clear button');
+        try {
+            simulatePointerClick(clearButton);
+        } catch (e) {
+            try {
+                clearButton.click();
+            } catch (err) {
+                console.error('[Keyboard] Failed to click clear button', err);
+            }
+        }
+    }
+    
+    // Wait for DOM to update before selecting predicted numbers
+    setTimeout(() => {
+        let selectedCount = 0;
+        state.predictedNumbers.forEach(num => {
+            const tile = numToTile[num];
+            if (!tile) return;
+            
+            try {
+                simulatePointerClick(tile);
+                selectedCount++;
+            } catch (e) {
+                try {
+                    tile.click();
+                    selectedCount++;
+                } catch (err) {
+                    console.error('[Keyboard] Failed to click tile', num, err);
+                }
+            }
+        });
+        
+        console.log(`[Keyboard] Selected ${selectedCount} predicted numbers:`, state.predictedNumbers);
+    }, 50);
+}
+
 function isTileSelected(tile) {
     try {
         const ariaPressed = tile.getAttribute('aria-pressed');
@@ -88,7 +148,10 @@ export function updateAutoPlayUI() {
 export function calculatePrediction(countOverride) {
     const input = document.getElementById('predict-count');
     const count = parseInt((input && input.value) || countOverride) || 3;
-    if (state.currentHistory.length === 0) return [];
+    if (state.currentHistory.length === 0) {
+        state.predictedNumbers = [];
+        return [];
+    }
     const counts = {};
     const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
@@ -100,6 +163,7 @@ export function calculatePrediction(countOverride) {
     });
     const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
     const topPicks = sorted.slice(0, count).map(entry => parseInt(entry[0]));
+    state.predictedNumbers = topPicks;
     highlightPrediction(topPicks);
     return topPicks;
 }

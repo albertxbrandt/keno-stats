@@ -3,6 +3,7 @@ export const state = {
     currentHistory: [],
     sampleSize: 5,
     isPredictMode: false,
+    predictedNumbers: [],
     isOverlayVisible: true,
     isAutoPlayMode: false,
     autoPlayRoundsRemaining: 0,
