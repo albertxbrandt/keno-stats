@@ -43,6 +43,56 @@ export function createOverlay() {
                 </div>
             </div>
 
+            <div data-section="momentum" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="momentum-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span id="momentum-label" style="color:#e17055; font-weight:600;">🔥 Momentum</span>
+                        <span id="momentum-status" style="color:#aaa; font-size:9px;">Off</span>
+                    </div>
+                    
+                    <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
+                        <input type="checkbox" id="momentum-mode-switch" style="opacity:0; width:0; height:0;">
+                        <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
+                        <span id="momentum-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
+                    </label>
+                </div>
+                <div id="momentum-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; margin-bottom:6px;">
+                        <div>
+                            <span style="color:#aaa; font-size:9px;">Count:</span>
+                            <input type="number" id="momentum-count" min="1" max="10" value="10" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        </div>
+                        <div>
+                            <span style="color:#aaa; font-size:9px;">Refresh:</span>
+                            <input type="number" id="momentum-refresh" min="1" max="20" value="5" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        </div>
+                        <div>
+                            <span style="color:#aaa; font-size:9px;">Detection:</span>
+                            <input type="number" id="momentum-detection" min="3" max="20" value="5" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        </div>
+                        <div>
+                            <span style="color:#aaa; font-size:9px;">Baseline:</span>
+                            <input type="number" id="momentum-baseline" min="10" max="200" value="50" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        </div>
+                        <div>
+                            <span style="color:#aaa; font-size:9px;">Threshold:</span>
+                            <input type="number" id="momentum-threshold" min="1" max="3" step="0.1" value="1.5" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        </div>
+                        <div>
+                            <span style="color:#aaa; font-size:9px;">Pool:</span>
+                            <input type="number" id="momentum-pool" min="5" max="30" value="15" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                        </div>
+                    </div>
+                    <button id="select-momentum-btn" style="width:100%; background:#e17055; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Select Numbers</button>
+                </div>
+            </div>
+
             <div data-section="hitsMiss" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
                 <div style="color:#00b894">Hits: <span id="tracker-hits">-</span></div>
                 <div style="color:#ff7675">Miss: <span id="tracker-misses">-</span></div>
@@ -158,6 +208,19 @@ export function createOverlay() {
                     </div>
                     <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" class="panel-toggle" data-section="predict" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="momentum" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">🔥</span>
+                        <span style="color: #fff; font-size: 12px;">Momentum Mode</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="momentum" style="opacity: 0; width: 0; height: 0;">
                         <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
                         <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
                     </label>
@@ -393,14 +456,88 @@ export function createOverlay() {
     const predictCount = document.getElementById('predict-count');
     if (predictCount) predictCount.addEventListener('change', () => { if (state.isPredictMode) calculatePrediction(); });
 
+    // Momentum mode handlers
+    const mDot = document.getElementById('momentum-slider-dot');
+    const momentumSwitch = document.getElementById('momentum-mode-switch');
+    const selectMomentumBtn = document.getElementById('select-momentum-btn');
+    const momentumStatus = document.getElementById('momentum-status');
+    const momentumHeader = document.getElementById('momentum-header');
+    const momentumDetails = document.getElementById('momentum-details');
+    
+    // Collapsible momentum section
+    if (momentumHeader && momentumDetails) {
+        momentumHeader.addEventListener('click', (e) => {
+            if (e.target.closest('label') || e.target.closest('input')) return;
+            const isExpanded = momentumDetails.style.maxHeight && momentumDetails.style.maxHeight !== '0px';
+            if (isExpanded) {
+                momentumDetails.style.maxHeight = '0';
+                momentumDetails.style.opacity = '0';
+            } else {
+                momentumDetails.style.maxHeight = '350px';
+                momentumDetails.style.opacity = '1';
+            }
+        });
+    }
+    
+    if (momentumSwitch) {
+        // Initialize visual state
+        if (state.isMomentumMode) {
+            if (mDot) { mDot.style.transform = 'translateX(14px)'; mDot.style.backgroundColor = '#e17055'; }
+            if (momentumStatus) momentumStatus.textContent = 'Active';
+            if (momentumDetails) {
+                momentumDetails.style.maxHeight = '350px';
+                momentumDetails.style.opacity = '1';
+            }
+        }
+        momentumSwitch.checked = !!state.isMomentumMode;
+        momentumSwitch.addEventListener('change', (e) => {
+            state.isMomentumMode = e.target.checked;
+            if (mDot) {
+                mDot.style.transform = state.isMomentumMode ? 'translateX(14px)' : 'translateX(0px)';
+                mDot.style.backgroundColor = state.isMomentumMode ? '#e17055' : 'white';
+            }
+            // Update status text
+            if (momentumStatus) {
+                momentumStatus.textContent = state.isMomentumMode ? 'Active' : 'Off';
+                momentumStatus.style.color = state.isMomentumMode ? '#e17055' : '#aaa';
+            }
+            // Update momentum track background
+            try {
+                const parentLabel = momentumSwitch.closest('label');
+                if (parentLabel) {
+                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'momentum-slider-dot');
+                    if (track) track.style.backgroundColor = state.isMomentumMode ? '#2a3b4a' : '#444';
+                }
+            } catch (err) { }
+            
+            // Expand details when enabled
+            if (state.isMomentumMode && momentumDetails) {
+                momentumDetails.style.maxHeight = '350px';
+                momentumDetails.style.opacity = '1';
+            }
+            
+            if (!state.isMomentumMode) {
+                if (window.__keno_clearHighlight) window.__keno_clearHighlight();
+            }
+        });
+    }
+    
+    if (selectMomentumBtn) {
+        selectMomentumBtn.addEventListener('click', () => {
+            if (window.__keno_selectMomentumNumbers) {
+                window.__keno_selectMomentumNumbers();
+            }
+        });
+    }
+
     const clearBtn = document.getElementById('clear-btn');
     if (clearBtn) {
         clearBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (confirm('Are you sure you want to delete ALL bet history? This action cannot be undone!')) {
                 clearHistory().then(h => {
-                    updateHistoryUI(h); 
-                    updateHeatmap(); 
+                    updateHistoryUI(h);
+                    updateHeatmap();
                     if (window.__keno_clearHighlight) window.__keno_clearHighlight();
                     if (window.__keno_recalculateTotalProfit) window.__keno_recalculateTotalProfit();
                 }).catch(err => {
@@ -433,7 +570,7 @@ export function createOverlay() {
     const profitLossDetails = document.getElementById('profitLoss-details');
     const profitLossHeader = document.getElementById('profitLoss-header');
     let profitLossPinned = false;
-    
+
     if (profitLossSection && profitLossDetails && profitLossHeader) {
         // Click to pin/unpin
         profitLossHeader.addEventListener('click', (e) => {
@@ -441,9 +578,9 @@ export function createOverlay() {
             if (e.target.id === 'profit-currency-select' || e.target.closest('#profit-currency-select')) {
                 return;
             }
-            
+
             profitLossPinned = !profitLossPinned;
-            
+
             if (profitLossPinned) {
                 profitLossDetails.style.maxHeight = '200px';
                 profitLossDetails.style.opacity = '1';
@@ -454,7 +591,7 @@ export function createOverlay() {
                 profitLossHeader.style.backgroundColor = '';
             }
         });
-        
+
         // Hover only works when not pinned
         profitLossSection.addEventListener('mouseenter', () => {
             if (!profitLossPinned) {
@@ -475,12 +612,12 @@ export function createOverlay() {
     const autoplayDetails = document.getElementById('autoplay-details');
     const autoplayHeader = document.getElementById('autoplay-header');
     let autoplayPinned = false;
-    
+
     if (autoplaySection && autoplayDetails && autoplayHeader) {
         autoplayHeader.addEventListener('click', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
             autoplayPinned = !autoplayPinned;
-            
+
             if (autoplayPinned) {
                 autoplayDetails.style.maxHeight = '200px';
                 autoplayDetails.style.opacity = '1';
@@ -491,7 +628,7 @@ export function createOverlay() {
                 autoplayHeader.style.backgroundColor = '';
             }
         });
-        
+
         autoplaySection.addEventListener('mouseenter', () => {
             if (!autoplayPinned) {
                 autoplayDetails.style.maxHeight = '200px';
@@ -511,12 +648,12 @@ export function createOverlay() {
     const patternDetails = document.getElementById('patternAnalysis-details');
     const patternHeader = document.getElementById('patternAnalysis-header');
     let patternPinned = false;
-    
+
     if (patternSection && patternDetails && patternHeader) {
         patternHeader.addEventListener('click', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
             patternPinned = !patternPinned;
-            
+
             if (patternPinned) {
                 patternDetails.style.maxHeight = '200px';
                 patternDetails.style.opacity = '1';
@@ -527,7 +664,7 @@ export function createOverlay() {
                 patternHeader.style.backgroundColor = '';
             }
         });
-        
+
         patternSection.addEventListener('mouseenter', () => {
             if (!patternPinned) {
                 patternDetails.style.maxHeight = '200px';
@@ -547,12 +684,12 @@ export function createOverlay() {
     const recentPlaysDetails = document.getElementById('recentPlays-details');
     const recentPlaysHeader = document.getElementById('recentPlays-header');
     let recentPlaysPinned = false;
-    
+
     if (recentPlaysSection && recentPlaysDetails && recentPlaysHeader) {
         recentPlaysHeader.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') return;
             recentPlaysPinned = !recentPlaysPinned;
-            
+
             if (recentPlaysPinned) {
                 recentPlaysDetails.style.maxHeight = '300px';
                 recentPlaysDetails.style.opacity = '1';
@@ -563,7 +700,7 @@ export function createOverlay() {
                 recentPlaysHeader.style.backgroundColor = '';
             }
         });
-        
+
         recentPlaysSection.addEventListener('mouseenter', () => {
             if (!recentPlaysPinned) {
                 recentPlaysDetails.style.maxHeight = '300px';
@@ -583,12 +720,12 @@ export function createOverlay() {
     const historyDetails = document.getElementById('history-details');
     const historyHeader = document.getElementById('history-header');
     let historyPinned = false;
-    
+
     if (historySection && historyDetails && historyHeader) {
         historyHeader.addEventListener('click', (e) => {
             if (e.target.tagName === 'BUTTON') return;
             historyPinned = !historyPinned;
-            
+
             if (historyPinned) {
                 historyDetails.style.maxHeight = '300px';
                 historyDetails.style.opacity = '1';
@@ -599,7 +736,7 @@ export function createOverlay() {
                 historyHeader.style.backgroundColor = '';
             }
         });
-        
+
         historySection.addEventListener('mouseenter', () => {
             if (!historyPinned) {
                 historyDetails.style.maxHeight = '300px';

@@ -4,6 +4,9 @@ export const state = {
     sampleSize: 5,
     isPredictMode: false,
     predictedNumbers: [],
+    isMomentumMode: false,
+    momentumNumbers: [],
+    momentumLastRefresh: 0,
     isOverlayVisible: true,
     isAutoPlayMode: false,
     autoPlayRoundsRemaining: 0,
@@ -18,6 +21,7 @@ export const state = {
     panelVisibility: {
         sampleSize: true,
         predict: true,
+        momentum: true,
         hitsMiss: true,
         autoplay: true,
         profitLoss: true,
@@ -25,5 +29,5 @@ export const state = {
         recentPlays: true,
         history: true
     },
-    panelOrder: ['sampleSize', 'predict', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+    panelOrder: ['sampleSize', 'predict', 'momentum', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history']
 };

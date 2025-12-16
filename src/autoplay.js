@@ -234,6 +234,165 @@ export function autoPlayPlaceBet() {
     }, 350);
 }
 
-// Expose calculatePrediction for heatmap/pred UI
+/**
+ * Get momentum config from UI inputs
+ */
+function getMomentumConfig() {
+    const countInput = document.getElementById('momentum-count');
+    const refreshInput = document.getElementById('momentum-refresh');
+    const detectionInput = document.getElementById('momentum-detection');
+    const baselineInput = document.getElementById('momentum-baseline');
+    const thresholdInput = document.getElementById('momentum-threshold');
+    const poolInput = document.getElementById('momentum-pool');
+    
+    return {
+        patternSize: parseInt(countInput?.value) || 10,
+        detectionWindow: parseInt(detectionInput?.value) || 5,
+        baselineWindow: parseInt(baselineInput?.value) || 50,
+        momentumThreshold: parseFloat(thresholdInput?.value) || 1.5,
+        refreshFrequency: parseInt(refreshInput?.value) || 5,
+        topNPool: parseInt(poolInput?.value) || 15
+    };
+}
+
+/**
+ * Check if momentum should refresh based on round count
+ */
+function shouldRefreshMomentum() {
+    if (!state.isMomentumMode) return false;
+    
+    const config = getMomentumConfig();
+    const currentRound = state.currentHistory.length;
+    
+    // First time or refresh interval reached
+    if (state.momentumLastRefresh === 0) return true;
+    
+    const roundsSinceRefresh = currentRound - state.momentumLastRefresh;
+    return roundsSinceRefresh >= config.refreshFrequency;
+}
+
+/**
+ * Update momentum predictions (called automatically on new rounds)
+ */
+export function updateMomentumPredictions() {
+    if (!state.isMomentumMode) return;
+    if (!shouldRefreshMomentum()) return;
+    
+    const config = getMomentumConfig();
+    
+    try {
+        const momentumNums = getMomentumPrediction(config.patternSize, config);
+        state.momentumNumbers = momentumNums;
+        state.momentumLastRefresh = state.currentHistory.length;
+        
+        console.log(`[Momentum] Auto-refreshed at round ${state.momentumLastRefresh}:`, momentumNums);
+        
+        // Update status display
+        const momentumStatus = document.getElementById('momentum-status');
+        if (momentumStatus) {
+            momentumStatus.textContent = `Updated (${momentumNums.length})`;
+        }
+        
+        // Auto-highlight the new predictions
+        highlightPrediction(momentumNums);
+    } catch (e) {
+        console.error('[Momentum] Auto-update failed:', e);
+    }
+}
+
+/**
+ * Select momentum-based numbers on the board (manual mode)
+ * User enables momentum mode, clicks "Select Numbers", then plays manually
+ */
+export function selectMomentumNumbers() {
+    if (!state.isMomentumMode) {
+        console.log('[Momentum] Momentum mode not active');
+        return;
+    }
+    
+    const container = document.querySelector('div[data-testid="game-keno"]');
+    if (!container) {
+        console.log('[Momentum] Keno board not found');
+        return;
+    }
+    
+    // Get config from UI
+    const config = getMomentumConfig();
+    
+    // Generate momentum predictions
+    let momentumNums = [];
+    try {
+        momentumNums = getMomentumPrediction(config.patternSize, config);
+        state.momentumNumbers = momentumNums;
+        state.momentumLastRefresh = state.currentHistory.length;
+        console.log('[Momentum] Generated predictions:', momentumNums);
+    } catch (e) {
+        console.error('[Momentum] Failed to generate predictions:', e);
+        return;
+    }
+    
+    if (momentumNums.length === 0) {
+        console.warn('[Momentum] No momentum numbers found');
+        return;
+    }
+    
+    // Update status
+    const momentumStatus = document.getElementById('momentum-status');
+    if (momentumStatus) {
+        momentumStatus.textContent = `Selected (${momentumNums.length})`;
+    }
+    
+    // Get tile mapping
+    const tiles = Array.from(container.querySelectorAll('button'));
+    const numToTile = {};
+    tiles.forEach(tile => {
+        const numText = (tile.textContent || '').trim();
+        const num = parseInt(numText.split('%')[0]);
+        if (!isNaN(num)) numToTile[num] = tile;
+    });
+    
+    // Clear board first
+    const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
+    if (clearButton) {
+        try {
+            simulatePointerClick(clearButton);
+        } catch (e) {
+            try {
+                clearButton.click();
+            } catch (err) {
+                console.error('[Momentum] Failed to click clear button', err);
+            }
+        }
+    }
+    
+    // Select momentum numbers
+    setTimeout(() => {
+        let selectedCount = 0;
+        momentumNums.forEach(num => {
+            const tile = numToTile[num];
+            if (!tile) return;
+            
+            try {
+                simulatePointerClick(tile);
+                selectedCount++;
+            } catch (e) {
+                try {
+                    tile.click();
+                    selectedCount++;
+                } catch (err) {
+                    console.error('[Momentum] Failed to click tile', num, err);
+                }
+            }
+        });
+        
+        console.log(`[Momentum] Selected ${selectedCount} momentum numbers:`, momentumNums);
+        
+        // Highlight the selected numbers
+        highlightPrediction(momentumNums);
+    }, 100);
+}
+
+// Expose functions for UI
 window.__keno_calculatePrediction = calculatePrediction;
-window.__keno_getMomentumPredictions = getMomentumBasedPredictions;
+window.__keno_selectMomentumNumbers = selectMomentumNumbers;
+window.__keno_updateMomentumPredictions = updateMomentumPredictions;

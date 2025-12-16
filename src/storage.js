@@ -121,6 +121,10 @@ export function saveRound(round) {
             if (window.__keno_clearPatternCache) {
                 try { window.__keno_clearPatternCache(); } catch (e) { console.warn('[storage] clearPatternCache failed', e); }
             }
+            // Update momentum predictions if active
+            if (window.__keno_updateMomentumPredictions) {
+                try { window.__keno_updateMomentumPredictions(); } catch (e) { console.warn('[storage] updateMomentumPredictions failed', e); }
+            }
             // Dispatch event for live pattern updates
             window.dispatchEvent(new CustomEvent('kenoNewRound', { detail: { history } }));
             return history;
