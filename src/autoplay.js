@@ -1,7 +1,7 @@
 // src/autoplay.js
 import { state } from './state.js';
 import { saveRound, getHits, getMisses } from './storage.js';
-import { simulatePointerClick, findAndClickPlayButton } from './utils.js';
+import { simulatePointerClick, findAndClickPlayButton, waitForPlayButtonAndClick, waitForClearButtonAndClick } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 import { getMomentumPrediction, MomentumPatternGenerator } from './momentum.js';
 
@@ -307,29 +307,69 @@ export function calculatePrediction(countOverride) {
 
 export function autoPlayPlaceBet() {
     const container = document.querySelector('div[data-testid="game-keno"]');
-    if (!container) return;
-    const tiles = Array.from(container.querySelectorAll('button'));
-    // Deselect currently selected
-    const currentlySelected = tiles.filter(isTileSelected);
-    if (currentlySelected.length > 0) console.log('[AutoPlay] Deselecting tiles:', currentlySelected.map(t => parseInt((t.textContent || '').trim().split('%')[0])));
-    currentlySelected.forEach(t => { try { simulatePointerClick(t); } catch (e) { try { t.click(); } catch { } } t.style.boxShadow = ''; t.style.transform = ''; t.style.opacity = '1'; });
+    if (!container) {
+        console.warn('[AutoPlay] Keno container not found');
+        return;
+    }
+    
+    console.log('[AutoPlay] Starting bet placement - waiting for clear button');
+    
+    // Wait for clear button to be ready, then click it
+    waitForClearButtonAndClick(3000, 50).then(clearSuccess => {
+        if (!clearSuccess) {
+            console.warn('[AutoPlay] Clear button failed - trying manual deselect');
+            // Fallback: manually deselect all tiles
+            const tiles = Array.from(container.querySelectorAll('button'));
+            const selected = tiles.filter(isTileSelected);
+            selected.forEach(tile => {
+                try {
+                    tile.click();
+                } catch (e) {
+                    console.error('[AutoPlay] Manual deselect failed', e);
+                }
+            });
+        } else {
+            console.log('[AutoPlay] Board cleared successfully');
+        }
+        
+        // Wait for clear to complete, then generate predictions
+        setTimeout(() => {
+            generateAndSelectPredictions();
+        }, 300);
+    });
+}
 
-    // Get predictions - use unified generator if active, otherwise fallback to frequency
+function generateAndSelectPredictions() {
+    // Regenerate predictions based on latest history
     let predictions = [];
-    if (state.isGeneratorActive && state.generatedNumbers.length > 0) {
-        // Use numbers from unified generator
-        predictions = state.generatedNumbers.slice(0, state.autoPlayPredictionCount);
-        console.log('[AutoPlay] Using generated numbers from Number Generator:', predictions);
+    if (state.isGeneratorActive) {
+        // Regenerate numbers using the generator (will recalculate with latest data)
+        if (state.generatorMethod === 'frequency') {
+            predictions = getTopPredictions(state.autoPlayPredictionCount);
+        } else if (state.generatorMethod === 'momentum') {
+            const config = getMomentumConfig();
+            predictions = getMomentumPrediction(config.patternSize, config);
+        }
+        state.generatedNumbers = predictions;
+        console.log('[AutoPlay] Regenerated predictions from Number Generator:', predictions);
     } else {
         // Fallback to frequency-based predictions
         if (state.currentHistory.length === 0) predictions = generateRandomPrediction(state.autoPlayPredictionCount);
         else predictions = getTopPredictions(state.autoPlayPredictionCount);
         if (!predictions || predictions.length === 0) predictions = generateRandomPrediction(state.autoPlayPredictionCount);
         predictions = predictions.slice(0, state.autoPlayPredictionCount);
-        console.log('[AutoPlay] Using fallback predictions:', predictions);
+        console.log('[AutoPlay] Generated fallback predictions:', predictions);
     }
 
     highlightPrediction(predictions);
+    selectAndPlayPredictions(predictions);
+}
+
+function selectAndPlayPredictions(predictions) {
+    const container = document.querySelector('div[data-testid="game-keno"]');
+    if (!container) return;
+    
+    const tiles = Array.from(container.querySelectorAll('button'));
     setTimeout(() => {
         const clicked = [];
         const numToTile = {};
@@ -353,11 +393,15 @@ export function autoPlayPlaceBet() {
         }
         tiles.forEach(tile => { const numText = (tile.textContent || '').trim(); const num = parseInt(numText.split('%')[0]); if (isNaN(num)) return; if (!clicked.includes(num)) tile.style.opacity = '0.4'; });
         console.log('[AutoPlay] Clicked predicted tiles (final):', clicked);
-        const playBtn = findAndClickPlayButton();
-        if (!playBtn) {
-            console.warn('[AutoPlay] could not find play button, will retry');
-            setTimeout(() => { const retry = findAndClickPlayButton(); if (!retry) { setTimeout(() => { const retry2 = findAndClickPlayButton(); if (!retry2) console.warn('[AutoPlay] Play button not found'); else console.log('[AutoPlay] Play clicked 2nd retry'); }, 450); } else console.log('[AutoPlay] Play clicked on retry'); }, 450);
-        } else console.log('[AutoPlay] Play button clicked');
+        
+        // Wait for play button to become enabled, then click it
+        waitForPlayButtonAndClick(10000, 100).then(success => {
+            if (success) {
+                console.log('[AutoPlay] Play button clicked successfully');
+            } else {
+                console.warn('[AutoPlay] Failed to click play button - timed out waiting');
+            }
+        });
     }, 350);
 }
 
