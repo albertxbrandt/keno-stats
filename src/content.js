@@ -41,14 +41,13 @@ function initializeExtension() {
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
 		console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses, fullData: data });
-		// Save full kenoBet structure - preserve all fields except user
-		const { user, state: originalState, ...kenoBetData } = data;
+		// Save full kenoBet structure - data IS the kenoBet object from interceptor
 		const betData = {
 			id: data.id,
 			kenoBet: {
-				...kenoBetData, // Spread all fields except user and state
+				...data, // Preserve all kenoBet fields (amount, payout, currency, etc.)
 				state: {
-					...(originalState || {}), // Preserve all original state fields
+					...(data.state || {}), // Preserve all original state fields
 					drawnNumbers: drawn,
 					selectedNumbers: selected
 				}
