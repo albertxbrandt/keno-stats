@@ -222,12 +222,12 @@ export function getColdPredictions(count) {
     const counts = {};
     const sampleCount = Math.min(state.generatorSampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
-    
+
     // Initialize all numbers with count 0
     for (let i = 1; i <= 40; i++) {
         counts[i] = 0;
     }
-    
+
     // Count occurrences
     sample.forEach(round => {
         const hits = getHits(round);
@@ -235,7 +235,7 @@ export function getColdPredictions(count) {
         const allHits = [...hits, ...misses];
         allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
     });
-    
+
     // Sort by ascending count (least frequent first)
     const sorted = Object.entries(counts).sort((a, b) => a[1] - b[1]);
     const capped = Math.min(count, 40);

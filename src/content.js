@@ -68,7 +68,7 @@ function initializeExtension() {
 		setTimeout(() => {
 			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
 		}, 500);
-		
+
 		// Track round for comparison if window is open
 		if (state.isComparisonWindowOpen && window.__keno_trackRound) {
 			try {
@@ -77,7 +77,7 @@ function initializeExtension() {
 				console.error('[Comparison] track round failed:', e);
 			}
 		}
-		
+
 		// Auto Predict
 		if (state.isPredictMode) calculatePrediction();
 		// Auto Play Logic

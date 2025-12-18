@@ -133,6 +133,7 @@ export function createOverlay() {
                         </label>
                     </div>
                     <button id="generate-numbers-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Generate Numbers</button>
+                    <button id="method-comparison-btn" style="width:100%; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:9px; margin-top:4px;">📊 Compare Methods</button>
                 </div>
             </div>
 
@@ -196,9 +197,6 @@ export function createOverlay() {
                     </div>
                     <button id="live-pattern-btn" style="width:100%; background:#00b894; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">
                         🔴 Live Analysis
-                    </button>
-                    <button id="method-comparison-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:6px;">
-                        📊 Method Comparison
                     </button>
                     <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
                 </div>
