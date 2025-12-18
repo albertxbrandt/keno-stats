@@ -242,19 +242,6 @@ export function createOverlay() {
                     </label>
                 </div>
                 
-                <div class="settings-row" draggable="true" data-section="sampleSize" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #666; font-size: 14px;">☰</span>
-                        <span style="font-size: 16px;">📊</span>
-                        <span style="color: #fff; font-size: 12px;">Sample Size (Legacy)</span>
-                    </div>
-                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                        <input type="checkbox" class="panel-toggle" data-section="sampleSize" style="opacity: 0; width: 0; height: 0;">
-                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
-                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
-                    </label>
-                </div>
-                
                 <div class="settings-row" draggable="true" data-section="numberGenerator" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="color: #666; font-size: 14px;">☰</span>
@@ -263,32 +250,6 @@ export function createOverlay() {
                     </div>
                     <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" class="panel-toggle" data-section="numberGenerator" style="opacity: 0; width: 0; height: 0;">
-                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
-                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
-                    </label>
-                </div>
-                
-                <div class="settings-row" draggable="true" data-section="predict" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #666; font-size: 14px;">☰</span>
-                        <span style="font-size: 16px;">🎯</span>
-                        <span style="color: #fff; font-size: 12px;">Predict (Legacy)</span>
-                    </div>
-                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                        <input type="checkbox" class="panel-toggle" data-section="predict" style="opacity: 0; width: 0; height: 0;">
-                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
-                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
-                    </label>
-                </div>
-                
-                <div class="settings-row" draggable="true" data-section="momentum" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #666; font-size: 14px;">☰</span>
-                        <span style="font-size: 16px;">🔥</span>
-                        <span style="color: #fff; font-size: 12px;">Momentum (Legacy)</span>
-                    </div>
-                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
-                        <input type="checkbox" class="panel-toggle" data-section="momentum" style="opacity: 0; width: 0; height: 0;">
                         <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
                         <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
                     </label>
@@ -1261,7 +1222,7 @@ function loadPanelVisibilitySettings(callback) {
  * Apply panel visibility settings to the overlay
  */
 function applyPanelVisibility() {
-    const sections = ['sampleSize', 'predict', 'hitsMiss', 'autoplay', 'patternAnalysis', 'recentPlays', 'history'];
+    const sections = ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'];
 
     sections.forEach(sectionName => {
         const element = document.querySelector(`[data-section="${sectionName}"]`);
