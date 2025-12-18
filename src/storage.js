@@ -3,6 +3,51 @@ import { state } from './state.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
+// Performance: Use chunked storage to avoid rewriting entire 20k+ history
+const CHUNK_SIZE = 1000; // Store 1000 rounds per chunk
+let pendingWrite = null;
+let writeTimeout = null;
+
+function getChunkKey(index) {
+    return `history_chunk_${Math.floor(index / CHUNK_SIZE)}`;
+}
+
+function queueStorageWrite(round, totalCount) {
+    // Cancel pending write
+    if (writeTimeout) {
+        clearTimeout(writeTimeout);
+    }
+    
+    // Store the round to write
+    pendingWrite = { round, totalCount };
+    
+    // Debounce: write after 100ms of no new rounds
+    writeTimeout = setTimeout(() => {
+        if (pendingWrite) {
+            const { round, totalCount } = pendingWrite;
+            const chunkIndex = Math.floor((totalCount - 1) / CHUNK_SIZE);
+            const chunkKey = getChunkKey(totalCount - 1);
+            
+            // Get current chunk, append round, write back
+            storageApi.storage.local.get([chunkKey, 'history_count']).then(res => {
+                let chunk = res[chunkKey] || [];
+                chunk.push(round);
+                
+                const writeData = {
+                    [chunkKey]: chunk,
+                    history_count: totalCount
+                };
+                
+                return storageApi.storage.local.set(writeData);
+            }).catch(e => {
+                console.error('[storage] Failed to write chunk:', e);
+            });
+            
+            pendingWrite = null;
+        }
+    }, 100);
+}
+
 /**
  * Calculate hits from bet data
  * @param {Object} bet - Bet object with kenoBet.state structure
@@ -73,74 +118,120 @@ export function getSelected(bet) {
 }
 
 export function saveRound(round) {
-    return storageApi.storage.local.get('history').then((res) => {
-        let history = res.history || [];
-        history.push(round);
-        // Store unlimited history (bet book needs full history)
-        return storageApi.storage.local.set({ history }).then(() => {
-            state.currentHistory = history;
+    // Append to in-memory state immediately (no lag)
+    state.currentHistory.push(round);
+    const totalCount = state.currentHistory.length;
+    
+    // Queue the chunked write (only writes one chunk, not entire history)
+    queueStorageWrite(round, totalCount);
+    
+    // Update profit/loss if data is available
+    if (round.kenoBet && round.kenoBet.amount && round.kenoBet.payout !== undefined) {
+        const betAmount = parseFloat(round.kenoBet.amount) || 0;
+        const payout = parseFloat(round.kenoBet.payout) || 0;
+        const profit = payout - betAmount;
+        const currency = (round.kenoBet.currency || 'btc').toLowerCase();
 
-            // Update profit/loss if data is available
-            if (round.kenoBet && round.kenoBet.amount && round.kenoBet.payout !== undefined) {
-                const betAmount = parseFloat(round.kenoBet.amount) || 0;
-                const payout = parseFloat(round.kenoBet.payout) || 0;
-                const profit = payout - betAmount;
-                const currency = (round.kenoBet.currency || 'btc').toLowerCase();
-
-                // Update session profit only via profitLoss module if available
-                if (window.__keno_updateProfit) {
-                    try {
-                        window.__keno_updateProfit(profit, currency);
-                    } catch (e) {
-                        console.warn('[storage] updateProfit failed', e);
-                    }
-                }
-
-                // Recalculate total profit from history
-                if (window.__keno_recalculateTotalProfit) {
-                    try {
-                        window.__keno_recalculateTotalProfit();
-                    } catch (e) {
-                        console.warn('[storage] recalculateTotalProfit failed', e);
-                    }
-                }
-            }
-
-            // Update UI live when a new round is saved
+        // Update session profit only via profitLoss module if available
+        if (window.__keno_updateProfit) {
             try {
-                updateHistoryUI(history);
+                window.__keno_updateProfit(profit, currency);
             } catch (e) {
-                // updateHistoryUI may be unavailable early; ignore
-                console.warn('[storage] updateHistoryUI failed', e);
+                console.warn('[storage] updateProfit failed', e);
             }
-            // Trigger heatmap refresh if available
-            if (window.__keno_updateHeatmap) {
-                try { window.__keno_updateHeatmap(); } catch (e) { console.warn('[storage] updateHeatmap failed', e); }
+        }
+
+        // Recalculate total profit from history
+        if (window.__keno_recalculateTotalProfit) {
+            try {
+                window.__keno_recalculateTotalProfit();
+            } catch (e) {
+                console.warn('[storage] recalculateTotalProfit failed', e);
             }
-            // Clear pattern cache when new data arrives
-            if (window.__keno_clearPatternCache) {
-                try { window.__keno_clearPatternCache(); } catch (e) { console.warn('[storage] clearPatternCache failed', e); }
-            }
-            // Update momentum predictions if active
-            if (window.__keno_updateMomentumPredictions) {
-                try { window.__keno_updateMomentumPredictions(); } catch (e) { console.warn('[storage] updateMomentumPredictions failed', e); }
-            }
-            // Dispatch event for live pattern updates
-            window.dispatchEvent(new CustomEvent('kenoNewRound', { detail: { history } }));
-            return history;
-        });
-    });
+        }
+    }
+
+    // Defer non-critical UI updates to avoid blocking main thread
+    setTimeout(() => {
+        // Update UI live when a new round is saved
+        try {
+            updateHistoryUI(state.currentHistory);
+        } catch (e) {
+            console.warn('[storage] updateHistoryUI failed', e);
+        }
+        // Trigger heatmap refresh if available
+        if (window.__keno_updateHeatmap) {
+            try { window.__keno_updateHeatmap(); } catch (e) { console.warn('[storage] updateHeatmap failed', e); }
+        }
+        // Clear pattern cache when new data arrives
+        if (window.__keno_clearPatternCache) {
+            try { window.__keno_clearPatternCache(); } catch (e) { console.warn('[storage] clearPatternCache failed', e); }
+        }
+        // Update momentum predictions if active
+        if (window.__keno_updateMomentumPredictions) {
+            try { window.__keno_updateMomentumPredictions(); } catch (e) { console.warn('[storage] updateMomentumPredictions failed', e); }
+        }
+        // Dispatch event for live pattern updates
+        window.dispatchEvent(new CustomEvent('kenoNewRound', { detail: { history: state.currentHistory } }));
+    }, 0);
+    
+    return Promise.resolve(state.currentHistory);
 }
 
 export function loadHistory() {
-    return storageApi.storage.local.get('history').then(res => {
-        state.currentHistory = res.history || [];
-        return state.currentHistory;
+    // Load from chunked storage or fall back to old format
+    return storageApi.storage.local.get(['history_count', 'history']).then(res => {
+        if (res.history_count) {
+            // New chunked format: load all chunks
+            const chunkCount = Math.ceil(res.history_count / CHUNK_SIZE);
+            const chunkKeys = [];
+            for (let i = 0; i < chunkCount; i++) {
+                chunkKeys.push(`history_chunk_${i}`);
+            }
+            
+            return storageApi.storage.local.get(chunkKeys).then(chunks => {
+                state.currentHistory = [];
+                for (let i = 0; i < chunkCount; i++) {
+                    const chunk = chunks[`history_chunk_${i}`] || [];
+                    state.currentHistory.push(...chunk);
+                }
+                return state.currentHistory;
+            });
+        } else if (res.history) {
+            // Old format: migrate to chunked storage
+            console.log('[storage] Migrating to chunked storage format...');
+            state.currentHistory = res.history;
+            
+            // Migrate in background
+            setTimeout(() => {
+                const totalCount = state.currentHistory.length;
+                const chunkCount = Math.ceil(totalCount / CHUNK_SIZE);
+                const writeData = { history_count: totalCount };
+                
+                for (let i = 0; i < chunkCount; i++) {
+                    const start = i * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, totalCount);
+                    const chunk = state.currentHistory.slice(start, end);
+                    writeData[`history_chunk_${i}`] = chunk;
+                }
+                
+                storageApi.storage.local.set(writeData).then(() => {
+                    // Remove old format
+                    storageApi.storage.local.remove('history');
+                    console.log('[storage] Migration complete');
+                }).catch(e => console.error('[storage] Migration failed:', e));
+            }, 1000);
+            
+            return state.currentHistory;
+        } else {
+            state.currentHistory = [];
+            return state.currentHistory;
+        }
     });
 }
 
 export function clearHistory() {
-    return storageApi.storage.local.set({ history: [] }).then(() => {
+    return storageApi.storage.local.clear().then(() => {
         state.currentHistory = [];
         return state.currentHistory;
     });

@@ -8,6 +8,7 @@ export const state = {
     momentumNumbers: [],
     momentumLastRefresh: 0,
     momentumAutoSelect: false,
+    momentumDisplayCache: null, // Cache momentum display to avoid recalculating
     isOverlayVisible: true,
     isAutoPlayMode: false,
     autoPlayRoundsRemaining: 0,

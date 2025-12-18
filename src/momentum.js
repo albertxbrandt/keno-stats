@@ -106,8 +106,11 @@ export class MomentumPatternGenerator {
       return null;
     }
 
-    const recentRounds = history.slice(-this.config.detectionWindow);
-    const baselineRounds = history.slice(-this.config.baselineWindow);
+    // Performance: Only get needed windows from large history
+    const maxWindow = Math.max(this.config.detectionWindow, this.config.baselineWindow);
+    const relevantHistory = history.length > maxWindow ? history.slice(-maxWindow) : history;
+    const recentRounds = relevantHistory.slice(-this.config.detectionWindow);
+    const baselineRounds = relevantHistory.slice(-this.config.baselineWindow);
 
     // Count appearances in recent window
     const recentCount = recentRounds.filter(round => {
@@ -145,7 +148,10 @@ export class MomentumPatternGenerator {
     const frequencies = {};
     for (let i = 1; i <= 40; i++) frequencies[i] = 0;
 
-    const baselineRounds = history.slice(-this.config.baselineWindow);
+    // Performance: Only process baseline window, not entire 20k history
+    const maxNeeded = this.config.baselineWindow;
+    const relevantHistory = history.length > maxNeeded ? history.slice(-maxNeeded) : history;
+    const baselineRounds = relevantHistory;
     for (const round of baselineRounds) {
       const drawn = getDrawn(round);
       for (const num of drawn) {

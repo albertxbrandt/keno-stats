@@ -56,6 +56,16 @@ export function createOverlay() {
                         <span id="momentum-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
                     </label>
                 </div>
+                <div id="momentum-info" style="display:none; margin-top:6px; padding:6px; background:#14202b; border-radius:4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span style="color:#666; font-size:9px;">Refresh in:</span>
+                        <span id="momentum-countdown" style="color:#e17055; font-size:9px; font-weight:600;">-</span>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <span style="color:#666; font-size:9px;">Momentum:</span>
+                        <span id="momentum-current-numbers" style="color:#74b9ff; font-size:8px; font-weight:500; line-height:1.3; word-break:break-all;">-</span>
+                    </div>
+                </div>
                 <div id="momentum-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; margin-bottom:6px;">
                         <div>
@@ -522,6 +532,11 @@ export function createOverlay() {
             if (state.isMomentumMode && momentumDetails) {
                 momentumDetails.style.maxHeight = '350px';
                 momentumDetails.style.opacity = '1';
+            }
+
+            // Update info panel and countdown
+            if (window.__keno_updateMomentumCountdown) {
+                window.__keno_updateMomentumCountdown();
             }
 
             if (!state.isMomentumMode) {

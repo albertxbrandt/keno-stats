@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { saveRound, getHits, getMisses } from './storage.js';
 import { simulatePointerClick, findAndClickPlayButton } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
-import { getMomentumPrediction } from './momentum.js';
+import { getMomentumPrediction, MomentumPatternGenerator } from './momentum.js';
 
 export function selectPredictedNumbers() {
     if (!state.isPredictMode || state.predictedNumbers.length === 0) {
@@ -272,11 +272,110 @@ function shouldRefreshMomentum() {
 }
 
 /**
+ * Update countdown display showing rounds until next refresh
+ */
+function updateMomentumCountdown() {
+    const countdownEl = document.getElementById('momentum-countdown');
+    const infoPanel = document.getElementById('momentum-info');
+    const currentNumbersEl = document.getElementById('momentum-current-numbers');
+
+    if (!state.isMomentumMode) {
+        if (infoPanel) infoPanel.style.display = 'none';
+        return;
+    }
+
+    // Show info panel when momentum is active
+    if (infoPanel) infoPanel.style.display = 'block';
+
+    const config = getMomentumConfig();
+    const currentRound = state.currentHistory.length;
+
+    // Update countdown
+    if (countdownEl) {
+        if (state.momentumLastRefresh === 0) {
+            countdownEl.textContent = 'Waiting...';
+        } else {
+            const roundsSinceRefresh = currentRound - state.momentumLastRefresh;
+            const roundsRemaining = config.refreshFrequency - roundsSinceRefresh;
+
+            if (roundsRemaining > 0) {
+                countdownEl.textContent = `${roundsRemaining} round${roundsRemaining === 1 ? '' : 's'}`;
+            } else {
+                countdownEl.textContent = 'Refreshing...';
+            }
+        }
+    }
+
+    // Update momentum values display (only calculate if numbers changed)
+    if (currentNumbersEl) {
+        if (state.momentumNumbers && state.momentumNumbers.length > 0 && state.currentHistory.length > 0) {
+            // Cache momentum display to avoid recalculating every countdown update
+            if (!state.momentumDisplayCache || state.momentumDisplayCache.round !== state.momentumLastRefresh) {
+                try {
+                    const generator = new MomentumPatternGenerator({
+                        patternSize: config.patternSize,
+                        ...config
+                    });
+
+                    // Get momentum values for current selected numbers
+                    const momentumValues = state.momentumNumbers.map(num => {
+                        const momentum = generator.calculateMomentum(num, state.currentHistory);
+                        const value = momentum !== null ? momentum.toFixed(2) : 'N/A';
+                        return `${num}:${value}`;
+                    }).join(', ');
+
+                    state.momentumDisplayCache = {
+                        round: state.momentumLastRefresh,
+                        display: momentumValues
+                    };
+                } catch (e) {
+                    state.momentumDisplayCache = {
+                        round: state.momentumLastRefresh,
+                        display: state.momentumNumbers.join(', ')
+                    };
+                }
+            }
+            currentNumbersEl.textContent = state.momentumDisplayCache.display;
+        } else {
+            currentNumbersEl.textContent = 'None';
+        }
+    }
+}
+
+/**
+ * Log top momentum numbers with their momentum values
+ */
+function logTopMomentumNumbers(config) {
+    try {
+        const generator = new MomentumPatternGenerator({
+            patternSize: config.patternSize,
+            ...config
+        });
+
+        const allMomentum = generator.getAllMomentumValues(state.currentHistory);
+        const topNumbers = allMomentum.slice(0, 15); // Show top 15
+
+        console.log(`[Momentum] Top ${topNumbers.length} numbers by momentum:`);
+        topNumbers.forEach((item, index) => {
+            const momentumValue = item.momentum !== null ? item.momentum.toFixed(2) : 'N/A';
+            const hotIndicator = item.isHot ? '🔥' : '  ';
+            console.log(`  ${hotIndicator} ${index + 1}. Number ${item.number}: ${momentumValue}`);
+        });
+    } catch (e) {
+        console.error('[Momentum] Failed to log top numbers:', e);
+    }
+}
+
+/**
  * Update momentum predictions (called automatically on new rounds)
  */
 export function updateMomentumPredictions() {
     if (!state.isMomentumMode) return;
-    if (!shouldRefreshMomentum()) return;
+    if (!shouldRefreshMomentum()) {
+        // Update countdown even if not refreshing
+        updateMomentumCountdown();
+        return;
+    }
 
     const config = getMomentumConfig();
 
@@ -285,6 +384,8 @@ export function updateMomentumPredictions() {
         state.momentumNumbers = momentumNums;
         state.momentumLastRefresh = state.currentHistory.length;
 
+        // Log top numbers with detailed info
+        logTopMomentumNumbers(config);
         console.log(`[Momentum] Auto-refreshed at round ${state.momentumLastRefresh}:`, momentumNums);
 
         // Update status display
@@ -292,6 +393,9 @@ export function updateMomentumPredictions() {
         if (momentumStatus) {
             momentumStatus.textContent = `Updated (${momentumNums.length})`;
         }
+
+        // Update countdown
+        updateMomentumCountdown();
 
         // Auto-select if toggle is enabled, otherwise just highlight
         if (state.momentumAutoSelect) {
@@ -351,6 +455,9 @@ export function selectMomentumNumbers() {
         momentumStatus.textContent = `Selected (${momentumNums.length})`;
     }
 
+    // Update countdown display
+    updateMomentumCountdown();
+
     // Get tile mapping
     const tiles = Array.from(container.querySelectorAll('button'));
     const numToTile = {};
@@ -405,3 +512,4 @@ export function selectMomentumNumbers() {
 window.__keno_calculatePrediction = calculatePrediction;
 window.__keno_selectMomentumNumbers = selectMomentumNumbers;
 window.__keno_updateMomentumPredictions = updateMomentumPredictions;
+window.__keno_updateMomentumCountdown = updateMomentumCountdown;
