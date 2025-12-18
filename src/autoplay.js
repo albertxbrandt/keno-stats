@@ -28,6 +28,10 @@ export function generateNumbers() {
         const count = state.generatorCount || 3;
         generatedNumbers = getTopPredictions(count);
         console.log(`[Generator] Frequency method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+    } else if (state.generatorMethod === 'cold') {
+        const count = state.generatorCount || 3;
+        generatedNumbers = getColdPredictions(count);
+        console.log(`[Generator] Cold method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
     } else if (state.generatorMethod === 'momentum') {
         const config = getMomentumConfig();
         generatedNumbers = getMomentumPrediction(config.patternSize, config);
@@ -207,6 +211,33 @@ export function getTopPredictions(count) {
         allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
     });
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const capped = Math.min(count, 40);
+    return sorted.slice(0, capped).map(entry => parseInt(entry[0]));
+}
+
+/**
+ * Get cold (least frequent) number predictions
+ */
+export function getColdPredictions(count) {
+    const counts = {};
+    const sampleCount = Math.min(state.generatorSampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
+    
+    // Initialize all numbers with count 0
+    for (let i = 1; i <= 40; i++) {
+        counts[i] = 0;
+    }
+    
+    // Count occurrences
+    sample.forEach(round => {
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allHits = [...hits, ...misses];
+        allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+    });
+    
+    // Sort by ascending count (least frequent first)
+    const sorted = Object.entries(counts).sort((a, b) => a[1] - b[1]);
     const capped = Math.min(count, 40);
     return sorted.slice(0, capped).map(entry => parseInt(entry[0]));
 }

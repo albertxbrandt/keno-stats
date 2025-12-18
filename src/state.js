@@ -6,7 +6,7 @@ export const state = {
     heatmapSampleSize: 100, // Heatmap uses separate sample size
     // Unified Number Generator (replaces isPredictMode and isMomentumMode)
     isGeneratorActive: false,
-    generatorMethod: 'frequency', // 'frequency' or 'momentum'
+    generatorMethod: 'frequency', // 'frequency', 'momentum', or 'cold'
     generatorCount: 3, // Unified count for all generator methods
     generatorSampleSize: 5, // Generator uses separate sample size
     generatedNumbers: [],
@@ -46,5 +46,9 @@ export const state = {
         recentPlays: true,
         history: true
     },
-    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'],
+    // Method Comparison Window
+    isComparisonWindowOpen: false,
+    comparisonLookback: 50, // How many rounds to track
+    comparisonData: [] // Array of {round, frequency: {predicted, hits}, momentum: {predicted, hits}, cold: {predicted, hits}}
 };

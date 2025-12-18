@@ -69,6 +69,7 @@ export function createOverlay() {
                         <span style="color:#aaa; font-size:10px;">Method:</span>
                         <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
                             <option value="frequency">🔥 Frequency (Hot Numbers)</option>
+                            <option value="cold">❄️ Cold (Least Frequent)</option>
                             <option value="momentum">⚡ Momentum (Trending)</option>
                         </select>
                     </div>
@@ -195,6 +196,9 @@ export function createOverlay() {
                     </div>
                     <button id="live-pattern-btn" style="width:100%; background:#00b894; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px;">
                         🔴 Live Analysis
+                    </button>
+                    <button id="method-comparison-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:6px 8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:6px;">
+                        📊 Method Comparison
                     </button>
                     <div style="color:#666; font-size:9px; margin-top:4px; line-height:1.3;">Find patterns of N numbers appearing together</div>
                 </div>
@@ -641,11 +645,11 @@ export function createOverlay() {
             state.generatorMethod = e.target.value;
 
             // Show/hide parameters based on method
-            if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
+            if (frequencyParams) frequencyParams.style.display = (state.generatorMethod === 'frequency' || state.generatorMethod === 'cold') ? 'block' : 'none';
             if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
 
             // Update legacy state for backward compatibility
-            state.isPredictMode = state.isGeneratorActive && state.generatorMethod === 'frequency';
+            state.isPredictMode = state.isGeneratorActive && (state.generatorMethod === 'frequency' || state.generatorMethod === 'cold');
             state.isMomentumMode = state.isGeneratorActive && state.generatorMethod === 'momentum';
 
             // Update momentum countdown if switching to momentum
@@ -655,7 +659,7 @@ export function createOverlay() {
         });
 
         // Initialize parameter visibility
-        if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
+        if (frequencyParams) frequencyParams.style.display = (state.generatorMethod === 'frequency' || state.generatorMethod === 'cold') ? 'block' : 'none';
         if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
     }
 
@@ -1020,6 +1024,15 @@ export function createOverlay() {
         livePatternBtn.addEventListener('click', () => {
             if (window.__keno_showLivePatternAnalysis) {
                 window.__keno_showLivePatternAnalysis();
+            }
+        });
+    }
+
+    const methodComparisonBtn = document.getElementById('method-comparison-btn');
+    if (methodComparisonBtn) {
+        methodComparisonBtn.addEventListener('click', () => {
+            if (window.__keno_toggleComparison) {
+                window.__keno_toggleComparison(true);
             }
         });
     }

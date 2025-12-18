@@ -7,6 +7,7 @@ import { updateHeatmap } from './heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './savedNumbers.js';
 import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './profitLoss.js';
+import { initComparisonWindow } from './comparison.js';
 import './patterns.js'; // Import pattern analysis module (sets up window hooks)
 
 console.log('Keno Tracker loaded');
@@ -67,6 +68,16 @@ function initializeExtension() {
 		setTimeout(() => {
 			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
 		}, 500);
+		
+		// Track round for comparison if window is open
+		if (state.isComparisonWindowOpen && window.__keno_trackRound) {
+			try {
+				window.__keno_trackRound({ drawn, selected });
+			} catch (e) {
+				console.error('[Comparison] track round failed:', e);
+			}
+		}
+		
 		// Auto Predict
 		if (state.isPredictMode) calculatePrediction();
 		// Auto Play Logic
@@ -100,6 +111,8 @@ function initializeExtension() {
 
 		// Initialize UI after history has been loaded
 		initOverlay();
+		// Initialize comparison window
+		initComparisonWindow();
 		// Ensure history list in overlay shows current history
 		try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
 		// Initialize recent played UI
