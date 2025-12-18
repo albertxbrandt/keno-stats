@@ -336,6 +336,10 @@ function updateSortArrows() {
 }
 
 function exportData() {
+  if (betHistory.length === 0) {
+    alert('No bet history to export.');
+    return;
+  }
   const dataStr = JSON.stringify(betHistory, null, 2);
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -350,7 +354,8 @@ function deleteAllData() {
   if (confirm('Are you sure you want to delete ALL bet history? This action cannot be undone!')) {
     betHistory = [];
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({ history: [] }, () => {
+      // Clear all chunked storage
+      chrome.storage.local.clear(() => {
         alert('All bet history has been deleted.');
         renderTable();
       });
@@ -368,11 +373,25 @@ function handleFileUpload(e) {
   reader.onload = function(evt) {
     try {
       betHistory = JSON.parse(evt.target.result);
-      // Save imported data to chrome storage
+      // Save imported data to chrome storage in chunked format
       if (typeof chrome !== 'undefined' && chrome.storage) {
-        chrome.storage.local.set({ history: betHistory }, () => {
-          alert('Bet history imported and saved successfully!');
-          renderTable();
+        const CHUNK_SIZE = 1000;
+        const totalCount = betHistory.length;
+        const chunkCount = Math.ceil(totalCount / CHUNK_SIZE);
+        const writeData = { history_count: totalCount };
+        
+        for (let i = 0; i < chunkCount; i++) {
+          const start = i * CHUNK_SIZE;
+          const end = Math.min(start + CHUNK_SIZE, totalCount);
+          const chunk = betHistory.slice(start, end);
+          writeData[`history_chunk_${i}`] = chunk;
+        }
+        
+        chrome.storage.local.clear(() => {
+          chrome.storage.local.set(writeData, () => {
+            alert('Bet history imported and saved successfully!');
+            renderTable();
+          });
         });
       } else {
         alert('Bet history imported (not saved to extension storage).');
@@ -533,8 +552,23 @@ function deleteBet(betTime) {
   if (confirm('Are you sure you want to delete this bet?')) {
     betHistory = betHistory.filter(bet => bet.time !== betTime);
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.set({ history: betHistory }, () => {
-        renderTable();
+      // Rewrite all chunks with the updated betHistory
+      const CHUNK_SIZE = 1000;
+      const totalCount = betHistory.length;
+      const chunkCount = Math.ceil(totalCount / CHUNK_SIZE);
+      const writeData = { history_count: totalCount };
+      
+      for (let i = 0; i < chunkCount; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, totalCount);
+        const chunk = betHistory.slice(start, end);
+        writeData[`history_chunk_${i}`] = chunk;
+      }
+      
+      chrome.storage.local.clear(() => {
+        chrome.storage.local.set(writeData, () => {
+          renderTable();
+        });
       });
     } else {
       renderTable();
@@ -575,8 +609,26 @@ deleteMenuItem.addEventListener('click', () => {
 
 // Optionally, load from chrome.storage.local if running as extension page
 if (typeof chrome !== 'undefined' && chrome.storage) {
-  chrome.storage.local.get('history', (result) => {
-    if (Array.isArray(result.history)) {
+  // Load from chunked storage or fall back to old format
+  chrome.storage.local.get(['history_count', 'history'], (result) => {
+    if (result.history_count) {
+      // New chunked format: load all chunks
+      const chunkCount = Math.ceil(result.history_count / 1000);
+      const chunkKeys = [];
+      for (let i = 0; i < chunkCount; i++) {
+        chunkKeys.push(`history_chunk_${i}`);
+      }
+      
+      chrome.storage.local.get(chunkKeys, (chunks) => {
+        betHistory = [];
+        for (let i = 0; i < chunkCount; i++) {
+          const chunk = chunks[`history_chunk_${i}`] || [];
+          betHistory.push(...chunk);
+        }
+        renderTable();
+      });
+    } else if (Array.isArray(result.history)) {
+      // Old format - still supported
       betHistory = result.history;
       renderTable();
     }
@@ -584,9 +636,26 @@ if (typeof chrome !== 'undefined' && chrome.storage) {
   
   // Listen for storage changes to auto-refresh when new bets are added
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes.history) {
-      betHistory = changes.history.newValue || [];
-      renderTable();
+    if (area === 'local') {
+      // Reload all chunks when any storage changes
+      chrome.storage.local.get('history_count', (result) => {
+        if (result.history_count) {
+          const chunkCount = Math.ceil(result.history_count / 1000);
+          const chunkKeys = [];
+          for (let i = 0; i < chunkCount; i++) {
+            chunkKeys.push(`history_chunk_${i}`);
+          }
+          
+          chrome.storage.local.get(chunkKeys, (chunks) => {
+            betHistory = [];
+            for (let i = 0; i < chunkCount; i++) {
+              const chunk = chunks[`history_chunk_${i}`] || [];
+              betHistory.push(...chunk);
+            }
+            renderTable();
+          });
+        }
+      });
     }
   });
 }

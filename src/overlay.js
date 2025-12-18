@@ -639,21 +639,21 @@ export function createOverlay() {
         methodSelect.value = state.generatorMethod || 'frequency';
         methodSelect.addEventListener('change', (e) => {
             state.generatorMethod = e.target.value;
-            
+
             // Show/hide parameters based on method
             if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
             if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
-            
+
             // Update legacy state for backward compatibility
             state.isPredictMode = state.isGeneratorActive && state.generatorMethod === 'frequency';
             state.isMomentumMode = state.isGeneratorActive && state.generatorMethod === 'momentum';
-            
+
             // Update momentum countdown if switching to momentum
             if (state.generatorMethod === 'momentum' && window.__keno_updateMomentumCountdown) {
                 window.__keno_updateMomentumCountdown();
             }
         });
-        
+
         // Initialize parameter visibility
         if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
         if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
