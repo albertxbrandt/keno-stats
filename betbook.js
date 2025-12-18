@@ -3,25 +3,25 @@
 
 // Utility functions to handle both old and new data formats
 function getHits(round) {
-    if (!round) return [];
-    if (round.hits) return round.hits; // Old format
-    if (round.kenoBet?.state?.selectedNumbers && round.kenoBet?.state?.drawnNumbers) {
-        const selected = round.kenoBet.state.selectedNumbers;
-        const drawn = round.kenoBet.state.drawnNumbers;
-        return selected.filter(num => drawn.includes(num));
-    }
-    return [];
+  if (!round) return [];
+  if (round.hits) return round.hits; // Old format
+  if (round.kenoBet?.state?.selectedNumbers && round.kenoBet?.state?.drawnNumbers) {
+    const selected = round.kenoBet.state.selectedNumbers;
+    const drawn = round.kenoBet.state.drawnNumbers;
+    return selected.filter(num => drawn.includes(num));
+  }
+  return [];
 }
 
 function getMisses(round) {
-    if (!round) return [];
-    if (round.misses) return round.misses; // Old format
-    if (round.kenoBet?.state?.selectedNumbers && round.kenoBet?.state?.drawnNumbers) {
-        const selected = round.kenoBet.state.selectedNumbers;
-        const drawn = round.kenoBet.state.drawnNumbers;
-        return drawn.filter(num => !selected.includes(num));
-    }
-    return [];
+  if (!round) return [];
+  if (round.misses) return round.misses; // Old format
+  if (round.kenoBet?.state?.selectedNumbers && round.kenoBet?.state?.drawnNumbers) {
+    const selected = round.kenoBet.state.selectedNumbers;
+    const drawn = round.kenoBet.state.drawnNumbers;
+    return drawn.filter(num => !selected.includes(num));
+  }
+  return [];
 }
 
 let betHistory = [];
@@ -32,14 +32,14 @@ const itemsPerPage = 25;
 
 // Load column visibility from localStorage or use defaults
 let columnVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {
-    date: true,
-    amount: true,
-    payout: true,
-    multiplier: true,
-    currency: true,
-    risk: true,
-    hits: true,
-    misses: true
+  date: true,
+  amount: true,
+  payout: true,
+  multiplier: true,
+  currency: true,
+  risk: true,
+  hits: true,
+  misses: true
 };
 
 const fileInput = document.getElementById('fileInput');
@@ -69,10 +69,10 @@ let selectedSuggestionIndex = -1;
 
 uploadBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', handleFileUpload);
-searchInput.addEventListener('input', (e) => { 
-    currentPage = 1; 
-    renderTable(); 
-    showAutocomplete(e.target.value);
+searchInput.addEventListener('input', (e) => {
+  currentPage = 1;
+  renderTable();
+  showAutocomplete(e.target.value);
 });
 searchInput.addEventListener('keydown', handleSearchKeydown);
 searchInput.addEventListener('blur', () => setTimeout(() => hideAutocomplete(), 200));
@@ -87,19 +87,19 @@ settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal)
 
 // Column visibility toggles
 Object.keys(columnVisibility).forEach(col => {
-    const toggle = document.getElementById(`toggle-${col}`);
-    if (toggle) {
-        // Set initial checkbox state from loaded settings
-        toggle.checked = columnVisibility[col];
-        
-        toggle.addEventListener('change', (e) => {
-            columnVisibility[col] = e.target.checked;
-            // Save to localStorage
-            localStorage.setItem('columnVisibility', JSON.stringify(columnVisibility));
-            updateColumnVisibility();
-            renderTable();
-        });
-    }
+  const toggle = document.getElementById(`toggle-${col}`);
+  if (toggle) {
+    // Set initial checkbox state from loaded settings
+    toggle.checked = columnVisibility[col];
+
+    toggle.addEventListener('change', (e) => {
+      columnVisibility[col] = e.target.checked;
+      // Save to localStorage
+      localStorage.setItem('columnVisibility', JSON.stringify(columnVisibility));
+      updateColumnVisibility();
+      renderTable();
+    });
+  }
 });
 
 sortDateBtn.addEventListener('click', () => setSortColumn('date'));
@@ -112,180 +112,180 @@ sortHitsBtn.addEventListener('click', () => setSortColumn('hits'));
 sortMissesBtn.addEventListener('click', () => setSortColumn('misses'));
 
 function showAutocomplete(value) {
-    const trimmed = value.trim();
-    if (!trimmed) {
-        hideAutocomplete();
-        return;
-    }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    hideAutocomplete();
+    return;
+  }
 
-    // Get the current partial field being typed (normalize spaces after colons first)
-    const normalized = trimmed.replace(/(\w+):\s+/g, '$1:');
-    const parts = normalized.split(/\s+/);
-    const currentPart = parts[parts.length - 1];
-    
-    // Get already used fields to exclude from suggestions
-    const usedFields = new Set();
-    parts.slice(0, -1).forEach(part => {
-        const match = part.match(/^(\w+):/);
-        if (match) usedFields.add(match[1]);
+  // Get the current partial field being typed (normalize spaces after colons first)
+  const normalized = trimmed.replace(/(\w+):\s+/g, '$1:');
+  const parts = normalized.split(/\s+/);
+  const currentPart = parts[parts.length - 1];
+
+  // Get already used fields to exclude from suggestions
+  const usedFields = new Set();
+  parts.slice(0, -1).forEach(part => {
+    const match = part.match(/^(\w+):/);
+    if (match) usedFields.add(match[1]);
+  });
+
+  // Check if currently typing a field name (before colon)
+  const fieldMatch = currentPart.match(/^(\w*)$/);
+  const fieldValueMatch = currentPart.match(/^(\w+):(.*)$/);
+
+  const suggestions = [];
+  const fields = ['amount', 'payout', 'multiplier', 'currency', 'risk', 'hits', 'misses', 'date'];
+
+  if (fieldMatch && !fieldValueMatch) {
+    // Suggest field names (exclude already used fields)
+    const partial = fieldMatch[1].toLowerCase();
+    fields.forEach(field => {
+      if (field.startsWith(partial) && !usedFields.has(field)) {
+        suggestions.push({ type: 'field', value: field + ':', display: field + ':' });
+      }
     });
-    
-    // Check if currently typing a field name (before colon)
-    const fieldMatch = currentPart.match(/^(\w*)$/);
-    const fieldValueMatch = currentPart.match(/^(\w+):(.*)$/);
-    
-    const suggestions = [];
-    const fields = ['amount', 'payout', 'multiplier', 'currency', 'risk', 'hits', 'misses', 'date'];
-    
-    if (fieldMatch && !fieldValueMatch) {
-        // Suggest field names (exclude already used fields)
-        const partial = fieldMatch[1].toLowerCase();
-        fields.forEach(field => {
-            if (field.startsWith(partial) && !usedFields.has(field)) {
-                suggestions.push({ type: 'field', value: field + ':', display: field + ':' });
-            }
+  } else if (fieldValueMatch) {
+    // Suggest values for the field
+    const [, field, partial] = fieldValueMatch;
+    const partialLower = partial.toLowerCase();
+
+    // Automatically show suggestions when field is completed (no partial value yet)
+    if (partial === '' || partial.length > 0) {
+      if (field === 'currency') {
+        const currencies = new Set();
+        betHistory.forEach(bet => {
+          const curr = bet.kenoBet?.currency;
+          if (curr && (partial === '' || curr.toLowerCase().includes(partialLower))) {
+            currencies.add(curr);
+          }
         });
-    } else if (fieldValueMatch) {
-        // Suggest values for the field
-        const [, field, partial] = fieldValueMatch;
-        const partialLower = partial.toLowerCase();
-        
-        // Automatically show suggestions when field is completed (no partial value yet)
-        if (partial === '' || partial.length > 0) {
-            if (field === 'currency') {
-                const currencies = new Set();
-                betHistory.forEach(bet => {
-                    const curr = bet.kenoBet?.currency;
-                    if (curr && (partial === '' || curr.toLowerCase().includes(partialLower))) {
-                        currencies.add(curr);
-                    }
-                });
-                currencies.forEach(curr => {
-                    suggestions.push({ type: 'value', value: field + ':' + curr, display: field + ':' + curr });
-                });
-            } else if (field === 'risk') {
-                ['low', 'medium', 'high'].forEach(risk => {
-                    if (partial === '' || risk.startsWith(partialLower)) {
-                        suggestions.push({ type: 'value', value: field + ':' + risk, display: field + ':' + risk });
-                    }
-                });
-            } else if (field === 'amount' || field === 'payout' || field === 'multiplier') {
-                const values = new Set();
-                betHistory.forEach(bet => {
-                    let val;
-                    if (field === 'amount') val = bet.kenoBet?.amount;
-                    else if (field === 'payout') val = bet.kenoBet?.payout;
-                    else if (field === 'multiplier') val = bet.kenoBet?.payoutMultiplier;
-                    
-                    if (val !== undefined && val !== null) {
-                        const formatted = val.toFixed(2);
-                        if (partial === '' || formatted.includes(partial)) {
-                            values.add(formatted);
-                        }
-                    }
-                });
-                Array.from(values).slice(0, 10).forEach(val => {
-                    suggestions.push({ type: 'value', value: field + ':' + val, display: field + ':' + val });
-                });
+        currencies.forEach(curr => {
+          suggestions.push({ type: 'value', value: field + ':' + curr, display: field + ':' + curr });
+        });
+      } else if (field === 'risk') {
+        ['low', 'medium', 'high'].forEach(risk => {
+          if (partial === '' || risk.startsWith(partialLower)) {
+            suggestions.push({ type: 'value', value: field + ':' + risk, display: field + ':' + risk });
+          }
+        });
+      } else if (field === 'amount' || field === 'payout' || field === 'multiplier') {
+        const values = new Set();
+        betHistory.forEach(bet => {
+          let val;
+          if (field === 'amount') val = bet.kenoBet?.amount;
+          else if (field === 'payout') val = bet.kenoBet?.payout;
+          else if (field === 'multiplier') val = bet.kenoBet?.payoutMultiplier;
+
+          if (val !== undefined && val !== null) {
+            const formatted = val.toFixed(2);
+            if (partial === '' || formatted.includes(partial)) {
+              values.add(formatted);
             }
-        }
+          }
+        });
+        Array.from(values).slice(0, 10).forEach(val => {
+          suggestions.push({ type: 'value', value: field + ':' + val, display: field + ':' + val });
+        });
+      }
     }
-    
-    if (suggestions.length > 0) {
-        autocompleteSuggestions.innerHTML = suggestions.map((s, i) => 
-            `<div class="autocomplete-item" data-index="${i}" data-value="${s.value}" data-type="${s.type}">${s.display}</div>`
-        ).join('');
-        
-        autocompleteSuggestions.querySelectorAll('.autocomplete-item').forEach(item => {
-            item.addEventListener('click', () => {
-                // Normalize the search value and split into parts
-                const normalized = searchInput.value.trim().replace(/(\w+):\s+/g, '$1:');
-                const parts = normalized.split(/\s+/);
-                parts[parts.length - 1] = item.dataset.value;
-                
-                // Add space only if completing a field value (type='value'), not field name (type='field')
-                const shouldAddSpace = item.dataset.type === 'value';
-                searchInput.value = parts.join(' ') + (shouldAddSpace ? ' ' : '');
-                searchInput.focus();
-                hideAutocomplete();
-                currentPage = 1;
-                renderTable();
-            });
-        });
-        
-        autocompleteSuggestions.style.display = 'block';
-        selectedSuggestionIndex = -1;
-    } else {
+  }
+
+  if (suggestions.length > 0) {
+    autocompleteSuggestions.innerHTML = suggestions.map((s, i) =>
+      `<div class="autocomplete-item" data-index="${i}" data-value="${s.value}" data-type="${s.type}">${s.display}</div>`
+    ).join('');
+
+    autocompleteSuggestions.querySelectorAll('.autocomplete-item').forEach(item => {
+      item.addEventListener('click', () => {
+        // Normalize the search value and split into parts
+        const normalized = searchInput.value.trim().replace(/(\w+):\s+/g, '$1:');
+        const parts = normalized.split(/\s+/);
+        parts[parts.length - 1] = item.dataset.value;
+
+        // Add space only if completing a field value (type='value'), not field name (type='field')
+        const shouldAddSpace = item.dataset.type === 'value';
+        searchInput.value = parts.join(' ') + (shouldAddSpace ? ' ' : '');
+        searchInput.focus();
         hideAutocomplete();
-    }
+        currentPage = 1;
+        renderTable();
+      });
+    });
+
+    autocompleteSuggestions.style.display = 'block';
+    selectedSuggestionIndex = -1;
+  } else {
+    hideAutocomplete();
+  }
 }
 
 function hideAutocomplete() {
-    autocompleteSuggestions.style.display = 'none';
-    selectedSuggestionIndex = -1;
+  autocompleteSuggestions.style.display = 'none';
+  selectedSuggestionIndex = -1;
 }
 
 function handleSearchKeydown(e) {
-    const items = autocompleteSuggestions.querySelectorAll('.autocomplete-item');
-    
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (items.length > 0) {
-            selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, items.length - 1);
-            updateSelectedSuggestion(items);
-            previewSuggestion(items[selectedSuggestionIndex]);
-        }
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (items.length > 0) {
-            selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, 0);
-            updateSelectedSuggestion(items);
-            previewSuggestion(items[selectedSuggestionIndex]);
-        }
-    } else if (e.key === 'Tab') {
-        if (items.length > 0) {
-            e.preventDefault();
-            // Cycle through suggestions
-            if (e.shiftKey) {
-                // Shift+Tab - go backwards
-                selectedSuggestionIndex = selectedSuggestionIndex <= 0 ? items.length - 1 : selectedSuggestionIndex - 1;
-            } else {
-                // Tab - go forwards
-                selectedSuggestionIndex = selectedSuggestionIndex >= items.length - 1 ? 0 : selectedSuggestionIndex + 1;
-            }
-            updateSelectedSuggestion(items);
-            previewSuggestion(items[selectedSuggestionIndex]);
-        }
-    } else if (e.key === 'Enter') {
-        if (selectedSuggestionIndex >= 0 && items[selectedSuggestionIndex]) {
-            e.preventDefault();
-            items[selectedSuggestionIndex].click();
-        }
-    } else if (e.key === 'Escape') {
-        hideAutocomplete();
+  const items = autocompleteSuggestions.querySelectorAll('.autocomplete-item');
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (items.length > 0) {
+      selectedSuggestionIndex = Math.min(selectedSuggestionIndex + 1, items.length - 1);
+      updateSelectedSuggestion(items);
+      previewSuggestion(items[selectedSuggestionIndex]);
     }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (items.length > 0) {
+      selectedSuggestionIndex = Math.max(selectedSuggestionIndex - 1, 0);
+      updateSelectedSuggestion(items);
+      previewSuggestion(items[selectedSuggestionIndex]);
+    }
+  } else if (e.key === 'Tab') {
+    if (items.length > 0) {
+      e.preventDefault();
+      // Cycle through suggestions
+      if (e.shiftKey) {
+        // Shift+Tab - go backwards
+        selectedSuggestionIndex = selectedSuggestionIndex <= 0 ? items.length - 1 : selectedSuggestionIndex - 1;
+      } else {
+        // Tab - go forwards
+        selectedSuggestionIndex = selectedSuggestionIndex >= items.length - 1 ? 0 : selectedSuggestionIndex + 1;
+      }
+      updateSelectedSuggestion(items);
+      previewSuggestion(items[selectedSuggestionIndex]);
+    }
+  } else if (e.key === 'Enter') {
+    if (selectedSuggestionIndex >= 0 && items[selectedSuggestionIndex]) {
+      e.preventDefault();
+      items[selectedSuggestionIndex].click();
+    }
+  } else if (e.key === 'Escape') {
+    hideAutocomplete();
+  }
 }
 
 function previewSuggestion(item) {
-    if (!item) return;
-    
-    // Update search input with the previewed suggestion
-    const normalized = searchInput.value.trim().replace(/(\w+):\s+/g, '$1:');
-    const parts = normalized.split(/\s+/);
-    parts[parts.length - 1] = item.dataset.value;
-    searchInput.value = parts.join(' ');
-    
-    // Set cursor to end
-    searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+  if (!item) return;
+
+  // Update search input with the previewed suggestion
+  const normalized = searchInput.value.trim().replace(/(\w+):\s+/g, '$1:');
+  const parts = normalized.split(/\s+/);
+  parts[parts.length - 1] = item.dataset.value;
+  searchInput.value = parts.join(' ');
+
+  // Set cursor to end
+  searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
 }
 
 function updateSelectedSuggestion(items) {
-    items.forEach((item, i) => {
-        item.classList.toggle('selected', i === selectedSuggestionIndex);
-    });
-    if (items[selectedSuggestionIndex]) {
-        items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' });
-    }
+  items.forEach((item, i) => {
+    item.classList.toggle('selected', i === selectedSuggestionIndex);
+  });
+  if (items[selectedSuggestionIndex]) {
+    items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' });
+  }
 }
 
 function updateColumnVisibility() {
@@ -293,7 +293,7 @@ function updateColumnVisibility() {
   columns.forEach((col, index) => {
     const thElements = document.querySelectorAll(`#betTable th`);
     const tdElements = document.querySelectorAll(`#betTable td:nth-child(${index + 1})`);
-    
+
     if (!columnVisibility[col]) {
       thElements[index]?.classList.add('hidden-column');
       tdElements.forEach(td => td.classList.add('hidden-column'));
@@ -327,7 +327,7 @@ function updateSortArrows() {
   else if (currentSort === 'risk') activeHeader = sortRiskBtn;
   else if (currentSort === 'hits') activeHeader = sortHitsBtn;
   else if (currentSort === 'misses') activeHeader = sortMissesBtn;
-  
+
   if (activeHeader) {
     const arrow = activeHeader.querySelector('.sort-arrow');
     arrow.classList.add('active');
@@ -370,7 +370,7 @@ function handleFileUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = function (evt) {
     try {
       betHistory = JSON.parse(evt.target.result);
       // Save imported data to chrome storage in chunked format
@@ -379,14 +379,14 @@ function handleFileUpload(e) {
         const totalCount = betHistory.length;
         const chunkCount = Math.ceil(totalCount / CHUNK_SIZE);
         const writeData = { history_count: totalCount };
-        
+
         for (let i = 0; i < chunkCount; i++) {
           const start = i * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, totalCount);
           const chunk = betHistory.slice(start, end);
           writeData[`history_chunk_${i}`] = chunk;
         }
-        
+
         chrome.storage.local.clear(() => {
           chrome.storage.local.set(writeData, () => {
             alert('Bet history imported and saved successfully!');
@@ -407,19 +407,19 @@ function handleFileUpload(e) {
 function renderTable() {
   const query = searchInput.value.trim().toLowerCase();
   betTableBody.innerHTML = '';
-  
+
   let filtered = betHistory.filter(bet => {
     // Parse multiple field-specific searches separated by spaces (e.g., "amount:100 currency:gold")
     // Also handle spaces after colon: "amount: 1000" -> "amount:1000"
     const normalizedQuery = query.replace(/(\w+):\s+/g, '$1:');
     const fieldMatches = normalizedQuery.match(/(\w+):([^\s]+)/g);
-    
+
     if (fieldMatches && fieldMatches.length > 0) {
       // Check all field:value pairs
       return fieldMatches.every(fieldQuery => {
         const [field, value] = fieldQuery.split(':');
         const searchValue = value.toLowerCase();
-        
+
         if (field === 'amount') {
           const betAmount = (bet.kenoBet?.amount || 0).toFixed(2);
           return betAmount.includes(searchValue) || betAmount === parseFloat(searchValue).toFixed(2);
@@ -443,7 +443,7 @@ function renderTable() {
         return false;
       });
     }
-    
+
     // General search across all fields
     const dateStr = new Date(bet.time).toLocaleString();
     const hits = getHits(bet).join(', ');
@@ -453,7 +453,7 @@ function renderTable() {
     const multiplier = (bet.kenoBet?.payoutMultiplier || 0).toFixed(2);
     const currency = bet.kenoBet?.currency || '';
     const risk = bet.kenoBet?.state?.risk || '';
-    
+
     return (
       dateStr.toLowerCase().includes(query) ||
       hits.toLowerCase().includes(query) ||
@@ -465,7 +465,7 @@ function renderTable() {
       risk.toLowerCase().includes(query)
     );
   });
-  
+
   // Apply sorting
   if (currentSort === 'date') {
     filtered.sort((a, b) => sortDirection === 'desc' ? b.time - a.time : a.time - b.time);
@@ -504,21 +504,21 @@ function renderTable() {
   } else if (currentSort === 'misses') {
     filtered.sort((a, b) => sortDirection === 'desc' ? getMisses(b).length - getMisses(a).length : getMisses(a).length - getMisses(b).length);
   }
-  
+
   // Update total count
   totalCount.textContent = `Total Bets: ${betHistory.length}`;
-  
+
   // Pagination
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
   const paginatedBets = filtered.slice(startIdx, endIdx);
-  
+
   // Update pagination controls
   prevBtn.disabled = currentPage === 1;
   nextBtn.disabled = currentPage >= totalPages || totalPages === 0;
   pageInfo.textContent = totalPages > 0 ? `Page ${currentPage} of ${totalPages}` : 'No results';
-  
+
   paginatedBets.forEach(bet => {
     const dateStr = new Date(bet.time).toLocaleString();
     const hits = getHits(bet);
@@ -528,7 +528,7 @@ function renderTable() {
     const multiplier = bet.kenoBet?.payoutMultiplier || 0;
     const currency = bet.kenoBet?.currency || 'N/A';
     const risk = bet.kenoBet?.state?.risk || 'N/A';
-    
+
     const row = document.createElement('tr');
     row.dataset.betTime = bet.time; // Store bet time as identifier
     row.innerHTML = `
@@ -543,7 +543,7 @@ function renderTable() {
     `;
     betTableBody.appendChild(row);
   });
-  
+
   // Apply column visibility to headers
   updateColumnVisibility();
 }
@@ -557,14 +557,14 @@ function deleteBet(betTime) {
       const totalCount = betHistory.length;
       const chunkCount = Math.ceil(totalCount / CHUNK_SIZE);
       const writeData = { history_count: totalCount };
-      
+
       for (let i = 0; i < chunkCount; i++) {
         const start = i * CHUNK_SIZE;
         const end = Math.min(start + CHUNK_SIZE, totalCount);
         const chunk = betHistory.slice(start, end);
         writeData[`history_chunk_${i}`] = chunk;
       }
-      
+
       chrome.storage.local.clear(() => {
         chrome.storage.local.set(writeData, () => {
           renderTable();
@@ -618,7 +618,7 @@ if (typeof chrome !== 'undefined' && chrome.storage) {
       for (let i = 0; i < chunkCount; i++) {
         chunkKeys.push(`history_chunk_${i}`);
       }
-      
+
       chrome.storage.local.get(chunkKeys, (chunks) => {
         betHistory = [];
         for (let i = 0; i < chunkCount; i++) {
@@ -633,7 +633,7 @@ if (typeof chrome !== 'undefined' && chrome.storage) {
       renderTable();
     }
   });
-  
+
   // Listen for storage changes to auto-refresh when new bets are added
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local') {
@@ -645,7 +645,7 @@ if (typeof chrome !== 'undefined' && chrome.storage) {
           for (let i = 0; i < chunkCount; i++) {
             chunkKeys.push(`history_chunk_${i}`);
           }
-          
+
           chrome.storage.local.get(chunkKeys, (chunks) => {
             betHistory = [];
             for (let i = 0; i < chunkCount; i++) {
