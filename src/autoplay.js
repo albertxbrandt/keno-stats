@@ -5,6 +5,124 @@ import { simulatePointerClick, findAndClickPlayButton } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 import { getMomentumPrediction, MomentumPatternGenerator } from './momentum.js';
 
+/**
+ * Unified Number Generator - generates numbers based on selected method
+ * This replaces separate predict and momentum functions
+ */
+export function generateNumbers() {
+    if (!state.isGeneratorActive) {
+        console.log('[Generator] Generator not active');
+        return [];
+    }
+
+    const container = document.querySelector('div[data-testid="game-keno"]');
+    if (!container) {
+        console.log('[Generator] Keno board not found');
+        return [];
+    }
+
+    let generatedNumbers = [];
+
+    // Generate numbers based on selected method
+    if (state.generatorMethod === 'frequency') {
+        const count = state.generatorCount || 3;
+        generatedNumbers = getTopPredictions(count);
+        console.log(`[Generator] Frequency method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+    } else if (state.generatorMethod === 'momentum') {
+        const config = getMomentumConfig();
+        generatedNumbers = getMomentumPrediction(config.patternSize, config);
+        state.momentumLastRefresh = state.currentHistory.length;
+        console.log(`[Generator] Momentum method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+
+        // Log top numbers with momentum values
+        logTopMomentumNumbers(config);
+
+        // Update countdown display
+        if (window.__keno_updateMomentumCountdown) {
+            window.__keno_updateMomentumCountdown();
+        }
+    }
+
+    // Store generated numbers
+    state.generatedNumbers = generatedNumbers;
+
+    // Update legacy state for backward compatibility
+    if (state.generatorMethod === 'frequency') {
+        state.predictedNumbers = generatedNumbers;
+    } else if (state.generatorMethod === 'momentum') {
+        state.momentumNumbers = generatedNumbers;
+    }
+
+    // Highlight the generated numbers
+    highlightPrediction(generatedNumbers);
+
+    // Auto-select if enabled
+    if (state.generatorAutoSelect) {
+        console.log('[Generator] Auto-selecting numbers on board (delayed)');
+        setTimeout(() => {
+            selectGeneratedNumbers(generatedNumbers);
+        }, 800);
+    }
+
+    return generatedNumbers;
+}
+
+/**
+ * Select generated numbers on the board
+ */
+function selectGeneratedNumbers(numbers) {
+    const container = document.querySelector('div[data-testid="game-keno"]');
+    if (!container || !numbers || numbers.length === 0) {
+        console.log('[Generator] Cannot select - board not found or no numbers');
+        return;
+    }
+
+    const tiles = Array.from(container.querySelectorAll('button'));
+    const numToTile = {};
+    tiles.forEach(tile => {
+        const numText = (tile.textContent || '').trim();
+        const num = parseInt(numText.split('%')[0]);
+        if (!isNaN(num)) numToTile[num] = tile;
+    });
+
+    // Clear board first
+    const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
+    if (clearButton) {
+        try {
+            simulatePointerClick(clearButton);
+        } catch (e) {
+            try {
+                clearButton.click();
+            } catch (err) {
+                console.error('[Generator] Failed to click clear button', err);
+            }
+        }
+    }
+
+    // Select numbers (delay to allow clear to complete)
+    setTimeout(() => {
+        let selectedCount = 0;
+        numbers.forEach(num => {
+            const tile = numToTile[num];
+            if (!tile) return;
+
+            try {
+                simulatePointerClick(tile);
+                selectedCount++;
+            } catch (e) {
+                try {
+                    tile.click();
+                    selectedCount++;
+                } catch (err) {
+                    console.error('[Generator] Failed to click tile', num, err);
+                }
+            }
+        });
+
+        console.log(`[Generator] Selected ${selectedCount} numbers on board:`, numbers);
+    }, 500);
+}
+
 export function selectPredictedNumbers() {
     if (!state.isPredictMode || state.predictedNumbers.length === 0) {
         console.log('[Keyboard] Predict mode not active or no predictions');
@@ -80,7 +198,7 @@ function isTileSelected(tile) {
 
 export function getTopPredictions(count) {
     const counts = {};
-    const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
+    const sampleCount = Math.min(state.generatorSampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     sample.forEach(round => {
         const hits = getHits(round);
@@ -195,13 +313,22 @@ export function autoPlayPlaceBet() {
     const currentlySelected = tiles.filter(isTileSelected);
     if (currentlySelected.length > 0) console.log('[AutoPlay] Deselecting tiles:', currentlySelected.map(t => parseInt((t.textContent || '').trim().split('%')[0])));
     currentlySelected.forEach(t => { try { simulatePointerClick(t); } catch (e) { try { t.click(); } catch { } } t.style.boxShadow = ''; t.style.transform = ''; t.style.opacity = '1'; });
-    // Predictions
+
+    // Get predictions - use unified generator if active, otherwise fallback to frequency
     let predictions = [];
-    if (state.currentHistory.length === 0) predictions = generateRandomPrediction(state.autoPlayPredictionCount);
-    else predictions = getTopPredictions(state.autoPlayPredictionCount);
-    if (!predictions || predictions.length === 0) predictions = generateRandomPrediction(state.autoPlayPredictionCount);
-    predictions = predictions.slice(0, state.autoPlayPredictionCount);
-    console.log('[AutoPlay] Predictions:', predictions);
+    if (state.isGeneratorActive && state.generatedNumbers.length > 0) {
+        // Use numbers from unified generator
+        predictions = state.generatedNumbers.slice(0, state.autoPlayPredictionCount);
+        console.log('[AutoPlay] Using generated numbers from Number Generator:', predictions);
+    } else {
+        // Fallback to frequency-based predictions
+        if (state.currentHistory.length === 0) predictions = generateRandomPrediction(state.autoPlayPredictionCount);
+        else predictions = getTopPredictions(state.autoPlayPredictionCount);
+        if (!predictions || predictions.length === 0) predictions = generateRandomPrediction(state.autoPlayPredictionCount);
+        predictions = predictions.slice(0, state.autoPlayPredictionCount);
+        console.log('[AutoPlay] Using fallback predictions:', predictions);
+    }
+
     highlightPrediction(predictions);
     setTimeout(() => {
         const clicked = [];
@@ -238,7 +365,6 @@ export function autoPlayPlaceBet() {
  * Get momentum config from UI inputs
  */
 function getMomentumConfig() {
-    const countInput = document.getElementById('momentum-count');
     const refreshInput = document.getElementById('momentum-refresh');
     const detectionInput = document.getElementById('momentum-detection');
     const baselineInput = document.getElementById('momentum-baseline');
@@ -246,7 +372,7 @@ function getMomentumConfig() {
     const poolInput = document.getElementById('momentum-pool');
 
     return {
-        patternSize: parseInt(countInput?.value) || 10,
+        patternSize: state.generatorCount || 10, // Use unified count
         detectionWindow: parseInt(detectionInput?.value) || 5,
         baselineWindow: parseInt(baselineInput?.value) || 50,
         momentumThreshold: parseFloat(thresholdInput?.value) || 1.5,
@@ -509,7 +635,8 @@ export function selectMomentumNumbers() {
 }
 
 // Expose functions for UI
-window.__keno_calculatePrediction = calculatePrediction;
-window.__keno_selectMomentumNumbers = selectMomentumNumbers;
+window.__keno_generateNumbers = generateNumbers; // New unified generator
+window.__keno_calculatePrediction = calculatePrediction; // Legacy
+window.__keno_selectMomentumNumbers = selectMomentumNumbers; // Legacy
 window.__keno_updateMomentumPredictions = updateMomentumPredictions;
 window.__keno_updateMomentumCountdown = updateMomentumCountdown;

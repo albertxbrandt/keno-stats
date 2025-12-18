@@ -71,9 +71,10 @@ export function clearHighlight() {
 export function updateHeatmap() {
     if (!window.location.href.includes("keno")) return;
     if (state.currentHistory.length === 0) return;
-    // Only update heatmap if sample size panel is visible (performance optimization)
-    if (!state.panelVisibility || !state.panelVisibility.sampleSize) return;
-    const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
+    // Only update heatmap if enabled and visible
+    if (!state.isHeatmapActive) return;
+    if (!state.panelVisibility || !state.panelVisibility.heatmap) return;
+    const sampleCount = Math.min(state.heatmapSampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     if (sample.length === 0) return;
     const counts = {};

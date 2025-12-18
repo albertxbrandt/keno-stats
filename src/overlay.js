@@ -21,93 +21,117 @@ export function createOverlay() {
 
         <!-- Tracker Tab Content -->
         <div id="keno-overlay-content" class="tab-content" style="padding:15px; background:#213743; border-bottom-left-radius:8px; border-bottom-right-radius:8px; display:block;">
-            <div data-section="sampleSize" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                <span id="sample-label" style="color:#ff7675; font-weight:600; cursor:help;" title="Last 5 Bets">Sample Size</span>
-                <input type="number" id="sample-size-input" min="1" value="5"
-                    style="width:64px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
-            </div>
-
-            <div data-section="predict" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div data-section="heatmap" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="heatmap-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span id="predict-label" style="color:#74b9ff; font-weight:600;">Hot Tiles:</span>
-                        <input type="number" id="predict-count" min="1" max="10" value="3" 
-                            style="width:48px; background:#0f212e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center;">
+                        <span id="heatmap-label" style="color:#ffd700; font-weight:600;">🗺️ Heatmap</span>
+                        <span id="heatmap-status" style="color:#aaa; font-size:9px;">Active</span>
                     </div>
                     
                     <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
-                        <input type="checkbox" id="predict-mode-switch" style="opacity:0; width:0; height:0;">
+                        <input type="checkbox" id="heatmap-mode-switch" style="opacity:0; width:0; height:0;">
                         <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                        <span id="predict-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
+                        <span id="heatmap-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
                     </label>
+                </div>
+                
+                <div id="heatmap-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                        <span style="color:#aaa; font-size:10px;">Sample Size:</span>
+                        <input type="number" id="heatmap-sample-size" min="1" value="100" 
+                            style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                    </div>
                 </div>
             </div>
 
-            <div data-section="momentum" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
-                <div id="momentum-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div data-section="numberGenerator" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
+                <div id="generator-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span id="momentum-label" style="color:#e17055; font-weight:600;">🔥 Momentum</span>
-                        <span id="momentum-status" style="color:#aaa; font-size:9px;">Off</span>
+                        <span id="generator-label" style="color:#74b9ff; font-weight:600;">🎲 Number Generator</span>
+                        <span id="generator-status" style="color:#aaa; font-size:9px;">Off</span>
                     </div>
                     
                     <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
-                        <input type="checkbox" id="momentum-mode-switch" style="opacity:0; width:0; height:0;">
+                        <input type="checkbox" id="generator-mode-switch" style="opacity:0; width:0; height:0;">
                         <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                        <span id="momentum-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
+                        <span id="generator-slider-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
                     </label>
                 </div>
-                <div id="momentum-info" style="display:none; margin-top:6px; padding:6px; background:#14202b; border-radius:4px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                        <span style="color:#666; font-size:9px;">Refresh in:</span>
-                        <span id="momentum-countdown" style="color:#e17055; font-size:9px; font-weight:600;">-</span>
+                
+                <div id="generator-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; margin-bottom:8px;">
+                        <span style="color:#aaa; font-size:10px;">Count:</span>
+                        <input type="number" id="generator-count" min="1" max="10" value="3" 
+                            style="width:64px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="color:#666; font-size:9px;">Momentum:</span>
-                        <span id="momentum-current-numbers" style="color:#74b9ff; font-size:8px; font-weight:500; line-height:1.3; word-break:break-all;">-</span>
+                    
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#aaa; font-size:10px;">Method:</span>
+                        <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
+                            <option value="frequency">🔥 Frequency (Hot Numbers)</option>
+                            <option value="momentum">⚡ Momentum (Trending)</option>
+                        </select>
                     </div>
-                </div>
-                <div id="momentum-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; margin-bottom:6px;">
-                        <div>
-                            <span style="color:#aaa; font-size:9px;">Count:</span>
-                            <input type="number" id="momentum-count" min="1" max="10" value="10" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                        </div>
-                        <div>
-                            <span style="color:#aaa; font-size:9px;">Refresh:</span>
-                            <input type="number" id="momentum-refresh" min="1" max="20" value="5" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                        </div>
-                        <div>
-                            <span style="color:#aaa; font-size:9px;">Detection:</span>
-                            <input type="number" id="momentum-detection" min="3" max="20" value="5" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                        </div>
-                        <div>
-                            <span style="color:#aaa; font-size:9px;">Baseline:</span>
-                            <input type="number" id="momentum-baseline" min="10" max="200" value="50" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                        </div>
-                        <div>
-                            <span style="color:#aaa; font-size:9px;">Threshold:</span>
-                            <input type="number" id="momentum-threshold" min="1" max="3" step="0.1" value="1.5" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                        </div>
-                        <div>
-                            <span style="color:#aaa; font-size:9px;">Pool:</span>
-                            <input type="number" id="momentum-pool" min="5" max="30" value="15" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                    
+                    <!-- Frequency-specific parameters -->
+                    <div id="frequency-params" style="display:block;">
+                        <div style="margin-bottom:8px;">
+                            <span style="color:#aaa; font-size:10px;">Sample Size:</span>
+                            <input type="number" id="frequency-sample-size" min="1" value="5" 
+                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px; margin-top:4px;">
                         </div>
                     </div>
+                    
+                    <!-- Momentum-specific parameters -->
+                    <div id="momentum-params" style="display:none;">
+                        <div id="momentum-info" style="margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <span style="color:#666; font-size:9px;">Refresh in:</span>
+                                <span id="momentum-countdown" style="color:#e17055; font-size:9px; font-weight:600;">-</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:2px;">
+                                <span style="color:#666; font-size:9px;">Momentum:</span>
+                                <span id="momentum-current-numbers" style="color:#74b9ff; font-size:8px; font-weight:500; line-height:1.3; word-break:break-all;">-</span>
+                            </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
+                            <div>
+                                <span style="color:#aaa; font-size:9px;">Refresh:</span>
+                                <input type="number" id="momentum-refresh" min="1" max="20" value="5" 
+                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                            </div>
+                            <div>
+                                <span style="color:#aaa; font-size:9px;">Detection:</span>
+                                <input type="number" id="momentum-detection" min="3" max="20" value="5" 
+                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                            </div>
+                            <div>
+                                <span style="color:#aaa; font-size:9px;">Baseline:</span>
+                                <input type="number" id="momentum-baseline" min="10" max="200" value="50" 
+                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                            </div>
+                            <div>
+                                <span style="color:#aaa; font-size:9px;">Threshold:</span>
+                                <input type="number" id="momentum-threshold" min="1" max="3" step="0.1" value="1.5" 
+                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <span style="color:#aaa; font-size:9px;">Pool:</span>
+                                <input type="number" id="momentum-pool" min="5" max="30" value="15" 
+                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px; margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">
                         <span style="color:#aaa; font-size:10px;">Auto-Select Numbers</span>
                         <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
-                            <input type="checkbox" id="momentum-autoselect-switch" style="opacity:0; width:0; height:0;">
+                            <input type="checkbox" id="generator-autoselect-switch" style="opacity:0; width:0; height:0;">
                             <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                            <span id="momentum-autoselect-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
+                            <span id="generator-autoselect-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
                         </label>
                     </div>
-                    <button id="select-momentum-btn" style="width:100%; background:#e17055; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Select Numbers</button>
+                    <button id="generate-numbers-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Generate Numbers</button>
                 </div>
             </div>
 
@@ -205,14 +229,40 @@ export function createOverlay() {
             <div id="settings-list" style="background: #0f212e; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <div style="color: #aaa; font-size: 12px; margin-bottom: 10px;">Show/Hide Panel Sections (Drag to Reorder)</div>
                 
+                <div class="settings-row" draggable="true" data-section="heatmap" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">🗺️</span>
+                        <span style="color: #fff; font-size: 12px;">Heatmap</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="heatmap" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
                 <div class="settings-row" draggable="true" data-section="sampleSize" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">📊</span>
-                        <span style="color: #fff; font-size: 12px;">Sample Size</span>
+                        <span style="color: #fff; font-size: 12px;">Sample Size (Legacy)</span>
                     </div>
                     <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" class="panel-toggle" data-section="sampleSize" style="opacity: 0; width: 0; height: 0;">
+                        <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
+                        <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
+                    </label>
+                </div>
+                
+                <div class="settings-row" draggable="true" data-section="numberGenerator" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1a2c38; cursor: move;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #666; font-size: 14px;">☰</span>
+                        <span style="font-size: 16px;">🎲</span>
+                        <span style="color: #fff; font-size: 12px;">Number Generator</span>
+                    </div>
+                    <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                        <input type="checkbox" class="panel-toggle" data-section="numberGenerator" style="opacity: 0; width: 0; height: 0;">
                         <span class="settings-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: 0.4s; border-radius: 24px;"></span>
                         <span class="settings-slider-dot" style="position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; transform: translateX(0); cursor: pointer;"></span>
                     </label>
@@ -222,7 +272,7 @@ export function createOverlay() {
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">🎯</span>
-                        <span style="color: #fff; font-size: 12px;">Predict Mode</span>
+                        <span style="color: #fff; font-size: 12px;">Predict (Legacy)</span>
                     </div>
                     <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" class="panel-toggle" data-section="predict" style="opacity: 0; width: 0; height: 0;">
@@ -235,7 +285,7 @@ export function createOverlay() {
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="color: #666; font-size: 14px;">☰</span>
                         <span style="font-size: 16px;">🔥</span>
-                        <span style="color: #fff; font-size: 12px;">Momentum Mode</span>
+                        <span style="color: #fff; font-size: 12px;">Momentum (Legacy)</span>
                     </div>
                     <label class="settings-switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
                         <input type="checkbox" class="panel-toggle" data-section="momentum" style="opacity: 0; width: 0; height: 0;">
@@ -420,6 +470,90 @@ export function createOverlay() {
     const closeBtn = document.getElementById('close-overlay');
     if (closeBtn) closeBtn.addEventListener('click', () => { state.isOverlayVisible = false; overlay.style.display = 'none'; });
 
+    // Heatmap handlers
+    const heatmapDot = document.getElementById('heatmap-slider-dot');
+    const heatmapSwitch = document.getElementById('heatmap-mode-switch');
+    const heatmapStatus = document.getElementById('heatmap-status');
+    const heatmapHeader = document.getElementById('heatmap-header');
+    const heatmapDetails = document.getElementById('heatmap-details');
+    const heatmapSampleInput = document.getElementById('heatmap-sample-size');
+
+    // Collapsible heatmap section
+    if (heatmapHeader && heatmapDetails) {
+        heatmapHeader.addEventListener('click', (e) => {
+            if (e.target.closest('label') || e.target.closest('input')) return;
+            const isExpanded = heatmapDetails.style.maxHeight && heatmapDetails.style.maxHeight !== '0px';
+            if (isExpanded) {
+                heatmapDetails.style.maxHeight = '0';
+                heatmapDetails.style.opacity = '0';
+            } else {
+                heatmapDetails.style.maxHeight = '100px';
+                heatmapDetails.style.opacity = '1';
+            }
+        });
+    }
+
+    if (heatmapSwitch) {
+        // Initialize visual state
+        if (state.isHeatmapActive) {
+            if (heatmapDot) { heatmapDot.style.transform = 'translateX(14px)'; heatmapDot.style.backgroundColor = '#ffd700'; }
+            if (heatmapStatus) heatmapStatus.textContent = 'Active';
+            if (heatmapDetails) {
+                heatmapDetails.style.maxHeight = '100px';
+                heatmapDetails.style.opacity = '1';
+            }
+        }
+        heatmapSwitch.checked = !!state.isHeatmapActive;
+        heatmapSwitch.addEventListener('change', (e) => {
+            state.isHeatmapActive = e.target.checked;
+            if (heatmapDot) {
+                heatmapDot.style.transform = state.isHeatmapActive ? 'translateX(14px)' : 'translateX(0px)';
+                heatmapDot.style.backgroundColor = state.isHeatmapActive ? '#ffd700' : 'white';
+            }
+            // Update status text
+            if (heatmapStatus) {
+                heatmapStatus.textContent = state.isHeatmapActive ? 'Active' : 'Off';
+                heatmapStatus.style.color = state.isHeatmapActive ? '#ffd700' : '#aaa';
+            }
+            // Update track background
+            try {
+                const parentLabel = heatmapSwitch.closest('label');
+                if (parentLabel) {
+                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'heatmap-slider-dot');
+                    if (track) track.style.backgroundColor = state.isHeatmapActive ? '#2a3b4a' : '#444';
+                }
+            } catch (err) { }
+
+            // Expand details when enabled
+            if (state.isHeatmapActive && heatmapDetails) {
+                heatmapDetails.style.maxHeight = '100px';
+                heatmapDetails.style.opacity = '1';
+            }
+
+            // Refresh heatmap
+            if (state.isHeatmapActive) {
+                updateHeatmap();
+            } else if (window.__keno_clearHighlight) {
+                window.__keno_clearHighlight();
+            }
+        });
+    }
+
+    if (heatmapSampleInput) {
+        heatmapSampleInput.value = state.heatmapSampleSize || 100;
+        heatmapSampleInput.max = Math.max(state.currentHistory.length, 1);
+        heatmapSampleInput.addEventListener('input', () => {
+            let val = parseInt(heatmapSampleInput.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            const max = Math.max(state.currentHistory.length, 1);
+            if (val > max) val = max;
+            state.heatmapSampleSize = val;
+            heatmapSampleInput.value = val;
+            if (state.isHeatmapActive) updateHeatmap();
+        });
+    }
+
+    // Legacy sample size input (kept for backward compatibility)
     const sampleInput = document.getElementById('sample-size-input');
     const sampleLabel = document.getElementById('sample-label');
     if (sampleInput) {
@@ -443,134 +577,170 @@ export function createOverlay() {
         });
     }
 
-    const pDot = document.getElementById('predict-slider-dot');
-    const predictSwitch = document.getElementById('predict-mode-switch');
-    if (predictSwitch) {
-        // initialize visual state
-        if (state.isPredictMode) {
-            if (pDot) { pDot.style.transform = 'translateX(14px)'; pDot.style.backgroundColor = '#74b9ff'; }
-            if (window.__keno_calculatePrediction) window.__keno_calculatePrediction();
-        }
-        predictSwitch.checked = !!state.isPredictMode;
-        predictSwitch.addEventListener('change', (e) => {
-            state.isPredictMode = e.target.checked;
-            if (pDot) {
-                pDot.style.transform = state.isPredictMode ? 'translateX(14px)' : 'translateX(0px)';
-                pDot.style.backgroundColor = state.isPredictMode ? '#74b9ff' : 'white';
-            }
-            // update predict track background for visible cue
-            try {
-                const parentLabel = predictSwitch.closest('label');
-                if (parentLabel) {
-                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'predict-slider-dot');
-                    if (track) track.style.backgroundColor = state.isPredictMode ? '#2a3b4a' : '#444';
-                }
-            } catch (err) { }
-            if (state.isPredictMode) { calculatePrediction(); }
-            else { if (window.__keno_clearHighlight) window.__keno_clearHighlight(); }
-        });
-    }
+    // Unified Number Generator handlers
+    const genDot = document.getElementById('generator-slider-dot');
+    const generatorSwitch = document.getElementById('generator-mode-switch');
+    const generatorStatus = document.getElementById('generator-status');
+    const generatorHeader = document.getElementById('generator-header');
+    const generatorDetails = document.getElementById('generator-details');
+    const generatorCount = document.getElementById('generator-count');
+    const frequencySampleInput = document.getElementById('frequency-sample-size');
+    const methodSelect = document.getElementById('generator-method-select');
+    const generateBtn = document.getElementById('generate-numbers-btn');
+    const frequencyParams = document.getElementById('frequency-params');
+    const momentumParams = document.getElementById('momentum-params');
+    const momentumInfo = document.querySelector('#momentum-params #momentum-info');
 
-    const predictCount = document.getElementById('predict-count');
-    if (predictCount) predictCount.addEventListener('change', () => { if (state.isPredictMode) calculatePrediction(); });
-
-    // Momentum mode handlers
-    const mDot = document.getElementById('momentum-slider-dot');
-    const momentumSwitch = document.getElementById('momentum-mode-switch');
-    const selectMomentumBtn = document.getElementById('select-momentum-btn');
-    const momentumStatus = document.getElementById('momentum-status');
-    const momentumHeader = document.getElementById('momentum-header');
-    const momentumDetails = document.getElementById('momentum-details');
-
-    // Collapsible momentum section
-    if (momentumHeader && momentumDetails) {
-        momentumHeader.addEventListener('click', (e) => {
-            if (e.target.closest('label') || e.target.closest('input')) return;
-            const isExpanded = momentumDetails.style.maxHeight && momentumDetails.style.maxHeight !== '0px';
+    // Collapsible generator section
+    if (generatorHeader && generatorDetails) {
+        generatorHeader.addEventListener('click', (e) => {
+            if (e.target.closest('label') || e.target.closest('input') || e.target.closest('select') || e.target.closest('button')) return;
+            const isExpanded = generatorDetails.style.maxHeight && generatorDetails.style.maxHeight !== '0px';
             if (isExpanded) {
-                momentumDetails.style.maxHeight = '0';
-                momentumDetails.style.opacity = '0';
+                generatorDetails.style.maxHeight = '0';
+                generatorDetails.style.opacity = '0';
             } else {
-                momentumDetails.style.maxHeight = '350px';
-                momentumDetails.style.opacity = '1';
+                generatorDetails.style.maxHeight = '450px';
+                generatorDetails.style.opacity = '1';
             }
         });
     }
 
-    if (momentumSwitch) {
+    // Unified count input
+    if (generatorCount) {
+        generatorCount.value = state.generatorCount || 3;
+        generatorCount.addEventListener('change', () => {
+            state.generatorCount = parseInt(generatorCount.value) || 3;
+            if (state.isGeneratorActive && window.__keno_generateNumbers) {
+                window.__keno_generateNumbers();
+            }
+        });
+    }
+
+    // Frequency sample size input (specific to frequency method)
+    if (frequencySampleInput) {
+        frequencySampleInput.value = state.generatorSampleSize || 5;
+        frequencySampleInput.max = Math.max(state.currentHistory.length, 1);
+        frequencySampleInput.addEventListener('input', () => {
+            let val = parseInt(frequencySampleInput.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            const max = Math.max(state.currentHistory.length, 1);
+            if (val > max) val = max;
+            state.generatorSampleSize = val;
+            frequencySampleInput.value = val;
+            if (state.isGeneratorActive && window.__keno_generateNumbers) {
+                window.__keno_generateNumbers();
+            }
+        });
+    }
+
+    // Method selector - show/hide relevant parameters
+    if (methodSelect) {
+        methodSelect.value = state.generatorMethod || 'frequency';
+        methodSelect.addEventListener('change', (e) => {
+            state.generatorMethod = e.target.value;
+            
+            // Show/hide parameters based on method
+            if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
+            if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
+            
+            // Update legacy state for backward compatibility
+            state.isPredictMode = state.isGeneratorActive && state.generatorMethod === 'frequency';
+            state.isMomentumMode = state.isGeneratorActive && state.generatorMethod === 'momentum';
+            
+            // Update momentum countdown if switching to momentum
+            if (state.generatorMethod === 'momentum' && window.__keno_updateMomentumCountdown) {
+                window.__keno_updateMomentumCountdown();
+            }
+        });
+        
+        // Initialize parameter visibility
+        if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
+        if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
+    }
+
+    if (generatorSwitch) {
         // Initialize visual state
-        if (state.isMomentumMode) {
-            if (mDot) { mDot.style.transform = 'translateX(14px)'; mDot.style.backgroundColor = '#e17055'; }
-            if (momentumStatus) momentumStatus.textContent = 'Active';
-            if (momentumDetails) {
-                momentumDetails.style.maxHeight = '350px';
-                momentumDetails.style.opacity = '1';
+        if (state.isGeneratorActive) {
+            if (genDot) { genDot.style.transform = 'translateX(14px)'; genDot.style.backgroundColor = '#74b9ff'; }
+            if (generatorStatus) generatorStatus.textContent = 'Active';
+            if (generatorDetails) {
+                generatorDetails.style.maxHeight = '450px';
+                generatorDetails.style.opacity = '1';
             }
         }
-        momentumSwitch.checked = !!state.isMomentumMode;
-        momentumSwitch.addEventListener('change', (e) => {
-            state.isMomentumMode = e.target.checked;
-            if (mDot) {
-                mDot.style.transform = state.isMomentumMode ? 'translateX(14px)' : 'translateX(0px)';
-                mDot.style.backgroundColor = state.isMomentumMode ? '#e17055' : 'white';
+        generatorSwitch.checked = !!state.isGeneratorActive;
+        generatorSwitch.addEventListener('change', (e) => {
+            state.isGeneratorActive = e.target.checked;
+            if (genDot) {
+                genDot.style.transform = state.isGeneratorActive ? 'translateX(14px)' : 'translateX(0px)';
+                genDot.style.backgroundColor = state.isGeneratorActive ? '#74b9ff' : 'white';
             }
             // Update status text
-            if (momentumStatus) {
-                momentumStatus.textContent = state.isMomentumMode ? 'Active' : 'Off';
-                momentumStatus.style.color = state.isMomentumMode ? '#e17055' : '#aaa';
+            if (generatorStatus) {
+                generatorStatus.textContent = state.isGeneratorActive ? 'Active' : 'Off';
+                generatorStatus.style.color = state.isGeneratorActive ? '#74b9ff' : '#aaa';
             }
-            // Update momentum track background
+            // Update track background
             try {
-                const parentLabel = momentumSwitch.closest('label');
+                const parentLabel = generatorSwitch.closest('label');
                 if (parentLabel) {
-                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'momentum-slider-dot');
-                    if (track) track.style.backgroundColor = state.isMomentumMode ? '#2a3b4a' : '#444';
+                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-slider-dot');
+                    if (track) track.style.backgroundColor = state.isGeneratorActive ? '#2a3b4a' : '#444';
                 }
             } catch (err) { }
 
             // Expand details when enabled
-            if (state.isMomentumMode && momentumDetails) {
-                momentumDetails.style.maxHeight = '350px';
-                momentumDetails.style.opacity = '1';
+            if (state.isGeneratorActive && generatorDetails) {
+                generatorDetails.style.maxHeight = '450px';
+                generatorDetails.style.opacity = '1';
             }
 
-            // Update info panel and countdown
-            if (window.__keno_updateMomentumCountdown) {
+            // Update legacy state for backward compatibility
+            state.isPredictMode = state.isGeneratorActive && state.generatorMethod === 'frequency';
+            state.isMomentumMode = state.isGeneratorActive && state.generatorMethod === 'momentum';
+
+            // Update momentum countdown if active
+            if (state.isGeneratorActive && state.generatorMethod === 'momentum' && window.__keno_updateMomentumCountdown) {
                 window.__keno_updateMomentumCountdown();
             }
 
-            if (!state.isMomentumMode) {
+            if (!state.isGeneratorActive) {
                 if (window.__keno_clearHighlight) window.__keno_clearHighlight();
             }
         });
     }
 
     // Auto-select toggle handler
-    const autoSelectSwitch = document.getElementById('momentum-autoselect-switch');
-    const asDot = document.getElementById('momentum-autoselect-dot');
-    if (autoSelectSwitch) {
-        autoSelectSwitch.checked = !!state.momentumAutoSelect;
-        autoSelectSwitch.addEventListener('change', (e) => {
+    const genAutoSelectSwitch = document.getElementById('generator-autoselect-switch');
+    const genAsDot = document.getElementById('generator-autoselect-dot');
+    if (genAutoSelectSwitch) {
+        genAutoSelectSwitch.checked = !!state.generatorAutoSelect;
+        genAutoSelectSwitch.addEventListener('change', (e) => {
+            state.generatorAutoSelect = e.target.checked;
+            // Update legacy state
             state.momentumAutoSelect = e.target.checked;
-            if (asDot) {
-                asDot.style.transform = state.momentumAutoSelect ? 'translateX(14px)' : 'translateX(0px)';
-                asDot.style.backgroundColor = state.momentumAutoSelect ? '#e17055' : 'white';
+
+            if (genAsDot) {
+                genAsDot.style.transform = state.generatorAutoSelect ? 'translateX(14px)' : 'translateX(0px)';
+                genAsDot.style.backgroundColor = state.generatorAutoSelect ? '#74b9ff' : 'white';
             }
-            // Update auto-select track background
+            // Update track background
             try {
-                const parentLabel = autoSelectSwitch.closest('label');
+                const parentLabel = genAutoSelectSwitch.closest('label');
                 if (parentLabel) {
-                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'momentum-autoselect-dot');
-                    if (track) track.style.backgroundColor = state.momentumAutoSelect ? '#2a3b4a' : '#444';
+                    const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-autoselect-dot');
+                    if (track) track.style.backgroundColor = state.generatorAutoSelect ? '#2a3b4a' : '#444';
                 }
             } catch (err) { }
         });
     }
 
-    if (selectMomentumBtn) {
-        selectMomentumBtn.addEventListener('click', () => {
-            if (window.__keno_selectMomentumNumbers) {
-                window.__keno_selectMomentumNumbers();
+    // Generate button handler
+    if (generateBtn) {
+        generateBtn.addEventListener('click', () => {
+            if (window.__keno_generateNumbers) {
+                window.__keno_generateNumbers();
             }
         });
     }

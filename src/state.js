@@ -1,14 +1,27 @@
 // src/state.js
 export const state = {
     currentHistory: [],
-    sampleSize: 5,
+    // Heatmap settings
+    isHeatmapActive: true,
+    heatmapSampleSize: 100, // Heatmap uses separate sample size
+    // Unified Number Generator (replaces isPredictMode and isMomentumMode)
+    isGeneratorActive: false,
+    generatorMethod: 'frequency', // 'frequency' or 'momentum'
+    generatorCount: 3, // Unified count for all generator methods
+    generatorSampleSize: 5, // Generator uses separate sample size
+    generatedNumbers: [],
+    generatorAutoSelect: false,
+    // Momentum-specific
+    momentumLastRefresh: 0,
+    momentumDisplayCache: null, // Cache momentum display to avoid recalculating
+    // Legacy support (will be deprecated)
+    sampleSize: 5, // Legacy
+    // Legacy support (will be deprecated)
     isPredictMode: false,
     predictedNumbers: [],
     isMomentumMode: false,
     momentumNumbers: [],
-    momentumLastRefresh: 0,
     momentumAutoSelect: false,
-    momentumDisplayCache: null, // Cache momentum display to avoid recalculating
     isOverlayVisible: true,
     isAutoPlayMode: false,
     autoPlayRoundsRemaining: 0,
@@ -21,9 +34,11 @@ export const state = {
     selectedCurrency: 'btc', // Default currency for display
     profitByCurrency: {}, // { btc: { total: 0, session: 0 }, usd: { total: 0, session: 0 }, ... }
     panelVisibility: {
-        sampleSize: true,
-        predict: true,
-        momentum: true,
+        heatmap: true,
+        numberGenerator: true,
+        sampleSize: true, // Legacy
+        predict: true, // Legacy
+        momentum: true, // Legacy
         hitsMiss: true,
         autoplay: true,
         profitLoss: true,
@@ -31,5 +46,5 @@ export const state = {
         recentPlays: true,
         history: true
     },
-    panelOrder: ['sampleSize', 'predict', 'momentum', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history']
 };
