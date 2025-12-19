@@ -92,6 +92,17 @@ function initializeExtension() {
 				console.error('[Generator] Generate all predictions failed:', e);
 			}
 		}
+
+		// If generator is active (not just comparison), also generate and select numbers
+		if (state.isGeneratorActive && window.__keno_generateNumbers) {
+			try {
+				console.log('[Content] Calling __keno_generateNumbers after round. Current history length:', state.currentHistory.length, 'Last refresh:', state.generatorLastRefresh, 'Interval:', state.generatorInterval);
+				window.__keno_generateNumbers(); // This will check auto-refresh interval
+			} catch (e) {
+				console.error('[Generator] Generate numbers failed:', e);
+			}
+		}
+
 		// Legacy: Auto Predict (deprecated)
 		else if (state.isPredictMode) {
 			calculatePrediction();

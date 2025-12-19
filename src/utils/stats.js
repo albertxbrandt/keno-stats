@@ -1,6 +1,7 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
 import { state } from '../core/state.js';
 import { getHits, getMisses, getDrawn, getSelected } from '../core/storage.js';
+import { getSelectedTileNumbers, getSelectedTileCount } from './domReader.js';
 
 /**
  * Calculate stats for selected tiles count
@@ -106,9 +107,6 @@ export function formatTimeSince(selectedNumbers, targetHitCount) {
 
     return 'Never';
 }
-
-// Export for backward compatibility - these are now imported from domReader
-export { getSelectedTileNumbers, getSelectedTileCount } from './domReader.js';
 
 /**
  * Update the multiplier bar with stats based on current selection

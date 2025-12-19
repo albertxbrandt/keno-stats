@@ -30,6 +30,27 @@ export function findAndClickPlayButton() {
 }
 
 /**
+ * Clear all selected tiles using the game's Clear Table button
+ * @returns {boolean} True if successful
+ */
+export function clearTable() {
+    const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
+    if (!clearButton) {
+        console.warn('[Utils] Clear Table button not found');
+        return false;
+    }
+
+    try {
+        simulatePointerClick(clearButton);
+        console.log('[Utils] Clear Table button clicked');
+        return true;
+    } catch (e) {
+        console.error('[Utils] Failed to click Clear Table button:', e);
+        return false;
+    }
+}
+
+/**
  * Wait for the bet button to be ready (data-test-action-enabled="true")
  * This ensures the board is ready for interaction after a bet completes
  */

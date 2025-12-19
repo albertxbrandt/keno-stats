@@ -1,7 +1,7 @@
 // src/tileSelection.js
 // Shared utilities for selecting and deselecting Keno game tiles
 
-import { simulatePointerClick } from './utils.js';
+import { simulatePointerClick, clearTable } from './utils.js';
 
 /**
  * Get all tile buttons from the game board
@@ -23,6 +23,11 @@ export function getAllTiles() {
  * @returns {HTMLElement|undefined} The tile element or undefined
  */
 export function findTileByNumber(tiles, num) {
+  // First try data-testid (most reliable)
+  const byTestId = tiles.find(t => t.getAttribute('data-testid') === `game-tile-${num}`);
+  if (byTestId) return byTestId;
+
+  // Fallback: parse text content
   return tiles.find(t => {
     const text = (t.textContent || '').trim().split('%')[0];
     return parseInt(text) === num;
@@ -36,6 +41,12 @@ export function findTileByNumber(tiles, num) {
  */
 export function isTileSelected(tile) {
   if (!tile) return false;
+
+  // Check data-selected attribute (most reliable)
+  const dataSelected = tile.getAttribute('data-selected');
+  if (dataSelected === 'true') return true;
+
+  // Fallback: check classes
   const classList = Array.from(tile.classList);
   return classList.some(cls =>
     cls.includes('selected') ||
@@ -133,31 +144,44 @@ export function selectTiles(numbers) {
 
 /**
  * Replace current selection with new numbers
- * Deselects all tiles, then selects the specified numbers
+ * Clears table first, then selects the specified numbers
  * @param {Array<number>} numbers - Array of numbers to select (1-40)
- * @returns {Object} { selected: number, failed: Array<number> }
+ * @returns {Promise<Object>} { selected: number, failed: Array<number> }
  */
 export function replaceSelection(numbers) {
-  const tiles = getAllTiles();
-  if (!tiles) {
-    return { selected: 0, failed: numbers };
-  }
+  // Clear table using game's Clear Table button
+  clearTable();
 
-  // Deselect all first
-  deselectAllTiles(tiles);
+  // Wait a bit for the clear to process
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const tiles = getAllTiles();
+      if (!tiles) {
+        resolve({ selected: 0, failed: numbers });
+        return;
+      }
 
-  // Select new numbers
-  const failed = [];
-  let selected = 0;
+      const failed = [];
+      let selected = 0;
 
-  numbers.forEach(num => {
-    const tile = findTileByNumber(tiles, num);
-    if (selectTile(tile, num)) {
-      selected++;
-    } else {
-      failed.push(num);
-    }
+      numbers.forEach(num => {
+        const tile = findTileByNumber(tiles, num);
+
+        // Skip if tile is already selected
+        if (tile && isTileSelected(tile)) {
+          console.log(`[tileSelection] Tile ${num} already selected, skipping`);
+          selected++;
+          return;
+        }
+
+        if (selectTile(tile, num)) {
+          selected++;
+        } else {
+          failed.push(num);
+        }
+      });
+
+      resolve({ selected, failed });
+    }, 150); // Wait 150ms for clear to process
   });
-
-  return { selected, failed };
 }

@@ -44,15 +44,17 @@ export class CacheManager {
     }
 
     // Auto refresh: check if enough rounds have passed
-    const currentRound = state.generatorLastRefresh || 0;
-    const roundsSinceCache = currentRound - roundNumber;
+    const currentRound = state.currentHistory.length;
+    const roundsSinceCache = currentRound - roundNumber; // Compare to when cache was created
 
     if (roundsSinceCache < interval) {
       // Still within interval, use cache
+      console.log(`[CacheManager] Using cache - ${roundsSinceCache}/${interval} rounds since cache created at round ${roundNumber}`);
       return predictions;
     }
 
     // Interval exceeded, cache expired
+    console.log(`[CacheManager] Cache expired - ${roundsSinceCache} rounds >= ${interval} interval (cached at round ${roundNumber}, now at ${currentRound})`);
     return null;
   }
 
@@ -66,13 +68,15 @@ export class CacheManager {
    */
   set(method, count, predictions, state, config = {}) {
     const key = this._getCacheKey(method, count, config);
-    const roundNumber = state.generatorLastRefresh || 0;
+    const roundNumber = state.currentHistory.length; // Use current history length when caching
 
     this.cache.set(key, {
       predictions,
       roundNumber,
       timestamp: Date.now()
     });
+
+    console.log(`[CacheManager] Cached ${method} predictions at round ${roundNumber}`);
   }
 
   /**

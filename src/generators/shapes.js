@@ -16,9 +16,14 @@ export class ShapesGenerator extends BaseGenerator {
     const pattern = config.pattern || 'random';
     const placement = config.placement || 'random';
 
+    console.log('[ShapesGenerator] Config:', { count, pattern, placement, configReceived: config });
+
     const prediction = getShapePredictions(count, pattern, placement, history);
 
+    console.log('[ShapesGenerator] Result from getShapePredictions:', prediction);
+
     if (!prediction || prediction.length === 0) {
+      console.warn('[ShapesGenerator] No prediction returned, using fallback');
       return this.generateFallback(count);
     }
 

@@ -48,6 +48,13 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
     const cached = cacheManager.get(method, count, state, config);
     if (cached) {
       console.log(`[generateNumbers] Using cached ${method} predictions`);
+
+      // Update state.generatedNumbers even when cached (if active method)
+      const isActiveMethod = !methodOverride || method === state.generatorMethod;
+      if (isActiveMethod) {
+        state.generatedNumbers = cached;
+      }
+
       return {
         predictions: cached,
         cached: true,
@@ -72,12 +79,18 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
 
   // Update cache and state
   cacheManager.set(method, count, predictions, state, config);
-  state.generatedNumbers = predictions;
-  state.generatorActuallyRefreshed = true;
 
-  // Update last refresh round counter
-  const currentRound = history.length;
-  state.generatorLastRefresh = currentRound;
+  // Only update state.generatedNumbers if this is the active method
+  // (not when generating for comparison tracking)
+  const isActiveMethod = !methodOverride || method === state.generatorMethod;
+  if (isActiveMethod) {
+    state.generatedNumbers = predictions;
+    state.generatorActuallyRefreshed = true;
+
+    // Update last refresh round counter
+    const currentRound = history.length;
+    state.generatorLastRefresh = currentRound;
+  }
 
   return {
     predictions,
@@ -161,22 +174,24 @@ export function getMomentumBasedPredictions(count) {
 /**
  * Select generated numbers on game board
  */
-export function selectPredictedNumbers() {
+export async function selectPredictedNumbers() {
   const predictions = state.generatedNumbers || [];
   if (predictions.length === 0) {
     console.warn('[selectPredictedNumbers] No predictions available');
     return;
   }
 
+  console.log(`[selectPredictedNumbers] state.generatedNumbers:`, state.generatedNumbers);
   console.log(`[selectPredictedNumbers] Selecting ${predictions.length} tiles:`, predictions);
 
-  // Use shared tile selection utility
-  const result = replaceSelection(predictions);
+  // Use shared tile selection utility (now async)
+  const result = await replaceSelection(predictions);
   if (result.failed.length > 0) {
     console.warn('[selectPredictedNumbers] Failed to select tiles:', result.failed);
   }
 
   // Highlight predictions
+  console.log(`[selectPredictedNumbers] About to highlight:`, predictions);
   highlightPrediction(predictions);
 }
 
@@ -239,3 +254,30 @@ export function getMomentumConfig() {
     poolSize: state.momentumPoolSize || 15
   };
 }
+
+// ============================================================================
+// WINDOW HOOKS (for cross-module calls from HTML event handlers)
+// ============================================================================
+
+/**
+ * Window hook wrapper for generateNumbers
+ * Generates numbers and selects them on the board (only if auto-select is enabled)
+ */
+window.__keno_generateNumbers = function (forceRefresh = false) {
+  console.log(`[__keno_generateNumbers] Called with forceRefresh=${forceRefresh}, autoSelect=${state.generatorAutoSelect}`);
+  const result = generateNumbers(forceRefresh);
+  console.log(`[__keno_generateNumbers] Result:`, result);
+
+  // Only auto-select if the setting is enabled
+  if (result.predictions.length > 0 && state.generatorAutoSelect) {
+    console.log(`[__keno_generateNumbers] Auto-selecting ${result.predictions.length} numbers`);
+    selectPredictedNumbers();
+  } else if (result.predictions.length > 0) {
+    console.log(`[__keno_generateNumbers] Generated but auto-select is OFF`);
+  }
+};
+
+window.__keno_selectPredictedNumbers = selectPredictedNumbers;
+window.__keno_updateMomentumPredictions = updateMomentumPredictions;
+window.__keno_selectMomentumNumbers = selectMomentumNumbers;
+window.__keno_generateAllPredictions = generateAllPredictions;

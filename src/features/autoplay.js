@@ -42,21 +42,22 @@ export function autoPlayPlaceBet() {
         console.log('[AutoPlay] Using fallback predictions:', predictions);
     }
 
-    // Select tiles using shared utility
-    const result = replaceSelection(predictions);
-    if (result.failed.length > 0) {
-        console.warn('[AutoPlay] Failed to select tiles:', result.failed);
-    }
-
-    // Click play button after short delay
-    setTimeout(() => {
-        const playBtn = findAndClickPlayButton();
-        if (!playBtn) {
-            console.error('[AutoPlay] Play button not found');
-            state.isAutoPlayMode = false;
-            updateAutoPlayUI();
+    // Select tiles using shared utility (now async)
+    replaceSelection(predictions).then(result => {
+        if (result.failed.length > 0) {
+            console.warn('[AutoPlay] Failed to select tiles:', result.failed);
         }
-    }, 500);
+
+        // Click play button after short delay
+        setTimeout(() => {
+            const playBtn = findAndClickPlayButton();
+            if (!playBtn) {
+                console.error('[AutoPlay] Play button not found');
+                state.isAutoPlayMode = false;
+                updateAutoPlayUI();
+            }
+        }, 500);
+    });
 }
 
 /**

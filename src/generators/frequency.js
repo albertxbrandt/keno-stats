@@ -14,14 +14,27 @@ export class FrequencyGenerator extends BaseGenerator {
     const sampleSize = config.sampleSize || 100;
     const sample = this.getSample(history, sampleSize);
 
+    console.log('[FrequencyGenerator] Sample size:', sample.length);
+    if (sample.length > 0) {
+      console.log('[FrequencyGenerator] First round structure:', sample[0]);
+    }
+
     if (sample.length === 0) {
+      console.warn('[FrequencyGenerator] No history, using fallback');
       return this.generateFallback(count);
     }
 
     const counts = this.countFrequencies(sample);
-    const sorted = this.sortByFrequency(counts);
+    console.log('[FrequencyGenerator] Top 10 counts:', Object.entries(counts)
+      .map(([num, count]) => [parseInt(num), count])
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10));
 
-    return sorted.slice(0, count).map(entry => entry[0]);
+    const sorted = this.sortByFrequency(counts);
+    const result = sorted.slice(0, count).map(entry => entry[0]);
+    console.log('[FrequencyGenerator] Returning:', result);
+
+    return result;
   }
 
   generateFallback(count) {
