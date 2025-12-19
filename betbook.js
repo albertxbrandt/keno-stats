@@ -64,6 +64,9 @@ const settingsBtn = document.getElementById('settingsBtn');
 const settingsModal = document.getElementById('settingsModal');
 const settingsClose = document.getElementById('settingsClose');
 const autocompleteSuggestions = document.getElementById('autocompleteSuggestions');
+const betDetailsModal = document.getElementById('betDetailsModal');
+const betDetailsClose = document.getElementById('betDetailsClose');
+const betDetailsBody = document.getElementById('betDetailsBody');
 
 let selectedSuggestionIndex = -1;
 
@@ -84,6 +87,9 @@ nextBtn.addEventListener('click', () => { currentPage++; renderTable(); });
 settingsBtn.addEventListener('click', () => { settingsModal.style.display = 'flex'; });
 settingsClose.addEventListener('click', () => { settingsModal.style.display = 'none'; });
 settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.style.display = 'none'; });
+
+betDetailsClose.addEventListener('click', () => { betDetailsModal.style.display = 'none'; });
+betDetailsModal.addEventListener('click', (e) => { if (e.target === betDetailsModal) betDetailsModal.style.display = 'none'; });
 
 // Column visibility toggles
 Object.keys(columnVisibility).forEach(col => {
@@ -531,6 +537,7 @@ function renderTable() {
 
     const row = document.createElement('tr');
     row.dataset.betTime = bet.time; // Store bet time as identifier
+    row.style.cursor = 'pointer';
     row.innerHTML = `
       <td class="${columnVisibility.date ? '' : 'hidden-column'}">${dateStr}</td>
       <td class="${columnVisibility.amount ? '' : 'hidden-column'}">${amount.toFixed(2)}</td>
@@ -541,11 +548,135 @@ function renderTable() {
       <td class="${columnVisibility.hits ? '' : 'hidden-column'} hits">${hits.join(', ')}</td>
       <td class="${columnVisibility.misses ? '' : 'hidden-column'} misses">${misses.join(', ')}</td>
     `;
+
+    // Add click handler to show bet details
+    row.addEventListener('click', () => showBetDetails(bet));
+
     betTableBody.appendChild(row);
   });
 
   // Apply column visibility to headers
   updateColumnVisibility();
+}
+
+function showBetDetails(bet) {
+  const hits = getHits(bet);
+  const misses = getMisses(bet);
+  const selected = bet.kenoBet?.state?.selectedNumbers || [];
+  const drawn = bet.kenoBet?.state?.drawnNumbers || [];
+  const amount = bet.kenoBet?.amount || 0;
+  const payout = bet.kenoBet?.payout || 0;
+  const multiplier = bet.kenoBet?.payoutMultiplier || 0;
+  const currency = bet.kenoBet?.currency || 'N/A';
+  const risk = bet.kenoBet?.state?.risk || 'N/A';
+  const dateStr = new Date(bet.time).toLocaleString();
+  const profit = payout - amount;
+
+  // Create keno board (8x5 grid, numbers 1-40)
+  let boardHTML = '<div class="keno-board">';
+  for (let i = 1; i <= 40; i++) {
+    const isSelected = selected.includes(i);
+    const isHit = hits.includes(i);
+    let tileClass = 'keno-tile';
+    if (isHit) {
+      tileClass += ' hit';
+    } else if (isSelected) {
+      tileClass += ' selected';
+    }
+    boardHTML += `<div class="${tileClass}">${i}</div>`;
+  }
+  boardHTML += '</div>';
+
+  // Generator info if available
+  let generatorHTML = '';
+  if (bet.generator) {
+    const gen = bet.generator;
+    const methodNames = {
+      frequency: '🔥 Frequency (Hot)',
+      cold: '❄️ Cold',
+      mixed: '🔀 Mixed',
+      average: '📊 Average',
+      momentum: '🚀 Momentum',
+      shapes: '🔷 Shapes'
+    };
+
+    generatorHTML = `
+      <div class="generator-info">
+        <div class="generator-info-title">🎲 Number Generator Used</div>
+        <div class="generator-params">
+          <div class="generator-param">Method: <span>${methodNames[gen.method] || gen.method}</span></div>
+          <div class="generator-param">Count: <span>${gen.count}</span></div>
+          <div class="generator-param">Refresh: <span>${gen.interval === 0 ? 'Manual' : gen.interval + ' rounds'}</span></div>
+          <div class="generator-param">Auto-select: <span>${gen.autoSelect ? 'Yes' : 'No'}</span></div>
+          ${gen.sampleSize ? `<div class="generator-param">Sample Size: <span>${gen.sampleSize}</span></div>` : ''}
+          ${gen.method === 'shapes' ? `
+            <div class="generator-param">Pattern: <span>${gen.shapesPattern}</span></div>
+            <div class="generator-param">Placement: <span>${gen.shapesPlacement}</span></div>
+          ` : ''}
+          ${gen.method === 'momentum' ? `
+            <div class="generator-param">Detection Window: <span>${gen.momentumDetectionWindow}</span></div>
+            <div class="generator-param">Baseline Games: <span>${gen.momentumBaselineGames}</span></div>
+            <div class="generator-param">Threshold: <span>${gen.momentumThreshold}</span></div>
+            <div class="generator-param">Pool Size: <span>${gen.momentumPoolSize}</span></div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  betDetailsBody.innerHTML = `
+    <div class="bet-info-section">
+      <h3>📊 Bet Information</h3>
+      <div class="bet-info-grid">
+        <div class="bet-info-item">
+          <div class="bet-info-label">Date</div>
+          <div class="bet-info-value">${dateStr}</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Bet ID</div>
+          <div class="bet-info-value">${bet.id || 'N/A'}</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Amount</div>
+          <div class="bet-info-value">${amount.toFixed(2)} ${currency}</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Payout</div>
+          <div class="bet-info-value" style="color: ${profit >= 0 ? '#4caf50' : '#f44336'}">${payout.toFixed(2)} ${currency}</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Multiplier</div>
+          <div class="bet-info-value">${multiplier.toFixed(2)}x</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Profit/Loss</div>
+          <div class="bet-info-value" style="color: ${profit >= 0 ? '#4caf50' : '#f44336'}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} ${currency}</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Difficulty</div>
+          <div class="bet-info-value" style="text-transform: capitalize;">${risk}</div>
+        </div>
+        <div class="bet-info-item">
+          <div class="bet-info-label">Hits / Misses</div>
+          <div class="bet-info-value"><span style="color: #4caf50">${hits.length}</span> / <span style="color: #f44336">${misses.length}</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bet-info-section">
+      <h3>🎯 Number Board</h3>
+      ${boardHTML}
+      <div style="margin-top: 1em; font-size: 0.9em; color: #aaa;">
+        <div style="margin-bottom: 0.3em;">🎁 <span style="color: #7b2cbf; font-weight: bold;">Purple with gift</span> = Hit (Selected & Drawn)</div>
+        <div style="margin-bottom: 0.3em;">🟣 <span style="color: #7b2cbf; font-weight: bold;">Purple</span> = Selected but not drawn</div>
+        <div>⬜ <span style="color: #aaa;">Gray</span> = Not selected</div>
+      </div>
+    </div>
+    
+    ${generatorHTML}
+  `;
+
+  betDetailsModal.style.display = 'flex';
 }
 
 function deleteBet(betTime) {
