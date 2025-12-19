@@ -457,9 +457,9 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
   const refreshBtn = document.getElementById('pattern-refresh-btn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
-      const newSortBy = document.getElementById('pattern-sort-select').value;
+      const newSortBy = getSelectValue('pattern-sort-select', 'frequency');
       const newSampleInput = document.getElementById('pattern-sample-input');
-      const newSample = parseInt(newSampleInput.value) || 0;
+      const newSample = getIntValue(newSampleInput, 0);
       modal.remove();
       showPatternAnalysisModal(patternSize, newSortBy, newSample);
     });
@@ -524,7 +524,7 @@ function selectPatternNumbers(numbers) {
   // Wait a bit for clearing, then select the pattern numbers
   setTimeout(() => {
     tiles.forEach((tile) => {
-      const tileNumber = parseInt(tile.textContent.trim().split('%')[0]);
+      const tileNumber = getTileNumber(tile);
       if (isNaN(tileNumber)) return;
 
       if (numbers.includes(tileNumber)) {
@@ -714,14 +714,14 @@ export function showLivePatternAnalysis() {
 
   // Auto-update minHits and maxHits when pattern size changes
   sizeInput.addEventListener('input', () => {
-    const size = parseInt(sizeInput.value);
+    const size = getIntValue(sizeInput, 5);
     if (!isNaN(size)) {
       minHitsInput.max = size;
       maxHitsInput.max = size;
-      if (parseInt(minHitsInput.value) > size) {
+      if (getIntValue(minHitsInput, 0) > size) {
         minHitsInput.value = size;
       }
-      if (parseInt(maxHitsInput.value) > size) {
+      if (getIntValue(maxHitsInput, 0) > size) {
         maxHitsInput.value = size;
       }
     }
@@ -756,12 +756,12 @@ export function showLivePatternAnalysis() {
       requireBuildupsCheckbox.disabled = false;
     } else {
       // Start
-      patternSize = parseInt(sizeInput.value);
-      sampleSize = parseInt(sampleInput.value);
-      minHits = parseInt(minHitsInput.value);
-      maxHits = parseInt(maxHitsInput.value);
-      notHitIn = parseInt(notHitInInput.value);
-      requireBuildups = requireBuildupsCheckbox.checked;
+      patternSize = getIntValue(sizeInput, 5);
+      sampleSize = getIntValue(sampleInput, 100);
+      minHits = getIntValue(minHitsInput, 3);
+      maxHits = getIntValue(maxHitsInput, 10);
+      notHitIn = getIntValue(notHitInInput, 0);
+      requireBuildups = getCheckboxValue(requireBuildupsCheckbox, false);
 
       if (patternSize < 2 || patternSize > 10) {
         alert('Pattern size must be between 2 and 10');

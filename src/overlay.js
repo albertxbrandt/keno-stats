@@ -4,6 +4,7 @@ import { updateHistoryUI, clearHistory } from './storage.js';
 import { updateHeatmap } from './heatmap.js';
 import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
 import { updateAutoPlayUI, autoPlayPlaceBet } from './autoplay.js';
+import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from './domReader.js';
 
 export function createOverlay() {
     if (document.getElementById('keno-tracker-overlay')) return;
@@ -548,7 +549,7 @@ export function createOverlay() {
         }
         heatmapSwitch.checked = !!state.isHeatmapActive;
         heatmapSwitch.addEventListener('change', (e) => {
-            state.isHeatmapActive = e.target.checked;
+            state.isHeatmapActive = getCheckboxValue(heatmapSwitch);
             if (heatmapDot) {
                 heatmapDot.style.transform = state.isHeatmapActive ? 'translateX(14px)' : 'translateX(0px)';
                 heatmapDot.style.backgroundColor = state.isHeatmapActive ? '#ffd700' : 'white';
@@ -586,10 +587,8 @@ export function createOverlay() {
         heatmapSampleInput.value = state.heatmapSampleSize || 100;
         heatmapSampleInput.max = Math.max(state.currentHistory.length, 1);
         heatmapSampleInput.addEventListener('input', () => {
-            let val = parseInt(heatmapSampleInput.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
-            if (val > max) val = max;
+            const val = getIntValue(heatmapSampleInput, 1, { min: 1, max });
             state.heatmapSampleSize = val;
             heatmapSampleInput.value = val;
             if (state.isHeatmapActive) updateHeatmap();
@@ -606,10 +605,8 @@ export function createOverlay() {
             sampleLabel.title = `Last ${sampleInput.value} Bets`;
         }
         sampleInput.addEventListener('input', () => {
-            let val = parseInt(sampleInput.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
-            if (val > max) val = max;
+            const val = getIntValue(sampleInput, 1, { min: 1, max });
             state.sampleSize = val;
             sampleInput.value = val;
             if (sampleLabel) {
@@ -653,7 +650,7 @@ export function createOverlay() {
     if (generatorCount) {
         generatorCount.value = state.generatorCount || 3;
         generatorCount.addEventListener('change', () => {
-            state.generatorCount = parseInt(generatorCount.value) || 3;
+            state.generatorCount = getIntValue(generatorCount, 3);
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
                 window.__keno_generateNumbers();
             }
@@ -665,10 +662,8 @@ export function createOverlay() {
         frequencySampleInput.value = state.generatorSampleSize || 5;
         frequencySampleInput.max = Math.max(state.currentHistory.length, 1);
         frequencySampleInput.addEventListener('input', () => {
-            let val = parseInt(frequencySampleInput.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
-            if (val > max) val = max;
+            const val = getIntValue(frequencySampleInput, 1, { min: 1, max });
             state.generatorSampleSize = val;
             frequencySampleInput.value = val;
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
@@ -681,7 +676,7 @@ export function createOverlay() {
     if (methodSelect) {
         methodSelect.value = state.generatorMethod || 'frequency';
         methodSelect.addEventListener('change', (e) => {
-            state.generatorMethod = e.target.value;
+            state.generatorMethod = getSelectValue(methodSelect, 'frequency');
 
             // Show/hide parameters based on method
             // frequency, cold, mixed, average, auto use frequency params (sample size)
@@ -729,7 +724,7 @@ export function createOverlay() {
         }
         generatorSwitch.checked = !!state.isGeneratorActive;
         generatorSwitch.addEventListener('change', (e) => {
-            state.isGeneratorActive = e.target.checked;
+            state.isGeneratorActive = getCheckboxValue(generatorSwitch);
             if (genDot) {
                 genDot.style.transform = state.isGeneratorActive ? 'translateX(14px)' : 'translateX(0px)';
                 genDot.style.backgroundColor = state.isGeneratorActive ? '#74b9ff' : 'white';
@@ -1027,7 +1022,7 @@ export function createOverlay() {
     const apBtn = document.getElementById('autoplay-btn');
     if (apBtn) apBtn.addEventListener('click', () => {
         const roundsInput = document.getElementById('autoplay-rounds');
-        const roundsToPlay = parseInt(roundsInput.value) || 5;
+        const roundsToPlay = getIntValue(roundsInput, 5);
         if (state.isAutoPlayMode) {
             state.isAutoPlayMode = false;
             state.autoPlayRoundsRemaining = 0;
@@ -1040,7 +1035,7 @@ export function createOverlay() {
             state.autoPlayRoundsRemaining = roundsToPlay;
             state.autoPlayStartTime = Date.now();
             state.autoPlayElapsedTime = 0;
-            const rawPredCount = parseInt(document.getElementById('autoplay-pred-count').value) || 3;
+            const rawPredCount = getIntValue('autoplay-pred-count', 3);
             state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount, 1), 40);
             console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount);
             autoPlayPlaceBet();
@@ -1054,7 +1049,7 @@ export function createOverlay() {
     if (analyzePatternBtn) {
         analyzePatternBtn.addEventListener('click', () => {
             const targetInput = document.getElementById('pattern-target');
-            const patternSize = parseInt(targetInput.value);
+            const patternSize = getIntValue(targetInput, 5);
 
             if (isNaN(patternSize) || patternSize < 3 || patternSize > 10) {
                 alert('Please enter a valid pattern size between 3 and 10');
@@ -1104,7 +1099,7 @@ export function createOverlay() {
     const shapesPatternSelect = document.getElementById('shapes-pattern-select');
     if (shapesPatternSelect) {
         shapesPatternSelect.addEventListener('change', (e) => {
-            state.shapesPattern = e.target.value;
+            state.shapesPattern = getSelectValue(e.target, 'cross');
             console.log('[Shapes] Pattern changed to:', state.shapesPattern);
 
             // Update current display
@@ -1118,7 +1113,7 @@ export function createOverlay() {
     const shapesPlacementSelect = document.getElementById('shapes-placement-select');
     if (shapesPlacementSelect) {
         shapesPlacementSelect.addEventListener('change', (e) => {
-            state.shapesPlacement = e.target.value;
+            state.shapesPlacement = getSelectValue(e.target, 'center');
             console.log('[Shapes] Placement changed to:', state.shapesPlacement);
 
             // Update current display
@@ -1138,9 +1133,9 @@ export function createOverlay() {
     const generatorIntervalInput = document.getElementById('generator-interval');
     if (generatorIntervalInput) {
         generatorIntervalInput.addEventListener('change', (e) => {
-            const value = parseInt(e.target.value) || 0;
-            state.generatorInterval = Math.max(0, Math.min(20, value)); // Clamp to 0-20
-            generatorIntervalInput.value = state.generatorInterval; // Update display with clamped value
+            const value = getIntValue(e.target, 0, { min: 0, max: 20 });
+            state.generatorInterval = value;
+            generatorIntervalInput.value = value; // Update display with clamped value
             console.log('[Generator] Auto-refresh interval set to:', state.generatorInterval, 'rounds');
 
             // Reset last refresh counter

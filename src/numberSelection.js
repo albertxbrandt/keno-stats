@@ -185,7 +185,7 @@ export function selectPredictedNumbers() {
  */
 export function calculatePrediction(countOverride) {
   const input = document.getElementById('predict-count');
-  const count = parseInt((input && input.value) || countOverride) || 3;
+  const count = getIntValue(input, countOverride || 3);
 
   if (state.currentHistory.length === 0) {
     state.predictedNumbers = [];
