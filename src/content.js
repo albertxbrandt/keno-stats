@@ -4,6 +4,7 @@ import { initOverlay, injectFooterButton } from './ui/overlay.js';
 import { loadHistory, updateHistoryUI } from './core/storage.js';
 import { calculatePrediction, selectPredictedNumbers } from './ui/numberSelection.js';
 import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
+import { waitForBetButtonReady } from './utils/utils.js';
 import { updateHeatmap } from './features/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbers.js';
@@ -96,8 +97,14 @@ function initializeExtension() {
 		// If generator is active (not just comparison), also generate and select numbers
 		if (state.isGeneratorActive && window.__keno_generateNumbers) {
 			try {
-				console.log('[Content] Calling __keno_generateNumbers after round. Current history length:', state.currentHistory.length, 'Last refresh:', state.generatorLastRefresh, 'Interval:', state.generatorInterval);
-				window.__keno_generateNumbers(); // This will check auto-refresh interval
+				console.log('[Content] Waiting for bet button before generating numbers...');
+				waitForBetButtonReady(3000).then(() => {
+					console.log('[Content] Bet button ready, calling __keno_generateNumbers. History:', state.currentHistory.length, 'Last refresh:', state.generatorLastRefresh, 'Interval:', state.generatorInterval);
+					window.__keno_generateNumbers(); // This will check auto-refresh interval
+				}).catch(err => {
+					console.error('[Content] Bet button timeout, generating anyway:', err);
+					window.__keno_generateNumbers(); // Try anyway
+				});
 			} catch (e) {
 				console.error('[Generator] Generate numbers failed:', e);
 			}
@@ -112,20 +119,25 @@ function initializeExtension() {
 			state.autoPlayRoundsRemaining--;
 			// update UI immediately so Playing: <num> reflects remaining rounds
 			try { updateAutoPlayUI(); } catch (e) { console.warn('[content] updateAutoPlayUI failed', e); }
-			// schedule next bet or finish
-			setTimeout(() => {
-				if (state.autoPlayRoundsRemaining > 0) {
-					console.log('[AutoPlay] Rounds remaining, placing next bet:', state.autoPlayRoundsRemaining);
+			// Wait for bet button to be ready, then place next bet
+			if (state.autoPlayRoundsRemaining > 0) {
+				console.log('[AutoPlay] Waiting for bet button before next round...');
+				waitForBetButtonReady(3000).then(() => {
+					console.log('[AutoPlay] Bet button ready, placing next bet. Rounds remaining:', state.autoPlayRoundsRemaining);
 					autoPlayPlaceBet();
-				} else {
+				}).catch(err => {
+					console.error('[AutoPlay] Bet button timeout:', err);
 					state.isAutoPlayMode = false;
-					if (state.autoPlayStartTime) {
-						state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
-					}
 					try { updateAutoPlayUI(); } catch (e) { }
-					console.log('[AutoPlay] Finished all rounds');
+				});
+			} else {
+				state.isAutoPlayMode = false;
+				if (state.autoPlayStartTime) {
+					state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
 				}
-			}, 1500);
+				try { updateAutoPlayUI(); } catch (e) { }
+				console.log('[AutoPlay] Finished all rounds');
+			}
 		}
 	});
 
