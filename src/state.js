@@ -14,6 +14,7 @@ export const state = {
     lastGeneratedPredictions: null, // Store predictions for comparison tracking
     // Momentum-specific
     momentumLastRefresh: 0,
+    momentumActuallyRefreshed: false, // Track if momentum was actually regenerated vs cached
     momentumDisplayCache: null, // Cache momentum display to avoid recalculating
     // Legacy support (will be deprecated)
     sampleSize: 5, // Legacy
@@ -52,5 +53,11 @@ export const state = {
     isComparisonWindowOpen: false,
     comparisonLookback: 50, // How many rounds to track
     comparisonData: [], // Array of {round, frequency: {predicted, hits, profit}, momentum: {predicted, hits, profit}, cold: {predicted, hits, profit}}
-    gameDifficulty: 'classic' // Current game difficulty (classic, low, medium, high)
+    gameDifficulty: 'classic', // Current game difficulty (classic, low, medium, high)
+    // Shapes Generator Config
+    shapesPattern: 'random', // Selected shape pattern ('random' or specific shape key)
+    shapesPlacement: 'random', // Placement strategy ('random', 'hot', 'trending')
+    shapesInterval: 0, // Auto-refresh interval in rounds (0 = manual)
+    shapesLastRefresh: 0, // Last round number when shapes was refreshed
+    shapesActuallyRefreshed: false // Track if shapes was actually regenerated vs cached
 };

@@ -37,8 +37,38 @@ export function generateAllPredictions() {
     // Generate auto predictions (uses best performing method)
     predictions.auto = getAutoPredictions(count);
 
-    // Generate shapes predictions
-    predictions.shapes = getShapePredictions(count);
+    // Generate/use shapes predictions (respect interval)
+    if (state.generatorMethod === 'shapes') {
+        // Check if we should refresh shapes
+        const currentRound = state.currentHistory.length;
+        const shouldRefresh = state.shapesLastRefresh === 0 ||
+            (state.shapesInterval > 0 && (currentRound - state.shapesLastRefresh) >= state.shapesInterval);
+
+        if (shouldRefresh) {
+            predictions.shapes = getShapePredictions(
+                count,
+                state.shapesPattern || 'random',
+                state.shapesPlacement || 'random',
+                state.currentHistory
+            );
+            state.shapesLastRefresh = currentRound;
+            state.shapesActuallyRefreshed = true;
+            console.log(`[GenerateAll] Shapes refreshed at round ${currentRound}`);
+        } else {
+            // Use cached shape
+            predictions.shapes = state.generatedNumbers || [];
+            state.shapesActuallyRefreshed = false;
+            console.log(`[GenerateAll] Using cached shape (${currentRound - state.shapesLastRefresh}/${state.shapesInterval || 'manual'})`);
+        }
+    } else {
+        // Generate fresh shapes for comparison (not active method)
+        predictions.shapes = getShapePredictions(
+            count,
+            state.shapesPattern || 'random',
+            state.shapesPlacement || 'random',
+            state.currentHistory
+        );
+    }
 
     // Generate/use momentum predictions
     if (state.generatorMethod === 'momentum') {
@@ -91,7 +121,8 @@ export function generateAllPredictions() {
 
         // Determine if we should auto-select
         const momentumShouldSelect = activeMethod === 'momentum' && state.momentumActuallyRefreshed;
-        const shouldAutoSelect = activeMethod !== 'momentum' || momentumShouldSelect;
+        const shapesShoudSelect = activeMethod === 'shapes' && state.shapesActuallyRefreshed;
+        const shouldAutoSelect = (activeMethod !== 'momentum' && activeMethod !== 'shapes') || momentumShouldSelect || shapesShoudSelect;
 
         if (state.generatorAutoSelect && shouldAutoSelect) {
             console.log(`[GenerateAll] Auto-selecting ${activeMethod} numbers`);
@@ -142,8 +173,30 @@ export function generateNumbers(forceRefresh = false) {
         console.log(`[Generator] Cold method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
     } else if (state.generatorMethod === 'shapes') {
         const count = state.generatorCount || 5;
-        generatedNumbers = getShapePredictions(count);
-        console.log(`[Generator] Shapes method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+
+        // Check if we should refresh based on interval
+        const currentRound = state.currentHistory.length;
+        const shouldRefresh = forceRefresh ||
+            state.shapesLastRefresh === 0 ||
+            (state.shapesInterval > 0 && (currentRound - state.shapesLastRefresh) >= state.shapesInterval);
+
+        if (shouldRefresh) {
+            generatedNumbers = getShapePredictions(
+                count,
+                state.shapesPattern || 'random',
+                state.shapesPlacement || 'random',
+                state.currentHistory
+            );
+            console.log(`[Generator] Shapes method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+
+            // Update last refresh counter
+            state.shapesLastRefresh = currentRound;
+            console.log(`[Generator] Shapes refreshed at round ${currentRound}, interval: ${state.shapesInterval}`);
+        } else {
+            // Use cached shape
+            generatedNumbers = state.generatedNumbers || [];
+            console.log(`[Generator] Using cached shape (${currentRound - state.shapesLastRefresh}/${state.shapesInterval || 'manual'})`);
+        }
 
         // Update shapes info display
         if (window.__keno_updateShapesInfo) {

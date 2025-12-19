@@ -163,6 +163,19 @@ const SHAPE_DEFINITIONS = {
       { dRow: -1, dCol: 2 },  // top wing
       { dRow: 1, dCol: 2 }    // bottom wing
     ]
+  },
+  jesus: {
+    name: 'Jesus Saves',
+    emoji: '✝️',
+    offsets: [
+      // Order matters for trimming - most important parts first
+      { dRow: -2, dCol: 0 },  // top
+      { dRow: -1, dCol: -1 }, // left arm
+      { dRow: -1, dCol: 1 },  // right arm
+      { dRow: 0, dCol: 0 },   // center
+      { dRow: 1, dCol: 0 },   // bottom
+      { dRow: -1, dCol: 0 }   // crossing point (fills in the gap at count 6)
+    ]
   }
 };
 
@@ -212,47 +225,84 @@ function getValidPositions(offsets) {
 /**
  * Generate shape-based predictions
  * @param {number} count - Number of predictions (will try to match with shape size)
+ * @param {string} pattern - Shape pattern key or 'random' for random selection
+ * @param {string} placement - Placement strategy ('random', 'hot', 'trending')
+ * @param {Array} historyData - Game history for hot/trending placement
  * @returns {Array} Array of numbers forming a shape
  */
-export function getShapePredictions(count = 5) {
-  // Filter shapes that match the requested count
-  const availableShapes = Object.entries(SHAPE_DEFINITIONS).filter(
-    ([key, shape]) => shape.offsets.length === count
-  );
+export function getShapePredictions(count = 5, pattern = 'random', placement = 'random', historyData = []) {
+  let selectedShape;
+  let shapeKey;
 
-  // If no exact match, use any shape and adjust
-  if (availableShapes.length === 0) {
-    console.warn('[Shapes] No shapes with exactly', count, 'numbers, using any available shape');
-    const allShapes = Object.entries(SHAPE_DEFINITIONS);
-    const [shapeKey, shape] = allShapes[Math.floor(Math.random() * allShapes.length)];
-    return adjustShapeToCount(shapeKey, shape, count);
+  // Select shape based on pattern parameter
+  if (pattern === 'random') {
+    // Filter shapes that match the requested count
+    const availableShapes = Object.entries(SHAPE_DEFINITIONS).filter(
+      ([key, shape]) => shape.offsets.length === count
+    );
+
+    if (availableShapes.length === 0) {
+      console.warn('[Shapes] No shapes with exactly', count, 'numbers, using any available shape');
+      const allShapes = Object.entries(SHAPE_DEFINITIONS);
+      [shapeKey, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
+    } else {
+      [shapeKey, selectedShape] = availableShapes[Math.floor(Math.random() * availableShapes.length)];
+    }
+  } else {
+    // Use specific pattern
+    selectedShape = SHAPE_DEFINITIONS[pattern];
+    shapeKey = pattern;
+
+    if (!selectedShape) {
+      console.error('[Shapes] Invalid pattern:', pattern, '- using random');
+      const allShapes = Object.entries(SHAPE_DEFINITIONS);
+      [shapeKey, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
+    }
   }
 
-  // Pick a random shape from matching shapes
-  const [shapeKey, shape] = availableShapes[Math.floor(Math.random() * availableShapes.length)];
-
-  // Get all valid positions for this shape
-  const validPositions = getValidPositions(shape.offsets);
+  // Get valid positions for this shape (use full offsets for validation)
+  const validPositions = getValidPositions(selectedShape.offsets);
 
   if (validPositions.length === 0) {
-    console.error('[Shapes] No valid positions for shape:', shape.name);
+    console.error('[Shapes] No valid positions for shape:', selectedShape.name);
     return [];
   }
 
-  // Pick a random valid position
-  const position = validPositions[Math.floor(Math.random() * validPositions.length)];
+  // Slice offsets to match desired count (important for shapes like crucifix)
+  const offsetsToUse = selectedShape.offsets.slice(0, count);
 
-  // Generate the shape
-  const numbers = generateShape(position.row, position.col, shape.offsets);
+  // Select position based on placement strategy
+  let position;
+  switch (placement) {
+    case 'hot':
+      position = selectHotPosition(validPositions, offsetsToUse, historyData);
+      break;
+    case 'trending':
+      position = selectTrendingPosition(validPositions, offsetsToUse, historyData);
+      break;
+    case 'random':
+    default:
+      position = validPositions[Math.floor(Math.random() * validPositions.length)];
+      break;
+  }
 
-  console.log(`[Shapes] Generated ${shape.emoji} ${shape.name} at position (${position.row}, ${position.col}):`, numbers);
+  // Generate the shape at selected position using sliced offsets
+  let numbers = generateShape(position.row, position.col, offsetsToUse);
+
+  // Adjust size if needed
+  if (numbers.length !== count) {
+    numbers = adjustShapeSize(numbers, count);
+  }
+
+  console.log(`[Shapes] Generated ${selectedShape.emoji} ${selectedShape.name} at (${position.row}, ${position.col}) using ${placement} placement:`, numbers);
 
   // Store last shape info for UI display
   if (typeof window !== 'undefined') {
     window.__keno_lastShapeInfo = {
-      name: shape.name,
-      emoji: shape.emoji,
-      numbers: numbers
+      name: selectedShape.name,
+      emoji: selectedShape.emoji,
+      numbers: numbers,
+      placement: placement
     };
   }
 
@@ -262,12 +312,8 @@ export function getShapePredictions(count = 5) {
 /**
  * Adjust shape to match desired count by adding/removing numbers
  */
-function adjustShapeToCount(shapeKey, shape, targetCount) {
-  const validPositions = getValidPositions(shape.offsets);
-  if (validPositions.length === 0) return [];
-
-  const position = validPositions[Math.floor(Math.random() * validPositions.length)];
-  let numbers = generateShape(position.row, position.col, shape.offsets);
+function adjustShapeSize(numbers, targetCount) {
+  if (numbers.length === targetCount) return numbers;
 
   // If we need more numbers, add adjacent ones
   if (numbers.length < targetCount) {
@@ -280,6 +326,116 @@ function adjustShapeToCount(shapeKey, shape, targetCount) {
   else if (numbers.length > targetCount) {
     numbers = numbers.slice(0, targetCount);
   }
+
+  return numbers;
+}
+
+/**
+ * Select position based on hot numbers (most frequent in history)
+ */
+function selectHotPosition(validPositions, offsets, historyData) {
+  if (!historyData || historyData.length === 0) {
+    return validPositions[Math.floor(Math.random() * validPositions.length)];
+  }
+
+  // Count frequency of each number
+  const frequency = {};
+  for (let i = 1; i <= 40; i++) {
+    frequency[i] = 0;
+  }
+
+  // Use last 20 rounds for hot analysis
+  const recentHistory = historyData.slice(-20);
+  recentHistory.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (frequency[num] !== undefined) frequency[num]++;
+    });
+  });
+
+  // Score each valid position by sum of frequencies of numbers in shape
+  const scoredPositions = validPositions.map(pos => {
+    const shapeNumbers = generateShape(pos.row, pos.col, offsets);
+    const score = shapeNumbers.reduce((sum, num) => sum + (frequency[num] || 0), 0);
+    return { ...pos, score };
+  });
+
+  // Sort by score descending and pick from top 3
+  scoredPositions.sort((a, b) => b.score - a.score);
+  const topPositions = scoredPositions.slice(0, 3);
+  return topPositions[Math.floor(Math.random() * topPositions.length)];
+}
+
+/**
+ * Select position based on trending areas (momentum-like analysis)
+ */
+function selectTrendingPosition(validPositions, offsets, historyData) {
+  if (!historyData || historyData.length < 10) {
+    return validPositions[Math.floor(Math.random() * validPositions.length)];
+  }
+
+  // Analyze recent vs baseline frequency for each position
+  const recentWindow = Math.min(5, Math.floor(historyData.length / 4));
+  const baselineWindow = Math.min(20, historyData.length - recentWindow);
+
+  const recent = historyData.slice(-recentWindow);
+  const baseline = historyData.slice(-(recentWindow + baselineWindow), -recentWindow);
+
+  // Calculate frequency for recent and baseline
+  const recentFreq = {};
+  const baselineFreq = {};
+
+  for (let i = 1; i <= 40; i++) {
+    recentFreq[i] = 0;
+    baselineFreq[i] = 0;
+  }
+
+  recent.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (recentFreq[num] !== undefined) recentFreq[num]++;
+    });
+  });
+
+  baseline.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (baselineFreq[num] !== undefined) baselineFreq[num]++;
+    });
+  });
+
+  // Calculate momentum for each number (recent/baseline ratio)
+  const momentum = {};
+  for (let i = 1; i <= 40; i++) {
+    const baseRate = baselineFreq[i] / baselineWindow || 0.001;
+    const recentRate = recentFreq[i] / recentWindow || 0;
+    momentum[i] = recentRate / baseRate; // Ratio > 1 means trending up
+  }
+
+  // Score each position by momentum
+  const scoredPositions = validPositions.map(pos => {
+    const shapeNumbers = generateShape(pos.row, pos.col, offsets);
+    const score = shapeNumbers.reduce((sum, num) => sum + (momentum[num] || 0), 0);
+    return { ...pos, score };
+  });
+
+  // Sort by score descending and pick from top 3
+  scoredPositions.sort((a, b) => b.score - a.score);
+  const topPositions = scoredPositions.slice(0, 3);
+  return topPositions[Math.floor(Math.random() * topPositions.length)];
+}
+
+/**
+ * Adjust shape to match desired count (legacy function for compatibility)
+ */
+function adjustShapeToCount(shapeKey, shape, targetCount) {
+  const validPositions = getValidPositions(shape.offsets);
+  if (validPositions.length === 0) return [];
+
+  const position = validPositions[Math.floor(Math.random() * validPositions.length)];
+  let numbers = generateShape(position.row, position.col, shape.offsets);
+
+  numbers = adjustShapeSize(numbers, targetCount);
 
   console.log(`[Shapes] Adjusted ${shape.emoji} ${shape.name} to ${targetCount} numbers:`, numbers);
 
