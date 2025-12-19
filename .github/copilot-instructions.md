@@ -12,15 +12,43 @@ This is a Chrome/Firefox browser extension that tracks Keno game statistics on S
 
 Code split across specialized modules:
 
-- **`content.js`**: Entry point, message listener, initialization orchestration, auto-play round management
-- **`state.js`**: Centralized reactive state (`currentHistory`, `isPredictMode`, `isAutoPlayMode`, `sampleSize`, etc.)
-- **`overlay.js`**: UI overlay creation, event binding, toggle button injection into game footer
-- **`heatmap.js`**: Frequency analysis, tile highlighting (hits/misses/predictions), percentage badge rendering
-- **`autoplay.js`**: Prediction algorithm (top N by frequency), auto-play betting logic, UI updates
-- **`storage.js`**: Chrome/Firefox storage API abstraction, history CRUD, UI sync after saves
-- **`stats.js`**: Multiplier bar integration, probability calculation, MutationObserver for tile selection
-- **`patterns.js`**: Pattern analysis to find common number combinations appearing with a target number
-- **`utils.js`**: DOM helpers (`simulatePointerClick`, `findAndClickPlayButton`)
+**Core:**
+
+- **`content.js`**: Entry point, message listener, initialization orchestration, round processing, generator triggering
+- **`core/state.js`**: Centralized reactive state (all `state.*` properties live here)
+- **`core/storage.js`**: Chrome/Firefox storage API, history CRUD, settings persistence (auto-save system)
+
+**UI:**
+
+- **`ui/overlay.js`**: Main UI creation, event binding, panel visibility, footer button injection
+- **`ui/numberSelection.js`**: Generator coordination, prediction caching, auto-select logic, preview system
+
+**Generators:** (src/generators/)
+
+- **`cache.js`**: CacheManager class - universal refresh interval logic, prediction caching
+- **`base.js`**: BaseGenerator class - shared functionality (sample selection, frequency counting)
+- **`frequency.js`**: Hot numbers (most frequent)
+- **`cold.js`**: Cold numbers (least frequent)
+- **`mixed.js`**: Hot + Cold combined
+- **`average.js`**: Median frequency numbers
+- **`momentum.js`**: Trending numbers (momentum analysis)
+- **`shapes.js`**: Shape-based selection (wraps shapesCore)
+- **`shapesCore.js`**: Shape definitions, placement strategies (hot/trending/random)
+
+**Features:**
+
+- **`features/heatmap.js`**: Frequency analysis, tile highlighting, percentage badges
+- **`features/autoplay.js`**: Auto-play betting logic, UI updates
+- **`features/stats.js`**: Multiplier bar integration, probability calculation, MutationObserver
+- **`features/patterns.js`**: Pattern analysis, combination finding, caching
+- **`features/savedNumbers.js`**: Saved number sets management
+- **`features/comparison.js`**: Method comparison window, profit tracking
+
+**Utils:**
+
+- **`utils/utils.js`**: DOM helpers (simulatePointerClick, clearTable, waitForBetButtonReady)
+- **`utils/tileSelection.js`**: Tile selection/deselection, waitForTilesCleared, replaceSelection
+- **`utils/domReader.js`**: DOM state reading (getSelectedTileNumbers, getIntValue, etc.)
 
 ## Critical Implementation Patterns
 
@@ -76,6 +104,228 @@ const storageApi = typeof browser !== "undefined" ? browser : chrome;
 - History stored as **unlimited** array (changed from 100-round cap for bet book feature)
 - `saveRound()` automatically triggers `updateHistoryUI()` and heatmap refresh via callbacks
 - Round format: `{ hits, misses, drawn, selected, time }`
+
+### 5. DOM Observation Pattern (Timing Fix - Dec 2024)
+
+**Problem**: Using `setTimeout()` with arbitrary delays caused race conditions when the game state wasn't ready.
+
+**Solution**: Use DOM observation to wait for actual state changes:
+
+**Bet Button Ready** (utils.js):
+
+```javascript
+export function waitForBetButtonReady(timeout = 5000) {
+  return new Promise((resolve, reject) => {
+    const betButton = document.querySelector('[data-testid="bet-button"]');
+    if (!betButton) return reject(new Error("Bet button not found"));
+
+    const observer = new MutationObserver(() => {
+      const isReady =
+        betButton.getAttribute("data-test-action-enabled") === "true";
+      if (isReady) {
+        observer.disconnect();
+        resolve();
+      }
+    });
+
+    observer.observe(betButton, {
+      attributes: true,
+      attributeFilter: ["data-test-action-enabled"],
+    });
+
+    // Check initial state
+    if (betButton.getAttribute("data-test-action-enabled") === "true") {
+      observer.disconnect();
+      resolve();
+    }
+
+    // Timeout fallback
+    setTimeout(() => {
+      observer.disconnect();
+      reject(new Error("Timeout"));
+    }, timeout);
+  });
+}
+```
+
+**Tiles Cleared** (tileSelection.js):
+
+```javascript
+export function waitForTilesCleared(maxWaitMs = 2000) {
+  return new Promise((resolve) => {
+    const checkCleared = () => {
+      const tiles = getAllTiles();
+      const anySelected = tiles.some(isTileSelected);
+
+      if (!anySelected) {
+        resolve(); // All cleared
+      } else if (Date.now() - startTime > maxWaitMs) {
+        resolve(); // Timeout - proceed anyway
+      } else {
+        setTimeout(checkCleared, 50); // Poll every 50ms
+      }
+    };
+    setTimeout(checkCleared, 50);
+  });
+}
+```
+
+**Key principle**: Never use arbitrary `setTimeout()` delays for DOM state changes. Always observe the actual state or poll for the condition you need.
+
+### 6. Auto-Save System (Generator Settings - Dec 2024)
+
+All generator settings persist automatically via `saveGeneratorSettings()` / `loadGeneratorSettings()`:
+
+**Saved settings** (11 properties):
+
+- `generatorMethod`, `generatorCount`, `generatorInterval`, `generatorAutoSelect`, `generatorSampleSize`
+- Shapes: `shapesPattern`, `shapesPlacement`
+- Momentum: `momentumDetectionWindow`, `momentumBaselineGames`, `momentumThreshold`, `momentumPoolSize`
+
+**Implementation pattern**:
+
+```javascript
+// In event handlers (overlay.js):
+methodSelect.addEventListener("change", (e) => {
+  state.generatorMethod = e.target.value;
+  saveGeneratorSettings(); // Auto-save immediately
+});
+
+// On init (overlay.js → storage.js):
+export function initOverlay() {
+  loadGeneratorSettings().then(() => {
+    createOverlay();
+    // Apply loaded settings to UI controls
+  });
+}
+```
+
+**Critical**: Every setting change must call `saveGeneratorSettings()` to persist immediately.
+
+### 7. Live Preview System (Generator - Dec 2024)
+
+Shows "next numbers" that would be generated if clicking Refresh now, plus countdown to auto-refresh.
+
+**Architecture**:
+
+- **Preview UI**: In overlay.js generator section, displays method name, predicted numbers, rounds countdown
+- **Update logic**: `updateGeneratorPreview()` in numberSelection.js
+- **Key behavior**: Generates _fresh_ predictions without updating cache or state (preview-only)
+
+**Implementation**:
+
+```javascript
+export function updateGeneratorPreview() {
+  const method = state.generatorMethod;
+  const count = state.generatorCount;
+  const interval = state.generatorInterval;
+
+  // Update method label
+  const methodLabel = document.getElementById("generator-preview-method");
+  if (methodLabel) methodLabel.textContent = `🔥 ${method}`;
+
+  // Show countdown
+  const roundsDisplay = document.getElementById(
+    "generator-rounds-until-refresh"
+  );
+  if (interval === 0) {
+    roundsDisplay.textContent = "Manual";
+  } else {
+    const roundsSinceRefresh =
+      state.currentHistory.length - state.generatorLastRefresh;
+    const remaining = Math.max(0, interval - roundsSinceRefresh);
+    roundsDisplay.textContent = `${remaining}/${interval} rounds`;
+  }
+
+  // Generate preview (if auto-refresh enabled)
+  if (interval > 0) {
+    const generator = generatorRegistry.get(method);
+    const config = {
+      /* method-specific config */
+    };
+    const previewPredictions = generator.generate(
+      count,
+      state.currentHistory,
+      config
+    );
+
+    // Display predictions (don't update state or cache!)
+    displayPreviewNumbers(previewPredictions);
+  }
+}
+```
+
+**Critical**: Preview must NOT call `generateNumbers()` (causes recursion). Call `generator.generate()` directly.
+
+### 8. Cache Manager (Universal Refresh - Dec 2024)
+
+All generators use `CacheManager` class for universal refresh interval logic:
+
+**How it works**:
+
+1. Check cache: `const cached = cacheManager.get(method, count, state, config)`
+2. If cache valid (within interval): return cached predictions
+3. If cache expired or missing: generate fresh predictions
+4. Store in cache: `cacheManager.set(method, count, predictions, state, config)`
+
+**Cache key**: Combines method, count, and config (e.g., `"frequency-5-{\"sampleSize\":20}"`)
+
+**Interval logic**:
+
+- `interval = 0` (manual): cache never expires, user must click Refresh
+- `interval > 0` (auto): cache expires after N rounds (tracked via `roundNumber` stored with cache)
+
+**Cache validation**:
+
+```javascript
+const roundsSinceCache = currentRound - cachedRoundNumber;
+if (roundsSinceCache < interval) {
+  return cachedPredictions; // Still valid
+}
+return null; // Expired
+```
+
+### 9. Shapes Placement Strategies (Dec 2024)
+
+Shapes generator places patterns on the board using three strategies:
+
+**Random**: Picks any valid position for the shape
+
+**Hot**: Places shape where it covers most frequently drawn numbers
+
+- Analyzes last 20 rounds (or generator sample size)
+- Counts frequency of each number 1-40
+- Scores each valid position by sum of frequencies of shape's numbers
+- Picks randomly from **top 3 positions** (adds variety)
+
+**Trending**: Places shape on numbers with momentum (increasing frequency)
+
+- Compares recent window (5 rounds) vs baseline (20 rounds)
+- Calculates momentum ratio: `recentRate / baselineRate` for each number
+- Ratio > 1 means number is "trending up"
+- Scores positions by sum of momentum values
+- Picks randomly from top 3 positions
+
+**Example** (hot placement):
+
+```javascript
+function selectHotPosition(validPositions, offsets, historyData) {
+  // Count frequency
+  const frequency = countFrequency(historyData.slice(-20));
+
+  // Score each position
+  const scoredPositions = validPositions.map((pos) => {
+    const shapeNumbers = generateShape(pos.row, pos.col, offsets);
+    const score = shapeNumbers.reduce((sum, num) => sum + frequency[num], 0);
+    return { ...pos, score };
+  });
+
+  // Return random from top 3
+  scoredPositions.sort((a, b) => b.score - a.score);
+  const topPositions = scoredPositions.slice(0, 3);
+  return topPositions[Math.floor(Math.random() * topPositions.length)];
+}
+```
 
 ## Key Components & Patterns
 
@@ -224,8 +474,124 @@ Footer button injection point: `document.querySelector('.game-footer .stack')`
 - **Observer timing**: `initStatsObserver()` retries if tiles container not found; don't call before DOM ready
 - **Round data format**: New rounds need `drawn` and `selected` arrays for stats calculations; old format only had `hits`/`misses`
 - **Pattern cache invalidation**: Always call `window.__keno_clearPatternCache()` in `saveRound()` to prevent stale data
-- **Observer timing**: `initStatsObserver()` retries if tiles container not found; don't call before DOM ready
-- **Round data format**: New rounds need `drawn` and `selected` arrays for stats calculations; old format only had `hits`/`misses`
+- **Arbitrary delays**: NEVER use `setTimeout(fn, 200)` for DOM state - use MutationObserver or polling with actual state checks
+- **Preview recursion**: `updateGeneratorPreview()` must NOT call `generateNumbers()` - call `generator.generate()` directly
+- **Auto-save missing**: Every settings change event handler MUST call `saveGeneratorSettings()` or equivalent
+- **Console log spam**: Remove verbose debug logs from production; keep only initialization, warnings, and errors
+
+## Code Quality Standards
+
+### Console Logging Policy (Dec 2024)
+
+**Keep**:
+
+- Initialization logs: `console.log('[STATS] initStatsObserver called')`
+- Warnings: `console.warn('[Utils] Bet button timeout')`
+- Errors: `console.error('[Generator] Failed:', error)`
+- Important state changes (user-visible actions)
+
+**Remove**:
+
+- Cache status logs that execute every generation
+- "Called with..." logs on every function invocation
+- Selection/tile operation details
+- Settings change confirmations (unless debugging)
+- Any log that executes more than once per minute in normal usage
+
+**Rationale**: Console should show initialization flow and problems, not verbose operational details.
+
+### Function Documentation
+
+All public functions must have JSDoc comments:
+
+```javascript
+/**
+ * Generate predictions using the active generator method
+ * @param {boolean} forceRefresh - Skip cache and generate fresh predictions
+ * @returns {Object} { predictions: number[], method: string }
+ */
+export function generateNumbers(forceRefresh = false) {
+  // Implementation
+}
+```
+
+**Required fields**: Description, `@param` for each parameter, `@returns` for return value.
+
+### Module Organization
+
+**Pattern**: Group related functionality into classes or modules with clear single responsibility
+
+**Good**:
+
+```javascript
+// cache.js - CacheManager handles all caching logic
+export class CacheManager {
+  get(key) {
+    /* ... */
+  }
+  set(key, value) {
+    /* ... */
+  }
+  clear() {
+    /* ... */
+  }
+}
+```
+
+**Bad**:
+
+```javascript
+// mixed responsibilities in one file
+export function generateNumbers() {
+  /* ... */
+}
+export function cacheNumbers() {
+  /* ... */
+}
+export function selectTiles() {
+  /* ... */
+}
+export function updateUI() {
+  /* ... */
+}
+```
+
+### Timing and DOM Operations
+
+**Always use observation patterns for DOM state**:
+
+```javascript
+// ✅ Good - observes actual state
+export function waitForBetButtonReady() {
+  return new Promise((resolve, reject) => {
+    const observer = new MutationObserver(() => {
+      if (betButton.getAttribute("data-test-action-enabled") === "true") {
+        observer.disconnect();
+        resolve();
+      }
+    });
+    observer.observe(betButton, { attributes: true });
+  });
+}
+
+// ❌ Bad - arbitrary delay
+export function waitForBetButtonReady() {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 200); // Hope it's ready by then?
+  });
+}
+```
+
+**Polling acceptable for state checks** (not available via MutationObserver):
+
+```javascript
+const checkCleared = () => {
+  const tiles = getAllTiles();
+  const anySelected = tiles.some(isTileSelected);
+  if (!anySelected) resolve();
+  else setTimeout(checkCleared, 50); // Poll every 50ms
+};
+```
 
 ## Strategic Guessing Implementation Notes
 

@@ -50,8 +50,14 @@ export function clearTable() {
 }
 
 /**
- * Wait for the bet button to be ready (data-test-action-enabled="true")
+ * Wait for the bet button to be ready using DOM observation (not arbitrary delay)
+ * Watches data-test-action-enabled attribute with MutationObserver
  * This ensures the board is ready for interaction after a bet completes
+ * @param {number} maxWaitMs - Max wait time in milliseconds (default 5000)
+ * @returns {Promise<HTMLElement>} Resolves with button when ready, rejects on timeout
+ * @example
+ * await waitForBetButtonReady(3000);
+ * // Button is now ready for interaction
  */
 export function waitForBetButtonReady(maxWaitMs = 5000) {
     return new Promise((resolve, reject) => {

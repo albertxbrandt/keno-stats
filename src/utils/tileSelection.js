@@ -143,8 +143,14 @@ export function selectTiles(numbers) {
 }
 
 /**
- * Wait for all tiles to be deselected (cleared)
- * @returns {Promise<void>}
+ * Wait for all tiles to be deselected using state polling (not arbitrary delay)
+ * Checks actual tile selection state every 50ms
+ * @param {number} maxWaitMs - Max wait time before resolving anyway (default 2000)
+ * @returns {Promise<void>} Always resolves (timeout = proceed anyway, not error)
+ * @example
+ * await clearTable();
+ * await waitForTilesCleared();
+ * // All tiles now deselected, safe to select new ones
  */
 function waitForTilesCleared(maxWaitMs = 2000) {
   return new Promise((resolve, reject) => {

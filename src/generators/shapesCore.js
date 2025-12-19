@@ -331,7 +331,15 @@ function adjustShapeSize(numbers, targetCount) {
 }
 
 /**
- * Select position based on hot numbers (most frequent in history)
+ * Select shape position covering the most frequently drawn numbers
+ * @param {Array<{row: number, col: number}>} validPositions - All valid positions for shape
+ * @param {Array<{dRow: number, dCol: number}>} offsets - Shape offsets from center
+ * @param {Array<Object>} historyData - Game history (last 20 rounds analyzed)
+ * @returns {{row: number, col: number}} Position (randomly selected from top 3 scores)
+ * @description
+ * 1. Counts frequency of each number 1-40 in last 20 rounds
+ * 2. Scores each position by sum of frequencies of numbers in that shape placement
+ * 3. Returns random pick from top 3 positions (adds variety)
  */
 function selectHotPosition(validPositions, offsets, historyData) {
   if (!historyData || historyData.length === 0) {
