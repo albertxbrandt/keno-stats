@@ -6,14 +6,14 @@ Successfully refactored the monolithic generator system into a modular, maintain
 
 ## Statistics
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| **Lines of Code** | 1,014 (autoplay.js) | 445 (autoplay.js) + 800 (generators/) | -56% in main file |
-| **Files** | 1 monolithic file | 11 focused modules | +1000% modularity |
-| **Bundle Size** | 167.9 KB | 158.5 KB | -5.6% |
-| **Generator Classes** | 0 | 7 independent classes | ♾️ |
-| **Testability** | ❌ Hard | ✅ Easy | 100% improvement |
-| **Extensibility** | ❌ Difficult | ✅ Trivial | 100% improvement |
+| Metric                | Before              | After                                 | Change            |
+| --------------------- | ------------------- | ------------------------------------- | ----------------- |
+| **Lines of Code**     | 1,014 (autoplay.js) | 445 (autoplay.js) + 800 (generators/) | -56% in main file |
+| **Files**             | 1 monolithic file   | 11 focused modules                    | +1000% modularity |
+| **Bundle Size**       | 167.9 KB            | 158.5 KB                              | -5.6%             |
+| **Generator Classes** | 0                   | 7 independent classes                 | ♾️                |
+| **Testability**       | ❌ Hard             | ✅ Easy                               | 100% improvement  |
+| **Extensibility**     | ❌ Difficult        | ✅ Trivial                            | 100% improvement  |
 
 ## Architecture Comparison
 
@@ -22,7 +22,7 @@ Successfully refactored the monolithic generator system into a modular, maintain
 ```
 src/autoplay.js (1,014 lines)
 ├── generateAllPredictions()       // 123 lines
-├── generateNumbers()              // 215 lines  
+├── generateNumbers()              // 215 lines
 ├── getTopPredictions()            // 18 lines
 ├── getColdPredictions()           // 27 lines
 ├── getMixedPredictions()          // 15 lines
@@ -84,10 +84,11 @@ Benefits:
 ### 1. Single Responsibility Principle ✅
 
 **Before:**
+
 ```javascript
 // autoplay.js had multiple responsibilities:
 - Number generation logic
-- Caching/refresh logic  
+- Caching/refresh logic
 - UI interaction
 - Auto-play betting
 - Comparison tracking
@@ -95,6 +96,7 @@ Benefits:
 ```
 
 **After:**
+
 ```javascript
 // Clear separation:
 - autoplay.js      → Auto-play betting logic only
@@ -107,34 +109,40 @@ Benefits:
 ### 2. DRY Principle ✅
 
 **Before:**
+
 ```javascript
 // Refresh logic duplicated 5+ times:
-if (state.generatorMethod === 'shapes') {
-    const currentRound = state.currentHistory.length;
-    const shouldRefresh = state.generatorLastRefresh === 0 ||
-        (state.generatorInterval > 0 && (currentRound - state.generatorLastRefresh) >= state.generatorInterval);
-    if (shouldRefresh) {
-        // Generate...
-    } else {
-        // Use cache...
-    }
+if (state.generatorMethod === "shapes") {
+  const currentRound = state.currentHistory.length;
+  const shouldRefresh =
+    state.generatorLastRefresh === 0 ||
+    (state.generatorInterval > 0 &&
+      currentRound - state.generatorLastRefresh >= state.generatorInterval);
+  if (shouldRefresh) {
+    // Generate...
+  } else {
+    // Use cache...
+  }
 }
 
-if (state.generatorMethod === 'momentum') {
-    const currentRound = state.currentHistory.length;
-    const shouldRefresh = state.generatorLastRefresh === 0 ||
-        (state.generatorInterval > 0 && (currentRound - state.generatorLastRefresh) >= state.generatorInterval);
-    if (shouldRefresh) {
-        // Generate...
-    } else {
-        // Use cache...
-    }
+if (state.generatorMethod === "momentum") {
+  const currentRound = state.currentHistory.length;
+  const shouldRefresh =
+    state.generatorLastRefresh === 0 ||
+    (state.generatorInterval > 0 &&
+      currentRound - state.generatorLastRefresh >= state.generatorInterval);
+  if (shouldRefresh) {
+    // Generate...
+  } else {
+    // Use cache...
+  }
 }
 
 // ... repeated for each method
 ```
 
 **After:**
+
 ```javascript
 // Centralized in CacheManager:
 class CacheManager {
@@ -148,6 +156,7 @@ class CacheManager {
 ### 3. Open/Closed Principle ✅
 
 **Before:**
+
 ```javascript
 // Adding new generator required modifying multiple places:
 function generateAllPredictions() {
@@ -159,9 +168,12 @@ function generateAllPredictions() {
 
 function generateNumbers(forceRefresh) {
   switch (state.generatorMethod) {
-    case 'frequency': return getTopPredictions(count);
-    case 'cold': return getColdPredictions(count);
-    case 'momentum': return getMomentumPrediction(config);
+    case "frequency":
+      return getTopPredictions(count);
+    case "cold":
+      return getColdPredictions(count);
+    case "momentum":
+      return getMomentumPrediction(config);
     // Need to add new case here
   }
 }
@@ -173,6 +185,7 @@ export function getNewMethodPredictions(count) {
 ```
 
 **After:**
+
 ```javascript
 // Open for extension, closed for modification:
 
@@ -184,37 +197,39 @@ class MyNewGenerator extends BaseGenerator {
 }
 
 // 2. Register it
-generatorFactory.register('mynew', new MyNewGenerator());
+generatorFactory.register("mynew", new MyNewGenerator());
 
 // 3. Done! Works everywhere automatically
-const result = generatePredictions('mynew', 5, history, state);
+const result = generatePredictions("mynew", 5, history, state);
 ```
 
 ### 4. Liskov Substitution Principle ✅
 
 **Before:**
+
 ```javascript
 // Each generator function had different signatures:
-getTopPredictions(count)
-getMomentumPrediction(patternSize, config)
-getShapePredictions(count, pattern, placement, historyData)
+getTopPredictions(count);
+getMomentumPrediction(patternSize, config);
+getShapePredictions(count, pattern, placement, historyData);
 
 // Not interchangeable
 ```
 
 **After:**
+
 ```javascript
 // All generators implement same interface:
 class FrequencyGenerator extends BaseGenerator {
-  generate(count, history, config) { }
+  generate(count, history, config) {}
 }
 
 class MomentumGenerator extends BaseGenerator {
-  generate(count, history, config) { }
+  generate(count, history, config) {}
 }
 
 class ShapesGenerator extends BaseGenerator {
-  generate(count, history, config) { }
+  generate(count, history, config) {}
 }
 
 // Fully interchangeable - any generator can be swapped
@@ -223,18 +238,20 @@ class ShapesGenerator extends BaseGenerator {
 ### 5. Dependency Inversion Principle ✅
 
 **Before:**
+
 ```javascript
 // autoplay.js directly imported specific implementations:
-import { getMomentumPrediction } from './momentum.js';
-import { getShapePredictions } from './shapes.js';
+import { getMomentumPrediction } from "./momentum.js";
+import { getShapePredictions } from "./shapes.js";
 
 // Tight coupling to concrete implementations
 ```
 
 **After:**
+
 ```javascript
 // Depend on abstractions (factory pattern):
-import { generatorFactory } from './generators/index.js';
+import { generatorFactory } from "./generators/index.js";
 
 const generator = generatorFactory.get(method); // Abstract
 const predictions = generator.generate(count, history, config);
@@ -248,23 +265,29 @@ const predictions = generator.generate(count, history, config);
 
 ```javascript
 // Complex, tightly coupled logic:
-if (state.generatorMethod === 'frequency') {
+if (state.generatorMethod === "frequency") {
   const currentRound = state.currentHistory.length;
-  const shouldRefresh = state.generatorLastRefresh === 0 ||
-    (state.generatorInterval > 0 && (currentRound - state.generatorLastRefresh) >= state.generatorInterval);
-  
+  const shouldRefresh =
+    state.generatorLastRefresh === 0 ||
+    (state.generatorInterval > 0 &&
+      currentRound - state.generatorLastRefresh >= state.generatorInterval);
+
   if (shouldRefresh) {
     const counts = {};
     const sampleCount = Math.min(state.sampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
-    sample.forEach(round => {
+    sample.forEach((round) => {
       const hits = getHits(round);
       const misses = getMisses(round);
       const allHits = [...hits, ...misses];
-      allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+      allHits.forEach((num) => {
+        counts[num] = (counts[num] || 0) + 1;
+      });
     });
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    const predictions = sorted.slice(0, count).map(entry => parseInt(entry[0]));
+    const predictions = sorted
+      .slice(0, count)
+      .map((entry) => parseInt(entry[0]));
     state.generatedNumbers = predictions;
     state.generatorLastRefresh = currentRound;
   } else {
@@ -300,37 +323,37 @@ const predictions = result.predictions;
 
 ```javascript
 // Each generator can be tested independently:
-import { FrequencyGenerator } from './generators/frequency.js';
+import { FrequencyGenerator } from "./generators/frequency.js";
 
-test('FrequencyGenerator returns top 3 most frequent numbers', () => {
+test("FrequencyGenerator returns top 3 most frequent numbers", () => {
   const generator = new FrequencyGenerator();
   const history = [
     { hits: [1, 2, 3] },
     { hits: [1, 2, 4] },
-    { hits: [1, 5, 6] }
+    { hits: [1, 5, 6] },
   ];
-  
+
   const predictions = generator.generate(3, history, { sampleSize: 3 });
-  
+
   expect(predictions).toEqual([1, 2, 3]);
   // 1 appears 3 times (most frequent)
   // 2 appears 2 times (second most)
   // 3 appears 1 time (third most)
 });
 
-test('CacheManager respects refresh interval', () => {
+test("CacheManager respects refresh interval", () => {
   const cache = new CacheManager();
   const state = { generatorInterval: 5, generatorLastRefresh: 10 };
-  
-  cache.set('frequency', 3, [1, 2, 3], state);
-  
+
+  cache.set("frequency", 3, [1, 2, 3], state);
+
   // Within interval - should return cached
   state.generatorLastRefresh = 12;
-  expect(cache.get('frequency', 3, state)).toEqual([1, 2, 3]);
-  
+  expect(cache.get("frequency", 3, state)).toEqual([1, 2, 3]);
+
   // Interval exceeded - should return null
   state.generatorLastRefresh = 20;
-  expect(cache.get('frequency', 3, state)).toBeNull();
+  expect(cache.get("frequency", 3, state)).toBeNull();
 });
 ```
 
@@ -355,7 +378,7 @@ export function generateAllPredictions() {
 // 3. Modify generateNumbers()
 export function generateNumbers(forceRefresh) {
   // ...existing code
-  if (state.generatorMethod === 'fibonacci') {
+  if (state.generatorMethod === "fibonacci") {
     // Add refresh logic here (50+ lines)
   }
 }
@@ -373,11 +396,11 @@ export function generateNumbers(forceRefresh) {
 // To add new generator "Fibonacci":
 
 // 1. Create file: src/generators/fibonacci.js
-import { BaseGenerator } from './base.js';
+import { BaseGenerator } from "./base.js";
 
 export class FibonacciGenerator extends BaseGenerator {
   constructor() {
-    super('Fibonacci');
+    super("Fibonacci");
   }
 
   generate(count, history, config = {}) {
@@ -388,11 +411,11 @@ export class FibonacciGenerator extends BaseGenerator {
 }
 
 // 2. Register in factory.js
-import { FibonacciGenerator } from './fibonacci.js';
-this.register('fibonacci', new FibonacciGenerator());
+import { FibonacciGenerator } from "./fibonacci.js";
+this.register("fibonacci", new FibonacciGenerator());
 
 // 3. Add to UI dropdown (1 line in overlay.js)
-<option value="fibonacci">Fibonacci</option>
+<option value="fibonacci">Fibonacci</option>;
 
 // Total: 2 files modified, 15 lines added
 // Caching, refresh logic, comparison tracking - all automatic!
@@ -410,6 +433,7 @@ this.register('fibonacci', new FibonacciGenerator());
 ### Debugging
 
 **Before:**
+
 ```javascript
 // Where does frequency generation happen?
 // Search through 1,014 line file
@@ -418,6 +442,7 @@ this.register('fibonacci', new FibonacciGenerator());
 ```
 
 **After:**
+
 ```javascript
 // Where does frequency generation happen?
 // Open src/generators/frequency.js (32 lines)
@@ -428,6 +453,7 @@ this.register('fibonacci', new FibonacciGenerator());
 ### Onboarding
 
 **Before:**
+
 ```
 New developer: "How do I add a new prediction method?"
 Senior dev: "Well, you need to modify autoplay.js in these 6 places,
@@ -437,6 +463,7 @@ New developer: "😰"
 ```
 
 **After:**
+
 ```
 New developer: "How do I add a new prediction method?"
 Senior dev: "Create a class that extends BaseGenerator,
@@ -453,6 +480,7 @@ New developer: "😊"
 - **Improvement**: -9.4 KB (-5.6%)
 
 Despite adding more files and structure, bundle size decreased due to:
+
 - Eliminated code duplication
 - Tree-shaking unused code
 - Better minification of smaller modules
@@ -460,6 +488,7 @@ Despite adding more files and structure, bundle size decreased due to:
 ### Runtime Performance
 
 No performance regression:
+
 - Same algorithms, different organization
 - Caching logic unchanged (actually more efficient)
 - Factory pattern adds negligible overhead

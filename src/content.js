@@ -2,7 +2,8 @@
 import { state } from './state.js';
 import { initOverlay, injectFooterButton } from './overlay.js';
 import { loadHistory, updateHistoryUI } from './storage.js';
-import { calculatePrediction, autoPlayPlaceBet, updateAutoPlayUI, selectPredictedNumbers } from './autoplay.js';
+import { calculatePrediction, selectPredictedNumbers } from './numberSelection.js';
+import { autoPlayPlaceBet, updateAutoPlayUI } from './autoplay.js';
 import { updateHeatmap } from './heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './savedNumbers.js';

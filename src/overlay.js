@@ -2,7 +2,8 @@
 import { state } from './state.js';
 import { updateHistoryUI, clearHistory } from './storage.js';
 import { updateHeatmap } from './heatmap.js';
-import { calculatePrediction, updateAutoPlayUI, autoPlayPlaceBet } from './autoplay.js';
+import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
+import { updateAutoPlayUI, autoPlayPlaceBet } from './autoplay.js';
 
 export function createOverlay() {
     if (document.getElementById('keno-tracker-overlay')) return;
