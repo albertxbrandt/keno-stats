@@ -49,12 +49,10 @@ export class CacheManager {
 
     if (roundsSinceCache < interval) {
       // Still within interval, use cache
-      console.log(`[CacheManager] Using cache - ${roundsSinceCache}/${interval} rounds since cache created at round ${roundNumber}`);
       return predictions;
     }
 
     // Interval exceeded, cache expired
-    console.log(`[CacheManager] Cache expired - ${roundsSinceCache} rounds >= ${interval} interval (cached at round ${roundNumber}, now at ${currentRound})`);
     return null;
   }
 
@@ -75,8 +73,6 @@ export class CacheManager {
       roundNumber,
       timestamp: Date.now()
     });
-
-    console.log(`[CacheManager] Cached ${method} predictions at round ${roundNumber}`);
   }
 
   /**

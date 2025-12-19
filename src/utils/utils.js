@@ -42,7 +42,6 @@ export function clearTable() {
 
     try {
         simulatePointerClick(clearButton);
-        console.log('[Utils] Clear Table button clicked');
         return true;
     } catch (e) {
         console.error('[Utils] Failed to click Clear Table button:', e);
@@ -57,35 +56,42 @@ export function clearTable() {
 export function waitForBetButtonReady(maxWaitMs = 5000) {
     return new Promise((resolve, reject) => {
         const startTime = Date.now();
-        let readyCount = 0;
+        const betButton = document.querySelector('button[data-testid="bet-button"]');
 
-        const checkButton = () => {
-            const betButton = document.querySelector('button[data-testid="bet-button"]');
+        if (!betButton) {
+            reject(new Error('Bet button not found'));
+            return;
+        }
 
-            if (betButton && betButton.getAttribute('data-test-action-enabled') === 'true') {
-                readyCount++;
-                // Wait for button to be stable (ready for 2 consecutive checks = 200ms stable)
-                if (readyCount >= 2) {
-                    console.log('[Utils] Bet button ready and stable');
-                    resolve(betButton);
-                    return;
-                }
-            } else {
-                // Reset counter if button becomes not ready
-                readyCount = 0;
+        // Use MutationObserver to watch for attribute changes
+        const observer = new MutationObserver((mutations) => {
+            const isReady = betButton.getAttribute('data-test-action-enabled') === 'true';
+
+            if (isReady) {
+                observer.disconnect();
+                resolve(betButton);
             }
+        });
 
-            if (Date.now() - startTime > maxWaitMs) {
-                console.warn('[Utils] Bet button ready timeout');
-                reject(new Error('Bet button ready timeout'));
-                return;
-            }
+        // Observe the bet button's attributes
+        observer.observe(betButton, {
+            attributes: true,
+            attributeFilter: ['data-test-action-enabled']
+        });
 
-            // Check again in 100ms
-            setTimeout(checkButton, 100);
-        };
+        // Check initial state (might already be ready)
+        if (betButton.getAttribute('data-test-action-enabled') === 'true') {
+            observer.disconnect();
+            resolve(betButton);
+            return;
+        }
 
-        checkButton();
+        // Timeout fallback
+        setTimeout(() => {
+            observer.disconnect();
+            console.warn('[Utils] Bet button ready timeout');
+            reject(new Error('Bet button ready timeout'));
+        }, maxWaitMs);
     });
 }
 

@@ -14,6 +14,81 @@ import { getSelectedTileNumbers } from '../utils/domReader.js';
 // ============================================================================
 
 /**
+ * Update the preview UI to show next predicted numbers and refresh countdown
+ */
+export function updateGeneratorPreview() {
+  const previewContainer = document.getElementById('generator-preview-numbers');
+  const methodLabel = document.getElementById('generator-preview-method');
+  const roundsLabel = document.getElementById('generator-rounds-until-refresh');
+
+  if (!previewContainer) return;
+
+  const method = state.generatorMethod || 'frequency';
+  const interval = state.generatorInterval || 0;
+  const currentRound = state.currentHistory?.length || 0;
+  const lastRefresh = state.generatorLastRefresh || 0;
+
+  // Update method label
+  const methodNames = {
+    'frequency': '🔥 Hot',
+    'cold': '❄️ Cold',
+    'mixed': '🔀 Mixed',
+    'average': '📊 Average',
+    'momentum': '⚡ Momentum',
+    'auto': '🤖 Auto',
+    'shapes': '🔷 Shapes'
+  };
+  if (methodLabel) {
+    methodLabel.textContent = methodNames[method] || method;
+  }
+
+  // Update rounds until refresh
+  if (roundsLabel) {
+    if (interval === 0) {
+      roundsLabel.textContent = 'Manual';
+      roundsLabel.style.color = '#666';
+    } else {
+      const roundsSinceRefresh = currentRound - lastRefresh;
+      const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
+      roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;
+      roundsLabel.style.color = roundsUntilRefresh === 0 ? '#00b894' : '#74b9ff';
+    }
+  }
+
+  // If manual mode (interval = 0), don't show preview
+  if (interval === 0) {
+    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">Click Refresh to generate</span>';
+    return;
+  }
+
+  // Generate preview of what NEXT numbers will be (force fresh generation)
+  // This shows what you'd get if you clicked Refresh now
+  let previewPredictions = [];
+  try {
+    const count = state.generatorCount || 3;
+    const history = state.currentHistory || [];
+    const config = buildGeneratorConfig(method);
+
+    const generator = generatorFactory.get(method);
+    if (generator) {
+      // Generate fresh preview without updating cache or state
+      previewPredictions = generator.generate(count, history, config);
+    }
+  } catch (e) {
+    console.error('[Preview] Failed to generate preview:', e);
+  }
+
+  // Update preview numbers
+  if (previewPredictions.length === 0) {
+    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions available</span>';
+  } else {
+    previewContainer.innerHTML = previewPredictions
+      .map(num => `<span style="background:#2a3f4f; color:#74b9ff; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600;">${num}</span>`)
+      .join('');
+  }
+}
+
+/**
  * Generate predictions for all methods at once
  * Used for comparison tracking
  */
@@ -48,8 +123,6 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
   if (!forceRefresh) {
     const cached = cacheManager.get(method, count, state, config);
     if (cached) {
-      console.log(`[generateNumbers] Using cached ${method} predictions`);
-
       // Update state.generatedNumbers even when cached (if active method)
       const isActiveMethod = !methodOverride || method === state.generatorMethod;
       if (isActiveMethod) {
@@ -75,7 +148,6 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
     };
   }
 
-  console.log(`[generateNumbers] Generating ${method} predictions (count: ${count})`);
   const predictions = generator.generate(count, history, config);
 
   // Update cache and state
@@ -182,9 +254,6 @@ export async function selectPredictedNumbers() {
     return;
   }
 
-  console.log(`[selectPredictedNumbers] state.generatedNumbers:`, state.generatedNumbers);
-  console.log(`[selectPredictedNumbers] Selecting ${predictions.length} tiles:`, predictions);
-
   // Use shared tile selection utility (now async)
   const result = await replaceSelection(predictions);
   if (result.failed.length > 0) {
@@ -192,7 +261,6 @@ export async function selectPredictedNumbers() {
   }
 
   // Highlight predictions
-  console.log(`[selectPredictedNumbers] About to highlight:`, predictions);
   highlightPrediction(predictions);
 }
 
@@ -225,8 +293,6 @@ export function updateMomentumPredictions() {
   const result = generateNumbers(true, 'momentum');
   state.momentumNumbers = result.predictions;
   state.generatedNumbers = result.predictions;
-
-  console.log('[Momentum] Updated predictions:', result.predictions);
 }
 
 export function selectMomentumNumbers() {
@@ -265,36 +331,27 @@ export function getMomentumConfig() {
  * Generates numbers and selects them on the board (only if auto-select is enabled)
  */
 window.__keno_generateNumbers = function (forceRefresh = false) {
-  console.log(`[__keno_generateNumbers] Called with forceRefresh=${forceRefresh}, autoSelect=${state.generatorAutoSelect}`);
   const result = generateNumbers(forceRefresh);
-  console.log(`[__keno_generateNumbers] Result:`, result);
 
   // Only auto-select if the setting is enabled
   if (result.predictions.length > 0 && state.generatorAutoSelect) {
     // Compare with last auto-selected numbers stored in state (not DOM)
     // DOM might be cleared by game after bet
     const lastSelected = state.lastAutoSelectedNumbers || [];
-    
+
     // Sort both arrays for comparison
     const newNumbers = [...result.predictions].sort((a, b) => a - b);
     const oldNumbers = [...lastSelected].sort((a, b) => a - b);
-    
+
     // Check if arrays are identical
     const numbersChanged = newNumbers.length !== oldNumbers.length ||
       newNumbers.some((num, idx) => num !== oldNumbers[idx]);
-    
+
     if (numbersChanged) {
-      console.log(`[__keno_generateNumbers] Numbers changed, auto-selecting ${result.predictions.length} numbers`);
-      console.log(`[__keno_generateNumbers] Old:`, oldNumbers, 'New:', newNumbers);
-      
       // Store what we're about to select
       state.lastAutoSelectedNumbers = [...result.predictions];
       selectPredictedNumbers();
-    } else {
-      console.log(`[__keno_generateNumbers] Numbers unchanged (${newNumbers.join(', ')}), skipping re-selection`);
     }
-  } else if (result.predictions.length > 0) {
-    console.log(`[__keno_generateNumbers] Generated but auto-select is OFF`);
   }
 };
 
@@ -302,3 +359,4 @@ window.__keno_selectPredictedNumbers = selectPredictedNumbers;
 window.__keno_updateMomentumPredictions = updateMomentumPredictions;
 window.__keno_selectMomentumNumbers = selectMomentumNumbers;
 window.__keno_generateAllPredictions = generateAllPredictions;
+window.__keno_updateGeneratorPreview = updateGeneratorPreview;
