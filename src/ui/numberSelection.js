@@ -14,6 +14,60 @@ import { getSelectedTileNumbers } from '../utils/domReader.js';
 // ============================================================================
 
 /**
+ * Update the preview UI to show next predicted numbers and refresh countdown
+ */
+export function updateGeneratorPreview() {
+  const previewContainer = document.getElementById('generator-preview-numbers');
+  const methodLabel = document.getElementById('generator-preview-method');
+  const roundsLabel = document.getElementById('generator-rounds-until-refresh');
+
+  if (!previewContainer) return;
+
+  // Get current predictions
+  const predictions = state.generatedNumbers || [];
+  const method = state.generatorMethod || 'frequency';
+  const interval = state.generatorInterval || 0;
+  const currentRound = state.currentHistory?.length || 0;
+  const lastRefresh = state.generatorLastRefresh || 0;
+
+  // Update method label
+  const methodNames = {
+    'frequency': '🔥 Hot',
+    'cold': '❄️ Cold',
+    'mixed': '🔀 Mixed',
+    'average': '📊 Average',
+    'momentum': '⚡ Momentum',
+    'auto': '🤖 Auto',
+    'shapes': '🔷 Shapes'
+  };
+  if (methodLabel) {
+    methodLabel.textContent = methodNames[method] || method;
+  }
+
+  // Update rounds until refresh
+  if (roundsLabel) {
+    if (interval === 0) {
+      roundsLabel.textContent = 'Manual';
+      roundsLabel.style.color = '#666';
+    } else {
+      const roundsSinceRefresh = currentRound - lastRefresh;
+      const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
+      roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;
+      roundsLabel.style.color = roundsUntilRefresh === 0 ? '#00b894' : '#74b9ff';
+    }
+  }
+
+  // Update preview numbers
+  if (predictions.length === 0) {
+    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions yet</span>';
+  } else {
+    previewContainer.innerHTML = predictions
+      .map(num => `<span style="background:#2a3f4f; color:#74b9ff; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600;">${num}</span>`)
+      .join('');
+  }
+}
+
+/**
  * Generate predictions for all methods at once
  * Used for comparison tracking
  */
@@ -54,6 +108,7 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
       const isActiveMethod = !methodOverride || method === state.generatorMethod;
       if (isActiveMethod) {
         state.generatedNumbers = cached;
+        updateGeneratorPreview();
       }
 
       return {
@@ -91,6 +146,9 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
     // Update last refresh round counter
     const currentRound = history.length;
     state.generatorLastRefresh = currentRound;
+
+    // Update preview UI
+    updateGeneratorPreview();
   }
 
   return {
@@ -274,19 +332,19 @@ window.__keno_generateNumbers = function (forceRefresh = false) {
     // Compare with last auto-selected numbers stored in state (not DOM)
     // DOM might be cleared by game after bet
     const lastSelected = state.lastAutoSelectedNumbers || [];
-    
+
     // Sort both arrays for comparison
     const newNumbers = [...result.predictions].sort((a, b) => a - b);
     const oldNumbers = [...lastSelected].sort((a, b) => a - b);
-    
+
     // Check if arrays are identical
     const numbersChanged = newNumbers.length !== oldNumbers.length ||
       newNumbers.some((num, idx) => num !== oldNumbers[idx]);
-    
+
     if (numbersChanged) {
       console.log(`[__keno_generateNumbers] Numbers changed, auto-selecting ${result.predictions.length} numbers`);
       console.log(`[__keno_generateNumbers] Old:`, oldNumbers, 'New:', newNumbers);
-      
+
       // Store what we're about to select
       state.lastAutoSelectedNumbers = [...result.predictions];
       selectPredictedNumbers();
@@ -302,3 +360,4 @@ window.__keno_selectPredictedNumbers = selectPredictedNumbers;
 window.__keno_updateMomentumPredictions = updateMomentumPredictions;
 window.__keno_selectMomentumNumbers = selectMomentumNumbers;
 window.__keno_generateAllPredictions = generateAllPredictions;
+window.__keno_updateGeneratorPreview = updateGeneratorPreview;

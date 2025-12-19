@@ -101,13 +101,26 @@ function initializeExtension() {
 				waitForBetButtonReady(3000).then(() => {
 					console.log('[Content] Bet button ready, calling __keno_generateNumbers. History:', state.currentHistory.length, 'Last refresh:', state.generatorLastRefresh, 'Interval:', state.generatorInterval);
 					window.__keno_generateNumbers(); // This will check auto-refresh interval
+					
+					// Update preview after generation
+					if (window.__keno_updateGeneratorPreview) {
+						window.__keno_updateGeneratorPreview();
+					}
 				}).catch(err => {
 					console.error('[Content] Bet button timeout, generating anyway:', err);
 					window.__keno_generateNumbers(); // Try anyway
+					
+					// Update preview even on timeout
+					if (window.__keno_updateGeneratorPreview) {
+						window.__keno_updateGeneratorPreview();
+					}
 				});
 			} catch (e) {
 				console.error('[Generator] Generate numbers failed:', e);
 			}
+		} else if (window.__keno_updateGeneratorPreview) {
+			// Even if not generating, update the countdown
+			window.__keno_updateGeneratorPreview();
 		}
 
 		// Legacy: Auto Predict (deprecated)

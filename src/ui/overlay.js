@@ -74,7 +74,21 @@ export function createOverlay() {
                             <button id="generator-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
                             <input type="number" id="generator-interval" min="0" max="20" value="0" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
                         </div>
-                        <div style="color:#666; font-size:8px; margin-top:2px;">Auto interval: rounds (0=manual)</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                            <span style="color:#666; font-size:8px;">Auto interval: rounds (0=manual)</span>
+                            <span id="generator-rounds-until-refresh" style="color:#74b9ff; font-size:8px; font-weight:600;"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Preview of Next Numbers -->
+                    <div id="generator-preview" style="margin-bottom:10px; padding:8px; background:#14202b; border-radius:4px; border:1px solid #3a5f6f;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="color:#74b9ff; font-size:9px; font-weight:600;">Next Numbers:</span>
+                            <span id="generator-preview-method" style="color:#666; font-size:8px;"></span>
+                        </div>
+                        <div id="generator-preview-numbers" style="display:flex; flex-wrap:wrap; gap:4px; min-height:24px; align-items:center;">
+                            <span style="color:#666; font-size:9px;">-</span>
+                        </div>
                     </div>
                     
                     <div style="margin-bottom:8px;">
@@ -654,6 +668,9 @@ export function createOverlay() {
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
                 window.__keno_generateNumbers();
             }
+            if (window.__keno_updateGeneratorPreview) {
+                window.__keno_updateGeneratorPreview();
+            }
         });
     }
 
@@ -697,6 +714,14 @@ export function createOverlay() {
             // Update momentum countdown if switching to momentum
             if (state.generatorMethod === 'momentum' && window.__keno_updateMomentumCountdown) {
                 window.__keno_updateMomentumCountdown();
+            }
+
+            // Regenerate with new method and update preview
+            if (state.isGeneratorActive && window.__keno_generateNumbers) {
+                window.__keno_generateNumbers(true); // Force refresh with new method
+            }
+            if (window.__keno_updateGeneratorPreview) {
+                window.__keno_updateGeneratorPreview();
             }
         });
 
@@ -1156,6 +1181,11 @@ export function createOverlay() {
             // Update last refresh counter
             state.generatorLastRefresh = state.currentHistory.length;
             console.log('[Generator] generatorLastRefresh updated to:', state.generatorLastRefresh);
+
+            // Update preview UI
+            if (window.__keno_updateGeneratorPreview) {
+                window.__keno_updateGeneratorPreview();
+            }
         });
     }
 
