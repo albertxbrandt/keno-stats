@@ -1,6 +1,7 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
-import { state } from './state.js';
-import { getHits, getMisses, getDrawn, getSelected } from './storage.js';
+import { state } from '../core/state.js';
+import { getHits, getMisses, getDrawn, getSelected } from '../core/storage.js';
+import { getSelectedTileNumbers, getSelectedTileCount } from './domReader.js';
 
 /**
  * Calculate stats for selected tiles count
@@ -30,22 +31,22 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
 
     // Analyze history (go from newest to oldest to find last occurrence)
     const reversedHistory = state.currentHistory.slice().reverse();
-    
+
     console.log('[stats] Analyzing history for selection:', selectedNumbers, 'Total rounds:', reversedHistory.length);
-    
+
     reversedHistory.forEach((round, idx) => {
         // Count how many of the currently selected numbers were hits in this round
         let hitCount;
-        
+
         if (selectedNumbers.length > 0) {
             // Compare current selection with the drawn numbers from this round
             const drawnNumbers = getDrawn(round);
             const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
             hitCount = matchingNumbers.length;
-            
+
             if (idx < 3) { // Log first 3 rounds for debugging
-                console.log(`[stats] Round ${idx} (${new Date(round.time).toLocaleTimeString()}):`, 
-                    'drawn:', drawnNumbers, 
+                console.log(`[stats] Round ${idx} (${new Date(round.time).toLocaleTimeString()}):`,
+                    'drawn:', drawnNumbers,
                     'selected:', selectedNumbers,
                     'matches:', matchingNumbers,
                     'hitCount:', hitCount);
@@ -54,12 +55,12 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
             // Fallback to old behavior if no specific numbers provided
             hitCount = getHits(round).length;
         }
-        
+
         // Record this round for ALL hit counts from hitCount down to 0
         // Example: if hitCount is 5, this round also had 4, 3, 2, 1, and 0 hits
         for (let i = 0; i <= hitCount && i <= selectedCount; i++) {
             stats.counts[i]++;
-            
+
             // Record last occurrence (first time we see it in reversed history = most recent)
             if (stats.lastOccurrences[i] === null) {
                 stats.lastOccurrences[i] = round.time;
@@ -89,62 +90,22 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
  */
 export function formatTimeSince(selectedNumbers, targetHitCount) {
     if (!selectedNumbers || selectedNumbers.length === 0) return 'Never';
-    
+
     // Find the most recent bet that matches the target hit count
     for (let i = state.currentHistory.length - 1; i >= 0; i--) {
         const round = state.currentHistory[i];
         const drawnNumbers = getDrawn(round);
         const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
         const hitCount = matchingNumbers.length;
-        
+
         if (hitCount === targetHitCount) {
             const betNumber = i + 1;
             const betsAgo = state.currentHistory.length - i;
             return `Bet #${betNumber}<br>${betsAgo} Bets Ago`;
         }
     }
-    
+
     return 'Never';
-}
-
-/**
- * Get currently selected tile numbers from DOM
- * @returns {Array<number>} Array of selected tile numbers (1-40)
- */
-export function getSelectedTileNumbers() {
-    try {
-        const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
-        if (!tilesContainer) return [];
-
-        const tiles = Array.from(tilesContainer.querySelectorAll('button'));
-        const selectedNumbers = [];
-
-        tiles.forEach((tile, index) => {
-            const isSelected = 
-                tile.getAttribute('aria-pressed') === 'true' || 
-                tile.getAttribute('aria-checked') === 'true' ||
-                /\bselected\b|\bactive\b|\bis-active\b|\bpicked\b|\bchosen\b/i.test(tile.className || '') ||
-                (tile.dataset && (tile.dataset.selected === 'true' || tile.dataset.active === 'true'));
-            
-            if (isSelected) {
-                // Tiles are 1-40, index is 0-39
-                selectedNumbers.push(index + 1);
-            }
-        });
-
-        return selectedNumbers.sort((a, b) => a - b);
-    } catch (error) {
-        console.error('[stats] Error getting selected tile numbers:', error);
-        return [];
-    }
-}
-
-/**
- * Get currently selected tile count by checking DOM
- * @returns {number} Number of selected tiles
- */
-export function getSelectedTileCount() {
-    return getSelectedTileNumbers().length;
 }
 
 /**
@@ -155,7 +116,7 @@ export function updateMultiplierBarStats() {
     try {
         const selectedNumbers = getSelectedTileNumbers();
         const selectedCount = selectedNumbers.length;
-        
+
         if (selectedCount === 0) {
             clearMultiplierBarStats();
             return;
@@ -163,23 +124,23 @@ export function updateMultiplierBarStats() {
 
         const stats = calculateMultiplierStats(selectedCount, selectedNumbers);
         const containers = findMultiplierContainers();
-        
+
         console.warn('[stats] Selected count:', selectedCount, 'Selected numbers:', selectedNumbers, 'Stats:', stats, 'Containers found:', containers.length);
-        
+
         if (containers.length === 0) {
             return; // Silently fail if multiplier bar not found
         }
 
         containers.forEach((container, index) => {
             const hitCount = index;
-            
+
             // Skip 0x - not relevant
             if (hitCount === 0 || hitCount > selectedCount) return;
-            
+
             const lastTime = formatTimeSince(selectedNumbers, hitCount);
-            
+
             console.log(`[stats] ${hitCount}×: last: ${lastTime}`);
-            
+
             let statsOverlay = container.querySelector('.keno-stats-overlay');
             if (!statsOverlay) {
                 statsOverlay = document.createElement('div');
@@ -203,36 +164,36 @@ export function updateMultiplierBarStats() {
                     userSelect: 'none',
                     lineHeight: '1.3'
                 });
-                
+
                 statsOverlay.addEventListener('mouseenter', () => {
                     Object.assign(statsOverlay.style, {
                         backgroundColor: 'rgba(0,150,255,0.9)',
                         transform: 'scale(1.05)'
                     });
                 });
-                
+
                 statsOverlay.addEventListener('mouseleave', () => {
                     Object.assign(statsOverlay.style, {
                         backgroundColor: 'rgba(0,0,0,0.8)',
                         transform: 'scale(1)'
                     });
                 });
-                
+
                 statsOverlay.addEventListener('click', () => {
                     // Get fresh selected numbers at click time, not creation time
                     const currentSelectedNumbers = getSelectedTileNumbers();
                     showBetResultModal(currentSelectedNumbers, hitCount);
                 });
-                
+
                 // Store hit count in data attribute so we can update text later
                 statsOverlay.dataset.hitCount = hitCount;
-                
+
                 container.style.position = 'relative';
                 // Add padding to bottom of container so multiplier text doesn't overlap
                 container.style.paddingBottom = '28px';
                 container.appendChild(statsOverlay);
             }
-            
+
             statsOverlay.innerHTML = lastTime;
         });
     } catch (error) {
@@ -269,13 +230,13 @@ function findMultiplierContainers() {
 
         // Find all divs with class containing "hit" (both positive and negative)
         const multiplierDivs = Array.from(hitOddsContainer.querySelectorAll('div[class*="hit"]'));
-        
+
         console.log('[stats] All divs with hit class:', multiplierDivs.length, multiplierDivs.map(el => ({
             className: el.className,
             textContent: el.textContent.trim(),
             innerHTML: el.innerHTML.substring(0, 100)
         })));
-        
+
         // Filter to get only the ones with multiplier text (0×, 1×, 2×, etc.)
         // Note: Uses × (multiplication sign U+00D7) not x (letter x)
         const multiplierElements = multiplierDivs.filter(el => {
@@ -296,7 +257,7 @@ function findMultiplierContainers() {
         });
 
         console.log('[stats] Found multiplier containers:', multiplierElements.length, multiplierElements.map(el => el.textContent.trim()));
-        
+
         return multiplierElements;
     } catch (error) {
         console.error('[stats] Error finding multiplier containers:', error);
@@ -345,7 +306,7 @@ export function initStatsObserver() {
         });
 
         updateMultiplierBarStats();
-        
+
         console.log('[stats] Stats observer initialized successfully');
     } catch (error) {
         console.error('[stats] Error initializing stats observer:', error);
@@ -361,26 +322,26 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
     // Find the most recent bet that matches the target hit count
     let betIndex = -1;
     let round = null;
-    
+
     // Search from newest to oldest
     for (let i = state.currentHistory.length - 1; i >= 0; i--) {
         const r = state.currentHistory[i];
         const drawnNumbers = getDrawn(r);
         const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
         const hitCount = matchingNumbers.length;
-        
+
         if (hitCount === targetHitCount) {
             betIndex = i;
             round = r;
             break;
         }
     }
-    
+
     if (!round || betIndex === -1) {
         console.error('[stats] No bet found matching', targetHitCount, 'hits for selection:', selectedNumbers);
         return;
     }
-    
+
     console.log('[stats] Found matching bet at index:', betIndex, 'bet number:', betIndex + 1);
 
     // Create modal background
@@ -415,17 +376,17 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
     });
 
     const dateStr = new Date(round.time).toLocaleString();
-    
+
     // Calculate bet number and bets ago from the index
     const betNumber = betIndex + 1;
     const betsAgo = state.currentHistory.length - betIndex;
-    
+
     // Use the stored hit and miss data from history
     // hits = selected numbers that were drawn (GREEN)
     // misses = drawn numbers that were NOT selected (RED)
-    const hits = getHits(round).sort((a,b) => a-b);
-    const misses = getMisses(round).sort((a,b) => a-b);
-    
+    const hits = getHits(round).sort((a, b) => a - b);
+    const misses = getMisses(round).sort((a, b) => a - b);
+
     console.log('[stats] Modal data:', { hits, misses, drawn: getDrawn(round), selected: getSelected(round) });
 
     modal.innerHTML = `
@@ -528,12 +489,12 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
         const isHit = hits.includes(i);
         const isMiss = misses.includes(i);
         const isCurrentlySelected = selectedNumbers.includes(i);
-        
+
         let bgColor = '#2f4553';
         let textColor = '#fff';
         let borderStyle = '2px solid #2f4553';
         let boxShadow = 'none';
-        
+
         if (isHit) {
             // Hit - your selected number that was drawn (green)
             bgColor = 'linear-gradient(135deg, #00ff88, #00c853)';
@@ -547,12 +508,12 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
             borderStyle = '2px solid #ff6b5b';
             boxShadow = '0 3px 8px rgba(255,71,87,0.2)';
         }
-        
+
         // Add dashed yellow border for currently selected numbers
         if (isCurrentlySelected) {
             borderStyle = '3px dashed #ffa500';
         }
-        
+
         Object.assign(tile.style, {
             width: '100%',
             aspectRatio: '1',

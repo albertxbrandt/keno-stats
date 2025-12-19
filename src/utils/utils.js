@@ -1,5 +1,5 @@
 // src/utils.js - misc helpers
-import { state } from './state.js';
+import { state } from '../core/state.js';
 
 export function simulatePointerClick(el) {
     try {
@@ -27,6 +27,27 @@ export function findAndClickPlayButton() {
     }
 
     return null;
+}
+
+/**
+ * Clear all selected tiles using the game's Clear Table button
+ * @returns {boolean} True if successful
+ */
+export function clearTable() {
+    const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
+    if (!clearButton) {
+        console.warn('[Utils] Clear Table button not found');
+        return false;
+    }
+
+    try {
+        simulatePointerClick(clearButton);
+        console.log('[Utils] Clear Table button clicked');
+        return true;
+    } catch (e) {
+        console.error('[Utils] Failed to click Clear Table button:', e);
+        return false;
+    }
 }
 
 /**

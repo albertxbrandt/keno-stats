@@ -1,9 +1,9 @@
 // src/comparison.js
-import { state } from './state.js';
-import { getTopPredictions, getColdPredictions } from './autoplay.js';
-import { getMomentumPrediction } from './momentum.js';
-import { getHits, getMisses } from './storage.js';
-import betMultis from '../config/bet-multis.json';
+import { state } from '../core/state.js';
+import { getTopPredictions, getColdPredictions } from '../ui/numberSelection.js';
+import { getMomentumPrediction } from '../generators/momentumCore.js';
+import { getHits, getMisses } from '../core/storage.js';
+import betMultis from '../../config/bet-multis.json';
 
 /**
  * Calculate profit for a prediction based on hits and difficulty

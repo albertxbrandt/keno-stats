@@ -1,6 +1,6 @@
 // src/savedNumbers.js - Manage saved number combinations
-import { state } from './state.js';
-import { getDrawn, getSelected } from './storage.js';
+import { state } from '../core/state.js';
+import { getDrawn, getSelected } from '../core/storage.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -518,9 +518,9 @@ function buildModal(numbers, comboName, hits, initialRiskMode, initialLookback) 
     let currentLookback = initialLookback;
 
     if (riskSelector) {
-      currentRiskMode = riskSelector.value;
+      currentRiskMode = getSelectValue(riskSelector, 'classic');
       riskSelector.addEventListener('change', (e) => {
-        currentRiskMode = e.target.value;
+        currentRiskMode = getSelectValue(riskSelector, 'classic');
         // Save preference
         storageApi.storage.local.set({ graphRiskMode: currentRiskMode });
         updateGraph();
@@ -528,16 +528,11 @@ function buildModal(numbers, comboName, hits, initialRiskMode, initialLookback) 
     }
 
     if (lookbackInput) {
-      currentLookback = parseInt(lookbackInput.value);
+      currentLookback = getIntValue(lookbackInput, 50);
       lookbackInput.addEventListener('change', (e) => {
-        let value = parseInt(e.target.value);
         const min = parseInt(e.target.min);
         const max = parseInt(e.target.max);
-
-        // Clamp value between min and max
-        if (value < min) value = min;
-        if (value > max) value = max;
-        if (isNaN(value)) value = 50;
+        let value = getIntValue(e.target, 50, { min, max });
 
         currentLookback = value;
         // Save preference
@@ -697,7 +692,7 @@ function selectNumbers(numbers) {
 
   setTimeout(() => {
     tiles.forEach((tile) => {
-      const tileNumber = parseInt(tile.textContent.trim().split('%')[0]);
+      const tileNumber = getTileNumber(tile);
       if (isNaN(tileNumber)) return;
 
       if (numbers.includes(tileNumber)) {

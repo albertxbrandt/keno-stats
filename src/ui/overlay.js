@@ -1,8 +1,10 @@
 // src/overlay.js
-import { state } from './state.js';
-import { updateHistoryUI, clearHistory } from './storage.js';
-import { updateHeatmap } from './heatmap.js';
-import { calculatePrediction, updateAutoPlayUI, autoPlayPlaceBet } from './autoplay.js';
+import { state } from '../core/state.js';
+import { updateHistoryUI, clearHistory } from '../core/storage.js';
+import { updateHeatmap } from '../features/heatmap.js';
+import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
+import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
+import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from '../utils/domReader.js';
 
 export function createOverlay() {
     if (document.getElementById('keno-tracker-overlay')) return;
@@ -65,6 +67,16 @@ export function createOverlay() {
                             style="width:64px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     </div>
                     
+                    <!-- Universal Refresh Control -->
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#aaa; font-size:10px;">Refresh:</span>
+                        <div style="display:flex; gap:4px; margin-top:4px;">
+                            <button id="generator-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
+                            <input type="number" id="generator-interval" min="0" max="20" value="0" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
+                        </div>
+                        <div style="color:#666; font-size:8px; margin-top:2px;">Auto interval: rounds (0=manual)</div>
+                    </div>
+                    
                     <div style="margin-bottom:8px;">
                         <span style="color:#aaa; font-size:10px;">Method:</span>
                         <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
@@ -116,14 +128,6 @@ export function createOverlay() {
                                 <option value="trending">📈 Trending Position</option>
                             </select>
                         </div>
-                        <div style="margin-bottom:8px;">
-                            <span style="color:#aaa; font-size:10px;">Refresh:</span>
-                            <div style="display:flex; gap:4px; margin-top:4px;">
-                                <button id="shapes-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
-                                <input type="number" id="shapes-interval" min="0" max="20" value="0" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
-                            </div>
-                            <div style="color:#666; font-size:8px; margin-top:2px;">Auto interval: rounds (0=manual)</div>
-                        </div>
                         <div style="padding:6px; background:#14202b; border-radius:4px; border:1px solid #fd79a830;">
                             <div style="color:#fd79a8; font-size:9px; margin-bottom:2px;">Current Shape:</div>
                             <div id="shapes-current-display" style="color:#aaa; font-size:9px; line-height:1.4;">-</div>
@@ -133,21 +137,12 @@ export function createOverlay() {
                     <!-- Momentum-specific parameters -->
                     <div id="momentum-params" style="display:none;">
                         <div id="momentum-info" style="margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                                <span style="color:#666; font-size:9px;">Refresh in:</span>
-                                <span id="momentum-countdown" style="color:#e17055; font-size:9px; font-weight:600;">-</span>
-                            </div>
                             <div style="display:flex; flex-direction:column; gap:2px;">
-                                <span style="color:#666; font-size:9px;">Momentum:</span>
+                                <span style="color:#666; font-size:9px;">Current Numbers:</span>
                                 <span id="momentum-current-numbers" style="color:#74b9ff; font-size:8px; font-weight:500; line-height:1.3; word-break:break-all;">-</span>
                             </div>
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
-                            <div>
-                                <span style="color:#aaa; font-size:9px;">Refresh:</span>
-                                <input type="number" id="momentum-refresh" min="1" max="20" value="5" 
-                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                            </div>
                             <div>
                                 <span style="color:#aaa; font-size:9px;">Detection:</span>
                                 <input type="number" id="momentum-detection" min="3" max="20" value="5" 
@@ -163,7 +158,7 @@ export function createOverlay() {
                                 <input type="number" id="momentum-threshold" min="1" max="3" step="0.1" value="1.5" 
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                             </div>
-                            <div style="grid-column: 1 / -1;">
+                            <div>
                                 <span style="color:#aaa; font-size:9px;">Pool:</span>
                                 <input type="number" id="momentum-pool" min="5" max="30" value="15" 
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
@@ -515,7 +510,7 @@ export function createOverlay() {
         }
         heatmapSwitch.checked = !!state.isHeatmapActive;
         heatmapSwitch.addEventListener('change', (e) => {
-            state.isHeatmapActive = e.target.checked;
+            state.isHeatmapActive = getCheckboxValue(heatmapSwitch);
             if (heatmapDot) {
                 heatmapDot.style.transform = state.isHeatmapActive ? 'translateX(14px)' : 'translateX(0px)';
                 heatmapDot.style.backgroundColor = state.isHeatmapActive ? '#ffd700' : 'white';
@@ -553,10 +548,8 @@ export function createOverlay() {
         heatmapSampleInput.value = state.heatmapSampleSize || 100;
         heatmapSampleInput.max = Math.max(state.currentHistory.length, 1);
         heatmapSampleInput.addEventListener('input', () => {
-            let val = parseInt(heatmapSampleInput.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
-            if (val > max) val = max;
+            const val = getIntValue(heatmapSampleInput, 1, { min: 1, max });
             state.heatmapSampleSize = val;
             heatmapSampleInput.value = val;
             if (state.isHeatmapActive) updateHeatmap();
@@ -573,10 +566,8 @@ export function createOverlay() {
             sampleLabel.title = `Last ${sampleInput.value} Bets`;
         }
         sampleInput.addEventListener('input', () => {
-            let val = parseInt(sampleInput.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
-            if (val > max) val = max;
+            const val = getIntValue(sampleInput, 1, { min: 1, max });
             state.sampleSize = val;
             sampleInput.value = val;
             if (sampleLabel) {
@@ -620,7 +611,7 @@ export function createOverlay() {
     if (generatorCount) {
         generatorCount.value = state.generatorCount || 3;
         generatorCount.addEventListener('change', () => {
-            state.generatorCount = parseInt(generatorCount.value) || 3;
+            state.generatorCount = getIntValue(generatorCount, 3);
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
                 window.__keno_generateNumbers();
             }
@@ -632,10 +623,8 @@ export function createOverlay() {
         frequencySampleInput.value = state.generatorSampleSize || 5;
         frequencySampleInput.max = Math.max(state.currentHistory.length, 1);
         frequencySampleInput.addEventListener('input', () => {
-            let val = parseInt(frequencySampleInput.value, 10);
-            if (isNaN(val) || val < 1) val = 1;
             const max = Math.max(state.currentHistory.length, 1);
-            if (val > max) val = max;
+            const val = getIntValue(frequencySampleInput, 1, { min: 1, max });
             state.generatorSampleSize = val;
             frequencySampleInput.value = val;
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
@@ -648,7 +637,7 @@ export function createOverlay() {
     if (methodSelect) {
         methodSelect.value = state.generatorMethod || 'frequency';
         methodSelect.addEventListener('change', (e) => {
-            state.generatorMethod = e.target.value;
+            state.generatorMethod = getSelectValue(methodSelect, 'frequency');
 
             // Show/hide parameters based on method
             // frequency, cold, mixed, average, auto use frequency params (sample size)
@@ -696,7 +685,7 @@ export function createOverlay() {
         }
         generatorSwitch.checked = !!state.isGeneratorActive;
         generatorSwitch.addEventListener('change', (e) => {
-            state.isGeneratorActive = e.target.checked;
+            state.isGeneratorActive = getCheckboxValue(generatorSwitch);
             if (genDot) {
                 genDot.style.transform = state.isGeneratorActive ? 'translateX(14px)' : 'translateX(0px)';
                 genDot.style.backgroundColor = state.isGeneratorActive ? '#74b9ff' : 'white';
@@ -994,7 +983,7 @@ export function createOverlay() {
     const apBtn = document.getElementById('autoplay-btn');
     if (apBtn) apBtn.addEventListener('click', () => {
         const roundsInput = document.getElementById('autoplay-rounds');
-        const roundsToPlay = parseInt(roundsInput.value) || 5;
+        const roundsToPlay = getIntValue(roundsInput, 5);
         if (state.isAutoPlayMode) {
             state.isAutoPlayMode = false;
             state.autoPlayRoundsRemaining = 0;
@@ -1007,7 +996,7 @@ export function createOverlay() {
             state.autoPlayRoundsRemaining = roundsToPlay;
             state.autoPlayStartTime = Date.now();
             state.autoPlayElapsedTime = 0;
-            const rawPredCount = parseInt(document.getElementById('autoplay-pred-count').value) || 3;
+            const rawPredCount = getIntValue('autoplay-pred-count', 3);
             state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount, 1), 40);
             console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount);
             autoPlayPlaceBet();
@@ -1021,7 +1010,7 @@ export function createOverlay() {
     if (analyzePatternBtn) {
         analyzePatternBtn.addEventListener('click', () => {
             const targetInput = document.getElementById('pattern-target');
-            const patternSize = parseInt(targetInput.value);
+            const patternSize = getIntValue(targetInput, 5);
 
             if (isNaN(patternSize) || patternSize < 3 || patternSize > 10) {
                 alert('Please enter a valid pattern size between 3 and 10');
@@ -1071,7 +1060,7 @@ export function createOverlay() {
     const shapesPatternSelect = document.getElementById('shapes-pattern-select');
     if (shapesPatternSelect) {
         shapesPatternSelect.addEventListener('change', (e) => {
-            state.shapesPattern = e.target.value;
+            state.shapesPattern = getSelectValue(e.target, 'cross');
             console.log('[Shapes] Pattern changed to:', state.shapesPattern);
 
             // Update current display
@@ -1085,7 +1074,7 @@ export function createOverlay() {
     const shapesPlacementSelect = document.getElementById('shapes-placement-select');
     if (shapesPlacementSelect) {
         shapesPlacementSelect.addEventListener('change', (e) => {
-            state.shapesPlacement = e.target.value;
+            state.shapesPlacement = getSelectValue(e.target, 'center');
             console.log('[Shapes] Placement changed to:', state.shapesPlacement);
 
             // Update current display
@@ -1101,39 +1090,33 @@ export function createOverlay() {
         });
     }
 
-    const shapesIntervalInput = document.getElementById('shapes-interval');
-    if (shapesIntervalInput) {
-        shapesIntervalInput.addEventListener('change', (e) => {
-            const value = parseInt(e.target.value) || 0;
-            state.shapesInterval = Math.max(0, Math.min(20, value)); // Clamp to 0-20
-            shapesIntervalInput.value = state.shapesInterval; // Update display with clamped value
-            console.log('[Shapes] Auto-refresh interval set to:', state.shapesInterval, 'rounds');
+    // Universal generator refresh controls
+    const generatorIntervalInput = document.getElementById('generator-interval');
+    if (generatorIntervalInput) {
+        generatorIntervalInput.addEventListener('change', (e) => {
+            const value = getIntValue(e.target, 0, { min: 0, max: 20 });
+            state.generatorInterval = value;
+            generatorIntervalInput.value = value; // Update display with clamped value
+            console.log('[Generator] Auto-refresh interval set to:', state.generatorInterval, 'rounds');
 
             // Reset last refresh counter
-            state.shapesLastRefresh = 0;
+            state.generatorLastRefresh = 0;
         });
     }
 
-    const shapesRefreshBtn = document.getElementById('shapes-refresh-btn');
-    if (shapesRefreshBtn) {
-        shapesRefreshBtn.addEventListener('click', () => {
-            console.log('[Shapes] Manual refresh triggered');
+    const generatorRefreshBtn = document.getElementById('generator-refresh-btn');
+    if (generatorRefreshBtn) {
+        generatorRefreshBtn.addEventListener('click', () => {
+            console.log('[Generator] Manual refresh triggered');
 
-            // Trigger immediate regeneration by calling generator with force refresh
+            // Trigger immediate regeneration
             if (window.__keno_generateNumbers) {
-                const prevMethod = state.generatorMethod;
-                state.generatorMethod = 'shapes'; // Ensure shapes method is selected
                 window.__keno_generateNumbers(true); // Force refresh
-
-                // If generator was on a different method, restore it
-                if (prevMethod !== 'shapes') {
-                    state.generatorMethod = prevMethod;
-                }
             }
 
             // Update last refresh counter
-            state.shapesLastRefresh = state.currentHistory.length;
-            console.log('[Shapes] shapesLastRefresh updated to:', state.shapesLastRefresh);
+            state.generatorLastRefresh = state.currentHistory.length;
+            console.log('[Generator] generatorLastRefresh updated to:', state.generatorLastRefresh);
         });
     }
 
