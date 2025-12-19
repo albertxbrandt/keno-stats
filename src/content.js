@@ -7,6 +7,7 @@ import { updateHeatmap } from './heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './savedNumbers.js';
 import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './profitLoss.js';
+import { initComparisonWindow } from './comparison.js';
 import './patterns.js'; // Import pattern analysis module (sets up window hooks)
 
 console.log('Keno Tracker loaded');
@@ -66,8 +67,33 @@ function initializeExtension() {
 		setTimeout(() => {
 			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
 		}, 500);
-		// Auto Predict
-		if (state.isPredictMode) calculatePrediction();
+
+		// Capture predictions BEFORE regenerating (these are what were actually played)
+		const playedPredictions = state.lastGeneratedPredictions ? { ...state.lastGeneratedPredictions } : null;
+
+		// Track comparison BEFORE auto-generation (use numbers that were actually played)
+		if (state.isComparisonWindowOpen && window.__keno_trackRound && playedPredictions) {
+			try {
+				window.__keno_trackRound({ drawn, selected, predictions: playedPredictions });
+			} catch (e) {
+				console.error('[Comparison] track round failed:', e);
+			}
+		}
+
+		// NOW generate new numbers for next round
+		if ((state.isComparisonWindowOpen || state.isGeneratorActive) && window.__keno_generateAllPredictions) {
+			try {
+				const allPredictions = window.__keno_generateAllPredictions();
+				// Store for next round's comparison
+				state.lastGeneratedPredictions = allPredictions;
+			} catch (e) {
+				console.error('[Generator] Generate all predictions failed:', e);
+			}
+		}
+		// Legacy: Auto Predict (deprecated)
+		else if (state.isPredictMode) {
+			calculatePrediction();
+		}
 		// Auto Play Logic
 		if (state.isAutoPlayMode && state.autoPlayRoundsRemaining > 0) {
 			state.autoPlayRoundsRemaining--;
@@ -99,6 +125,8 @@ function initializeExtension() {
 
 		// Initialize UI after history has been loaded
 		initOverlay();
+		// Initialize comparison window
+		initComparisonWindow();
 		// Ensure history list in overlay shows current history
 		try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
 		// Initialize recent played UI

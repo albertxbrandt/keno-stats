@@ -6,13 +6,15 @@ export const state = {
     heatmapSampleSize: 100, // Heatmap uses separate sample size
     // Unified Number Generator (replaces isPredictMode and isMomentumMode)
     isGeneratorActive: false,
-    generatorMethod: 'frequency', // 'frequency' or 'momentum'
+    generatorMethod: 'frequency', // 'frequency', 'momentum', or 'cold'
     generatorCount: 3, // Unified count for all generator methods
     generatorSampleSize: 5, // Generator uses separate sample size
     generatedNumbers: [],
     generatorAutoSelect: false,
+    lastGeneratedPredictions: null, // Store predictions for comparison tracking
     // Momentum-specific
     momentumLastRefresh: 0,
+    momentumActuallyRefreshed: false, // Track if momentum was actually regenerated vs cached
     momentumDisplayCache: null, // Cache momentum display to avoid recalculating
     // Legacy support (will be deprecated)
     sampleSize: 5, // Legacy
@@ -46,5 +48,16 @@ export const state = {
         recentPlays: true,
         history: true
     },
-    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'],
+    // Method Comparison Window
+    isComparisonWindowOpen: false,
+    comparisonLookback: 50, // How many rounds to track
+    comparisonData: [], // Array of {round, frequency: {predicted, hits, profit}, momentum: {predicted, hits, profit}, cold: {predicted, hits, profit}}
+    gameDifficulty: 'classic', // Current game difficulty (classic, low, medium, high)
+    // Shapes Generator Config
+    shapesPattern: 'random', // Selected shape pattern ('random' or specific shape key)
+    shapesPlacement: 'random', // Placement strategy ('random', 'hot', 'trending')
+    shapesInterval: 0, // Auto-refresh interval in rounds (0 = manual)
+    shapesLastRefresh: 0, // Last round number when shapes was refreshed
+    shapesActuallyRefreshed: false // Track if shapes was actually regenerated vs cached
 };

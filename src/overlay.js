@@ -69,16 +69,64 @@ export function createOverlay() {
                         <span style="color:#aaa; font-size:10px;">Method:</span>
                         <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
                             <option value="frequency">🔥 Frequency (Hot Numbers)</option>
+                            <option value="cold">❄️ Cold (Least Frequent)</option>
+                            <option value="mixed">🔀 Mixed (Hot + Cold)</option>
+                            <option value="average">📊 Average (Median Frequency)</option>
                             <option value="momentum">⚡ Momentum (Trending)</option>
+                            <option value="auto">🤖 Auto (Best Performer)</option>
+                            <option value="shapes">🔷 Shapes (Board Patterns)</option>
                         </select>
                     </div>
                     
-                    <!-- Frequency-specific parameters -->
+                    <!-- Frequency/Cold/Mixed/Average parameters -->
                     <div id="frequency-params" style="display:block;">
                         <div style="margin-bottom:8px;">
                             <span style="color:#aaa; font-size:10px;">Sample Size:</span>
                             <input type="number" id="frequency-sample-size" min="1" value="5" 
                                 style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px; margin-top:4px;">
+                        </div>
+                    </div>
+                    
+                    <!-- Shapes-specific parameters -->
+                    <div id="shapes-params" style="display:none;">
+                        <div style="margin-bottom:8px;">
+                            <span style="color:#aaa; font-size:10px;">Pattern:</span>
+                            <select id="shapes-pattern-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:10px; margin-top:4px;">
+                                <option value="random">🎲 Random Shape</option>
+                                <option value="plus">➕ Plus</option>
+                                <option value="cross">✖️ Cross</option>
+                                <option value="jesus">✝️ Jesus Saves</option>
+                                <option value="lShape">🔲 L-Shape</option>
+                                <option value="tShape">🅣 T-Shape</option>
+                                <option value="cShape">🌙 C-Shape</option>
+                                <option value="square">⬛ Square</option>
+                                <option value="lineHorizontal">➖ Horizontal Line</option>
+                                <option value="lineVertical">| Vertical Line</option>
+                                <option value="diagonalDown">↘️ Diagonal Down</option>
+                                <option value="diagonalUp">↗️ Diagonal Up</option>
+                                <option value="zigzag">⚡ Zigzag</option>
+                                <option value="arrow">➡️ Arrow</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom:8px;">
+                            <span style="color:#aaa; font-size:10px;">Placement:</span>
+                            <select id="shapes-placement-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:10px; margin-top:4px;">
+                                <option value="random">🎲 Random Position</option>
+                                <option value="hot">🔥 Hot Numbers Area</option>
+                                <option value="trending">📈 Trending Position</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom:8px;">
+                            <span style="color:#aaa; font-size:10px;">Refresh:</span>
+                            <div style="display:flex; gap:4px; margin-top:4px;">
+                                <button id="shapes-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
+                                <input type="number" id="shapes-interval" min="0" max="20" value="0" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
+                            </div>
+                            <div style="color:#666; font-size:8px; margin-top:2px;">Auto interval: rounds (0=manual)</div>
+                        </div>
+                        <div style="padding:6px; background:#14202b; border-radius:4px; border:1px solid #fd79a830;">
+                            <div style="color:#fd79a8; font-size:9px; margin-bottom:2px;">Current Shape:</div>
+                            <div id="shapes-current-display" style="color:#aaa; font-size:9px; line-height:1.4;">-</div>
                         </div>
                     </div>
                     
@@ -132,6 +180,7 @@ export function createOverlay() {
                         </label>
                     </div>
                     <button id="generate-numbers-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Generate Numbers</button>
+                    <button id="method-comparison-btn" style="width:100%; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:9px; margin-top:4px;">📊 Compare Methods</button>
                 </div>
             </div>
 
@@ -602,11 +651,19 @@ export function createOverlay() {
             state.generatorMethod = e.target.value;
 
             // Show/hide parameters based on method
-            if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
+            // frequency, cold, mixed, average, auto use frequency params (sample size)
+            const usesFrequencyParams = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(state.generatorMethod);
+            if (frequencyParams) frequencyParams.style.display = usesFrequencyParams ? 'block' : 'none';
             if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
 
+            // Show/hide shapes params
+            const shapesParams = document.getElementById('shapes-params');
+            if (shapesParams) {
+                shapesParams.style.display = state.generatorMethod === 'shapes' ? 'block' : 'none';
+            }
+
             // Update legacy state for backward compatibility
-            state.isPredictMode = state.isGeneratorActive && state.generatorMethod === 'frequency';
+            state.isPredictMode = state.isGeneratorActive && usesSampleSize;
             state.isMomentumMode = state.isGeneratorActive && state.generatorMethod === 'momentum';
 
             // Update momentum countdown if switching to momentum
@@ -616,8 +673,15 @@ export function createOverlay() {
         });
 
         // Initialize parameter visibility
-        if (frequencyParams) frequencyParams.style.display = state.generatorMethod === 'frequency' ? 'block' : 'none';
+        const usesFrequencyParams = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(state.generatorMethod);
+        if (frequencyParams) frequencyParams.style.display = usesFrequencyParams ? 'block' : 'none';
         if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
+
+        // Initialize shapes params visibility
+        const shapesParams = document.getElementById('shapes-params');
+        if (shapesParams) {
+            shapesParams.style.display = state.generatorMethod === 'shapes' ? 'block' : 'none';
+        }
     }
 
     if (generatorSwitch) {
@@ -701,7 +765,7 @@ export function createOverlay() {
     if (generateBtn) {
         generateBtn.addEventListener('click', () => {
             if (window.__keno_generateNumbers) {
-                window.__keno_generateNumbers();
+                window.__keno_generateNumbers(true); // Force refresh even for momentum
             }
         });
     }
@@ -985,12 +1049,91 @@ export function createOverlay() {
         });
     }
 
+    const methodComparisonBtn = document.getElementById('method-comparison-btn');
+    if (methodComparisonBtn) {
+        methodComparisonBtn.addEventListener('click', () => {
+            if (window.__keno_toggleComparison) {
+                window.__keno_toggleComparison(true);
+            }
+        });
+    }
+
     const viewSavedBtn = document.getElementById('view-saved-numbers-btn');
     if (viewSavedBtn) {
         viewSavedBtn.addEventListener('click', () => {
             if (window.__keno_showSavedNumbers) {
                 window.__keno_showSavedNumbers();
             }
+        });
+    }
+
+    // Shapes configuration event handlers
+    const shapesPatternSelect = document.getElementById('shapes-pattern-select');
+    if (shapesPatternSelect) {
+        shapesPatternSelect.addEventListener('change', (e) => {
+            state.shapesPattern = e.target.value;
+            console.log('[Shapes] Pattern changed to:', state.shapesPattern);
+
+            // Update current display
+            const currentDisplay = document.getElementById('shapes-current-display');
+            if (currentDisplay) {
+                currentDisplay.innerHTML = `<span style="color:#888; font-size:9px;">Pattern: ${state.shapesPattern}</span>`;
+            }
+        });
+    }
+
+    const shapesPlacementSelect = document.getElementById('shapes-placement-select');
+    if (shapesPlacementSelect) {
+        shapesPlacementSelect.addEventListener('change', (e) => {
+            state.shapesPlacement = e.target.value;
+            console.log('[Shapes] Placement changed to:', state.shapesPlacement);
+
+            // Update current display
+            const currentDisplay = document.getElementById('shapes-current-display');
+            if (currentDisplay) {
+                const existingText = currentDisplay.textContent;
+                if (existingText.includes('Pattern:')) {
+                    currentDisplay.innerHTML += `<br><span style="color:#888; font-size:9px;">Placement: ${state.shapesPlacement}</span>`;
+                } else {
+                    currentDisplay.innerHTML = `<span style="color:#888; font-size:9px;">Placement: ${state.shapesPlacement}</span>`;
+                }
+            }
+        });
+    }
+
+    const shapesIntervalInput = document.getElementById('shapes-interval');
+    if (shapesIntervalInput) {
+        shapesIntervalInput.addEventListener('change', (e) => {
+            const value = parseInt(e.target.value) || 0;
+            state.shapesInterval = Math.max(0, Math.min(20, value)); // Clamp to 0-20
+            shapesIntervalInput.value = state.shapesInterval; // Update display with clamped value
+            console.log('[Shapes] Auto-refresh interval set to:', state.shapesInterval, 'rounds');
+
+            // Reset last refresh counter
+            state.shapesLastRefresh = 0;
+        });
+    }
+
+    const shapesRefreshBtn = document.getElementById('shapes-refresh-btn');
+    if (shapesRefreshBtn) {
+        shapesRefreshBtn.addEventListener('click', () => {
+            console.log('[Shapes] Manual refresh triggered');
+
+            // Trigger immediate regeneration by calling generator with force refresh
+            if (window.__keno_generateNumbers) {
+                const prevMethod = state.generatorMethod;
+                state.generatorMethod = 'shapes'; // Ensure shapes method is selected
+                window.__keno_generateNumbers(true); // Force refresh
+
+                // If generator was on a different method, restore it
+                if (prevMethod !== 'shapes') {
+                    state.generatorMethod = prevMethod;
+                }
+            }
+
+            // Update last refresh counter
+            state.shapesLastRefresh = state.currentHistory.length;
+            console.log('[Shapes] shapesLastRefresh updated to:', state.shapesLastRefresh);
         });
     }
 
@@ -1258,3 +1401,20 @@ export function injectFooterButton() {
 // Expose for main entry to call
 export function initOverlay() { createOverlay(); setInterval(injectFooterButton, 1000); }
 
+/**
+ * Update shapes info display with last generated shape
+ */
+export function updateShapesInfo() {
+    const shapesLastShape = document.getElementById('shapes-last-shape');
+    if (!shapesLastShape) return;
+
+    if (window.__keno_lastShapeInfo) {
+        const info = window.__keno_lastShapeInfo;
+        shapesLastShape.innerHTML = `${info.emoji} ${info.name}<br><span style="color:#666; font-size:9px;">${info.numbers.join(', ')}</span>`;
+    } else {
+        shapesLastShape.textContent = 'Generate to see shape';
+    }
+}
+
+// Expose updateShapesInfo globally
+window.__keno_updateShapesInfo = updateShapesInfo;

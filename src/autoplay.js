@@ -1,15 +1,154 @@
 // src/autoplay.js
 import { state } from './state.js';
 import { saveRound, getHits, getMisses } from './storage.js';
-import { simulatePointerClick, findAndClickPlayButton, waitForPlayButtonAndClick, waitForClearButtonAndClick } from './utils.js';
+import { simulatePointerClick, findAndClickPlayButton, waitForPlayButtonAndClick, waitForClearButtonAndClick, waitForBetButtonReady } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 import { getMomentumPrediction, MomentumPatternGenerator } from './momentum.js';
+import { getShapePredictions } from './shapes.js';
+
+/**
+ * Generate predictions for all methods at once
+ * Used for comparison tracking and to ensure consistency
+ */
+export function generateAllPredictions() {
+    const count = state.generatorCount || 3;
+    const predictions = {
+        frequency: [],
+        cold: [],
+        momentum: [],
+        mixed: [],
+        average: [],
+        auto: [],
+        shapes: []
+    };
+
+    // Generate frequency predictions
+    predictions.frequency = getTopPredictions(count);
+
+    // Generate cold predictions
+    predictions.cold = getColdPredictions(count);
+
+    // Generate mixed predictions
+    predictions.mixed = getMixedPredictions(count);
+
+    // Generate average predictions
+    predictions.average = getAveragePredictions(count);
+
+    // Generate auto predictions (uses best performing method)
+    predictions.auto = getAutoPredictions(count);
+
+    // Generate/use shapes predictions (respect interval)
+    if (state.generatorMethod === 'shapes') {
+        // Check if we should refresh shapes
+        const currentRound = state.currentHistory.length;
+        const shouldRefresh = state.shapesLastRefresh === 0 ||
+            (state.shapesInterval > 0 && (currentRound - state.shapesLastRefresh) >= state.shapesInterval);
+
+        if (shouldRefresh) {
+            predictions.shapes = getShapePredictions(
+                count,
+                state.shapesPattern || 'random',
+                state.shapesPlacement || 'random',
+                state.currentHistory
+            );
+            state.shapesLastRefresh = currentRound;
+            state.shapesActuallyRefreshed = true;
+            console.log(`[GenerateAll] Shapes refreshed at round ${currentRound}`);
+        } else {
+            // Use cached shape
+            predictions.shapes = state.generatedNumbers || [];
+            state.shapesActuallyRefreshed = false;
+            console.log(`[GenerateAll] Using cached shape (${currentRound - state.shapesLastRefresh}/${state.shapesInterval || 'manual'})`);
+        }
+    } else {
+        // Generate fresh shapes for comparison (not active method)
+        predictions.shapes = getShapePredictions(
+            count,
+            state.shapesPattern || 'random',
+            state.shapesPlacement || 'random',
+            state.currentHistory
+        );
+    }
+
+    // Generate/use momentum predictions
+    if (state.generatorMethod === 'momentum') {
+        // Check if we should refresh momentum
+        const config = getMomentumConfig();
+        const currentRound = state.currentHistory.length;
+        const shouldRefresh = state.momentumLastRefresh === 0 ||
+            (currentRound - state.momentumLastRefresh) >= config.refreshFrequency;
+
+        if (shouldRefresh) {
+            predictions.momentum = getMomentumPrediction(config.patternSize, config);
+            state.momentumLastRefresh = currentRound;
+            state.momentumActuallyRefreshed = true;
+            console.log(`[GenerateAll] Momentum refreshed at round ${currentRound}`);
+
+            // Update countdown display
+            if (window.__keno_updateMomentumCountdown) {
+                window.__keno_updateMomentumCountdown();
+            }
+        } else {
+            // Use cached momentum numbers
+            predictions.momentum = state.generatedNumbers || state.momentumNumbers || [];
+            state.momentumActuallyRefreshed = false;
+            console.log(`[GenerateAll] Using cached momentum (${currentRound - state.momentumLastRefresh}/${config.refreshFrequency})`);
+        }
+    } else {
+        // Generate fresh momentum for comparison
+        try {
+            const config = getMomentumConfig();
+            predictions.momentum = getMomentumPrediction(config.patternSize, config);
+        } catch (e) {
+            console.warn('[GenerateAll] Momentum generation failed:', e);
+        }
+    }
+
+    // Store the active method's predictions
+    const activeMethod = state.generatorMethod;
+    state.generatedNumbers = predictions[activeMethod] || [];
+
+    // Update legacy state
+    if (activeMethod === 'frequency') {
+        state.predictedNumbers = state.generatedNumbers;
+    } else if (activeMethod === 'momentum') {
+        state.momentumNumbers = state.generatedNumbers;
+    }
+
+    // Highlight and auto-select if generator is active
+    if (state.isGeneratorActive) {
+        highlightPrediction(state.generatedNumbers);
+
+        // Determine if we should auto-select
+        const momentumShouldSelect = activeMethod === 'momentum' && state.momentumActuallyRefreshed;
+        const shapesShoudSelect = activeMethod === 'shapes' && state.shapesActuallyRefreshed;
+        const shouldAutoSelect = (activeMethod !== 'momentum' && activeMethod !== 'shapes') || momentumShouldSelect || shapesShoudSelect;
+
+        if (state.generatorAutoSelect && shouldAutoSelect) {
+            console.log(`[GenerateAll] Auto-selecting ${activeMethod} numbers`);
+            waitForBetButtonReady(5000).then(() => {
+                console.log('[GenerateAll] Bet button ready, selecting now');
+                selectGeneratedNumbers(state.generatedNumbers);
+            }).catch(err => {
+                console.warn('[GenerateAll] Bet button wait failed:', err);
+                setTimeout(() => selectGeneratedNumbers(state.generatedNumbers), 1000);
+            });
+        }
+    }
+
+    console.log('[GenerateAll] Predictions generated:', predictions);
+
+    // Store predictions for comparison tracking on next round
+    state.lastGeneratedPredictions = predictions;
+
+    return predictions;
+}
 
 /**
  * Unified Number Generator - generates numbers based on selected method
  * This replaces separate predict and momentum functions
  */
-export function generateNumbers() {
+export function generateNumbers(forceRefresh = false) {
     if (!state.isGeneratorActive) {
         console.log('[Generator] Generator not active');
         return [];
@@ -28,18 +167,77 @@ export function generateNumbers() {
         const count = state.generatorCount || 3;
         generatedNumbers = getTopPredictions(count);
         console.log(`[Generator] Frequency method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+    } else if (state.generatorMethod === 'cold') {
+        const count = state.generatorCount || 3;
+        generatedNumbers = getColdPredictions(count);
+        console.log(`[Generator] Cold method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+    } else if (state.generatorMethod === 'shapes') {
+        const count = state.generatorCount || 5;
+
+        // Check if we should refresh based on interval
+        const currentRound = state.currentHistory.length;
+        const shouldRefresh = forceRefresh ||
+            state.shapesLastRefresh === 0 ||
+            (state.shapesInterval > 0 && (currentRound - state.shapesLastRefresh) >= state.shapesInterval);
+
+        if (shouldRefresh) {
+            generatedNumbers = getShapePredictions(
+                count,
+                state.shapesPattern || 'random',
+                state.shapesPlacement || 'random',
+                state.currentHistory
+            );
+            console.log(`[Generator] Shapes method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+
+            // Update last refresh counter
+            state.shapesLastRefresh = currentRound;
+            console.log(`[Generator] Shapes refreshed at round ${currentRound}, interval: ${state.shapesInterval}`);
+        } else {
+            // Use cached shape
+            generatedNumbers = state.generatedNumbers || [];
+            console.log(`[Generator] Using cached shape (${currentRound - state.shapesLastRefresh}/${state.shapesInterval || 'manual'})`);
+        }
+
+        // Update shapes info display
+        if (window.__keno_updateShapesInfo) {
+            window.__keno_updateShapesInfo();
+        }
     } else if (state.generatorMethod === 'momentum') {
+        // Check if we should refresh momentum predictions
         const config = getMomentumConfig();
-        generatedNumbers = getMomentumPrediction(config.patternSize, config);
-        state.momentumLastRefresh = state.currentHistory.length;
-        console.log(`[Generator] Momentum method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+        const currentRound = state.currentHistory.length;
+        const shouldRefresh = forceRefresh ||
+            state.momentumLastRefresh === 0 ||
+            (currentRound - state.momentumLastRefresh) >= config.refreshFrequency;
 
-        // Log top numbers with momentum values
-        logTopMomentumNumbers(config);
+        if (shouldRefresh) {
+            generatedNumbers = getMomentumPrediction(config.patternSize, config);
+            state.momentumLastRefresh = state.currentHistory.length;
+            state.momentumActuallyRefreshed = true; // Mark that we generated new numbers
+            console.log(`[Generator] Momentum method refreshed at round ${currentRound}, generated ${generatedNumbers.length} numbers:`, generatedNumbers);
 
-        // Update countdown display
-        if (window.__keno_updateMomentumCountdown) {
-            window.__keno_updateMomentumCountdown();
+            // Log top numbers with momentum values
+            logTopMomentumNumbers(config);
+
+            // Update countdown display
+            if (window.__keno_updateMomentumCountdown) {
+                window.__keno_updateMomentumCountdown();
+            }
+        } else {
+            // Use cached momentum numbers
+            generatedNumbers = state.generatedNumbers || state.momentumNumbers || [];
+            state.momentumActuallyRefreshed = false; // Using cached numbers
+            console.log(`[Generator] Momentum method using cached numbers (${currentRound - state.momentumLastRefresh}/${config.refreshFrequency} rounds since refresh):`, generatedNumbers);
+
+            // Update countdown display
+            if (window.__keno_updateMomentumCountdown) {
+                window.__keno_updateMomentumCountdown();
+            }
+
+            // Don't re-highlight or re-select if using cached numbers in auto-mode
+            if (!forceRefresh) {
+                return generatedNumbers;
+            }
         }
     }
 
@@ -57,11 +255,30 @@ export function generateNumbers() {
     highlightPrediction(generatedNumbers);
 
     // Auto-select if enabled
-    if (state.generatorAutoSelect) {
-        console.log('[Generator] Auto-selecting numbers on board (delayed)');
-        setTimeout(() => {
+    // Only auto-select if:
+    // 1. User manually clicked generate (forceRefresh = true), OR
+    // 2. It's frequency/cold method (always regenerates), OR  
+    // 3. Momentum actually refreshed (not using cache)
+    const momentumShouldSelect = state.generatorMethod === 'momentum' && state.momentumActuallyRefreshed;
+    const shouldAutoSelect = forceRefresh || state.generatorMethod !== 'momentum' || momentumShouldSelect;
+
+    if (state.generatorAutoSelect && shouldAutoSelect) {
+        console.log(`[Generator] Auto-selecting numbers (method: ${state.generatorMethod}, momentum refresh: ${state.momentumActuallyRefreshed})`);
+
+        waitForBetButtonReady(5000).then(() => {
+            // Button is ready and stable - select immediately
+            console.log('[Generator] Bet button ready, selecting numbers now');
             selectGeneratedNumbers(generatedNumbers);
-        }, 800);
+        }).catch(err => {
+            console.warn('[Generator] Failed to wait for bet button, using fallback delay:', err);
+            // Fallback only if button check failed
+            setTimeout(() => {
+                console.log('[Generator] Fallback - executing selectGeneratedNumbers');
+                selectGeneratedNumbers(generatedNumbers);
+            }, 1000);
+        });
+    } else if (state.generatorAutoSelect) {
+        console.log('[Generator] Skipping auto-select (using cached momentum numbers)');
     }
 
     return generatedNumbers;
@@ -85,9 +302,13 @@ function selectGeneratedNumbers(numbers) {
         if (!isNaN(num)) numToTile[num] = tile;
     });
 
+    console.log(`[Generator] Starting selection for ${numbers.length} numbers:`, numbers);
+    console.log(`[Generator] Found ${tiles.length} tiles on board`);
+
     // Clear board first
     const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
     if (clearButton) {
+        console.log('[Generator] Clicking clear button');
         try {
             simulatePointerClick(clearButton);
         } catch (e) {
@@ -209,6 +430,140 @@ export function getTopPredictions(count) {
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const capped = Math.min(count, 40);
     return sorted.slice(0, capped).map(entry => parseInt(entry[0]));
+}
+
+/**
+ * Get cold (least frequent) number predictions
+ */
+export function getColdPredictions(count) {
+    const counts = {};
+    const sampleCount = Math.min(state.generatorSampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
+
+    // Initialize all numbers with count 0
+    for (let i = 1; i <= 40; i++) {
+        counts[i] = 0;
+    }
+
+    // Count occurrences
+    sample.forEach(round => {
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allHits = [...hits, ...misses];
+        allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+    });
+
+    // Sort by ascending count (least frequent first)
+    const sorted = Object.entries(counts).sort((a, b) => a[1] - b[1]);
+    const capped = Math.min(count, 40);
+    return sorted.slice(0, capped).map(entry => parseInt(entry[0]));
+}
+
+/**
+ * Get mixed predictions (combination of hot and cold numbers)
+ */
+export function getMixedPredictions(count) {
+    const half = Math.floor(count / 2);
+    const hotCount = count - half; // If odd number, hot gets the extra
+    const coldCount = half;
+
+    const hot = getTopPredictions(hotCount);
+    const cold = getColdPredictions(coldCount);
+
+    // Combine and sort
+    return [...hot, ...cold].sort((a, b) => a - b);
+}
+
+/**
+ * Get average frequency predictions (numbers appearing at median frequency)
+ */
+export function getAveragePredictions(count) {
+    const counts = {};
+    const sampleCount = Math.min(state.generatorSampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
+
+    // Initialize all numbers
+    for (let i = 1; i <= 40; i++) {
+        counts[i] = 0;
+    }
+
+    // Count occurrences
+    sample.forEach(round => {
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allHits = [...hits, ...misses];
+        allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+    });
+
+    // Calculate median frequency
+    const frequencies = Object.values(counts).sort((a, b) => a - b);
+    const medianIndex = Math.floor(frequencies.length / 2);
+    const median = frequencies[medianIndex];
+
+    // Find numbers closest to median frequency
+    const withDistance = Object.entries(counts).map(([num, freq]) => ({
+        num: parseInt(num),
+        freq,
+        distance: Math.abs(freq - median)
+    }));
+
+    // Sort by distance to median (closest first), then by number
+    withDistance.sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        return a.num - b.num;
+    });
+
+    const capped = Math.min(count, 40);
+    return withDistance.slice(0, capped).map(item => item.num);
+}
+
+/**
+ * Get auto mode predictions (uses best performing method from comparison data)
+ */
+export function getAutoPredictions(count) {
+    // Check if we have comparison data
+    if (!state.comparisonData || state.comparisonData.length < 5) {
+        console.log('[Auto] Insufficient comparison data, using frequency');
+        return getTopPredictions(count);
+    }
+
+    // Calculate accuracy for each method
+    const methods = ['frequency', 'cold', 'momentum'];
+    const accuracies = {};
+
+    methods.forEach(method => {
+        let totalHits = 0;
+        let totalPredictions = 0;
+
+        state.comparisonData.forEach(dataPoint => {
+            if (dataPoint[method]) {
+                totalHits += dataPoint[method].hits || 0;
+                totalPredictions += dataPoint[method].count || 0;
+            }
+        });
+
+        accuracies[method] = totalPredictions > 0 ? (totalHits / totalPredictions) * 100 : 0;
+    });
+
+    // Find best performing method
+    const bestMethod = Object.entries(accuracies).sort((a, b) => b[1] - a[1])[0][0];
+    console.log(`[Auto] Best performing method: ${bestMethod} (${accuracies[bestMethod].toFixed(1)}% accuracy)`);
+
+    // Use the best method
+    if (bestMethod === 'frequency') return getTopPredictions(count);
+    if (bestMethod === 'cold') return getColdPredictions(count);
+    if (bestMethod === 'momentum') {
+        try {
+            const config = getMomentumConfig();
+            return getMomentumPrediction(config.patternSize, config);
+        } catch (e) {
+            console.warn('[Auto] Momentum failed, using frequency:', e);
+            return getTopPredictions(count);
+        }
+    }
+
+    // Fallback
+    return getTopPredictions(count);
 }
 
 export function getMomentumBasedPredictions(count) {
@@ -679,6 +1034,7 @@ export function selectMomentumNumbers() {
 }
 
 // Expose functions for UI
+window.__keno_generateAllPredictions = generateAllPredictions; // Generate all methods at once
 window.__keno_generateNumbers = generateNumbers; // New unified generator
 window.__keno_calculatePrediction = calculatePrediction; // Legacy
 window.__keno_selectMomentumNumbers = selectMomentumNumbers; // Legacy
