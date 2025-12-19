@@ -101,7 +101,7 @@ function initializeExtension() {
 				waitForBetButtonReady(3000).then(() => {
 					console.log('[Content] Bet button ready, calling __keno_generateNumbers. History:', state.currentHistory.length, 'Last refresh:', state.generatorLastRefresh, 'Interval:', state.generatorInterval);
 					window.__keno_generateNumbers(); // This will check auto-refresh interval
-					
+
 					// Update preview after generation
 					if (window.__keno_updateGeneratorPreview) {
 						window.__keno_updateGeneratorPreview();
@@ -109,7 +109,7 @@ function initializeExtension() {
 				}).catch(err => {
 					console.error('[Content] Bet button timeout, generating anyway:', err);
 					window.__keno_generateNumbers(); // Try anyway
-					
+
 					// Update preview even on timeout
 					if (window.__keno_updateGeneratorPreview) {
 						window.__keno_updateGeneratorPreview();

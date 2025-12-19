@@ -17,32 +17,32 @@ function queueStorageWrite(round, totalCount) {
     if (writeTimeout) {
         clearTimeout(writeTimeout);
     }
-    
+
     // Store the round to write
     pendingWrite = { round, totalCount };
-    
+
     // Debounce: write after 100ms of no new rounds
     writeTimeout = setTimeout(() => {
         if (pendingWrite) {
             const { round, totalCount } = pendingWrite;
             const chunkIndex = Math.floor((totalCount - 1) / CHUNK_SIZE);
             const chunkKey = getChunkKey(totalCount - 1);
-            
+
             // Get current chunk, append round, write back
             storageApi.storage.local.get([chunkKey, 'history_count']).then(res => {
                 let chunk = res[chunkKey] || [];
                 chunk.push(round);
-                
+
                 const writeData = {
                     [chunkKey]: chunk,
                     history_count: totalCount
                 };
-                
+
                 return storageApi.storage.local.set(writeData);
             }).catch(e => {
                 console.error('[storage] Failed to write chunk:', e);
             });
-            
+
             pendingWrite = null;
         }
     }, 100);
@@ -121,10 +121,10 @@ export function saveRound(round) {
     // Append to in-memory state immediately (no lag)
     state.currentHistory.push(round);
     const totalCount = state.currentHistory.length;
-    
+
     // Queue the chunked write (only writes one chunk, not entire history)
     queueStorageWrite(round, totalCount);
-    
+
     // Update profit/loss if data is available
     if (round.kenoBet && round.kenoBet.amount && round.kenoBet.payout !== undefined) {
         const betAmount = parseFloat(round.kenoBet.amount) || 0;
@@ -174,7 +174,7 @@ export function saveRound(round) {
         // Dispatch event for live pattern updates
         window.dispatchEvent(new CustomEvent('kenoNewRound', { detail: { history: state.currentHistory } }));
     }, 0);
-    
+
     return Promise.resolve(state.currentHistory);
 }
 
@@ -188,7 +188,7 @@ export function loadHistory() {
             for (let i = 0; i < chunkCount; i++) {
                 chunkKeys.push(`history_chunk_${i}`);
             }
-            
+
             return storageApi.storage.local.get(chunkKeys).then(chunks => {
                 state.currentHistory = [];
                 for (let i = 0; i < chunkCount; i++) {
@@ -201,27 +201,27 @@ export function loadHistory() {
             // Old format: migrate to chunked storage
             console.log('[storage] Migrating to chunked storage format...');
             state.currentHistory = res.history;
-            
+
             // Migrate in background
             setTimeout(() => {
                 const totalCount = state.currentHistory.length;
                 const chunkCount = Math.ceil(totalCount / CHUNK_SIZE);
                 const writeData = { history_count: totalCount };
-                
+
                 for (let i = 0; i < chunkCount; i++) {
                     const start = i * CHUNK_SIZE;
                     const end = Math.min(start + CHUNK_SIZE, totalCount);
                     const chunk = state.currentHistory.slice(start, end);
                     writeData[`history_chunk_${i}`] = chunk;
                 }
-                
+
                 storageApi.storage.local.set(writeData).then(() => {
                     // Remove old format
                     storageApi.storage.local.remove('history');
                     console.log('[storage] Migration complete');
                 }).catch(e => console.error('[storage] Migration failed:', e));
             }, 1000);
-            
+
             return state.currentHistory;
         } else {
             state.currentHistory = [];
@@ -312,4 +312,61 @@ function createHistoryItem(round, roundNumber, hits, misses) {
         <div style="color:#666; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
     `;
     return div;
+}
+
+/**
+ * Save generator settings to storage
+ */
+export function saveGeneratorSettings() {
+    const settings = {
+        generatorMethod: state.generatorMethod,
+        generatorCount: state.generatorCount,
+        generatorInterval: state.generatorInterval,
+        generatorAutoSelect: state.generatorAutoSelect,
+        generatorSampleSize: state.generatorSampleSize,
+        // Shapes settings
+        shapesPattern: state.shapesPattern,
+        shapesPlacement: state.shapesPlacement,
+        // Momentum settings
+        momentumDetectionWindow: state.momentumDetectionWindow,
+        momentumBaselineGames: state.momentumBaselineGames,
+        momentumThreshold: state.momentumThreshold,
+        momentumPoolSize: state.momentumPoolSize
+    };
+
+    storageApi.storage.local.set({ generatorSettings: settings }, () => {
+        console.log('[Storage] Generator settings saved:', settings);
+    });
+}
+
+/**
+ * Load generator settings from storage
+ */
+export function loadGeneratorSettings() {
+    return storageApi.storage.local.get('generatorSettings').then(res => {
+        if (res.generatorSettings) {
+            const settings = res.generatorSettings;
+            console.log('[Storage] Loading generator settings:', settings);
+
+            // Apply settings to state
+            if (settings.generatorMethod !== undefined) state.generatorMethod = settings.generatorMethod;
+            if (settings.generatorCount !== undefined) state.generatorCount = settings.generatorCount;
+            if (settings.generatorInterval !== undefined) state.generatorInterval = settings.generatorInterval;
+            if (settings.generatorAutoSelect !== undefined) state.generatorAutoSelect = settings.generatorAutoSelect;
+            if (settings.generatorSampleSize !== undefined) state.generatorSampleSize = settings.generatorSampleSize;
+
+            // Shapes settings
+            if (settings.shapesPattern !== undefined) state.shapesPattern = settings.shapesPattern;
+            if (settings.shapesPlacement !== undefined) state.shapesPlacement = settings.shapesPlacement;
+
+            // Momentum settings
+            if (settings.momentumDetectionWindow !== undefined) state.momentumDetectionWindow = settings.momentumDetectionWindow;
+            if (settings.momentumBaselineGames !== undefined) state.momentumBaselineGames = settings.momentumBaselineGames;
+            if (settings.momentumThreshold !== undefined) state.momentumThreshold = settings.momentumThreshold;
+            if (settings.momentumPoolSize !== undefined) state.momentumPoolSize = settings.momentumPoolSize;
+
+            return settings;
+        }
+        return null;
+    });
 }

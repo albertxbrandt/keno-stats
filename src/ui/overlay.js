@@ -1,6 +1,6 @@
 // src/overlay.js
 import { state } from '../core/state.js';
-import { updateHistoryUI, clearHistory } from '../core/storage.js';
+import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
 import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
 import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
@@ -665,6 +665,7 @@ export function createOverlay() {
         generatorCount.value = state.generatorCount || 3;
         generatorCount.addEventListener('change', () => {
             state.generatorCount = getIntValue(generatorCount, 3);
+            saveGeneratorSettings();
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
                 window.__keno_generateNumbers();
             }
@@ -683,6 +684,7 @@ export function createOverlay() {
             const val = getIntValue(frequencySampleInput, 1, { min: 1, max });
             state.generatorSampleSize = val;
             frequencySampleInput.value = val;
+            saveGeneratorSettings();
             if (state.isGeneratorActive && window.__keno_generateNumbers) {
                 window.__keno_generateNumbers();
             }
@@ -694,6 +696,7 @@ export function createOverlay() {
         methodSelect.value = state.generatorMethod || 'frequency';
         methodSelect.addEventListener('change', (e) => {
             state.generatorMethod = getSelectValue(methodSelect, 'frequency');
+            saveGeneratorSettings();
 
             // Show/hide parameters based on method
             // frequency, cold, mixed, average, auto use frequency params (sample size)
@@ -796,6 +799,7 @@ export function createOverlay() {
         genAutoSelectSwitch.checked = !!state.generatorAutoSelect;
         genAutoSelectSwitch.addEventListener('change', (e) => {
             state.generatorAutoSelect = e.target.checked;
+            saveGeneratorSettings();
             // Update legacy state
             state.momentumAutoSelect = e.target.checked;
 
@@ -1125,6 +1129,7 @@ export function createOverlay() {
     if (shapesPatternSelect) {
         shapesPatternSelect.addEventListener('change', (e) => {
             state.shapesPattern = getSelectValue(e.target, 'cross');
+            saveGeneratorSettings();
             console.log('[Shapes] Pattern changed to:', state.shapesPattern);
 
             // Update current display
@@ -1139,6 +1144,7 @@ export function createOverlay() {
     if (shapesPlacementSelect) {
         shapesPlacementSelect.addEventListener('change', (e) => {
             state.shapesPlacement = getSelectValue(e.target, 'center');
+            saveGeneratorSettings();
             console.log('[Shapes] Placement changed to:', state.shapesPlacement);
 
             // Update current display
@@ -1154,6 +1160,43 @@ export function createOverlay() {
         });
     }
 
+    // Momentum configuration event handlers
+    const momentumDetectionInput = document.getElementById('momentum-detection');
+    if (momentumDetectionInput) {
+        momentumDetectionInput.addEventListener('change', () => {
+            state.momentumDetectionWindow = getIntValue(momentumDetectionInput, 5, { min: 3, max: 20 });
+            saveGeneratorSettings();
+            console.log('[Momentum] Detection window changed to:', state.momentumDetectionWindow);
+        });
+    }
+
+    const momentumBaselineInput = document.getElementById('momentum-baseline');
+    if (momentumBaselineInput) {
+        momentumBaselineInput.addEventListener('change', () => {
+            state.momentumBaselineGames = getIntValue(momentumBaselineInput, 50, { min: 10, max: 200 });
+            saveGeneratorSettings();
+            console.log('[Momentum] Baseline games changed to:', state.momentumBaselineGames);
+        });
+    }
+
+    const momentumThresholdInput = document.getElementById('momentum-threshold');
+    if (momentumThresholdInput) {
+        momentumThresholdInput.addEventListener('change', () => {
+            state.momentumThreshold = getFloatValue(momentumThresholdInput, 1.5, { min: 1, max: 3 });
+            saveGeneratorSettings();
+            console.log('[Momentum] Threshold changed to:', state.momentumThreshold);
+        });
+    }
+
+    const momentumPoolInput = document.getElementById('momentum-pool');
+    if (momentumPoolInput) {
+        momentumPoolInput.addEventListener('change', () => {
+            state.momentumPoolSize = getIntValue(momentumPoolInput, 15, { min: 5, max: 30 });
+            saveGeneratorSettings();
+            console.log('[Momentum] Pool size changed to:', state.momentumPoolSize);
+        });
+    }
+
     // Universal generator refresh controls
     const generatorIntervalInput = document.getElementById('generator-interval');
     if (generatorIntervalInput) {
@@ -1161,6 +1204,7 @@ export function createOverlay() {
             const value = getIntValue(e.target, 0, { min: 0, max: 20 });
             state.generatorInterval = value;
             generatorIntervalInput.value = value; // Update display with clamped value
+            saveGeneratorSettings();
             console.log('[Generator] Auto-refresh interval set to:', state.generatorInterval, 'rounds');
 
             // Reset last refresh counter
@@ -1451,7 +1495,48 @@ export function injectFooterButton() {
 }
 
 // Expose for main entry to call
-export function initOverlay() { createOverlay(); setInterval(injectFooterButton, 1000); }
+export function initOverlay() {
+    loadGeneratorSettings().then(() => {
+        console.log('[Overlay] Generator settings loaded');
+        createOverlay();
+        // Update UI with loaded settings after overlay is created
+        setTimeout(() => {
+            const countInput = document.getElementById('generator-count');
+            if (countInput) countInput.value = state.generatorCount || 3;
+
+            const methodSelect = document.getElementById('generator-method-select');
+            if (methodSelect) methodSelect.value = state.generatorMethod || 'frequency';
+
+            const intervalInput = document.getElementById('generator-interval');
+            if (intervalInput) intervalInput.value = state.generatorInterval || 0;
+
+            const autoSelectSwitch = document.getElementById('generator-autoselect-switch');
+            if (autoSelectSwitch) autoSelectSwitch.checked = state.generatorAutoSelect || false;
+
+            const sampleInput = document.getElementById('frequency-sample-size');
+            if (sampleInput) sampleInput.value = state.generatorSampleSize || 5;
+
+            const shapesPattern = document.getElementById('shapes-pattern-select');
+            if (shapesPattern) shapesPattern.value = state.shapesPattern || 'random';
+
+            const shapesPlacement = document.getElementById('shapes-placement-select');
+            if (shapesPlacement) shapesPlacement.value = state.shapesPlacement || 'random';
+
+            const momentumDetection = document.getElementById('momentum-detection');
+            if (momentumDetection) momentumDetection.value = state.momentumDetectionWindow || 5;
+
+            const momentumBaseline = document.getElementById('momentum-baseline');
+            if (momentumBaseline) momentumBaseline.value = state.momentumBaselineGames || 50;
+
+            const momentumThreshold = document.getElementById('momentum-threshold');
+            if (momentumThreshold) momentumThreshold.value = state.momentumThreshold || 1.5;
+
+            const momentumPool = document.getElementById('momentum-pool');
+            if (momentumPool) momentumPool.value = state.momentumPoolSize || 15;
+        }, 100);
+    });
+    setInterval(injectFooterButton, 1000);
+}
 
 /**
  * Update shapes info display with last generated shape
