@@ -55,12 +55,34 @@ export function updateGeneratorPreview() {
     }
   }
 
-  // Show current cached predictions (what will be used in next bet)
-  const previewPredictions = state.generatedNumbers || [];
+  // If manual mode (interval = 0), don't show preview
+  if (interval === 0) {
+    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">Click Refresh to generate</span>';
+    return;
+  }
+
+  // Generate preview of what NEXT numbers will be (force fresh generation)
+  // This shows what you'd get if you clicked Refresh now
+  let previewPredictions = [];
+  try {
+    const count = state.generatorCount || 3;
+    const history = state.currentHistory || [];
+    const config = buildGeneratorConfig(method);
+    
+    const generator = generatorFactory.get(method);
+    if (generator) {
+      // Generate fresh preview without updating cache or state
+      previewPredictions = generator.generate(count, history, config);
+    }
+  } catch (e) {
+    console.error('[Preview] Failed to generate preview:', e);
+  }
+  
+  console.log('[Preview] Showing next numbers:', previewPredictions, 'Method:', method, 'Interval:', interval);
 
   // Update preview numbers
   if (previewPredictions.length === 0) {
-    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions yet</span>';
+    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions available</span>';
   } else {
     previewContainer.innerHTML = previewPredictions
       .map(num => `<span style="background:#2a3f4f; color:#74b9ff; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600;">${num}</span>`)
