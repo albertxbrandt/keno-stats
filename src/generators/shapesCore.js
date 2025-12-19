@@ -277,6 +277,9 @@ export function getShapePredictions(count = 5, pattern = 'random', placement = '
     case 'hot':
       position = selectHotPosition(validPositions, offsetsToUse, historyData);
       break;
+    case 'cold':
+      position = selectColdPosition(validPositions, offsetsToUse, historyData);
+      break;
     case 'trending':
       position = selectTrendingPosition(validPositions, offsetsToUse, historyData);
       break;
@@ -372,6 +375,46 @@ function selectHotPosition(validPositions, offsets, historyData) {
   scoredPositions.sort((a, b) => b.score - a.score);
   const topPositions = scoredPositions.slice(0, 3);
   return topPositions[Math.floor(Math.random() * topPositions.length)];
+}
+
+/**
+ * Select position based on cold areas (least frequently drawn numbers)
+ * Strategy:
+ * 1. Counts frequency of each number 1-40 in last 20 rounds
+ * 2. Scores each position by sum of frequencies (LOWER is better for cold)
+ * 3. Returns random pick from bottom 3 positions (adds variety)
+ */
+function selectColdPosition(validPositions, offsets, historyData) {
+  if (!historyData || historyData.length === 0) {
+    return validPositions[Math.floor(Math.random() * validPositions.length)];
+  }
+
+  // Count frequency of each number
+  const frequency = {};
+  for (let i = 1; i <= 40; i++) {
+    frequency[i] = 0;
+  }
+
+  // Use last 20 rounds for cold analysis
+  const recentHistory = historyData.slice(-20);
+  recentHistory.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (frequency[num] !== undefined) frequency[num]++;
+    });
+  });
+
+  // Score each valid position by sum of frequencies of numbers in shape
+  const scoredPositions = validPositions.map(pos => {
+    const shapeNumbers = generateShape(pos.row, pos.col, offsets);
+    const score = shapeNumbers.reduce((sum, num) => sum + (frequency[num] || 0), 0);
+    return { ...pos, score };
+  });
+
+  // Sort by score ASCENDING (lowest frequency first) and pick from bottom 3
+  scoredPositions.sort((a, b) => a.score - b.score);
+  const coldPositions = scoredPositions.slice(0, 3);
+  return coldPositions[Math.floor(Math.random() * coldPositions.length)];
 }
 
 /**

@@ -139,6 +139,7 @@ export function createOverlay() {
                             <select id="shapes-placement-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:10px; margin-top:4px;">
                                 <option value="random">🎲 Random Position</option>
                                 <option value="hot">🔥 Hot Numbers Area</option>
+                                <option value="cold">❄️ Cold Numbers Area</option>
                                 <option value="trending">📈 Trending Position</option>
                             </select>
                         </div>
