@@ -143,45 +143,86 @@ export function selectTiles(numbers) {
 }
 
 /**
+ * Wait for all tiles to be deselected (cleared)
+ * @returns {Promise<void>}
+ */
+function waitForTilesCleared(maxWaitMs = 2000) {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+
+    const checkCleared = () => {
+      const tiles = getAllTiles();
+      if (!tiles) {
+        reject(new Error('Tiles not found'));
+        return;
+      }
+
+      // Check if all tiles are deselected
+      const anySelected = tiles.some(isTileSelected);
+
+      if (!anySelected) {
+        console.log('[tileSelection] All tiles cleared');
+        resolve();
+        return;
+      }
+
+      if (Date.now() - startTime > maxWaitMs) {
+        console.warn('[tileSelection] Timeout waiting for tiles to clear');
+        resolve(); // Resolve anyway to not block
+        return;
+      }
+
+      // Check again in 50ms
+      setTimeout(checkCleared, 50);
+    };
+
+    // Start checking after a brief moment for the clear action to propagate
+    setTimeout(checkCleared, 50);
+  });
+}
+
+/**
  * Replace current selection with new numbers
  * Clears table first, then selects the specified numbers
  * @param {Array<number>} numbers - Array of numbers to select (1-40)
  * @returns {Promise<Object>} { selected: number, failed: Array<number> }
  */
-export function replaceSelection(numbers) {
+export async function replaceSelection(numbers) {
   // Clear table using game's Clear Table button
   clearTable();
 
-  // Wait a bit for the clear to process
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const tiles = getAllTiles();
-      if (!tiles) {
-        resolve({ selected: 0, failed: numbers });
-        return;
-      }
+  // Wait for tiles to actually be cleared
+  try {
+    await waitForTilesCleared();
+  } catch (e) {
+    console.error('[tileSelection] Error waiting for clear:', e);
+  }
 
-      const failed = [];
-      let selected = 0;
+  // Now select the new numbers
+  const tiles = getAllTiles();
+  if (!tiles) {
+    return { selected: 0, failed: numbers };
+  }
 
-      numbers.forEach(num => {
-        const tile = findTileByNumber(tiles, num);
+  const failed = [];
+  let selected = 0;
 
-        // Skip if tile is already selected
-        if (tile && isTileSelected(tile)) {
-          console.log(`[tileSelection] Tile ${num} already selected, skipping`);
-          selected++;
-          return;
-        }
+  numbers.forEach(num => {
+    const tile = findTileByNumber(tiles, num);
 
-        if (selectTile(tile, num)) {
-          selected++;
-        } else {
-          failed.push(num);
-        }
-      });
+    // Skip if tile is already selected
+    if (tile && isTileSelected(tile)) {
+      console.log(`[tileSelection] Tile ${num} already selected, skipping`);
+      selected++;
+      return;
+    }
 
-      resolve({ selected, failed });
-    }, 150); // Wait 150ms for clear to process
+    if (selectTile(tile, num)) {
+      selected++;
+    } else {
+      failed.push(num);
+    }
   });
+
+  return { selected, failed };
 }
