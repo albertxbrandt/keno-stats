@@ -65,6 +65,16 @@ export function createOverlay() {
                             style="width:64px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     </div>
                     
+                    <!-- Universal Refresh Control -->
+                    <div style="margin-bottom:8px;">
+                        <span style="color:#aaa; font-size:10px;">Refresh:</span>
+                        <div style="display:flex; gap:4px; margin-top:4px;">
+                            <button id="generator-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
+                            <input type="number" id="generator-interval" min="0" max="20" value="0" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
+                        </div>
+                        <div style="color:#666; font-size:8px; margin-top:2px;">Auto interval: rounds (0=manual)</div>
+                    </div>
+                    
                     <div style="margin-bottom:8px;">
                         <span style="color:#aaa; font-size:10px;">Method:</span>
                         <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
@@ -116,14 +126,6 @@ export function createOverlay() {
                                 <option value="trending">📈 Trending Position</option>
                             </select>
                         </div>
-                        <div style="margin-bottom:8px;">
-                            <span style="color:#aaa; font-size:10px;">Refresh:</span>
-                            <div style="display:flex; gap:4px; margin-top:4px;">
-                                <button id="shapes-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
-                                <input type="number" id="shapes-interval" min="0" max="20" value="0" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
-                            </div>
-                            <div style="color:#666; font-size:8px; margin-top:2px;">Auto interval: rounds (0=manual)</div>
-                        </div>
                         <div style="padding:6px; background:#14202b; border-radius:4px; border:1px solid #fd79a830;">
                             <div style="color:#fd79a8; font-size:9px; margin-bottom:2px;">Current Shape:</div>
                             <div id="shapes-current-display" style="color:#aaa; font-size:9px; line-height:1.4;">-</div>
@@ -133,21 +135,12 @@ export function createOverlay() {
                     <!-- Momentum-specific parameters -->
                     <div id="momentum-params" style="display:none;">
                         <div id="momentum-info" style="margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                                <span style="color:#666; font-size:9px;">Refresh in:</span>
-                                <span id="momentum-countdown" style="color:#e17055; font-size:9px; font-weight:600;">-</span>
-                            </div>
                             <div style="display:flex; flex-direction:column; gap:2px;">
-                                <span style="color:#666; font-size:9px;">Momentum:</span>
+                                <span style="color:#666; font-size:9px;">Current Numbers:</span>
                                 <span id="momentum-current-numbers" style="color:#74b9ff; font-size:8px; font-weight:500; line-height:1.3; word-break:break-all;">-</span>
                             </div>
                         </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
-                            <div>
-                                <span style="color:#aaa; font-size:9px;">Refresh:</span>
-                                <input type="number" id="momentum-refresh" min="1" max="20" value="5" 
-                                    style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
-                            </div>
                             <div>
                                 <span style="color:#aaa; font-size:9px;">Detection:</span>
                                 <input type="number" id="momentum-detection" min="3" max="20" value="5" 
@@ -163,7 +156,7 @@ export function createOverlay() {
                                 <input type="number" id="momentum-threshold" min="1" max="3" step="0.1" value="1.5" 
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                             </div>
-                            <div style="grid-column: 1 / -1;">
+                            <div>
                                 <span style="color:#aaa; font-size:9px;">Pool:</span>
                                 <input type="number" id="momentum-pool" min="5" max="30" value="15" 
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
@@ -1140,39 +1133,33 @@ export function createOverlay() {
         });
     }
 
-    const shapesIntervalInput = document.getElementById('shapes-interval');
-    if (shapesIntervalInput) {
-        shapesIntervalInput.addEventListener('change', (e) => {
+    // Universal generator refresh controls
+    const generatorIntervalInput = document.getElementById('generator-interval');
+    if (generatorIntervalInput) {
+        generatorIntervalInput.addEventListener('change', (e) => {
             const value = parseInt(e.target.value) || 0;
-            state.shapesInterval = Math.max(0, Math.min(20, value)); // Clamp to 0-20
-            shapesIntervalInput.value = state.shapesInterval; // Update display with clamped value
-            console.log('[Shapes] Auto-refresh interval set to:', state.shapesInterval, 'rounds');
+            state.generatorInterval = Math.max(0, Math.min(20, value)); // Clamp to 0-20
+            generatorIntervalInput.value = state.generatorInterval; // Update display with clamped value
+            console.log('[Generator] Auto-refresh interval set to:', state.generatorInterval, 'rounds');
 
             // Reset last refresh counter
-            state.shapesLastRefresh = 0;
+            state.generatorLastRefresh = 0;
         });
     }
 
-    const shapesRefreshBtn = document.getElementById('shapes-refresh-btn');
-    if (shapesRefreshBtn) {
-        shapesRefreshBtn.addEventListener('click', () => {
-            console.log('[Shapes] Manual refresh triggered');
+    const generatorRefreshBtn = document.getElementById('generator-refresh-btn');
+    if (generatorRefreshBtn) {
+        generatorRefreshBtn.addEventListener('click', () => {
+            console.log('[Generator] Manual refresh triggered');
 
-            // Trigger immediate regeneration by calling generator with force refresh
+            // Trigger immediate regeneration
             if (window.__keno_generateNumbers) {
-                const prevMethod = state.generatorMethod;
-                state.generatorMethod = 'shapes'; // Ensure shapes method is selected
                 window.__keno_generateNumbers(true); // Force refresh
-
-                // If generator was on a different method, restore it
-                if (prevMethod !== 'shapes') {
-                    state.generatorMethod = prevMethod;
-                }
             }
 
             // Update last refresh counter
-            state.shapesLastRefresh = state.currentHistory.length;
-            console.log('[Shapes] shapesLastRefresh updated to:', state.shapesLastRefresh);
+            state.generatorLastRefresh = state.currentHistory.length;
+            console.log('[Generator] generatorLastRefresh updated to:', state.generatorLastRefresh);
         });
     }
 

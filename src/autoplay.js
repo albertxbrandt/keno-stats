@@ -37,12 +37,12 @@ export function generateAllPredictions() {
     // Generate auto predictions (uses best performing method)
     predictions.auto = getAutoPredictions(count);
 
-    // Generate/use shapes predictions (respect interval)
+    // Generate/use shapes predictions (respect universal refresh interval)
     if (state.generatorMethod === 'shapes') {
-        // Check if we should refresh shapes
+        // Check if we should refresh using universal interval
         const currentRound = state.currentHistory.length;
-        const shouldRefresh = state.shapesLastRefresh === 0 ||
-            (state.shapesInterval > 0 && (currentRound - state.shapesLastRefresh) >= state.shapesInterval);
+        const shouldRefresh = state.generatorLastRefresh === 0 ||
+            (state.generatorInterval > 0 && (currentRound - state.generatorLastRefresh) >= state.generatorInterval);
 
         if (shouldRefresh) {
             predictions.shapes = getShapePredictions(
@@ -51,14 +51,14 @@ export function generateAllPredictions() {
                 state.shapesPlacement || 'random',
                 state.currentHistory
             );
-            state.shapesLastRefresh = currentRound;
-            state.shapesActuallyRefreshed = true;
+            state.generatorLastRefresh = currentRound;
+            state.generatorActuallyRefreshed = true;
             console.log(`[GenerateAll] Shapes refreshed at round ${currentRound}`);
         } else {
             // Use cached shape
             predictions.shapes = state.generatedNumbers || [];
-            state.shapesActuallyRefreshed = false;
-            console.log(`[GenerateAll] Using cached shape (${currentRound - state.shapesLastRefresh}/${state.shapesInterval || 'manual'})`);
+            state.generatorActuallyRefreshed = false;
+            console.log(`[GenerateAll] Using cached shape (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
         }
     } else {
         // Generate fresh shapes for comparison (not active method)
@@ -70,29 +70,24 @@ export function generateAllPredictions() {
         );
     }
 
-    // Generate/use momentum predictions
+    // Generate/use momentum predictions (respect universal refresh interval)
     if (state.generatorMethod === 'momentum') {
-        // Check if we should refresh momentum
-        const config = getMomentumConfig();
+        // Check if we should refresh using universal interval
         const currentRound = state.currentHistory.length;
-        const shouldRefresh = state.momentumLastRefresh === 0 ||
-            (currentRound - state.momentumLastRefresh) >= config.refreshFrequency;
+        const shouldRefresh = state.generatorLastRefresh === 0 ||
+            (state.generatorInterval > 0 && (currentRound - state.generatorLastRefresh) >= state.generatorInterval);
 
         if (shouldRefresh) {
+            const config = getMomentumConfig();
             predictions.momentum = getMomentumPrediction(config.patternSize, config);
-            state.momentumLastRefresh = currentRound;
-            state.momentumActuallyRefreshed = true;
+            state.generatorLastRefresh = currentRound;
+            state.generatorActuallyRefreshed = true;
             console.log(`[GenerateAll] Momentum refreshed at round ${currentRound}`);
-
-            // Update countdown display
-            if (window.__keno_updateMomentumCountdown) {
-                window.__keno_updateMomentumCountdown();
-            }
         } else {
             // Use cached momentum numbers
             predictions.momentum = state.generatedNumbers || state.momentumNumbers || [];
-            state.momentumActuallyRefreshed = false;
-            console.log(`[GenerateAll] Using cached momentum (${currentRound - state.momentumLastRefresh}/${config.refreshFrequency})`);
+            state.generatorActuallyRefreshed = false;
+            console.log(`[GenerateAll] Using cached momentum (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
         }
     } else {
         // Generate fresh momentum for comparison
@@ -119,10 +114,8 @@ export function generateAllPredictions() {
     if (state.isGeneratorActive) {
         highlightPrediction(state.generatedNumbers);
 
-        // Determine if we should auto-select
-        const momentumShouldSelect = activeMethod === 'momentum' && state.momentumActuallyRefreshed;
-        const shapesShoudSelect = activeMethod === 'shapes' && state.shapesActuallyRefreshed;
-        const shouldAutoSelect = (activeMethod !== 'momentum' && activeMethod !== 'shapes') || momentumShouldSelect || shapesShoudSelect;
+        // Determine if we should auto-select (only if actually refreshed, not cached)
+        const shouldAutoSelect = state.generatorActuallyRefreshed;
 
         if (state.generatorAutoSelect && shouldAutoSelect) {
             console.log(`[GenerateAll] Auto-selecting ${activeMethod} numbers`);
@@ -162,40 +155,50 @@ export function generateNumbers(forceRefresh = false) {
 
     let generatedNumbers = [];
 
+    // Check if we should refresh based on universal interval
+    const currentRound = state.currentHistory.length;
+    const shouldRefresh = forceRefresh ||
+        state.generatorLastRefresh === 0 ||
+        (state.generatorInterval > 0 && (currentRound - state.generatorLastRefresh) >= state.generatorInterval);
+
     // Generate numbers based on selected method
     if (state.generatorMethod === 'frequency') {
-        const count = state.generatorCount || 3;
-        generatedNumbers = getTopPredictions(count);
-        console.log(`[Generator] Frequency method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
-    } else if (state.generatorMethod === 'cold') {
-        const count = state.generatorCount || 3;
-        generatedNumbers = getColdPredictions(count);
-        console.log(`[Generator] Cold method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
-    } else if (state.generatorMethod === 'shapes') {
-        const count = state.generatorCount || 5;
-
-        // Check if we should refresh based on interval
-        const currentRound = state.currentHistory.length;
-        const shouldRefresh = forceRefresh ||
-            state.shapesLastRefresh === 0 ||
-            (state.shapesInterval > 0 && (currentRound - state.shapesLastRefresh) >= state.shapesInterval);
-
         if (shouldRefresh) {
+            const count = state.generatorCount || 3;
+            generatedNumbers = getTopPredictions(count);
+            state.generatorActuallyRefreshed = true;
+            console.log(`[Generator] Frequency method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+        } else {
+            generatedNumbers = state.generatedNumbers || [];
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached frequency (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
+        }
+    } else if (state.generatorMethod === 'cold') {
+        if (shouldRefresh) {
+            const count = state.generatorCount || 3;
+            generatedNumbers = getColdPredictions(count);
+            state.generatorActuallyRefreshed = true;
+            console.log(`[Generator] Cold method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+        } else {
+            generatedNumbers = state.generatedNumbers || [];
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached cold (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
+        }
+    } else if (state.generatorMethod === 'shapes') {
+        if (shouldRefresh) {
+            const count = state.generatorCount || 5;
             generatedNumbers = getShapePredictions(
                 count,
                 state.shapesPattern || 'random',
                 state.shapesPlacement || 'random',
                 state.currentHistory
             );
+            state.generatorActuallyRefreshed = true;
             console.log(`[Generator] Shapes method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
-
-            // Update last refresh counter
-            state.shapesLastRefresh = currentRound;
-            console.log(`[Generator] Shapes refreshed at round ${currentRound}, interval: ${state.shapesInterval}`);
         } else {
-            // Use cached shape
             generatedNumbers = state.generatedNumbers || [];
-            console.log(`[Generator] Using cached shape (${currentRound - state.shapesLastRefresh}/${state.shapesInterval || 'manual'})`);
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached shape (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
         }
 
         // Update shapes info display
@@ -203,42 +206,59 @@ export function generateNumbers(forceRefresh = false) {
             window.__keno_updateShapesInfo();
         }
     } else if (state.generatorMethod === 'momentum') {
-        // Check if we should refresh momentum predictions
-        const config = getMomentumConfig();
-        const currentRound = state.currentHistory.length;
-        const shouldRefresh = forceRefresh ||
-            state.momentumLastRefresh === 0 ||
-            (currentRound - state.momentumLastRefresh) >= config.refreshFrequency;
-
         if (shouldRefresh) {
+            const config = getMomentumConfig();
             generatedNumbers = getMomentumPrediction(config.patternSize, config);
-            state.momentumLastRefresh = state.currentHistory.length;
-            state.momentumActuallyRefreshed = true; // Mark that we generated new numbers
-            console.log(`[Generator] Momentum method refreshed at round ${currentRound}, generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+            state.generatorActuallyRefreshed = true;
+            console.log(`[Generator] Momentum method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
 
             // Log top numbers with momentum values
             logTopMomentumNumbers(config);
-
-            // Update countdown display
-            if (window.__keno_updateMomentumCountdown) {
-                window.__keno_updateMomentumCountdown();
-            }
         } else {
             // Use cached momentum numbers
             generatedNumbers = state.generatedNumbers || state.momentumNumbers || [];
-            state.momentumActuallyRefreshed = false; // Using cached numbers
-            console.log(`[Generator] Momentum method using cached numbers (${currentRound - state.momentumLastRefresh}/${config.refreshFrequency} rounds since refresh):`, generatedNumbers);
-
-            // Update countdown display
-            if (window.__keno_updateMomentumCountdown) {
-                window.__keno_updateMomentumCountdown();
-            }
-
-            // Don't re-highlight or re-select if using cached numbers in auto-mode
-            if (!forceRefresh) {
-                return generatedNumbers;
-            }
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached momentum (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
         }
+    } else if (state.generatorMethod === 'mixed') {
+        if (shouldRefresh) {
+            const count = state.generatorCount || 3;
+            generatedNumbers = getMixedPredictions(count);
+            state.generatorActuallyRefreshed = true;
+            console.log(`[Generator] Mixed method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+        } else {
+            generatedNumbers = state.generatedNumbers || [];
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached mixed (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
+        }
+    } else if (state.generatorMethod === 'average') {
+        if (shouldRefresh) {
+            const count = state.generatorCount || 3;
+            generatedNumbers = getAveragePredictions(count);
+            state.generatorActuallyRefreshed = true;
+            console.log(`[Generator] Average method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+        } else {
+            generatedNumbers = state.generatedNumbers || [];
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached average (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
+        }
+    } else if (state.generatorMethod === 'auto') {
+        if (shouldRefresh) {
+            const count = state.generatorCount || 3;
+            generatedNumbers = getAutoPredictions(count);
+            state.generatorActuallyRefreshed = true;
+            console.log(`[Generator] Auto method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+        } else {
+            generatedNumbers = state.generatedNumbers || [];
+            state.generatorActuallyRefreshed = false;
+            console.log(`[Generator] Using cached auto (${currentRound - state.generatorLastRefresh}/${state.generatorInterval || 'manual'})`);
+        }
+    }
+
+    // Update last refresh counter if we actually generated new numbers
+    if (shouldRefresh) {
+        state.generatorLastRefresh = currentRound;
+        console.log(`[Generator] Refreshed at round ${currentRound}, interval: ${state.generatorInterval}`);
     }
 
     // Store generated numbers
@@ -254,16 +274,11 @@ export function generateNumbers(forceRefresh = false) {
     // Highlight the generated numbers
     highlightPrediction(generatedNumbers);
 
-    // Auto-select if enabled
-    // Only auto-select if:
-    // 1. User manually clicked generate (forceRefresh = true), OR
-    // 2. It's frequency/cold method (always regenerates), OR  
-    // 3. Momentum actually refreshed (not using cache)
-    const momentumShouldSelect = state.generatorMethod === 'momentum' && state.momentumActuallyRefreshed;
-    const shouldAutoSelect = forceRefresh || state.generatorMethod !== 'momentum' || momentumShouldSelect;
+    // Auto-select if enabled and actually refreshed (not cached)
+    const shouldAutoSelect = state.generatorActuallyRefreshed;
 
     if (state.generatorAutoSelect && shouldAutoSelect) {
-        console.log(`[Generator] Auto-selecting numbers (method: ${state.generatorMethod}, momentum refresh: ${state.momentumActuallyRefreshed})`);
+        console.log(`[Generator] Auto-selecting numbers (method: ${state.generatorMethod}, refreshed: ${state.generatorActuallyRefreshed})`);
 
         waitForBetButtonReady(5000).then(() => {
             // Button is ready and stable - select immediately

@@ -11,6 +11,9 @@ export const state = {
     generatorSampleSize: 5, // Generator uses separate sample size
     generatedNumbers: [],
     generatorAutoSelect: false,
+    generatorInterval: 0, // Universal refresh interval in rounds (0 = manual)
+    generatorLastRefresh: 0, // Universal last refresh round counter
+    generatorActuallyRefreshed: false, // Track if generator was actually refreshed vs cached
     lastGeneratedPredictions: null, // Store predictions for comparison tracking
     // Momentum-specific
     momentumLastRefresh: 0,
