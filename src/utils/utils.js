@@ -1,5 +1,5 @@
 // src/utils.js - misc helpers
-import { state } from './state.js';
+import { state } from '../core/state.js';
 
 export function simulatePointerClick(el) {
     try {

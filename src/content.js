@@ -1,11 +1,11 @@
 // src/content.js - entry point for bundled content script
-import { state } from './state.js';
-import { initOverlay, injectFooterButton } from './overlay.js';
-import { loadHistory, updateHistoryUI } from './storage.js';
-import { calculatePrediction, selectPredictedNumbers } from './numberSelection.js';
+import { state } from './core/state.js';
+import { initOverlay, injectFooterButton } from './ui/overlay.js';
+import { loadHistory, updateHistoryUI } from './core/storage.js';
+import { calculatePrediction, selectPredictedNumbers } from './ui/numberSelection.js';
 import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { updateHeatmap } from './features/heatmap.js';
-import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
+import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbers.js';
 import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparison.js';
@@ -58,7 +58,7 @@ function initializeExtension() {
 			time: Date.now()
 		};
 		console.log('[KENO] Saving bet data:', betData);
-		import('./storage.js').then(mod => mod.saveRound(betData));
+		import('./core/storage.js').then(mod => mod.saveRound(betData));
 
 		// Track the played numbers for recent plays section
 		trackPlayedNumbers(selected).then(() => {

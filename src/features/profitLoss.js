@@ -1,5 +1,5 @@
 // src/profitLoss.js
-import { state } from '../state.js';
+import { state } from '../core/state.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -20,9 +20,9 @@ export function calculateProfit(betAmount, payout) {
  */
 export function calculateProfitByCurrency(history, sessionStartTime) {
     if (!history || history.length === 0) return {};
-    
+
     const profitByCurrency = {};
-    
+
     history.forEach(bet => {
         if (bet && bet.kenoBet) {
             const amount = parseFloat(bet.kenoBet.amount) || 0;
@@ -30,20 +30,20 @@ export function calculateProfitByCurrency(history, sessionStartTime) {
             const currency = (bet.kenoBet.currency?.toLowerCase() || 'btc').toLowerCase();
             const profit = payout - amount;
             const betTime = bet.time || 0;
-            
+
             if (!profitByCurrency[currency]) {
                 profitByCurrency[currency] = { total: 0, session: 0 };
             }
-            
+
             profitByCurrency[currency].total += profit;
-            
+
             // Add to session if bet is after session start
             if (sessionStartTime && betTime >= sessionStartTime) {
                 profitByCurrency[currency].session += profit;
             }
         }
     });
-    
+
     return profitByCurrency;
 }
 
@@ -63,14 +63,14 @@ export function getAvailableCurrencies(profitByCurrency) {
  */
 export function updateSessionProfit(profit, currency = 'btc') {
     const curr = currency.toLowerCase();
-    
+
     if (!state.profitByCurrency[curr]) {
         state.profitByCurrency[curr] = { total: 0, session: 0 };
     }
-    
+
     state.profitByCurrency[curr].session += profit;
     saveSessionProfit();
-    
+
     // Update UI if available
     if (window.__keno_updateProfitLossUI) {
         window.__keno_updateProfitLossUI();
@@ -84,7 +84,7 @@ export function recalculateTotalProfit() {
     storageApi.storage.local.get('history').then((res) => {
         const history = res.history || [];
         state.profitByCurrency = calculateProfitByCurrency(history, state.sessionStartTime);
-        
+
         // Update legacy state for selected currency
         const selectedCurr = state.selectedCurrency.toLowerCase();
         if (state.profitByCurrency[selectedCurr]) {
@@ -94,7 +94,7 @@ export function recalculateTotalProfit() {
             state.totalProfit = 0;
             state.sessionProfit = 0;
         }
-        
+
         // Update UI if available
         if (window.__keno_updateProfitLossUI) {
             window.__keno_updateProfitLossUI();
@@ -109,12 +109,12 @@ export function loadProfitLoss() {
     return storageApi.storage.local.get(['history', 'sessionStartTime', 'selectedCurrency']).then((res) => {
         // Load selected currency
         state.selectedCurrency = res.selectedCurrency || 'btc';
-        
+
         // Calculate profit by currency from history
         const history = res.history || [];
         const lastSessionTime = res.sessionStartTime || 0;
         const now = Date.now();
-        
+
         // Reset session if window was closed (no sessionStartTime means fresh start)
         if (!lastSessionTime) {
             state.sessionStartTime = now;
@@ -122,10 +122,10 @@ export function loadProfitLoss() {
         } else {
             state.sessionStartTime = lastSessionTime;
         }
-        
+
         // Calculate profits by currency
         state.profitByCurrency = calculateProfitByCurrency(history, state.sessionStartTime);
-        
+
         // Update legacy state for selected currency
         const selectedCurr = state.selectedCurrency.toLowerCase();
         if (state.profitByCurrency[selectedCurr]) {
@@ -135,7 +135,7 @@ export function loadProfitLoss() {
             state.totalProfit = 0;
             state.sessionProfit = 0;
         }
-        
+
         // Update UI if available
         if (window.__keno_updateProfitLossUI) {
             window.__keno_updateProfitLossUI();
@@ -147,8 +147,8 @@ export function loadProfitLoss() {
  * Save session profit to storage
  */
 export function saveSessionProfit() {
-    storageApi.storage.local.set({ 
-        sessionStartTime: state.sessionStartTime 
+    storageApi.storage.local.set({
+        sessionStartTime: state.sessionStartTime
     });
 }
 
@@ -157,17 +157,17 @@ export function saveSessionProfit() {
  */
 export function resetSessionProfit() {
     const selectedCurr = state.selectedCurrency.toLowerCase();
-    
+
     if (state.profitByCurrency[selectedCurr]) {
         state.profitByCurrency[selectedCurr].session = 0;
         state.sessionProfit = 0;
     }
-    
+
     state.sessionStartTime = Date.now();
-    storageApi.storage.local.set({ 
-        sessionStartTime: state.sessionStartTime 
+    storageApi.storage.local.set({
+        sessionStartTime: state.sessionStartTime
     });
-    
+
     if (window.__keno_updateProfitLossUI) {
         window.__keno_updateProfitLossUI();
     }
@@ -180,7 +180,7 @@ export function resetSessionProfit() {
 export function changeCurrency(currency) {
     state.selectedCurrency = currency.toLowerCase();
     storageApi.storage.local.set({ selectedCurrency: state.selectedCurrency });
-    
+
     // Update legacy state
     const selectedCurr = state.selectedCurrency.toLowerCase();
     if (state.profitByCurrency[selectedCurr]) {
@@ -190,7 +190,7 @@ export function changeCurrency(currency) {
         state.totalProfit = 0;
         state.sessionProfit = 0;
     }
-    
+
     if (window.__keno_updateProfitLossUI) {
         window.__keno_updateProfitLossUI();
     }
@@ -205,7 +205,7 @@ export function changeCurrency(currency) {
 export function formatCurrency(value, currency = 'btc') {
     const formatted = Math.abs(value).toFixed(2); // Round to 2 decimals
     const currSymbol = currency.toUpperCase();
-    
+
     if (value > 0) return `+${formatted} ${currSymbol}`;
     if (value < 0) return `-${formatted} ${currSymbol}`;
     return `${formatted} ${currSymbol}`;
@@ -229,35 +229,35 @@ export function updateProfitLossUI() {
     const sessionProfitEl = document.getElementById('session-profit-value');
     const totalProfitEl = document.getElementById('total-profit-value');
     const currencySelect = document.getElementById('profit-currency-select');
-    
+
     const selectedCurr = state.selectedCurrency.toLowerCase();
-    
+
     if (sessionProfitEl) {
         sessionProfitEl.textContent = formatCurrency(state.sessionProfit, selectedCurr);
         sessionProfitEl.style.color = getProfitColor(state.sessionProfit);
     }
-    
+
     if (totalProfitEl) {
         totalProfitEl.textContent = formatCurrency(state.totalProfit, selectedCurr);
         totalProfitEl.style.color = getProfitColor(state.totalProfit);
     }
-    
+
     // Update currency dropdown
     if (currencySelect) {
         // Populate currency options from available currencies
         const currencies = getAvailableCurrencies(state.profitByCurrency);
-        
+
         if (currencies.length > 0) {
             const currentValue = currencySelect.value;
             currencySelect.innerHTML = '';
-            
+
             currencies.forEach(curr => {
                 const option = document.createElement('option');
                 option.value = curr;
                 option.textContent = curr.toUpperCase();
                 currencySelect.appendChild(option);
             });
-            
+
             // Set selected currency
             if (currencies.includes(selectedCurr)) {
                 currencySelect.value = selectedCurr;

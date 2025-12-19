@@ -2,10 +2,10 @@
 // AUTO-PLAY BETTING LOGIC ONLY
 // Automatically places bets using generated numbers
 
-import { state } from '../state.js';
-import { findAndClickPlayButton } from '../utils.js';
-import { getTopPredictions } from '../numberSelection.js';
-import { replaceSelection } from '../tileSelection.js';
+import { state } from '../core/state.js';
+import { findAndClickPlayButton } from '../utils/utils.js';
+import { getTopPredictions } from '../ui/numberSelection.js';
+import { replaceSelection } from '../utils/tileSelection.js';
 
 // ============================================================================
 // AUTO-PLAY BETTING CORE

@@ -1,6 +1,6 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
-import { state } from './state.js';
-import { getHits, getMisses, getDrawn, getSelected } from './storage.js';
+import { state } from '../core/state.js';
+import { getHits, getMisses, getDrawn, getSelected } from '../core/storage.js';
 
 /**
  * Calculate stats for selected tiles count

@@ -1,7 +1,7 @@
 // src/momentum.js - Momentum-based pattern generator
 // Detects "hot" numbers by analyzing acceleration above baseline frequency
-import { state } from '../state.js';
-import { getDrawn } from '../storage.js';
+import { state } from '../core/state.js';
+import { getDrawn } from '../core/storage.js';
 
 /**
  * Momentum Pattern Generator

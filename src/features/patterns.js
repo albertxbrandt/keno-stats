@@ -1,6 +1,6 @@
 // src/patterns.js - Pattern analysis for finding common number combinations
-import { state } from '../state.js';
-import { getDrawn } from '../storage.js';
+import { state } from '../core/state.js';
+import { getDrawn } from '../core/storage.js';
 
 // Cache for pattern analysis results
 const patternCache = {
