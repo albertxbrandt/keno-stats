@@ -15,6 +15,8 @@ import { getSelectedTileNumbers } from '../utils/domReader.js';
 
 /**
  * Update the preview UI to show next predicted numbers and refresh countdown
+ * Generates fresh predictions WITHOUT updating cache or state (preview only)
+ * Shows countdown to next auto-refresh if interval > 0
  */
 export function updateGeneratorPreview() {
   const previewContainer = document.getElementById('generator-preview-numbers');
@@ -107,9 +109,10 @@ export function generateAllPredictions() {
 
 /**
  * Main generator function - unified entry point for all methods
- * @param {boolean} forceRefresh - Force cache bypass
+ * Checks cache first unless forceRefresh=true, then generates fresh predictions
+ * @param {boolean} forceRefresh - Force cache bypass and generate fresh predictions
  * @param {string} methodOverride - Use specific method instead of state.generatorMethod
- * @returns {Object} { predictions, cached, actuallyRefreshed }
+ * @returns {Object} { predictions: number[], cached: boolean, actuallyRefreshed: boolean }
  */
 export function generateNumbers(forceRefresh = false, methodOverride = null) {
   const method = methodOverride || state.generatorMethod || 'frequency';

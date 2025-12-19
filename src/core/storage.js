@@ -315,7 +315,14 @@ function createHistoryItem(round, roundNumber, hits, misses) {
 }
 
 /**
- * Save generator settings to storage
+ * Save all generator settings to storage (auto-save system)
+ * Persists 11 settings: method, count, interval, auto-select, sample size, shapes, momentum
+ * Call this immediately after ANY generator setting changes in UI
+ * @example
+ * methodSelect.addEventListener('change', (e) => {
+ *   state.generatorMethod = e.target.value;
+ *   saveGeneratorSettings(); // Auto-save immediately
+ * });
  */
 export function saveGeneratorSettings() {
     const settings = {

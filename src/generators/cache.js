@@ -22,12 +22,15 @@ export class CacheManager {
   }
 
   /**
-   * Check if cached predictions exist and are still valid
-   * @param {string} method
-   * @param {number} count
-   * @param {Object} state - Global state object
-   * @param {Object} config
-   * @returns {Array|null} Cached predictions or null
+   * Check if cached predictions exist and are still valid based on interval
+   * @param {string} method - Generator method name (frequency, cold, etc.)
+   * @param {number} count - Number of predictions
+   * @param {Object} state - Global state object (contains generatorInterval)
+   * @param {Object} config - Method-specific config (pattern, placement, etc.)
+   * @returns {Array<number>|null} Cached predictions if valid, null if expired/missing
+   * @description
+   * - interval=0 (manual): cache never expires until user clicks Refresh
+   * - interval>0 (auto): cache expires after N rounds since creation
    */
   get(method, count, state, config = {}) {
     const key = this._getCacheKey(method, count, config);
