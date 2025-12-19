@@ -1,5 +1,5 @@
 // src/profitLoss.js
-import { state } from './state.js';
+import { state } from '../state.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 

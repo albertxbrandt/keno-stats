@@ -1,9 +1,9 @@
 // src/overlay.js
 import { state } from './state.js';
 import { updateHistoryUI, clearHistory } from './storage.js';
-import { updateHeatmap } from './heatmap.js';
+import { updateHeatmap } from './features/heatmap.js';
 import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
-import { updateAutoPlayUI, autoPlayPlaceBet } from './autoplay.js';
+import { updateAutoPlayUI, autoPlayPlaceBet } from './features/autoplay.js';
 import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from './domReader.js';
 
 export function createOverlay() {

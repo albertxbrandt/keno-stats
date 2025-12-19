@@ -3,13 +3,13 @@ import { state } from './state.js';
 import { initOverlay, injectFooterButton } from './overlay.js';
 import { loadHistory, updateHistoryUI } from './storage.js';
 import { calculatePrediction, selectPredictedNumbers } from './numberSelection.js';
-import { autoPlayPlaceBet, updateAutoPlayUI } from './autoplay.js';
-import { updateHeatmap } from './heatmap.js';
+import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
+import { updateHeatmap } from './features/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './stats.js';
-import { trackPlayedNumbers, updateRecentPlayedUI } from './savedNumbers.js';
-import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './profitLoss.js';
-import { initComparisonWindow } from './comparison.js';
-import './patterns.js'; // Import pattern analysis module (sets up window hooks)
+import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbers.js';
+import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './features/profitLoss.js';
+import { initComparisonWindow } from './features/comparison.js';
+import './features/patterns.js'; // Import pattern analysis module (sets up window hooks)
 
 console.log('Keno Tracker loaded');
 

@@ -1,6 +1,6 @@
 // src/heatmap.js
-import { state } from './state.js';
-import { getHits, getMisses } from './storage.js';
+import { state } from '../state.js';
+import { getHits, getMisses } from '../storage.js';
 
 export function highlightRound(round) {
     const container = document.querySelector('div[data-testid="game-keno"]');

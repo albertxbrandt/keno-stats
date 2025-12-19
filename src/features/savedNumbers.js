@@ -1,6 +1,6 @@
 // src/savedNumbers.js - Manage saved number combinations
-import { state } from './state.js';
-import { getDrawn, getSelected } from './storage.js';
+import { state } from '../state.js';
+import { getDrawn, getSelected } from '../storage.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 

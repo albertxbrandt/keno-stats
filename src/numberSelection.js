@@ -3,7 +3,7 @@
 
 import { state } from './state.js';
 import { getHits, getMisses } from './storage.js';
-import { highlightPrediction } from './heatmap.js';
+import { highlightPrediction } from './features/heatmap.js';
 import { generatorFactory, cacheManager } from './generators/index.js';
 import { replaceSelection } from './tileSelection.js';
 

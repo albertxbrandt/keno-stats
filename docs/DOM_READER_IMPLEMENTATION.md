@@ -1,12 +1,15 @@
 # DOM Reader Module - Implementation Summary
 
 ## Overview
+
 Created a comprehensive utility module (`src/domReader.js`) to centralize all UI data reading operations across the codebase, eliminating code duplication and improving consistency.
 
 ## What Was Created
 
 ### New Files
+
 1. **src/domReader.js** (600+ lines)
+
    - 25+ helper functions for reading UI data
    - Comprehensive JSDoc documentation with examples
    - Organized into 7 categories
@@ -19,6 +22,7 @@ Created a comprehensive utility module (`src/domReader.js`) to centralize all UI
 ## Function Categories
 
 ### 1. Input Value Readers (5 functions)
+
 - `getInputValue()` - Raw string values
 - `getIntValue()` - Integers with min/max clamping
 - `getFloatValue()` - Floats with min/max clamping
@@ -26,18 +30,22 @@ Created a comprehensive utility module (`src/domReader.js`) to centralize all UI
 - `getSelectValue()` - Selected option values
 
 ### 2. Text Content Readers (2 functions)
+
 - `getTextContent()` - Element text with trimming
 - `getTileNumber()` - Extract number from Keno tiles
 
 ### 3. Attribute Readers (2 functions)
+
 - `getAttributeValue()` - Read any attribute
 - `isElementDisabled()` - Check disabled state (multiple methods)
 
 ### 4. Multi-Element Readers (2 functions)
+
 - `getAllInputValues()` - Batch read multiple inputs
 - `getAllCheckboxStates()` - Batch read multiple checkboxes
 
 ### 5. Game-Specific Readers (5 functions)
+
 - `getSelectedTileNumbers()` - Get selected tiles (1-40)
 - `getSelectedTileCount()` - Count selected tiles
 - `getAllTileElements()` - Get all tile buttons
@@ -45,6 +53,7 @@ Created a comprehensive utility module (`src/domReader.js`) to centralize all UI
 - `getBetButtonState()` - Comprehensive button state object
 
 ### 6. Configuration Readers (5 functions)
+
 - `getMomentumConfigFromUI()` - All momentum settings
 - `getPatternConfigFromUI()` - All pattern settings
 - `getGeneratorConfigFromUI()` - All generator settings
@@ -52,19 +61,23 @@ Created a comprehensive utility module (`src/domReader.js`) to centralize all UI
 - `getHeatmapConfigFromUI()` - All heatmap settings
 
 ### 7. Utility Functions (2 functions)
+
 - `waitForElement()` - Async element waiting with timeout
 - `elementExists()` - Check element existence
 
 ## Files Updated
 
 ### src/overlay.js
+
 **Changes**: 15+ replacements
+
 - Replaced manual `parseInt(input.value)` with `getIntValue()`
 - Replaced `e.target.checked` with `getCheckboxValue()`
 - Replaced `e.target.value` with `getSelectValue()`
 - Added automatic min/max validation to all number inputs
 
 **Before Example**:
+
 ```javascript
 let val = parseInt(heatmapSampleInput.value, 10);
 if (isNaN(val) || val < 1) val = 1;
@@ -74,6 +87,7 @@ state.heatmapSampleSize = val;
 ```
 
 **After Example**:
+
 ```javascript
 const max = Math.max(state.currentHistory.length, 1);
 const val = getIntValue(heatmapSampleInput, 1, { min: 1, max });
@@ -81,7 +95,9 @@ state.heatmapSampleSize = val;
 ```
 
 ### src/patterns.js
+
 **Changes**: 6 replacements
+
 - Pattern configuration reading (`getIntValue`, `getCheckboxValue`)
 - Tile number extraction (`getTileNumber`)
 - Sort and sample input parsing
@@ -89,7 +105,9 @@ state.heatmapSampleSize = val;
 **Impact**: Cleaner pattern analysis configuration
 
 ### src/savedNumbers.js
+
 **Changes**: 4 replacements
+
 - Risk mode selector reading (`getSelectValue`)
 - Lookback input with validation (`getIntValue`)
 - Tile number reading for saved combinations
@@ -97,7 +115,9 @@ state.heatmapSampleSize = val;
 **Impact**: Safer configuration updates
 
 ### src/stats.js
+
 **Changes**: Removed duplicate functions, added imports
+
 - Deleted `getSelectedTileNumbers()` function (40 lines)
 - Deleted `getSelectedTileCount()` function (5 lines)
 - Now imports from domReader and re-exports for backward compatibility
@@ -105,13 +125,16 @@ state.heatmapSampleSize = val;
 **Impact**: Eliminated 45 lines of duplicate code
 
 ### src/numberSelection.js
+
 **Changes**: 2 replacements
+
 - Prediction count input reading
 - Removed manual parsing with fallback logic
 
 ## Code Metrics
 
 ### Lines of Code
+
 - **domReader.js**: ~600 lines (including JSDoc)
 - **DOM_READER_GUIDE.md**: ~400 lines documentation
 - **Total Added**: ~1,000 lines
@@ -119,6 +142,7 @@ state.heatmapSampleSize = val;
 - **Net Change**: +850 lines (documentation and reusable utilities)
 
 ### Duplication Eliminated
+
 - Input parsing patterns: ~80 lines removed
 - Checkbox reading patterns: ~20 lines removed
 - Select reading patterns: ~15 lines removed
@@ -126,6 +150,7 @@ state.heatmapSampleSize = val;
 - **Total**: ~160 lines of duplicate code eliminated
 
 ### Bundle Size Impact
+
 - **Before**: 158.6kb
 - **After**: 158.2kb
 - **Change**: -0.4kb (0.25% smaller despite adding module)
@@ -134,22 +159,28 @@ state.heatmapSampleSize = val;
 ## Key Features
 
 ### 1. Automatic Validation
+
 All numeric input readers include built-in validation:
+
 ```javascript
-getIntValue('my-input', 5, { min: 1, max: 40 })
+getIntValue("my-input", 5, { min: 1, max: 40 });
 // Automatically clamps to range [1, 40]
 // Returns 5 if element not found or value is NaN
 ```
 
 ### 2. Null-Safety
+
 All functions handle missing elements gracefully:
+
 ```javascript
-getInputValue('non-existent-id', 'default')
+getInputValue("non-existent-id", "default");
 // Returns 'default' instead of throwing error
 ```
 
 ### 3. Type Safety
+
 Functions are strongly typed with JSDoc:
+
 ```javascript
 /**
  * @param {string|HTMLElement} elementOrId
@@ -160,14 +191,18 @@ Functions are strongly typed with JSDoc:
 ```
 
 ### 4. Configuration Objects
+
 Read entire configs in one call:
+
 ```javascript
 const config = getGeneratorConfigFromUI();
 // Returns: { count: 3, method: 'frequency', sampleSize: 5, ... }
 ```
 
 ### 5. IntelliSense Support
+
 Full IntelliSense with examples in VSCode:
+
 - Parameter hints
 - Type checking
 - Usage examples in tooltips
@@ -175,18 +210,21 @@ Full IntelliSense with examples in VSCode:
 ## Benefits
 
 ### Developer Experience
+
 - ✅ Consistent API across entire codebase
 - ✅ Less cognitive load (don't memorize validation patterns)
 - ✅ Copy-paste examples from documentation
 - ✅ IntelliSense with JSDoc
 
 ### Code Quality
+
 - ✅ Single source of truth for DOM reading
 - ✅ Eliminated 160+ lines of duplicate code
 - ✅ Built-in validation and safety
 - ✅ Easier to maintain and extend
 
 ### Reliability
+
 - ✅ Handles missing elements gracefully
 - ✅ Automatic NaN protection
 - ✅ Min/max constraint enforcement
@@ -195,6 +233,7 @@ Full IntelliSense with examples in VSCode:
 ## Usage Patterns
 
 ### Pattern 1: Simple Input Reading
+
 ```javascript
 // Old way (repeated 50+ times)
 const val = parseInt(input.value) || 0;
@@ -204,6 +243,7 @@ const val = getIntValue(input, 0);
 ```
 
 ### Pattern 2: Validated Number Input
+
 ```javascript
 // Old way (repeated 20+ times)
 let val = parseInt(input.value, 10);
@@ -215,12 +255,16 @@ const val = getIntValue(input, 1, { min: 1, max: 40 });
 ```
 
 ### Pattern 3: Configuration Reading
+
 ```javascript
 // Old way
 const config = {
-  detectionWindow: parseInt(document.getElementById('momentum-detection').value) || 5,
-  baselineWindow: parseInt(document.getElementById('momentum-baseline').value) || 50,
-  momentumThreshold: parseFloat(document.getElementById('momentum-threshold').value) || 1.5,
+  detectionWindow:
+    parseInt(document.getElementById("momentum-detection").value) || 5,
+  baselineWindow:
+    parseInt(document.getElementById("momentum-baseline").value) || 50,
+  momentumThreshold:
+    parseFloat(document.getElementById("momentum-threshold").value) || 1.5,
   // ... more fields
 };
 
@@ -229,6 +273,7 @@ const config = getMomentumConfigFromUI();
 ```
 
 ### Pattern 4: Checkbox State
+
 ```javascript
 // Old way
 const checkbox = document.getElementById('my-checkbox');
@@ -241,6 +286,7 @@ if (getCheckboxValue('my-checkbox')) { ... }
 ## Testing Results
 
 ### Build Test
+
 ```bash
 npm run build
 ✓ Success - 158.2kb bundle size
@@ -249,6 +295,7 @@ npm run build
 ```
 
 ### Runtime Verification
+
 - ✓ All input reading functions work
 - ✓ Config readers return correct objects
 - ✓ Tile selection functions work on game board
@@ -258,12 +305,15 @@ npm run build
 ## Migration Notes
 
 ### Backward Compatibility
+
 - `stats.js` re-exports functions for backward compatibility
 - All existing imports continue to work
 - No breaking changes to public APIs
 
 ### Future Migration Opportunities
+
 Additional files that could benefit from domReader:
+
 - `betbook.js` - Bet table column visibility
 - `profitLoss.js` - Currency selection
 - `comparison.js` - Lookback input
@@ -272,21 +322,23 @@ Additional files that could benefit from domReader:
 ## Best Practices Going Forward
 
 ### DO ✅
+
 ```javascript
-import { getIntValue, getCheckboxValue } from './domReader.js';
+import { getIntValue, getCheckboxValue } from "./domReader.js";
 
 // Use specific imports
-const count = getIntValue('count-input', 3, { min: 1, max: 40 });
-const enabled = getCheckboxValue('enable-switch');
+const count = getIntValue("count-input", 3, { min: 1, max: 40 });
+const enabled = getCheckboxValue("enable-switch");
 ```
 
 ### DON'T ❌
+
 ```javascript
 // Don't parse manually
-const count = parseInt(document.getElementById('count-input').value) || 3;
+const count = parseInt(document.getElementById("count-input").value) || 3;
 
 // Don't read checkboxes directly
-const enabled = document.getElementById('enable-switch').checked;
+const enabled = document.getElementById("enable-switch").checked;
 
 // Don't skip validation
 const count = parseInt(input.value); // No min/max, no NaN check
@@ -295,13 +347,16 @@ const count = parseInt(input.value); // No min/max, no NaN check
 ## Documentation
 
 ### Available Resources
+
 1. **DOM_READER_GUIDE.md** - Complete developer guide
+
    - Function categories and descriptions
    - Usage examples for every pattern
    - Migration guide
    - Best practices
 
 2. **JSDoc in domReader.js** - Inline documentation
+
    - Parameter types and descriptions
    - Return types
    - Usage examples for each function
@@ -313,6 +368,7 @@ const count = parseInt(input.value); // No min/max, no NaN check
 ## Future Enhancements
 
 Potential additions to domReader:
+
 - Radio button group reading
 - Range slider value reading
 - Date/time input parsing
@@ -327,6 +383,7 @@ Potential additions to domReader:
 **Message**: "feat: Add domReader utility module for centralized UI data reading"
 
 **Files Changed**:
+
 - Added: docs/DOM_READER_GUIDE.md (400+ lines)
 - Added: src/domReader.js (600+ lines)
 - Modified: src/overlay.js (15+ replacements)
@@ -340,6 +397,7 @@ Potential additions to domReader:
 ## Summary
 
 Successfully created a comprehensive utility module that:
+
 1. ✅ Centralizes all UI data reading operations
 2. ✅ Eliminates 160+ lines of duplicate code
 3. ✅ Adds automatic validation and safety
