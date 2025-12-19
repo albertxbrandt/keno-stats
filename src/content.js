@@ -44,7 +44,24 @@ function initializeExtension() {
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
 		console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses, fullData: data });
-		// Save full kenoBet structure - data IS the kenoBet object from interceptor
+		// Save full kenoBet structure - preserve all fields except user
+		const { user, state: originalState, ...kenoBetData } = data;
+		// Capture generator state if active
+		const generatorInfo = state.isGeneratorActive ? {
+			method: state.generatorMethod,
+			count: state.generatorCount,
+			interval: state.generatorInterval,
+			autoSelect: state.generatorAutoSelect,
+			sampleSize: state.generatorSampleSize,
+			// Method-specific settings
+			shapesPattern: state.shapesPattern,
+			shapesPlacement: state.shapesPlacement,
+			momentumDetectionWindow: state.momentumDetectionWindow,
+			momentumBaselineGames: state.momentumBaselineGames,
+			momentumThreshold: state.momentumThreshold,
+			momentumPoolSize: state.momentumPoolSize
+		} : null;
+
 		const betData = {
 			id: data.id,
 			kenoBet: {
@@ -55,6 +72,7 @@ function initializeExtension() {
 					selectedNumbers: selected
 				}
 			},
+			generator: generatorInfo, // Store generator info if used
 			time: Date.now()
 		};
 		console.log('[KENO] Saving bet data:', betData);
