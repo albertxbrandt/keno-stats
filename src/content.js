@@ -69,17 +69,23 @@ function initializeExtension() {
 			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
 		}, 500);
 
-		// Track round for comparison if window is open
-		if (state.isComparisonWindowOpen && window.__keno_trackRound) {
+		// If comparison window is open OR generator is active, generate predictions for all methods
+		if ((state.isComparisonWindowOpen || state.isGeneratorActive) && window.__keno_generateAllPredictions) {
 			try {
-				window.__keno_trackRound({ drawn, selected });
+				const allPredictions = window.__keno_generateAllPredictions();
+
+				// Track comparison if window open
+				if (state.isComparisonWindowOpen && window.__keno_trackRound) {
+					window.__keno_trackRound({ drawn, selected, predictions: allPredictions });
+				}
 			} catch (e) {
-				console.error('[Comparison] track round failed:', e);
+				console.error('[Generator] Generate all predictions failed:', e);
 			}
 		}
-
-		// Auto Predict
-		if (state.isPredictMode) calculatePrediction();
+		// Legacy: Auto Predict (deprecated)
+		else if (state.isPredictMode) {
+			calculatePrediction();
+		}
 		// Auto Play Logic
 		if (state.isAutoPlayMode && state.autoPlayRoundsRemaining > 0) {
 			state.autoPlayRoundsRemaining--;

@@ -171,39 +171,26 @@ export function toggleComparisonWindow(show) {
 export function trackRoundComparison(roundData) {
   if (!state.isComparisonWindowOpen) return; // Only track if window is open
 
-  const { drawn } = roundData;
-  if (!drawn || drawn.length === 0) return;
+  const { drawn, predictions } = roundData;
+  if (!drawn || drawn.length === 0 || !predictions) return;
 
-  // Generate predictions for each method
-  const count = state.generatorCount || 3;
-  const frequencyPred = getTopPredictions(count);
-  const coldPred = getColdPredictions(count);
-
-  let momentumPred = [];
-  try {
-    const config = {
-      detectionWindow: parseInt(document.getElementById('momentum-detection')?.value) || 5,
-      baselineWindow: parseInt(document.getElementById('momentum-baseline')?.value) || 50,
-      momentumThreshold: parseFloat(document.getElementById('momentum-threshold')?.value) || 1.5,
-      topNPool: parseInt(document.getElementById('momentum-pool')?.value) || 15,
-      refreshFrequency: parseInt(document.getElementById('momentum-refresh')?.value) || 5
-    };
-    momentumPred = getMomentumPrediction(count, config);
-  } catch (e) {
-    console.warn('[Comparison] Momentum prediction failed:', e);
-  }
+  const { frequency, cold, momentum } = predictions;
 
   // Calculate hits for each method
-  const frequencyHits = frequencyPred.filter(n => drawn.includes(n)).length;
-  const coldHits = coldPred.filter(n => drawn.includes(n)).length;
-  const momentumHits = momentumPred.filter(n => drawn.includes(n)).length;
+  const frequencyHits = frequency?.filter(n => drawn.includes(n)).length || 0;
+  const coldHits = cold?.filter(n => drawn.includes(n)).length || 0;
+  const momentumHits = momentum?.filter(n => drawn.includes(n)).length || 0;
+
+  console.log('[Comparison] Tracking round - Freq:', frequencyHits, '/', frequency?.length, 'Cold:', coldHits, '/', cold?.length, 'Momentum:', momentumHits, '/', momentum?.length);
+
+  const count = state.generatorCount || 3;
 
   // Store data point
   const dataPoint = {
     round: state.currentHistory.length,
-    frequency: { predicted: frequencyPred, hits: frequencyHits, count },
-    cold: { predicted: coldPred, hits: coldHits, count },
-    momentum: { predicted: momentumPred, hits: momentumHits, count }
+    frequency: { predicted: frequency || [], hits: frequencyHits, count },
+    cold: { predicted: cold || [], hits: coldHits, count },
+    momentum: { predicted: momentum || [], hits: momentumHits, count }
   };
 
   state.comparisonData.push(dataPoint);

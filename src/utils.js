@@ -6,7 +6,7 @@ export function simulatePointerClick(el) {
         const rect = el.getBoundingClientRect();
         const clientX = rect.left + rect.width / 2;
         const clientY = rect.top + rect.height / 2;
-        ['pointerover','pointerenter','pointermove','pointerdown'].forEach(type => {
+        ['pointerover', 'pointerenter', 'pointermove', 'pointerdown'].forEach(type => {
             el.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX, clientY, pointerType: 'mouse' }));
         });
         el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, clientX, clientY }));
@@ -26,5 +26,44 @@ export function findAndClickPlayButton() {
         return betButton;
     }
 
-   return null;
+    return null;
+}
+
+/**
+ * Wait for the bet button to be ready (data-test-action-enabled="true")
+ * This ensures the board is ready for interaction after a bet completes
+ */
+export function waitForBetButtonReady(maxWaitMs = 5000) {
+    return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+        let readyCount = 0;
+
+        const checkButton = () => {
+            const betButton = document.querySelector('button[data-testid="bet-button"]');
+
+            if (betButton && betButton.getAttribute('data-test-action-enabled') === 'true') {
+                readyCount++;
+                // Wait for button to be stable (ready for 2 consecutive checks = 200ms stable)
+                if (readyCount >= 2) {
+                    console.log('[Utils] Bet button ready and stable');
+                    resolve(betButton);
+                    return;
+                }
+            } else {
+                // Reset counter if button becomes not ready
+                readyCount = 0;
+            }
+
+            if (Date.now() - startTime > maxWaitMs) {
+                console.warn('[Utils] Bet button ready timeout');
+                reject(new Error('Bet button ready timeout'));
+                return;
+            }
+
+            // Check again in 100ms
+            setTimeout(checkButton, 100);
+        };
+
+        checkButton();
+    });
 }

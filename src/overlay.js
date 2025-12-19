@@ -742,7 +742,7 @@ export function createOverlay() {
     if (generateBtn) {
         generateBtn.addEventListener('click', () => {
             if (window.__keno_generateNumbers) {
-                window.__keno_generateNumbers();
+                window.__keno_generateNumbers(true); // Force refresh even for momentum
             }
         });
     }
