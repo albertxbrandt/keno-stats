@@ -577,11 +577,14 @@ function showBetDetails(bet) {
   for (let i = 1; i <= 40; i++) {
     const isSelected = selected.includes(i);
     const isHit = hits.includes(i);
+    const isDrawn = drawn.includes(i);
     let tileClass = 'keno-tile';
     if (isHit) {
       tileClass += ' hit';
     } else if (isSelected) {
       tileClass += ' selected';
+    } else if (isDrawn) {
+      tileClass += ' miss-drawn';
     }
     boardHTML += `<div class="${tileClass}">${i}</div>`;
   }
@@ -667,9 +670,10 @@ function showBetDetails(bet) {
       <h3>🎯 Number Board</h3>
       ${boardHTML}
       <div style="margin-top: 1em; font-size: 0.9em; color: #aaa;">
-        <div style="margin-bottom: 0.3em;">🎁 <span style="color: #7b2cbf; font-weight: bold;">Purple with gift</span> = Hit (Selected & Drawn)</div>
-        <div style="margin-bottom: 0.3em;">🟣 <span style="color: #7b2cbf; font-weight: bold;">Purple</span> = Selected but not drawn</div>
-        <div>⬜ <span style="color: #aaa;">Gray</span> = Not selected</div>
+        <div style="margin-bottom: 0.3em;">🟢 <span style="color: #4caf50; font-weight: bold;">Green</span> = Hit (Selected & Drawn)</div>
+        <div style="margin-bottom: 0.3em;">🟣 <span style="color: #7b2cbf; font-weight: bold;">Purple</span> = Selected (Not Drawn)</div>
+        <div style="margin-bottom: 0.3em;">🔴 <span style="color: #f44336; font-weight: bold;">Red on dark</span> = Drawn (Not Selected)</div>
+        <div>⬜ <span style="color: #aaa;">Gray</span> = Not selected or drawn</div>
       </div>
     </div>
     
