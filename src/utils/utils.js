@@ -42,7 +42,6 @@ export function clearTable() {
 
     try {
         simulatePointerClick(clearButton);
-        console.log('[Utils] Clear Table button clicked');
         return true;
     } catch (e) {
         console.error('[Utils] Failed to click Clear Table button:', e);
@@ -69,7 +68,6 @@ export function waitForBetButtonReady(maxWaitMs = 5000) {
             const isReady = betButton.getAttribute('data-test-action-enabled') === 'true';
 
             if (isReady) {
-                console.log('[Utils] Bet button ready (observed)');
                 observer.disconnect();
                 resolve(betButton);
             }
@@ -83,7 +81,6 @@ export function waitForBetButtonReady(maxWaitMs = 5000) {
 
         // Check initial state (might already be ready)
         if (betButton.getAttribute('data-test-action-enabled') === 'true') {
-            console.log('[Utils] Bet button already ready');
             observer.disconnect();
             resolve(betButton);
             return;

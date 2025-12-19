@@ -32,8 +32,6 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
     // Analyze history (go from newest to oldest to find last occurrence)
     const reversedHistory = state.currentHistory.slice().reverse();
 
-    console.log('[stats] Analyzing history for selection:', selectedNumbers, 'Total rounds:', reversedHistory.length);
-
     reversedHistory.forEach((round, idx) => {
         // Count how many of the currently selected numbers were hits in this round
         let hitCount;
@@ -43,14 +41,6 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
             const drawnNumbers = getDrawn(round);
             const matchingNumbers = selectedNumbers.filter(num => drawnNumbers.includes(num));
             hitCount = matchingNumbers.length;
-
-            if (idx < 3) { // Log first 3 rounds for debugging
-                console.log(`[stats] Round ${idx} (${new Date(round.time).toLocaleTimeString()}):`,
-                    'drawn:', drawnNumbers,
-                    'selected:', selectedNumbers,
-                    'matches:', matchingNumbers,
-                    'hitCount:', hitCount);
-            }
         } else {
             // Fallback to old behavior if no specific numbers provided
             hitCount = getHits(round).length;
@@ -66,9 +56,6 @@ export function calculateMultiplierStats(selectedCount, selectedNumbers = []) {
                 stats.lastOccurrences[i] = round.time;
                 // Store the actual index in the original history array
                 stats.lastOccurrenceIndices[i] = state.currentHistory.length - 1 - idx;
-                if (idx < 3) {
-                    console.log(`[stats] Found last occurrence for ${i}×: ${new Date(round.time).toLocaleTimeString()}, index: ${stats.lastOccurrenceIndices[i]}`);
-                }
             }
         }
     });
@@ -112,7 +99,6 @@ export function formatTimeSince(selectedNumbers, targetHitCount) {
  * Update the multiplier bar with stats based on current selection
  */
 export function updateMultiplierBarStats() {
-    console.warn('[STATS] updateMultiplierBarStats called');
     try {
         const selectedNumbers = getSelectedTileNumbers();
         const selectedCount = selectedNumbers.length;
@@ -125,8 +111,6 @@ export function updateMultiplierBarStats() {
         const stats = calculateMultiplierStats(selectedCount, selectedNumbers);
         const containers = findMultiplierContainers();
 
-        console.warn('[stats] Selected count:', selectedCount, 'Selected numbers:', selectedNumbers, 'Stats:', stats, 'Containers found:', containers.length);
-
         if (containers.length === 0) {
             return; // Silently fail if multiplier bar not found
         }
@@ -138,8 +122,6 @@ export function updateMultiplierBarStats() {
             if (hitCount === 0 || hitCount > selectedCount) return;
 
             const lastTime = formatTimeSince(selectedNumbers, hitCount);
-
-            console.log(`[stats] ${hitCount}×: last: ${lastTime}`);
 
             let statsOverlay = container.querySelector('.keno-stats-overlay');
             if (!statsOverlay) {
@@ -222,20 +204,11 @@ function findMultiplierContainers() {
         // Target the hit-odds container (Svelte adds dynamic class suffixes)
         const hitOddsContainer = document.querySelector('[class*="hit-odds"]');
         if (!hitOddsContainer) {
-            console.warn('[stats] hit-odds container not found');
             return [];
         }
 
-        console.log('[stats] Found hit-odds container:', hitOddsContainer);
-
         // Find all divs with class containing "hit" (both positive and negative)
         const multiplierDivs = Array.from(hitOddsContainer.querySelectorAll('div[class*="hit"]'));
-
-        console.log('[stats] All divs with hit class:', multiplierDivs.length, multiplierDivs.map(el => ({
-            className: el.className,
-            textContent: el.textContent.trim(),
-            innerHTML: el.innerHTML.substring(0, 100)
-        })));
 
         // Filter to get only the ones with multiplier text (0×, 1×, 2×, etc.)
         // Note: Uses × (multiplication sign U+00D7) not x (letter x)
@@ -244,8 +217,6 @@ function findMultiplierContainers() {
             const overlay = el.querySelector('.keno-stats-overlay');
             const text = overlay ? el.textContent.replace(overlay.textContent, '').trim() : el.textContent.trim();
             const matches = /^\d+[×x]\s*[🔒📦]?$/i.test(text);
-            console.log('[stats] Testing text:', el.textContent.trim(), 'Clean text:', text, 'Matches:', matches);
-            if (matches) console.log('[stats] Found multiplier:', text, el);
             return matches;
         });
 
@@ -255,8 +226,6 @@ function findMultiplierContainers() {
             const bNum = parseInt(b.textContent.match(/(\d+)x/)?.[1] || '0');
             return aNum - bNum;
         });
-
-        console.log('[stats] Found multiplier containers:', multiplierElements.length, multiplierElements.map(el => el.textContent.trim()));
 
         return multiplierElements;
     } catch (error) {
@@ -269,16 +238,13 @@ function findMultiplierContainers() {
  * Set up observer to watch for tile selection changes
  */
 export function initStatsObserver() {
-    console.warn('[STATS] initStatsObserver called!!!');
+    console.log('[STATS] initStatsObserver called');
     try {
         const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
         if (!tilesContainer) {
-            console.warn('[stats] Keno tiles container not found, retrying in 2s');
             setTimeout(initStatsObserver, 2000);
             return;
         }
-
-        console.log('[stats] Tiles container found, setting up observer');
 
         const observer = new MutationObserver(() => {
             try {
@@ -295,7 +261,6 @@ export function initStatsObserver() {
         });
 
         tilesContainer.addEventListener('click', () => {
-            console.log('[stats] Tile clicked, updating stats in 100ms');
             setTimeout(() => {
                 try {
                     updateMultiplierBarStats();
@@ -306,8 +271,6 @@ export function initStatsObserver() {
         });
 
         updateMultiplierBarStats();
-
-        console.log('[stats] Stats observer initialized successfully');
     } catch (error) {
         console.error('[stats] Error initializing stats observer:', error);
     }

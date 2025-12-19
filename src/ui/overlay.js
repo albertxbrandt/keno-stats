@@ -1066,13 +1066,12 @@ export function createOverlay() {
             state.autoPlayElapsedTime = 0;
             const rawPredCount = getIntValue('autoplay-pred-count', 3);
             state.autoPlayPredictionCount = Math.min(Math.max(rawPredCount, 1), 40);
-            console.log('[AutoPlay] Starting with predictionCount:', state.autoPlayPredictionCount);
             autoPlayPlaceBet();
         }
         updateAutoPlayUI();
     });
     const apPredCount = document.getElementById('autoplay-pred-count');
-    if (apPredCount) apPredCount.addEventListener('change', () => { const rawVal = parseInt(apPredCount.value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawVal, 1), 40); console.log('[AutoPlay] Prediction count updated to:', state.autoPlayPredictionCount); });
+    if (apPredCount) apPredCount.addEventListener('change', () => { const rawVal = parseInt(apPredCount.value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawVal, 1), 40); });
 
     const analyzePatternBtn = document.getElementById('analyze-pattern-btn');
     if (analyzePatternBtn) {
@@ -1130,7 +1129,6 @@ export function createOverlay() {
         shapesPatternSelect.addEventListener('change', (e) => {
             state.shapesPattern = getSelectValue(e.target, 'cross');
             saveGeneratorSettings();
-            console.log('[Shapes] Pattern changed to:', state.shapesPattern);
 
             // Update current display
             const currentDisplay = document.getElementById('shapes-current-display');
@@ -1145,7 +1143,6 @@ export function createOverlay() {
         shapesPlacementSelect.addEventListener('change', (e) => {
             state.shapesPlacement = getSelectValue(e.target, 'center');
             saveGeneratorSettings();
-            console.log('[Shapes] Placement changed to:', state.shapesPlacement);
 
             // Update current display
             const currentDisplay = document.getElementById('shapes-current-display');
@@ -1166,7 +1163,6 @@ export function createOverlay() {
         momentumDetectionInput.addEventListener('change', () => {
             state.momentumDetectionWindow = getIntValue(momentumDetectionInput, 5, { min: 3, max: 20 });
             saveGeneratorSettings();
-            console.log('[Momentum] Detection window changed to:', state.momentumDetectionWindow);
         });
     }
 
@@ -1175,7 +1171,6 @@ export function createOverlay() {
         momentumBaselineInput.addEventListener('change', () => {
             state.momentumBaselineGames = getIntValue(momentumBaselineInput, 50, { min: 10, max: 200 });
             saveGeneratorSettings();
-            console.log('[Momentum] Baseline games changed to:', state.momentumBaselineGames);
         });
     }
 
@@ -1184,7 +1179,6 @@ export function createOverlay() {
         momentumThresholdInput.addEventListener('change', () => {
             state.momentumThreshold = getFloatValue(momentumThresholdInput, 1.5, { min: 1, max: 3 });
             saveGeneratorSettings();
-            console.log('[Momentum] Threshold changed to:', state.momentumThreshold);
         });
     }
 
@@ -1193,7 +1187,6 @@ export function createOverlay() {
         momentumPoolInput.addEventListener('change', () => {
             state.momentumPoolSize = getIntValue(momentumPoolInput, 15, { min: 5, max: 30 });
             saveGeneratorSettings();
-            console.log('[Momentum] Pool size changed to:', state.momentumPoolSize);
         });
     }
 
@@ -1205,7 +1198,6 @@ export function createOverlay() {
             state.generatorInterval = value;
             generatorIntervalInput.value = value; // Update display with clamped value
             saveGeneratorSettings();
-            console.log('[Generator] Auto-refresh interval set to:', state.generatorInterval, 'rounds');
 
             // Reset last refresh counter
             state.generatorLastRefresh = 0;
@@ -1215,8 +1207,6 @@ export function createOverlay() {
     const generatorRefreshBtn = document.getElementById('generator-refresh-btn');
     if (generatorRefreshBtn) {
         generatorRefreshBtn.addEventListener('click', () => {
-            console.log('[Generator] Manual refresh triggered');
-
             // Trigger immediate regeneration
             if (window.__keno_generateNumbers) {
                 window.__keno_generateNumbers(true); // Force refresh
@@ -1224,7 +1214,6 @@ export function createOverlay() {
 
             // Update last refresh counter
             state.generatorLastRefresh = state.currentHistory.length;
-            console.log('[Generator] generatorLastRefresh updated to:', state.generatorLastRefresh);
 
             // Update preview UI
             if (window.__keno_updateGeneratorPreview) {
@@ -1307,7 +1296,6 @@ export function createOverlay() {
                 // Auto-save to storage
                 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
                 storageApi.storage.local.set({ panelVisibility: state.panelVisibility }, () => {
-                    console.log('[Settings] Auto-saved panel visibility:', state.panelVisibility);
                     applyPanelVisibility();
                 });
             });
@@ -1375,7 +1363,6 @@ export function createOverlay() {
 
         const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
         storageApi.storage.local.set({ panelOrder: state.panelOrder }, () => {
-            console.log('[Settings] Auto-saved panel order:', state.panelOrder);
             reorderPanelSections();
         });
     }
@@ -1497,7 +1484,6 @@ export function injectFooterButton() {
 // Expose for main entry to call
 export function initOverlay() {
     loadGeneratorSettings().then(() => {
-        console.log('[Overlay] Generator settings loaded');
         createOverlay();
         // Update UI with loaded settings after overlay is created
         setTimeout(() => {

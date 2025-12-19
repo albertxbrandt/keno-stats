@@ -161,7 +161,6 @@ function waitForTilesCleared(maxWaitMs = 2000) {
       const anySelected = tiles.some(isTileSelected);
 
       if (!anySelected) {
-        console.log('[tileSelection] All tiles cleared');
         resolve();
         return;
       }
@@ -212,7 +211,6 @@ export async function replaceSelection(numbers) {
 
     // Skip if tile is already selected
     if (tile && isTileSelected(tile)) {
-      console.log(`[tileSelection] Tile ${num} already selected, skipping`);
       selected++;
       return;
     }

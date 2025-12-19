@@ -97,9 +97,7 @@ function initializeExtension() {
 		// If generator is active (not just comparison), also generate and select numbers
 		if (state.isGeneratorActive && window.__keno_generateNumbers) {
 			try {
-				console.log('[Content] Waiting for bet button before generating numbers...');
 				waitForBetButtonReady(3000).then(() => {
-					console.log('[Content] Bet button ready, calling __keno_generateNumbers. History:', state.currentHistory.length, 'Last refresh:', state.generatorLastRefresh, 'Interval:', state.generatorInterval);
 					window.__keno_generateNumbers(); // This will check auto-refresh interval
 
 					// Update preview after generation

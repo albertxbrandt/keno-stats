@@ -334,9 +334,7 @@ export function saveGeneratorSettings() {
         momentumPoolSize: state.momentumPoolSize
     };
 
-    storageApi.storage.local.set({ generatorSettings: settings }, () => {
-        console.log('[Storage] Generator settings saved:', settings);
-    });
+    storageApi.storage.local.set({ generatorSettings: settings });
 }
 
 /**
@@ -346,7 +344,6 @@ export function loadGeneratorSettings() {
     return storageApi.storage.local.get('generatorSettings').then(res => {
         if (res.generatorSettings) {
             const settings = res.generatorSettings;
-            console.log('[Storage] Loading generator settings:', settings);
 
             // Apply settings to state
             if (settings.generatorMethod !== undefined) state.generatorMethod = settings.generatorMethod;
