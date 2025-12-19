@@ -6,6 +6,7 @@ import { getHits, getMisses } from '../core/storage.js';
 import { highlightPrediction } from '../features/heatmap.js';
 import { generatorFactory, cacheManager } from '../generators/index.js';
 import { replaceSelection } from '../utils/tileSelection.js';
+import { getSelectedTileNumbers } from '../utils/domReader.js';
 
 // ============================================================================
 // GENERATOR WRAPPER FUNCTIONS (for backward compatibility)
@@ -270,8 +271,28 @@ window.__keno_generateNumbers = function (forceRefresh = false) {
 
   // Only auto-select if the setting is enabled
   if (result.predictions.length > 0 && state.generatorAutoSelect) {
-    console.log(`[__keno_generateNumbers] Auto-selecting ${result.predictions.length} numbers`);
-    selectPredictedNumbers();
+    // Compare with last auto-selected numbers stored in state (not DOM)
+    // DOM might be cleared by game after bet
+    const lastSelected = state.lastAutoSelectedNumbers || [];
+    
+    // Sort both arrays for comparison
+    const newNumbers = [...result.predictions].sort((a, b) => a - b);
+    const oldNumbers = [...lastSelected].sort((a, b) => a - b);
+    
+    // Check if arrays are identical
+    const numbersChanged = newNumbers.length !== oldNumbers.length ||
+      newNumbers.some((num, idx) => num !== oldNumbers[idx]);
+    
+    if (numbersChanged) {
+      console.log(`[__keno_generateNumbers] Numbers changed, auto-selecting ${result.predictions.length} numbers`);
+      console.log(`[__keno_generateNumbers] Old:`, oldNumbers, 'New:', newNumbers);
+      
+      // Store what we're about to select
+      state.lastAutoSelectedNumbers = [...result.predictions];
+      selectPredictedNumbers();
+    } else {
+      console.log(`[__keno_generateNumbers] Numbers unchanged (${newNumbers.join(', ')}), skipping re-selection`);
+    }
   } else if (result.predictions.length > 0) {
     console.log(`[__keno_generateNumbers] Generated but auto-select is OFF`);
   }
