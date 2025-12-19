@@ -55,16 +55,8 @@ export function updateGeneratorPreview() {
     }
   }
 
-  // Generate preview without updating state - just for display
-  let previewPredictions = [];
-  try {
-    // Generate predictions without caching or state updates
-    const result = generateNumbers(false, method);
-    previewPredictions = result.predictions || [];
-  } catch (e) {
-    console.error('[Preview] Failed to generate preview:', e);
-    previewPredictions = state.generatedNumbers || [];
-  }
+  // Show current cached predictions (what will be used in next bet)
+  const previewPredictions = state.generatedNumbers || [];
 
   // Update preview numbers
   if (previewPredictions.length === 0) {
@@ -117,7 +109,6 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
       const isActiveMethod = !methodOverride || method === state.generatorMethod;
       if (isActiveMethod) {
         state.generatedNumbers = cached;
-        updateGeneratorPreview();
       }
 
       return {
@@ -155,9 +146,6 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
     // Update last refresh round counter
     const currentRound = history.length;
     state.generatorLastRefresh = currentRound;
-
-    // Update preview UI
-    updateGeneratorPreview();
   }
 
   return {
