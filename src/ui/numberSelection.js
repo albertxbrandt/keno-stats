@@ -23,8 +23,6 @@ export function updateGeneratorPreview() {
 
   if (!previewContainer) return;
 
-  // Get current predictions
-  const predictions = state.generatedNumbers || [];
   const method = state.generatorMethod || 'frequency';
   const interval = state.generatorInterval || 0;
   const currentRound = state.currentHistory?.length || 0;
@@ -57,11 +55,22 @@ export function updateGeneratorPreview() {
     }
   }
 
+  // Generate preview without updating state - just for display
+  let previewPredictions = [];
+  try {
+    // Generate predictions without caching or state updates
+    const result = generateNumbers(false, method);
+    previewPredictions = result.predictions || [];
+  } catch (e) {
+    console.error('[Preview] Failed to generate preview:', e);
+    previewPredictions = state.generatedNumbers || [];
+  }
+
   // Update preview numbers
-  if (predictions.length === 0) {
+  if (previewPredictions.length === 0) {
     previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions yet</span>';
   } else {
-    previewContainer.innerHTML = predictions
+    previewContainer.innerHTML = previewPredictions
       .map(num => `<span style="background:#2a3f4f; color:#74b9ff; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600;">${num}</span>`)
       .join('');
   }
