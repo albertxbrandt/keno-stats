@@ -14,7 +14,10 @@ export function generateAllPredictions() {
     const predictions = {
         frequency: [],
         cold: [],
-        momentum: []
+        momentum: [],
+        mixed: [],
+        average: [],
+        auto: []
     };
 
     // Generate frequency predictions
@@ -22,6 +25,15 @@ export function generateAllPredictions() {
 
     // Generate cold predictions
     predictions.cold = getColdPredictions(count);
+
+    // Generate mixed predictions
+    predictions.mixed = getMixedPredictions(count);
+
+    // Generate average predictions
+    predictions.average = getAveragePredictions(count);
+
+    // Generate auto predictions (uses best performing method)
+    predictions.auto = getAutoPredictions(count);
 
     // Generate/use momentum predictions
     if (state.generatorMethod === 'momentum') {
@@ -89,6 +101,10 @@ export function generateAllPredictions() {
     }
 
     console.log('[GenerateAll] Predictions generated:', predictions);
+    
+    // Store predictions for comparison tracking on next round
+    state.lastGeneratedPredictions = predictions;
+    
     return predictions;
 }
 
@@ -374,6 +390,113 @@ export function getColdPredictions(count) {
     const sorted = Object.entries(counts).sort((a, b) => a[1] - b[1]);
     const capped = Math.min(count, 40);
     return sorted.slice(0, capped).map(entry => parseInt(entry[0]));
+}
+
+/**
+ * Get mixed predictions (combination of hot and cold numbers)
+ */
+export function getMixedPredictions(count) {
+    const half = Math.floor(count / 2);
+    const hotCount = count - half; // If odd number, hot gets the extra
+    const coldCount = half;
+
+    const hot = getTopPredictions(hotCount);
+    const cold = getColdPredictions(coldCount);
+
+    // Combine and sort
+    return [...hot, ...cold].sort((a, b) => a - b);
+}
+
+/**
+ * Get average frequency predictions (numbers appearing at median frequency)
+ */
+export function getAveragePredictions(count) {
+    const counts = {};
+    const sampleCount = Math.min(state.generatorSampleSize, state.currentHistory.length);
+    let sample = state.currentHistory.slice(-sampleCount);
+
+    // Initialize all numbers
+    for (let i = 1; i <= 40; i++) {
+        counts[i] = 0;
+    }
+
+    // Count occurrences
+    sample.forEach(round => {
+        const hits = getHits(round);
+        const misses = getMisses(round);
+        const allHits = [...hits, ...misses];
+        allHits.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+    });
+
+    // Calculate median frequency
+    const frequencies = Object.values(counts).sort((a, b) => a - b);
+    const medianIndex = Math.floor(frequencies.length / 2);
+    const median = frequencies[medianIndex];
+
+    // Find numbers closest to median frequency
+    const withDistance = Object.entries(counts).map(([num, freq]) => ({
+        num: parseInt(num),
+        freq,
+        distance: Math.abs(freq - median)
+    }));
+
+    // Sort by distance to median (closest first), then by number
+    withDistance.sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        return a.num - b.num;
+    });
+
+    const capped = Math.min(count, 40);
+    return withDistance.slice(0, capped).map(item => item.num);
+}
+
+/**
+ * Get auto mode predictions (uses best performing method from comparison data)
+ */
+export function getAutoPredictions(count) {
+    // Check if we have comparison data
+    if (!state.comparisonData || state.comparisonData.length < 5) {
+        console.log('[Auto] Insufficient comparison data, using frequency');
+        return getTopPredictions(count);
+    }
+
+    // Calculate accuracy for each method
+    const methods = ['frequency', 'cold', 'momentum'];
+    const accuracies = {};
+
+    methods.forEach(method => {
+        let totalHits = 0;
+        let totalPredictions = 0;
+
+        state.comparisonData.forEach(dataPoint => {
+            if (dataPoint[method]) {
+                totalHits += dataPoint[method].hits || 0;
+                totalPredictions += dataPoint[method].count || 0;
+            }
+        });
+
+        accuracies[method] = totalPredictions > 0 ? (totalHits / totalPredictions) * 100 : 0;
+    });
+
+    // Find best performing method
+    const bestMethod = Object.entries(accuracies).sort((a, b) => b[1] - a[1])[0][0];
+    console.log(`[Auto] Best performing method: ${bestMethod} (${accuracies[bestMethod].toFixed(1)}% accuracy)`);
+
+    // Use the best method
+    if (bestMethod === 'frequency') return getTopPredictions(count);
+    if (bestMethod === 'cold') return getColdPredictions(count);
+    if (bestMethod === 'momentum') {
+        try {
+            const config = getMomentumConfig();
+            return getMomentumPrediction(config.patternSize, config);
+        } catch (e) {
+            console.warn('[Auto] Momentum failed, using frequency:', e);
+            return getTopPredictions(count);
+        }
+    }
+
+    // Fallback
+    return getTopPredictions(count);
 }
 
 export function getMomentumBasedPredictions(count) {

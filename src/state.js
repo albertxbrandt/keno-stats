@@ -11,6 +11,7 @@ export const state = {
     generatorSampleSize: 5, // Generator uses separate sample size
     generatedNumbers: [],
     generatorAutoSelect: false,
+    lastGeneratedPredictions: null, // Store predictions for comparison tracking
     // Momentum-specific
     momentumLastRefresh: 0,
     momentumDisplayCache: null, // Cache momentum display to avoid recalculating

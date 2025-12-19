@@ -69,15 +69,24 @@ function initializeExtension() {
 			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
 		}, 500);
 
-		// If comparison window is open OR generator is active, generate predictions for all methods
+		// Capture predictions BEFORE regenerating (these are what were actually played)
+		const playedPredictions = state.lastGeneratedPredictions ? {...state.lastGeneratedPredictions} : null;
+
+		// Track comparison BEFORE auto-generation (use numbers that were actually played)
+		if (state.isComparisonWindowOpen && window.__keno_trackRound && playedPredictions) {
+			try {
+				window.__keno_trackRound({ drawn, selected, predictions: playedPredictions });
+			} catch (e) {
+				console.error('[Comparison] track round failed:', e);
+			}
+		}
+
+		// NOW generate new numbers for next round
 		if ((state.isComparisonWindowOpen || state.isGeneratorActive) && window.__keno_generateAllPredictions) {
 			try {
 				const allPredictions = window.__keno_generateAllPredictions();
-
-				// Track comparison if window open
-				if (state.isComparisonWindowOpen && window.__keno_trackRound) {
-					window.__keno_trackRound({ drawn, selected, predictions: allPredictions });
-				}
+				// Store for next round's comparison
+				state.lastGeneratedPredictions = allPredictions;
 			} catch (e) {
 				console.error('[Generator] Generate all predictions failed:', e);
 			}

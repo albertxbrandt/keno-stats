@@ -70,11 +70,14 @@ export function createOverlay() {
                         <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
                             <option value="frequency">🔥 Frequency (Hot Numbers)</option>
                             <option value="cold">❄️ Cold (Least Frequent)</option>
+                            <option value="mixed">🔀 Mixed (Hot + Cold)</option>
+                            <option value="average">📊 Average (Median Frequency)</option>
                             <option value="momentum">⚡ Momentum (Trending)</option>
+                            <option value="auto">🤖 Auto (Best Performer)</option>
                         </select>
                     </div>
                     
-                    <!-- Frequency-specific parameters -->
+                    <!-- Frequency/Cold/Mixed/Average parameters -->
                     <div id="frequency-params" style="display:block;">
                         <div style="margin-bottom:8px;">
                             <span style="color:#aaa; font-size:10px;">Sample Size:</span>
@@ -643,11 +646,13 @@ export function createOverlay() {
             state.generatorMethod = e.target.value;
 
             // Show/hide parameters based on method
-            if (frequencyParams) frequencyParams.style.display = (state.generatorMethod === 'frequency' || state.generatorMethod === 'cold') ? 'block' : 'none';
+            // frequency, cold, mixed, average, and auto all use sample size
+            const usesSampleSize = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(state.generatorMethod);
+            if (frequencyParams) frequencyParams.style.display = usesSampleSize ? 'block' : 'none';
             if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
 
             // Update legacy state for backward compatibility
-            state.isPredictMode = state.isGeneratorActive && (state.generatorMethod === 'frequency' || state.generatorMethod === 'cold');
+            state.isPredictMode = state.isGeneratorActive && usesSampleSize;
             state.isMomentumMode = state.isGeneratorActive && state.generatorMethod === 'momentum';
 
             // Update momentum countdown if switching to momentum
@@ -657,7 +662,8 @@ export function createOverlay() {
         });
 
         // Initialize parameter visibility
-        if (frequencyParams) frequencyParams.style.display = (state.generatorMethod === 'frequency' || state.generatorMethod === 'cold') ? 'block' : 'none';
+        const usesSampleSize = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(state.generatorMethod);
+        if (frequencyParams) frequencyParams.style.display = usesSampleSize ? 'block' : 'none';
         if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
     }
 
