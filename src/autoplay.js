@@ -4,6 +4,7 @@ import { saveRound, getHits, getMisses } from './storage.js';
 import { simulatePointerClick, findAndClickPlayButton, waitForBetButtonReady } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 import { getMomentumPrediction, MomentumPatternGenerator } from './momentum.js';
+import { getShapePredictions } from './shapes.js';
 
 /**
  * Generate predictions for all methods at once
@@ -17,7 +18,8 @@ export function generateAllPredictions() {
         momentum: [],
         mixed: [],
         average: [],
-        auto: []
+        auto: [],
+        shapes: []
     };
 
     // Generate frequency predictions
@@ -34,6 +36,9 @@ export function generateAllPredictions() {
 
     // Generate auto predictions (uses best performing method)
     predictions.auto = getAutoPredictions(count);
+
+    // Generate shapes predictions
+    predictions.shapes = getShapePredictions(count);
 
     // Generate/use momentum predictions
     if (state.generatorMethod === 'momentum') {
@@ -101,10 +106,10 @@ export function generateAllPredictions() {
     }
 
     console.log('[GenerateAll] Predictions generated:', predictions);
-    
+
     // Store predictions for comparison tracking on next round
     state.lastGeneratedPredictions = predictions;
-    
+
     return predictions;
 }
 
@@ -135,6 +140,15 @@ export function generateNumbers(forceRefresh = false) {
         const count = state.generatorCount || 3;
         generatedNumbers = getColdPredictions(count);
         console.log(`[Generator] Cold method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+    } else if (state.generatorMethod === 'shapes') {
+        const count = state.generatorCount || 5;
+        generatedNumbers = getShapePredictions(count);
+        console.log(`[Generator] Shapes method generated ${generatedNumbers.length} numbers:`, generatedNumbers);
+
+        // Update shapes info display
+        if (window.__keno_updateShapesInfo) {
+            window.__keno_updateShapesInfo();
+        }
     } else if (state.generatorMethod === 'momentum') {
         // Check if we should refresh momentum predictions
         const config = getMomentumConfig();

@@ -51,5 +51,6 @@ export const state = {
     // Method Comparison Window
     isComparisonWindowOpen: false,
     comparisonLookback: 50, // How many rounds to track
-    comparisonData: [] // Array of {round, frequency: {predicted, hits}, momentum: {predicted, hits}, cold: {predicted, hits}}
+    comparisonData: [], // Array of {round, frequency: {predicted, hits, profit}, momentum: {predicted, hits, profit}, cold: {predicted, hits, profit}}
+    gameDifficulty: 'classic' // Current game difficulty (classic, low, medium, high)
 };

@@ -74,6 +74,7 @@ export function createOverlay() {
                             <option value="average">📊 Average (Median Frequency)</option>
                             <option value="momentum">⚡ Momentum (Trending)</option>
                             <option value="auto">🤖 Auto (Best Performer)</option>
+                            <option value="shapes">🔷 Shapes (Board Patterns)</option>
                         </select>
                     </div>
                     
@@ -83,6 +84,11 @@ export function createOverlay() {
                             <span style="color:#aaa; font-size:10px;">Sample Size:</span>
                             <input type="number" id="frequency-sample-size" min="1" value="5" 
                                 style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px; margin-top:4px;">
+                        </div>
+                        <!-- Shape info display -->
+                        <div id="shapes-info" style="display:none; margin-top:6px; padding:6px; background:#14202b; border-radius:4px; border:1px solid #fd79a830;">
+                            <div style="color:#fd79a8; font-size:9px; margin-bottom:2px;">Last Shape:</div>
+                            <div id="shapes-last-shape" style="color:#aaa; font-size:10px; font-weight:600;">-</div>
                         </div>
                     </div>
                     
@@ -646,10 +652,16 @@ export function createOverlay() {
             state.generatorMethod = e.target.value;
 
             // Show/hide parameters based on method
-            // frequency, cold, mixed, average, and auto all use sample size
-            const usesSampleSize = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(state.generatorMethod);
+            // frequency, cold, mixed, average, auto, and shapes use sample size (shapes doesn't really use it but shows count)
+            const usesSampleSize = ['frequency', 'cold', 'mixed', 'average', 'auto', 'shapes'].includes(state.generatorMethod);
             if (frequencyParams) frequencyParams.style.display = usesSampleSize ? 'block' : 'none';
             if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
+
+            // Show/hide shapes info
+            const shapesInfo = document.getElementById('shapes-info');
+            if (shapesInfo) {
+                shapesInfo.style.display = state.generatorMethod === 'shapes' ? 'block' : 'none';
+            }
 
             // Update legacy state for backward compatibility
             state.isPredictMode = state.isGeneratorActive && usesSampleSize;
@@ -662,9 +674,15 @@ export function createOverlay() {
         });
 
         // Initialize parameter visibility
-        const usesSampleSize = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(state.generatorMethod);
+        const usesSampleSize = ['frequency', 'cold', 'mixed', 'average', 'auto', 'shapes'].includes(state.generatorMethod);
         if (frequencyParams) frequencyParams.style.display = usesSampleSize ? 'block' : 'none';
         if (momentumParams) momentumParams.style.display = state.generatorMethod === 'momentum' ? 'block' : 'none';
+
+        // Initialize shapes info visibility
+        const shapesInfo = document.getElementById('shapes-info');
+        if (shapesInfo) {
+            shapesInfo.style.display = state.generatorMethod === 'shapes' ? 'block' : 'none';
+        }
     }
 
     if (generatorSwitch) {
@@ -1314,3 +1332,20 @@ export function injectFooterButton() {
 // Expose for main entry to call
 export function initOverlay() { createOverlay(); setInterval(injectFooterButton, 1000); }
 
+/**
+ * Update shapes info display with last generated shape
+ */
+export function updateShapesInfo() {
+    const shapesLastShape = document.getElementById('shapes-last-shape');
+    if (!shapesLastShape) return;
+
+    if (window.__keno_lastShapeInfo) {
+        const info = window.__keno_lastShapeInfo;
+        shapesLastShape.innerHTML = `${info.emoji} ${info.name}<br><span style="color:#666; font-size:9px;">${info.numbers.join(', ')}</span>`;
+    } else {
+        shapesLastShape.textContent = 'Generate to see shape';
+    }
+}
+
+// Expose updateShapesInfo globally
+window.__keno_updateShapesInfo = updateShapesInfo;

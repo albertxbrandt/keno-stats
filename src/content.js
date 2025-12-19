@@ -70,7 +70,7 @@ function initializeExtension() {
 		}, 500);
 
 		// Capture predictions BEFORE regenerating (these are what were actually played)
-		const playedPredictions = state.lastGeneratedPredictions ? {...state.lastGeneratedPredictions} : null;
+		const playedPredictions = state.lastGeneratedPredictions ? { ...state.lastGeneratedPredictions } : null;
 
 		// Track comparison BEFORE auto-generation (use numbers that were actually played)
 		if (state.isComparisonWindowOpen && window.__keno_trackRound && playedPredictions) {
