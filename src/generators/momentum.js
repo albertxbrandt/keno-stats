@@ -1,5 +1,5 @@
 import { BaseGenerator } from './base.js';
-import { getMomentumPrediction } from '../momentum.js';
+import { getMomentumPrediction } from './momentumCore.js';
 
 /**
  * Momentum Generator

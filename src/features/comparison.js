@@ -1,7 +1,7 @@
 // src/comparison.js
 import { state } from '../state.js';
 import { getTopPredictions, getColdPredictions } from '../numberSelection.js';
-import { getMomentumPrediction } from '../momentum.js';
+import { getMomentumPrediction } from '../generators/momentumCore.js';
 import { getHits, getMisses } from '../storage.js';
 import betMultis from '../../config/bet-multis.json';
 
