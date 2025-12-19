@@ -3,13 +3,13 @@
 
 import { state } from './state.js';
 import { getHits, getMisses } from './storage.js';
-import { simulatePointerClick } from './utils.js';
 import { highlightPrediction } from './heatmap.js';
 import { generatorFactory, cacheManager } from './generators/index.js';
+import { replaceSelection } from './tileSelection.js';
 
 // ============================================================================
-// GENERATOR WRAPPER FUNCTIONS
-// These provide the main API for generating and managing predictions
+// GENERATOR WRAPPER FUNCTIONS (for backward compatibility)
+// These delegate to the new generator system
 // ============================================================================
 
 /**
@@ -116,11 +116,9 @@ function buildGeneratorConfig(method) {
   return config;
 }
 
-// ============================================================================
-// LEGACY COMPATIBILITY FUNCTIONS
-// Delegate to new generator system for backward compatibility
-// ============================================================================
-
+/**
+ * Legacy compatibility functions - delegate to new system
+ */
 export function getTopPredictions(count) {
   const generator = generatorFactory.get('frequency');
   return generator.generate(count, state.currentHistory, { sampleSize: state.sampleSize });
@@ -170,74 +168,16 @@ export function selectPredictedNumbers() {
     return;
   }
 
-  const container = document.querySelector('div[data-testid="game-keno"]');
-  if (!container) {
-    console.error('[selectPredictedNumbers] Game container not found');
-    return;
-  }
-
-  const tiles = Array.from(container.querySelectorAll('button'));
   console.log(`[selectPredictedNumbers] Selecting ${predictions.length} tiles:`, predictions);
 
-  // Deselect all first
-  deselectAllTiles(tiles);
-
-  // Select predictions
-  predictions.forEach(num => {
-    const tile = tiles.find(t => {
-      const text = (t.textContent || '').trim().split('%')[0];
-      return parseInt(text) === num;
-    });
-
-    if (tile && !isTileSelected(tile)) {
-      try {
-        simulatePointerClick(tile);
-      } catch (e) {
-        try {
-          tile.click();
-        } catch (err) {
-          console.error(`[selectPredictedNumbers] Failed to click tile ${num}:`, err);
-        }
-      }
-    }
-  });
+  // Use shared tile selection utility
+  const result = replaceSelection(predictions);
+  if (result.failed.length > 0) {
+    console.warn('[selectPredictedNumbers] Failed to select tiles:', result.failed);
+  }
 
   // Highlight predictions
   highlightPrediction(predictions);
-}
-
-/**
- * Deselect all tiles on game board
- */
-function deselectAllTiles(tiles) {
-  const selected = tiles.filter(isTileSelected);
-  selected.forEach(tile => {
-    try {
-      simulatePointerClick(tile);
-    } catch (e) {
-      try {
-        tile.click();
-      } catch { }
-    }
-    // Clear highlight styles
-    tile.style.boxShadow = '';
-    tile.style.transform = '';
-    tile.style.opacity = '1';
-  });
-}
-
-/**
- * Check if tile is selected
- */
-function isTileSelected(tile) {
-  if (!tile) return false;
-  const classList = Array.from(tile.classList);
-  return classList.some(cls =>
-    cls.includes('selected') ||
-    cls.includes('active') ||
-    cls.includes('picked') ||
-    cls.includes('chosen')
-  );
 }
 
 /**

@@ -3,8 +3,9 @@
 // Automatically places bets using generated numbers
 
 import { state } from './state.js';
-import { simulatePointerClick, findAndClickPlayButton } from './utils.js';
+import { findAndClickPlayButton } from './utils.js';
 import { getTopPredictions } from './numberSelection.js';
+import { replaceSelection } from './tileSelection.js';
 
 // ============================================================================
 // AUTO-PLAY BETTING CORE
@@ -19,17 +20,6 @@ import { getTopPredictions } from './numberSelection.js';
  * 4. Clicks play button
  */
 export function autoPlayPlaceBet() {
-    const container = document.querySelector('div[data-testid="game-keno"]');
-    if (!container) {
-        console.error('[AutoPlay] Game container not found');
-        return;
-    }
-
-    const tiles = Array.from(container.querySelectorAll('button'));
-
-    // Deselect currently selected tiles
-    deselectAllTiles(tiles);
-
     // Get predictions from unified generator or fallback
     let predictions = [];
     if (state.isGeneratorActive && state.generatedNumbers.length > 0) {
@@ -52,25 +42,11 @@ export function autoPlayPlaceBet() {
         console.log('[AutoPlay] Using fallback predictions:', predictions);
     }
 
-    // Select tiles based on predictions
-    predictions.forEach(num => {
-        const tile = tiles.find(t => {
-            const text = (t.textContent || '').trim().split('%')[0];
-            return parseInt(text) === num;
-        });
-
-        if (tile && !isTileSelected(tile)) {
-            try {
-                simulatePointerClick(tile);
-            } catch (e) {
-                try {
-                    tile.click();
-                } catch (err) {
-                    console.error(`[AutoPlay] Failed to click tile ${num}:`, err);
-                }
-            }
-        }
-    });
+    // Select tiles using shared utility
+    const result = replaceSelection(predictions);
+    if (result.failed.length > 0) {
+        console.warn('[AutoPlay] Failed to select tiles:', result.failed);
+    }
 
     // Click play button after short delay
     setTimeout(() => {
@@ -133,42 +109,6 @@ export function updateAutoPlayUI() {
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-
-/**
- * Deselect all tiles on game board
- * @private
- */
-function deselectAllTiles(tiles) {
-    const selected = tiles.filter(isTileSelected);
-    selected.forEach(tile => {
-        try {
-            simulatePointerClick(tile);
-        } catch (e) {
-            try {
-                tile.click();
-            } catch { }
-        }
-        // Clear highlight styles
-        tile.style.boxShadow = '';
-        tile.style.transform = '';
-        tile.style.opacity = '1';
-    });
-}
-
-/**
- * Check if tile is selected
- * @private
- */
-function isTileSelected(tile) {
-    if (!tile) return false;
-    const classList = Array.from(tile.classList);
-    return classList.some(cls =>
-        cls.includes('selected') ||
-        cls.includes('active') ||
-        cls.includes('picked') ||
-        cls.includes('chosen')
-    );
-}
 
 /**
  * Generate random predictions (fallback when no history available)
