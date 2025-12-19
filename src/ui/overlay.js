@@ -654,7 +654,7 @@ export function createOverlay() {
                 generatorDetails.style.maxHeight = '0';
                 generatorDetails.style.opacity = '0';
             } else {
-                generatorDetails.style.maxHeight = '450px';
+                generatorDetails.style.maxHeight = '550px';
                 generatorDetails.style.opacity = '1';
             }
         });
@@ -743,7 +743,7 @@ export function createOverlay() {
             if (genDot) { genDot.style.transform = 'translateX(14px)'; genDot.style.backgroundColor = '#74b9ff'; }
             if (generatorStatus) generatorStatus.textContent = 'Active';
             if (generatorDetails) {
-                generatorDetails.style.maxHeight = '450px';
+                generatorDetails.style.maxHeight = '550px';
                 generatorDetails.style.opacity = '1';
             }
         }
@@ -770,7 +770,7 @@ export function createOverlay() {
 
             // Expand details when enabled
             if (state.isGeneratorActive && generatorDetails) {
-                generatorDetails.style.maxHeight = '450px';
+                generatorDetails.style.maxHeight = '550px';
                 generatorDetails.style.opacity = '1';
             }
 
