@@ -108,10 +108,10 @@ export function waitForBetButtonReady(maxWaitMs = 5000) {
 export function waitForPlayButtonAndClick(maxWaitMs = 10000, checkIntervalMs = 100) {
     return new Promise((resolve) => {
         const startTime = Date.now();
-        
+
         const checkButton = () => {
             const betButton = document.querySelector('button[data-testid="bet-button"]');
-            
+
             if (!betButton) {
                 // Button not found - keep checking
                 if (Date.now() - startTime < maxWaitMs) {
@@ -122,13 +122,13 @@ export function waitForPlayButtonAndClick(maxWaitMs = 10000, checkIntervalMs = 1
                 }
                 return;
             }
-            
+
             // Check if button is enabled (not disabled)
-            const isDisabled = betButton.disabled || 
-                              betButton.getAttribute('disabled') !== null ||
-                              betButton.getAttribute('aria-disabled') === 'true' ||
-                              betButton.classList.contains('disabled');
-            
+            const isDisabled = betButton.disabled ||
+                betButton.getAttribute('disabled') !== null ||
+                betButton.getAttribute('aria-disabled') === 'true' ||
+                betButton.classList.contains('disabled');
+
             if (isDisabled) {
                 // Button still disabled - keep checking
                 if (Date.now() - startTime < maxWaitMs) {
@@ -139,14 +139,14 @@ export function waitForPlayButtonAndClick(maxWaitMs = 10000, checkIntervalMs = 1
                 }
                 return;
             }
-            
+
             // Button is enabled - click it!
             // eslint-disable-next-line no-console
             console.log('[waitForPlayButton] Button enabled, clicking now');
             simulatePointerClick(betButton);
             resolve(true);
         };
-        
+
         // Start checking
         checkButton();
     });
@@ -161,10 +161,10 @@ export function waitForPlayButtonAndClick(maxWaitMs = 10000, checkIntervalMs = 1
 export function waitForClearButtonAndClick(maxWaitMs = 3000, checkIntervalMs = 50) {
     return new Promise((resolve) => {
         const startTime = Date.now();
-        
+
         const checkButton = () => {
             const clearButton = document.querySelector('button[data-testid="game-clear-table"]');
-            
+
             if (!clearButton) {
                 if (Date.now() - startTime < maxWaitMs) {
                     setTimeout(checkButton, checkIntervalMs);
@@ -174,13 +174,13 @@ export function waitForClearButtonAndClick(maxWaitMs = 3000, checkIntervalMs = 5
                 }
                 return;
             }
-            
+
             // Check if button is enabled
-            const isDisabled = clearButton.disabled || 
-                              clearButton.getAttribute('disabled') !== null ||
-                              clearButton.getAttribute('aria-disabled') === 'true' ||
-                              clearButton.classList.contains('disabled');
-            
+            const isDisabled = clearButton.disabled ||
+                clearButton.getAttribute('disabled') !== null ||
+                clearButton.getAttribute('aria-disabled') === 'true' ||
+                clearButton.classList.contains('disabled');
+
             if (isDisabled) {
                 if (Date.now() - startTime < maxWaitMs) {
                     setTimeout(checkButton, checkIntervalMs);
@@ -190,14 +190,14 @@ export function waitForClearButtonAndClick(maxWaitMs = 3000, checkIntervalMs = 5
                 }
                 return;
             }
-            
+
             // Button is enabled - click it!
             // eslint-disable-next-line no-console
             console.log('[waitForClearButton] Button enabled, clicking now');
             simulatePointerClick(clearButton);
             resolve(true);
         };
-        
+
         checkButton();
     });
 }
