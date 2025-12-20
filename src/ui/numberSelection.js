@@ -236,8 +236,10 @@ export async function selectPredictedNumbers() {
     console.warn('[selectPredictedNumbers] Failed to select tiles:', result.failed);
   }
 
-  // Highlight predictions
-  highlightPrediction(predictions);
+  // Only highlight predictions if auto-refresh is enabled
+  if (state.generatorAutoRefresh) {
+    highlightPrediction(predictions);
+  }
 }
 
 /**

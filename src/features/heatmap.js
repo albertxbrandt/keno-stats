@@ -351,6 +351,7 @@ export function updateHeatmap() {
 window.__keno_highlightRound = highlightRound;
 window.__keno_clearHighlight = clearHighlight;
 window.__keno_updateHeatmap = updateHeatmap;
+window.__keno_highlightPrediction = highlightPrediction;
 
 // Note: updateHeatmap is called on-demand via storage.js saveRound() callback
 // No longer running on interval to improve performance with large datasets
