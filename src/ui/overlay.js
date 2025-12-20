@@ -2,7 +2,7 @@
 import { state } from '../core/state.js';
 import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
-import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
+import { calculatePrediction } from './numberSelection.js';
 import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
 import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from '../utils/domReader.js';
 
@@ -67,6 +67,12 @@ export function createOverlay() {
                             style="width:64px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     </div>
                     
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        <span style="color:#aaa; font-size:10px;">Sample Size:</span>
+                        <input type="number" id="generator-sample-size" min="1" max="100" value="20" 
+                            style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
+                    </div>
+                    
                     <!-- Universal Refresh Control -->
                     <div style="margin-bottom:8px;">
                         <span style="color:#aaa; font-size:10px;">Refresh:</span>
@@ -104,15 +110,6 @@ export function createOverlay() {
                         </select>
                     </div>
                     
-                    <!-- Frequency/Cold/Mixed/Average parameters -->
-                    <div id="frequency-params" style="display:block;">
-                        <div style="margin-bottom:8px;">
-                            <span style="color:#aaa; font-size:10px;">Sample Size:</span>
-                            <input type="number" id="frequency-sample-size" min="1" value="5" 
-                                style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px; margin-top:4px;">
-                        </div>
-                    </div>
-                    
                     <!-- Shapes-specific parameters -->
                     <div id="shapes-params" style="display:none;">
                         <div style="margin-bottom:8px;">
@@ -139,6 +136,7 @@ export function createOverlay() {
                             <select id="shapes-placement-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:10px; margin-top:4px;">
                                 <option value="random">🎲 Random Position</option>
                                 <option value="hot">🔥 Hot Numbers Area</option>
+                                <option value="cold">❄️ Cold Numbers Area</option>
                                 <option value="trending">📈 Trending Position</option>
                             </select>
                         </div>
@@ -156,15 +154,30 @@ export function createOverlay() {
                                 <span id="momentum-current-numbers" style="color:#74b9ff; font-size:8px; font-weight:500; line-height:1.3; word-break:break-all;">-</span>
                             </div>
                         </div>
+                        
+                        <!-- Advanced Toggle -->
+                        <div style="margin-bottom:6px; cursor:pointer; padding:4px; background:#14202b; border-radius:4px; border:1px solid #3a5f6f;" id="momentum-advanced-toggle">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:#74b9ff; font-size:9px; font-weight:600;">⚙️ Advanced Settings</span>
+                                <span id="momentum-advanced-arrow" style="color:#74b9ff; font-size:10px;">▶</span>
+                            </div>
+                        </div>
+                        
+                        <div id="momentum-advanced-content" style="max-height:0; overflow:hidden; transition:max-height 0.3s ease, opacity 0.3s ease; opacity:0;">
+                        <div style="padding:4px; background:#0a1a24; border-radius:4px; margin-bottom:6px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="color:#666; font-size:8px;">Uses Sample Size × 4 for baseline</span>
+                                <button id="momentum-reset-btn" style="background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:8px;">Reset</button>
+                            </div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:6px;">
                             <div>
                                 <span style="color:#aaa; font-size:9px;">Detection:</span>
-                                <input type="number" id="momentum-detection" min="3" max="20" value="5" 
+                                <input type="number" id="momentum-detection" min="3" max="50" value="20" 
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                             </div>
                             <div>
                                 <span style="color:#aaa; font-size:9px;">Baseline:</span>
-                                <input type="number" id="momentum-baseline" min="10" max="200" value="50" 
+                                <input type="number" id="momentum-baseline" min="10" max="200" value="80" 
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                             </div>
                             <div>
@@ -178,10 +191,11 @@ export function createOverlay() {
                                     style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                             </div>
                         </div>
+                        </div>
+                        </div>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px; margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">
-                        <span style="color:#aaa; font-size:10px;">Auto-Select Numbers</span>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px; margin-bottom:6px; padding:6px; background:#14202b; border-radius:4px;">\n                        <span style="color:#aaa; font-size:10px;">Auto-Select Numbers</span>
                         <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
                             <input type="checkbox" id="generator-autoselect-switch" style="opacity:0; width:0; height:0;">
                             <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
@@ -399,7 +413,7 @@ export function createOverlay() {
         const siteFont = window.getComputedStyle(document.body).fontFamily;
         if (siteFont) overlay.style.fontFamily = siteFont;
         else overlay.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial';
-    } catch (e) { overlay.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial'; }
+    } catch { overlay.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial'; }
     // Make the top bar (drag-handle) visually distinct and darker
     try {
         const topBar = document.getElementById('drag-handle');
@@ -523,7 +537,7 @@ export function createOverlay() {
             }
         }
         heatmapSwitch.checked = !!state.isHeatmapActive;
-        heatmapSwitch.addEventListener('change', (e) => {
+        heatmapSwitch.addEventListener('change', (_e) => {
             state.isHeatmapActive = getCheckboxValue(heatmapSwitch);
             if (heatmapDot) {
                 heatmapDot.style.transform = state.isHeatmapActive ? 'translateX(14px)' : 'translateX(0px)';
@@ -541,7 +555,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'heatmap-slider-dot');
                     if (track) track.style.backgroundColor = state.isHeatmapActive ? '#2a3b4a' : '#444';
                 }
-            } catch (err) { }
+            } catch { }
 
             // Expand details when enabled
             if (state.isHeatmapActive && heatmapDetails) {
@@ -604,7 +618,6 @@ export function createOverlay() {
     const generateBtn = document.getElementById('generate-numbers-btn');
     const frequencyParams = document.getElementById('frequency-params');
     const momentumParams = document.getElementById('momentum-params');
-    const momentumInfo = document.querySelector('#momentum-params #momentum-info');
 
     // Collapsible generator section
     if (generatorHeader && generatorDetails) {
@@ -655,7 +668,7 @@ export function createOverlay() {
     // Method selector - show/hide relevant parameters
     if (methodSelect) {
         methodSelect.value = state.generatorMethod || 'frequency';
-        methodSelect.addEventListener('change', (e) => {
+        methodSelect.addEventListener('change', (_e) => {
             state.generatorMethod = getSelectValue(methodSelect, 'frequency');
             saveGeneratorSettings();
 
@@ -712,7 +725,7 @@ export function createOverlay() {
             }
         }
         generatorSwitch.checked = !!state.isGeneratorActive;
-        generatorSwitch.addEventListener('change', (e) => {
+        generatorSwitch.addEventListener('change', (_e) => {
             state.isGeneratorActive = getCheckboxValue(generatorSwitch);
             if (genDot) {
                 genDot.style.transform = state.isGeneratorActive ? 'translateX(14px)' : 'translateX(0px)';
@@ -730,7 +743,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-slider-dot');
                     if (track) track.style.backgroundColor = state.isGeneratorActive ? '#2a3b4a' : '#444';
                 }
-            } catch (err) { }
+            } catch { }
 
             // Expand details when enabled
             if (state.isGeneratorActive && generatorDetails) {
@@ -775,7 +788,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-autoselect-dot');
                     if (track) track.style.backgroundColor = state.generatorAutoSelect ? '#2a3b4a' : '#444';
                 }
-            } catch (err) { }
+            } catch { }
         });
     }
 
@@ -1034,6 +1047,63 @@ export function createOverlay() {
     const apPredCount = document.getElementById('autoplay-pred-count');
     if (apPredCount) apPredCount.addEventListener('change', () => { const rawVal = parseInt(apPredCount.value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawVal, 1), 40); });
 
+    // Global sample size input
+    const generatorSampleSizeInput = document.getElementById('generator-sample-size');
+    if (generatorSampleSizeInput) {
+        generatorSampleSizeInput.addEventListener('change', () => {
+            state.generatorSampleSize = getIntValue(generatorSampleSizeInput, 20, { min: 1, max: 100 });
+            saveGeneratorSettings();
+        });
+    }
+
+    // Momentum advanced toggle
+    const momentumAdvancedToggle = document.getElementById('momentum-advanced-toggle');
+    const momentumAdvancedContent = document.getElementById('momentum-advanced-content');
+    const momentumAdvancedArrow = document.getElementById('momentum-advanced-arrow');
+    let momentumAdvancedOpen = false;
+
+    if (momentumAdvancedToggle && momentumAdvancedContent) {
+        momentumAdvancedToggle.addEventListener('click', () => {
+            momentumAdvancedOpen = !momentumAdvancedOpen;
+            if (momentumAdvancedOpen) {
+                momentumAdvancedContent.style.maxHeight = '300px';
+                momentumAdvancedContent.style.opacity = '1';
+                if (momentumAdvancedArrow) momentumAdvancedArrow.textContent = '\u25bc';
+            } else {
+                momentumAdvancedContent.style.maxHeight = '0';
+                momentumAdvancedContent.style.opacity = '0';
+                if (momentumAdvancedArrow) momentumAdvancedArrow.textContent = '\u25b6';
+            }
+        });
+    }
+
+    // Momentum reset button - resets to sample size based values
+    const momentumResetBtn = document.getElementById('momentum-reset-btn');
+    if (momentumResetBtn) {
+        momentumResetBtn.addEventListener('click', () => {
+            const sampleSize = state.generatorSampleSize || 20;
+
+            // Reset to sampleSize-based defaults
+            state.momentumDetectionWindow = sampleSize;
+            state.momentumBaselineGames = sampleSize * 4;
+            state.momentumThreshold = 1.5;
+            state.momentumPoolSize = 15;
+
+            // Update UI
+            const momentumDetection = document.getElementById('momentum-detection');
+            const momentumBaseline = document.getElementById('momentum-baseline');
+            const momentumThreshold = document.getElementById('momentum-threshold');
+            const momentumPool = document.getElementById('momentum-pool');
+
+            if (momentumDetection) momentumDetection.value = sampleSize;
+            if (momentumBaseline) momentumBaseline.value = sampleSize * 4;
+            if (momentumThreshold) momentumThreshold.value = 1.5;
+            if (momentumPool) momentumPool.value = 15;
+
+            saveGeneratorSettings();
+        });
+    }
+
     const analyzePatternBtn = document.getElementById('analyze-pattern-btn');
     if (analyzePatternBtn) {
         analyzePatternBtn.addEventListener('click', () => {
@@ -1281,7 +1351,7 @@ export function createOverlay() {
                 e.dataTransfer.effectAllowed = 'move';
             });
 
-            row.addEventListener('dragend', (e) => {
+            row.addEventListener('dragend', (_e) => {
                 row.style.opacity = '1';
                 draggedElement = null;
             });
@@ -1345,7 +1415,7 @@ function reorderSettingsRows() {
     });
 
     // Reorder based on state.panelOrder
-    state.panelOrder.forEach((sectionKey, index) => {
+    state.panelOrder.forEach((sectionKey, _index) => {
         const row = rowMap.get(sectionKey);
         if (row) {
             settingsList.appendChild(row);
@@ -1460,8 +1530,8 @@ export function initOverlay() {
             const autoSelectSwitch = document.getElementById('generator-autoselect-switch');
             if (autoSelectSwitch) autoSelectSwitch.checked = state.generatorAutoSelect || false;
 
-            const sampleInput = document.getElementById('frequency-sample-size');
-            if (sampleInput) sampleInput.value = state.generatorSampleSize || 5;
+            const sampleInput = document.getElementById('generator-sample-size');
+            if (sampleInput) sampleInput.value = state.generatorSampleSize || 20;
 
             const shapesPattern = document.getElementById('shapes-pattern-select');
             if (shapesPattern) shapesPattern.value = state.shapesPattern || 'random';
@@ -1470,10 +1540,10 @@ export function initOverlay() {
             if (shapesPlacement) shapesPlacement.value = state.shapesPlacement || 'random';
 
             const momentumDetection = document.getElementById('momentum-detection');
-            if (momentumDetection) momentumDetection.value = state.momentumDetectionWindow || 5;
+            if (momentumDetection) momentumDetection.value = state.momentumDetectionWindow || state.generatorSampleSize || 20;
 
             const momentumBaseline = document.getElementById('momentum-baseline');
-            if (momentumBaseline) momentumBaseline.value = state.momentumBaselineGames || 50;
+            if (momentumBaseline) momentumBaseline.value = state.momentumBaselineGames || (state.generatorSampleSize || 20) * 4;
 
             const momentumThreshold = document.getElementById('momentum-threshold');
             if (momentumThreshold) momentumThreshold.value = state.momentumThreshold || 1.5;

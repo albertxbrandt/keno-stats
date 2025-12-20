@@ -20,7 +20,7 @@ export class BaseGenerator {
    * @returns {Array<number>} Array of predicted numbers (1-40)
    * @abstract
    */
-  generate(count, history, config = {}) {
+  generate(count, history, _config = {}) {
     throw new Error("generate() must be implemented by subclass");
   }
 

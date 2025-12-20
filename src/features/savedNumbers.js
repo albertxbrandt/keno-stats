@@ -1,6 +1,6 @@
 // src/savedNumbers.js - Manage saved number combinations
 import { state } from '../core/state.js';
-import { getDrawn, getSelected } from '../core/storage.js';
+import { getDrawn } from '../core/storage.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -122,7 +122,7 @@ export function updateRecentPlayedUI() {
       return;
     }
 
-    displayRecent.forEach((item, index) => {
+    displayRecent.forEach((item, _index) => {
       const isSaved = savedNumbers.some(s =>
         s.numbers.length === item.numbers.length &&
         s.numbers.every((n, i) => n === item.numbers[i])
@@ -519,7 +519,7 @@ function buildModal(numbers, comboName, hits, initialRiskMode, initialLookback) 
 
     if (riskSelector) {
       currentRiskMode = getSelectValue(riskSelector, 'classic');
-      riskSelector.addEventListener('change', (e) => {
+      riskSelector.addEventListener('change', (_e) => {
         currentRiskMode = getSelectValue(riskSelector, 'classic');
         // Save preference
         storageApi.storage.local.set({ graphRiskMode: currentRiskMode });

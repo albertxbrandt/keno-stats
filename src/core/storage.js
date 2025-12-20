@@ -25,7 +25,6 @@ function queueStorageWrite(round, totalCount) {
     writeTimeout = setTimeout(() => {
         if (pendingWrite) {
             const { round, totalCount } = pendingWrite;
-            const chunkIndex = Math.floor((totalCount - 1) / CHUNK_SIZE);
             const chunkKey = getChunkKey(totalCount - 1);
 
             // Get current chunk, append round, write back
@@ -167,10 +166,6 @@ export function saveRound(round) {
         if (window.__keno_clearPatternCache) {
             try { window.__keno_clearPatternCache(); } catch (e) { console.warn('[storage] clearPatternCache failed', e); }
         }
-        // Update momentum predictions if active
-        if (window.__keno_updateMomentumPredictions) {
-            try { window.__keno_updateMomentumPredictions(); } catch (e) { console.warn('[storage] updateMomentumPredictions failed', e); }
-        }
         // Dispatch event for live pattern updates
         window.dispatchEvent(new CustomEvent('kenoNewRound', { detail: { history: state.currentHistory } }));
     }, 0);
@@ -257,7 +252,6 @@ export function updateHistoryUI(history) {
 
     // Limit display to last 100 rounds for performance
     const displayHistory = history.slice(-100);
-    const startOffset = history.length - displayHistory.length;
 
     // Only fully rebuild if significantly different (avoid rebuilding on every single round)
     const currentChildren = list.children.length;

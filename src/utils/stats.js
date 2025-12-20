@@ -1,7 +1,7 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
 import { state } from '../core/state.js';
 import { getHits, getMisses, getDrawn, getSelected } from '../core/storage.js';
-import { getSelectedTileNumbers, getSelectedTileCount } from './domReader.js';
+import { getSelectedTileNumbers } from './domReader.js';
 
 /**
  * Calculate stats for selected tiles count
@@ -108,7 +108,6 @@ export function updateMultiplierBarStats() {
             return;
         }
 
-        const stats = calculateMultiplierStats(selectedCount, selectedNumbers);
         const containers = findMultiplierContainers();
 
         if (containers.length === 0) {
