@@ -744,6 +744,21 @@ export function createOverlay() {
                 }
             } catch { }
 
+            // Toggle highlights based on auto-refresh state
+            if (state.generatorAutoRefresh) {
+                // Turning on: highlight current predictions if they exist
+                if (state.generatedNumbers && state.generatedNumbers.length > 0) {
+                    if (window.__keno_highlightPrediction) {
+                        window.__keno_highlightPrediction(state.generatedNumbers);
+                    }
+                }
+            } else {
+                // Turning off: clear highlights
+                if (window.__keno_clearHighlight) {
+                    window.__keno_clearHighlight();
+                }
+            }
+
             // Update preview
             if (window.__keno_updateGeneratorPreview) {
                 window.__keno_updateGeneratorPreview();
