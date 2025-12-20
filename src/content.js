@@ -139,8 +139,7 @@ function addMessageListener() {
 		hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
-		// Save full kenoBet structure - preserve all fields except user
-		const { state: originalState, ...kenoBetData } = data;
+		
 		// Capture generator state
 		const generatorInfo = {
 			method: state.generatorMethod,

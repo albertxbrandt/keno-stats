@@ -141,6 +141,7 @@ export function waitForPlayButtonAndClick(maxWaitMs = 10000, checkIntervalMs = 1
             }
             
             // Button is enabled - click it!
+            // eslint-disable-next-line no-console
             console.log('[waitForPlayButton] Button enabled, clicking now');
             simulatePointerClick(betButton);
             resolve(true);
@@ -191,6 +192,7 @@ export function waitForClearButtonAndClick(maxWaitMs = 3000, checkIntervalMs = 5
             }
             
             // Button is enabled - click it!
+            // eslint-disable-next-line no-console
             console.log('[waitForClearButton] Button enabled, clicking now');
             simulatePointerClick(clearButton);
             resolve(true);
