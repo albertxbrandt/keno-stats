@@ -12,6 +12,7 @@ import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparison.js';
 import './features/patterns.js'; // Import pattern analysis module (sets up window hooks)
 
+// eslint-disable-next-line no-console
 console.log('Keno Tracker loaded');
 
 // Track if we've already initialized to prevent double-initialization
@@ -36,6 +37,7 @@ function waitForKenoElements(callback, maxAttempts = 50) {
 		const betButton = document.querySelector('button[data-testid="bet-button"]');
 
 		if (kenoContainer && betButton) {
+			// eslint-disable-next-line no-console
 			console.log('[Keno Tracker] Keno elements found after', attempts, 'attempts, ready to initialize');
 			callback();
 		} else if (attempts < maxAttempts) {
@@ -54,7 +56,6 @@ function waitForKenoElements(callback, maxAttempts = 50) {
 
 function checkAndInitialize() {
 	if (!isOnKenoPage()) {
-		console.log('[Keno Tracker] Not on Keno page, skipping initialization');
 		extensionInitialized = false;
 		return;
 	}
@@ -62,25 +63,26 @@ function checkAndInitialize() {
 	// Check if overlay already exists (more reliable than flag)
 	const existingOverlay = document.getElementById('keno-tracker-overlay');
 	if (existingOverlay && extensionInitialized) {
-		console.log('[Keno Tracker] Already initialized (overlay exists)');
 		return;
 	}
 
 	if (extensionInitialized && !existingOverlay) {
-		console.log('[Keno Tracker] Was initialized but overlay missing, re-initializing');
 		extensionInitialized = false;
 	}
 
 	storageApi.storage.local.get('disclaimerAccepted', (result) => {
 		if (!result.disclaimerAccepted) {
+			// eslint-disable-next-line no-console
 			console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
 			return;
 		}
 
+		// eslint-disable-next-line no-console
 		console.log('[Keno Tracker] Disclaimer accepted, waiting for Keno elements...');
 
 		// Wait for Keno game to fully load before initializing
 		waitForKenoElements(() => {
+			// eslint-disable-next-line no-console
 			console.log('[Keno Tracker] Initializing extension...');
 			initializeExtension();
 			extensionInitialized = true;
@@ -99,7 +101,6 @@ if (document.readyState === 'loading') {
 const observer = new MutationObserver(() => {
 	const currentUrl = window.location.href;
 	if (currentUrl !== lastUrl) {
-		console.log('[Keno Tracker] URL changed from', lastUrl, 'to', currentUrl);
 		lastUrl = currentUrl;
 		checkAndInitialize();
 	}
@@ -116,11 +117,11 @@ let messageListenerAdded = false;
 
 function addMessageListener() {
 	if (messageListenerAdded) {
-		console.log('[Keno Tracker] Message listener already added, skipping');
 		return;
 	}
 
 	messageListenerAdded = true;
+	// eslint-disable-next-line no-console
 	console.log('[Keno Tracker] Adding message listener');
 
 	window.addEventListener('message', (event) => {
@@ -138,7 +139,6 @@ function addMessageListener() {
 		hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
-		console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses, fullData: data });
 		// Save full kenoBet structure - preserve all fields except user
 		const { state: originalState, ...kenoBetData } = data;
 		// Capture generator state
@@ -170,7 +170,6 @@ function addMessageListener() {
 			generator: generatorInfo, // Store generator info if used
 			time: Date.now()
 		};
-		console.log('[KENO] Saving bet data:', betData);
 
 		// Wait for saveRound to complete before checking history.length for preview updates
 		import('./core/storage.js').then(async mod => {
@@ -254,9 +253,7 @@ function addMessageListener() {
 				try { updateAutoPlayUI(); } catch (e) { console.warn('[content] updateAutoPlayUI failed', e); }
 				// Wait for bet button to be ready, then place next bet
 				if (state.autoPlayRoundsRemaining > 0) {
-					console.log('[AutoPlay] Waiting for bet button before next round...');
 					waitForBetButtonReady(3000).then(() => {
-						console.log('[AutoPlay] Bet button ready, placing next bet. Rounds remaining:', state.autoPlayRoundsRemaining);
 						autoPlayPlaceBet();
 					}).catch(err => {
 						console.error('[AutoPlay] Bet button timeout:', err);
@@ -269,7 +266,6 @@ function addMessageListener() {
 						state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
 					}
 					try { updateAutoPlayUI(); } catch { }
-					console.log('[AutoPlay] Finished all rounds');
 				}
 			}
 		});

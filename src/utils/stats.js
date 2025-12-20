@@ -1,6 +1,6 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
 import { state } from '../core/state.js';
-import { getHits, getMisses, getDrawn, getSelected } from '../core/storage.js';
+import { getHits, getMisses, getDrawn } from '../core/storage.js';
 import { getSelectedTileNumbers } from './domReader.js';
 
 /**
@@ -237,7 +237,6 @@ function findMultiplierContainers() {
  * Set up observer to watch for tile selection changes
  */
 export function initStatsObserver() {
-    console.log('[STATS] initStatsObserver called');
     try {
         const tilesContainer = document.querySelector('div[data-testid="game-keno"]');
         if (!tilesContainer) {
@@ -304,8 +303,6 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
         return;
     }
 
-    console.log('[stats] Found matching bet at index:', betIndex, 'bet number:', betIndex + 1);
-
     // Create modal background
     const modalBg = document.createElement('div');
     Object.assign(modalBg.style, {
@@ -349,7 +346,6 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
     const hits = getHits(round).sort((a, b) => a - b);
     const misses = getMisses(round).sort((a, b) => a - b);
 
-    console.log('[stats] Modal data:', { hits, misses, drawn: getDrawn(round), selected: getSelected(round) });
 
     modal.innerHTML = `
         <div style="position: relative; margin-bottom: 14px;">

@@ -194,7 +194,6 @@ export function loadHistory() {
             });
         } else if (res.history) {
             // Old format: migrate to chunked storage
-            console.log('[storage] Migrating to chunked storage format...');
             state.currentHistory = res.history;
 
             // Migrate in background
@@ -213,7 +212,6 @@ export function loadHistory() {
                 storageApi.storage.local.set(writeData).then(() => {
                     // Remove old format
                     storageApi.storage.local.remove('history');
-                    console.log('[storage] Migration complete');
                 }).catch(e => console.error('[storage] Migration failed:', e));
             }, 1000);
 

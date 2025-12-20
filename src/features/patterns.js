@@ -12,7 +12,6 @@ const patternCache = {
     const cached = this.data.get(key);
 
     if (cached && (Date.now() - cached.timestamp) < this.maxAge) {
-      console.log('[patterns] Using cached data for size', patternSize);
       return cached;
     }
     return null;
@@ -84,12 +83,10 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
   if (useCache) {
     const cached = patternCache.data.get(cacheKey);
     if (cached && (Date.now() - cached.timestamp) < patternCache.maxAge) {
-      console.log('[patterns] Using cached data for size', patternSize, 'sample', effectiveSampleSize);
       return cached.patterns.slice(0, topN);
     }
   }
 
-  console.log('[patterns] Computing patterns for size', patternSize, 'sample', effectiveSampleSize);
   const patternCounts = {}; // Map of pattern key -> { numbers: [], count: number, occurrences: [] }
 
   // Get the sample of history to analyze
@@ -919,18 +916,14 @@ export function showLivePatternAnalysis() {
       });
 
       // Convert to array and apply filters
-      let allPatternsFromMap = Array.from(patternCountsMap.values());
-      console.log('[live-patterns] Total patterns before filters:', allPatternsFromMap.length);
+      const allPatternsFromMap = Array.from(patternsMap.entries()).map(([key, value]) => ({ pattern: key.split(',').map(Number), ...value }));
 
       let afterHitRate = allPatternsFromMap.filter(p => p.hitRate >= 10);
-      console.log('[live-patterns] After hitRate >=10% filter:', afterHitRate.length);
 
       // Conditionally apply buildup filter
       let afterBuildup = requireBuildups
         ? afterHitRate.filter(p => p.hasRecentBuildup)
         : afterHitRate;
-      console.log('[live-patterns] After hasRecentBuildup filter (required:', requireBuildups, '):', afterBuildup.length,
-        'Sample size:', actualSampleSize, 'Min/Max:', minHits, maxHits);
 
       // Update patterns with filtered and sorted results
       patterns = afterBuildup
@@ -952,9 +945,6 @@ export function showLivePatternAnalysis() {
           if (buildupDiff !== 0) return buildupDiff;
           return b.hitRate - a.hitRate;
         });
-
-      console.log('[live-patterns] After notHitIn filter:', patterns.length, 'NotHitIn:', notHitIn);
-      console.log('[live-patterns] Final patterns:', patterns);
 
       // Cache the results
       cachedResults = { patterns, totalGames: actualSampleSize, trackingSize: trackingSize };

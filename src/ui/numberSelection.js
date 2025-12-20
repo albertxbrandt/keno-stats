@@ -52,7 +52,6 @@ export function updateGeneratorPreview() {
     } else {
       const roundsSinceRefresh = currentRound - lastRefresh;
       const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
-      console.log('[Preview] currentRound:', currentRound, 'lastRefresh:', lastRefresh, 'roundsSinceRefresh:', roundsSinceRefresh, 'roundsUntilRefresh:', roundsUntilRefresh);
       roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;
       roundsLabel.style.color = roundsUntilRefresh === 0 ? '#00b894' : '#74b9ff';
     }

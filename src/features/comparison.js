@@ -34,7 +34,6 @@ function detectGameDifficulty() {
     if (difficultySelect && difficultySelect.value) {
       const newDifficulty = difficultySelect.value; // 'classic', 'low', 'medium', 'high'
       if (state.gameDifficulty !== newDifficulty) {
-        console.log('[Comparison] Difficulty changed:', state.gameDifficulty, '→', newDifficulty);
         state.gameDifficulty = newDifficulty;
       }
     }
@@ -252,8 +251,6 @@ export function trackRoundComparison(roundData) {
 
   const shapesHits = shapes?.filter(n => drawn.includes(n)).length || 0;
   const shapesProfit = calculateProfit(count, shapesHits, difficulty);
-
-  console.log('[Comparison] Round', state.currentHistory.length, '(Difficulty:', difficulty, ') - Freq:', frequencyHits, '/', count, '(', frequencyProfit, 'x) Cold:', coldHits, '/', count, '(', coldProfit, 'x) Mixed:', mixedHits, '/', count, '(', mixedProfit, 'x) Avg:', averageHits, '/', count, '(', averageProfit, 'x) Momentum:', momentumHits, '/', count, '(', momentumProfit, 'x) Auto:', autoHits, '/', count, '(', autoProfit, 'x) Shapes:', shapesHits, '/', count, '(', shapesProfit, 'x)');
 
   // Store data point
   const dataPoint = {

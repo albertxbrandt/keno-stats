@@ -10,7 +10,6 @@ fetch(chrome.runtime.getURL('config/bet-multis.json'))
   .then(res => res.json())
   .then(data => {
     betMultipliers = data;
-    console.log('[savedNumbers] Bet multipliers loaded');
   })
   .catch(err => console.error('[savedNumbers] Failed to load bet multipliers:', err));
 
