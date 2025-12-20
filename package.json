@@ -5,9 +5,17 @@
   "description": "Keno Stats extension - bundled build with esbuild",
   "scripts": {
     "build": "esbuild src/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser",
-    "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser"
+    "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix"
   },
   "devDependencies": {
-    "esbuild": "^0.18.17"
+    "@eslint/css": "^0.14.1",
+    "@eslint/js": "^9.39.2",
+    "@eslint/json": "^0.14.0",
+    "@eslint/markdown": "^7.5.1",
+    "esbuild": "^0.18.17",
+    "eslint": "^9.39.2",
+    "globals": "^14.0.0"
   }
 }
