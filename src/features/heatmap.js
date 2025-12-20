@@ -1,12 +1,11 @@
 // src/features/heatmap.js
 import { state } from '../core/state.js';
 import { getHits, getMisses } from '../core/storage.js';
+import { getTileElements, extractNumberFromTile } from '../utils/domReader.js';
 
 // ==================== CONSTANTS ====================
 
 const SELECTORS = {
-    KENO_CONTAINER: 'div[data-testid="game-keno"]',
-    TILES: 'button',
     STAT_BOX: '.keno-stat-box'
 };
 
@@ -45,33 +44,6 @@ const KENO_NUMBERS = {
 };
 
 // ==================== HELPER FUNCTIONS ====================
-
-/**
- * Get Keno game container element
- * @returns {HTMLElement|null}
- */
-function getKenoContainer() {
-    return document.querySelector(SELECTORS.KENO_CONTAINER);
-}
-
-/**
- * Get all tile elements
- * @returns {NodeList|null}
- */
-function getTiles() {
-    const container = getKenoContainer();
-    return container ? container.querySelectorAll(SELECTORS.TILES) : null;
-}
-
-/**
- * Extract number from tile text (handles both % and x suffixes)
- * @param {string} text - Tile text content
- * @returns {number|NaN}
- */
-function extractNumberFromTile(text) {
-    const cleanText = text.trim().split('%')[0].split('x')[0];
-    return parseInt(cleanText);
-}
 
 /**
  * Get all drawn numbers from a round
@@ -286,7 +258,7 @@ function resetTileStyles(tile) {
  * @param {Object} round - Round data with hits and misses
  */
 export function highlightRound(round) {
-    const tiles = getTiles();
+    const tiles = getTileElements();
     if (!tiles) return;
 
     const hits = getHits(round);
@@ -311,7 +283,7 @@ export function highlightRound(round) {
  * @param {number[]} numbers - Array of predicted numbers
  */
 export function highlightPrediction(numbers) {
-    const tiles = getTiles();
+    const tiles = getTileElements();
     if (!tiles) return;
 
     // Reset all tiles first
@@ -335,7 +307,7 @@ export function clearHighlight() {
         return;
     }
 
-    const tiles = getTiles();
+    const tiles = getTileElements();
     if (!tiles) return;
 
     tiles.forEach(resetTileStyles);
@@ -360,7 +332,7 @@ export function updateHeatmap() {
     const stats = calculateHeatmapStats(sample, state.heatmapMode);
 
     // Update tiles
-    const tiles = getTiles();
+    const tiles = getTileElements();
     if (!tiles) return;
 
     tiles.forEach(tile => {
