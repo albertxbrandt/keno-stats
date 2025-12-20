@@ -26,6 +26,29 @@ function isOnKenoPage() {
 // Check if disclaimer has been accepted before initializing extension
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
+// Wait for Keno game elements to be present in DOM
+function waitForKenoElements(callback, maxAttempts = 20) {
+	let attempts = 0;
+	
+	const checkElements = () => {
+		// Check for key Keno game elements
+		const kenoContainer = document.querySelector('div[data-testid="game-keno"]');
+		const betButton = document.querySelector('button[data-testid="bet-button"]');
+		
+		if (kenoContainer && betButton) {
+			console.log('[Keno Tracker] Keno elements found, ready to initialize');
+			callback();
+		} else if (attempts < maxAttempts) {
+			attempts++;
+			setTimeout(checkElements, 100);
+		} else {
+			console.warn('[Keno Tracker] Keno elements not found after', maxAttempts, 'attempts');
+		}
+	};
+	
+	checkElements();
+}
+
 function checkAndInitialize() {
 	if (!isOnKenoPage()) {
 		console.log('[Keno Tracker] Not on Keno page, skipping initialization');
@@ -44,14 +67,23 @@ function checkAndInitialize() {
 			return;
 		}
 
-		console.log('[Keno Tracker] Disclaimer accepted, initializing extension...');
-		initializeExtension();
-		extensionInitialized = true;
+		console.log('[Keno Tracker] Disclaimer accepted, waiting for Keno elements...');
+		
+		// Wait for Keno game to fully load before initializing
+		waitForKenoElements(() => {
+			console.log('[Keno Tracker] Initializing extension...');
+			initializeExtension();
+			extensionInitialized = true;
+		});
 	});
 }
 
 // Initial check on load
-checkAndInitialize();
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', checkAndInitialize);
+} else {
+	checkAndInitialize();
+}
 
 // Watch for URL changes (for SPA navigation)
 const observer = new MutationObserver(() => {
@@ -59,11 +91,7 @@ const observer = new MutationObserver(() => {
 	if (currentUrl !== lastUrl) {
 		console.log('[Keno Tracker] URL changed from', lastUrl, 'to', currentUrl);
 		lastUrl = currentUrl;
-
-		// Wait a bit for the page to render
-		setTimeout(() => {
-			checkAndInitialize();
-		}, 500);
+		checkAndInitialize();
 	}
 });
 
