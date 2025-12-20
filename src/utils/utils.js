@@ -1,5 +1,4 @@
 // src/utils.js - misc helpers
-import { state } from '../core/state.js';
 
 export function simulatePointerClick(el) {
     try {
@@ -13,7 +12,7 @@ export function simulatePointerClick(el) {
         el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX, clientY }));
         el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX, clientY }));
         el.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX, clientY, pointerType: 'mouse' }));
-    } catch (e) {
+    } catch {
         try { el.click(); } catch (e2) { console.error('[simulateClick] fallback failed', e2); }
     }
 }
@@ -61,7 +60,6 @@ export function clearTable() {
  */
 export function waitForBetButtonReady(maxWaitMs = 5000) {
     return new Promise((resolve, reject) => {
-        const startTime = Date.now();
         const betButton = document.querySelector('button[data-testid="bet-button"]');
 
         if (!betButton) {
@@ -70,7 +68,7 @@ export function waitForBetButtonReady(maxWaitMs = 5000) {
         }
 
         // Use MutationObserver to watch for attribute changes
-        const observer = new MutationObserver((mutations) => {
+        const observer = new MutationObserver((_mutations) => {
             const isReady = betButton.getAttribute('data-test-action-enabled') === 'true';
 
             if (isReady) {

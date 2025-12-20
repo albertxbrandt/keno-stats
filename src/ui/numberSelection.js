@@ -94,7 +94,6 @@ export function updateGeneratorPreview() {
  * Used for comparison tracking
  */
 export function generateAllPredictions() {
-  const count = state.generatorCount || 3;
   const predictions = {};
 
   // Generate predictions for each method

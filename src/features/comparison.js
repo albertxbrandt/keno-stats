@@ -1,8 +1,5 @@
 // src/comparison.js
 import { state } from '../core/state.js';
-import { getTopPredictions, getColdPredictions } from '../ui/numberSelection.js';
-import { getMomentumPrediction } from '../generators/momentumCore.js';
-import { getHits, getMisses } from '../core/storage.js';
 import betMultis from '../../config/bet-multis.json';
 
 /**
@@ -41,7 +38,7 @@ function detectGameDifficulty() {
         state.gameDifficulty = newDifficulty;
       }
     }
-  } catch (e) {
+  } catch {
     // Silently fail - difficulty selector might not be present
   }
 }
@@ -326,7 +323,6 @@ function updateStatsCards() {
 
   // Ranking badges
   const rankBadges = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-  const rankColors = ['#ffd700', '#c0c0c0', '#cd7f32', '#74b9ff', '#a29bfe'];
 
   // Generate card HTML
   const generateCard = (method, rank) => {

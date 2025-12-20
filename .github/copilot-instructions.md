@@ -419,7 +419,44 @@ Footer button injection point: `document.querySelector('.game-footer .stack')`
 
 - **`npm run build`**: Bundles `src/content.js` → `dist/content.bundle.js` with esbuild (minified, sourcemap)
 - **`npm run watch`**: Development mode with hot reload (no minification)
+- **`npm run lint`**: Run ESLint to check code quality
+- **`npm run lint:fix`**: Auto-fix linting issues where possible
 - **esbuild config**: `--bundle --platform=browser` treats all `src/*.js` imports as ES6 modules
+
+### Code Quality & Linting
+
+**ESLint Configuration:**
+
+- Uses ESLint v9 with flat config format (`eslint.config.mjs`)
+- Configured for browser + webextensions environment
+- Allows `console` statements (needed for extension logging)
+- Warns on unused variables (prefix with `_` to mark as intentional)
+- Ignores: `dist/`, `node_modules/`, `data/` folders
+
+**Linting Rules:**
+
+- ✅ **No unused variables**: Remove or prefix with `_` if intentional
+- ✅ **No unused imports**: Clean up unused imports
+- ✅ **Consistent error handling**: Use `_err` or `_e` for ignored catch blocks
+- ✅ **Function parameters**: Use `_paramName` for required but unused parameters
+- ✅ **Run before commit**: Always run `npm run lint` before committing
+
+**Example patterns:**
+
+```javascript
+// ✅ Good - unused param marked with underscore
+array.map((_item, index) => index);
+
+// ✅ Good - ignored error in catch
+catch (_e) { /* fallback behavior */ }
+
+// ❌ Bad - unused variable
+const result = getData();
+// Use it or remove it
+
+// ✅ Good - remove unused imports
+import { state } from './state.js'; // Only import what you use
+```
 
 ### Module Loading & Initialization Order
 

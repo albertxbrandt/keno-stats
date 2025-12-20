@@ -2,7 +2,7 @@
 import { state } from '../core/state.js';
 import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
-import { calculatePrediction, selectPredictedNumbers, generateNumbers } from './numberSelection.js';
+import { calculatePrediction } from './numberSelection.js';
 import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
 import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from '../utils/domReader.js';
 
@@ -452,7 +452,7 @@ export function createOverlay() {
         const siteFont = window.getComputedStyle(document.body).fontFamily;
         if (siteFont) overlay.style.fontFamily = siteFont;
         else overlay.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial';
-    } catch (e) { overlay.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial'; }
+    } catch { overlay.style.fontFamily = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial'; }
     // Make the top bar (drag-handle) visually distinct and darker
     try {
         const topBar = document.getElementById('drag-handle');
@@ -576,7 +576,7 @@ export function createOverlay() {
             }
         }
         heatmapSwitch.checked = !!state.isHeatmapActive;
-        heatmapSwitch.addEventListener('change', (e) => {
+        heatmapSwitch.addEventListener('change', (_e) => {
             state.isHeatmapActive = getCheckboxValue(heatmapSwitch);
             if (heatmapDot) {
                 heatmapDot.style.transform = state.isHeatmapActive ? 'translateX(14px)' : 'translateX(0px)';
@@ -594,7 +594,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'heatmap-slider-dot');
                     if (track) track.style.backgroundColor = state.isHeatmapActive ? '#2a3b4a' : '#444';
                 }
-            } catch (err) { }
+            } catch { }
 
             // Expand details when enabled
             if (state.isHeatmapActive && heatmapDetails) {
@@ -657,7 +657,6 @@ export function createOverlay() {
     const generateBtn = document.getElementById('generate-numbers-btn');
     const frequencyParams = document.getElementById('frequency-params');
     const momentumParams = document.getElementById('momentum-params');
-    const momentumInfo = document.querySelector('#momentum-params #momentum-info');
 
     // Collapsible generator section
     if (generatorHeader && generatorDetails) {
@@ -708,7 +707,7 @@ export function createOverlay() {
     // Method selector - show/hide relevant parameters
     if (methodSelect) {
         methodSelect.value = state.generatorMethod || 'frequency';
-        methodSelect.addEventListener('change', (e) => {
+        methodSelect.addEventListener('change', (_e) => {
             state.generatorMethod = getSelectValue(methodSelect, 'frequency');
             saveGeneratorSettings();
 
@@ -765,7 +764,7 @@ export function createOverlay() {
             }
         }
         generatorSwitch.checked = !!state.isGeneratorActive;
-        generatorSwitch.addEventListener('change', (e) => {
+        generatorSwitch.addEventListener('change', (_e) => {
             state.isGeneratorActive = getCheckboxValue(generatorSwitch);
             if (genDot) {
                 genDot.style.transform = state.isGeneratorActive ? 'translateX(14px)' : 'translateX(0px)';
@@ -783,7 +782,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-slider-dot');
                     if (track) track.style.backgroundColor = state.isGeneratorActive ? '#2a3b4a' : '#444';
                 }
-            } catch (err) { }
+            } catch { }
 
             // Expand details when enabled
             if (state.isGeneratorActive && generatorDetails) {
@@ -828,7 +827,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-autoselect-dot');
                     if (track) track.style.backgroundColor = state.generatorAutoSelect ? '#2a3b4a' : '#444';
                 }
-            } catch (err) { }
+            } catch { }
         });
     }
 
@@ -1391,7 +1390,7 @@ export function createOverlay() {
                 e.dataTransfer.effectAllowed = 'move';
             });
 
-            row.addEventListener('dragend', (e) => {
+            row.addEventListener('dragend', (_e) => {
                 row.style.opacity = '1';
                 draggedElement = null;
             });
@@ -1455,7 +1454,7 @@ function reorderSettingsRows() {
     });
 
     // Reorder based on state.panelOrder
-    state.panelOrder.forEach((sectionKey, index) => {
+    state.panelOrder.forEach((sectionKey, _index) => {
         const row = rowMap.get(sectionKey);
         if (row) {
             settingsList.appendChild(row);

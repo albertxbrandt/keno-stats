@@ -70,7 +70,7 @@ export function selectTile(tile, num) {
   try {
     simulatePointerClick(tile);
     return true;
-  } catch (e) {
+  } catch {
     try {
       tile.click();
       return true;
@@ -93,7 +93,7 @@ export function deselectTile(tile) {
 
   try {
     simulatePointerClick(tile);
-  } catch (e) {
+  } catch {
     try {
       tile.click();
     } catch { }

@@ -233,31 +233,29 @@ function getValidPositions(offsets) {
  */
 export function getShapePredictions(count = 5, pattern = 'random', placement = 'random', historyData = [], sampleSize = 20) {
   let selectedShape;
-  let shapeKey;
 
   // Select shape based on pattern parameter
   if (pattern === 'random') {
     // Filter shapes that match the requested count
     const availableShapes = Object.entries(SHAPE_DEFINITIONS).filter(
-      ([key, shape]) => shape.offsets.length === count
+      ([_key, shape]) => shape.offsets.length === count
     );
 
     if (availableShapes.length === 0) {
       console.warn('[Shapes] No shapes with exactly', count, 'numbers, using any available shape');
       const allShapes = Object.entries(SHAPE_DEFINITIONS);
-      [shapeKey, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
+      [, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
     } else {
-      [shapeKey, selectedShape] = availableShapes[Math.floor(Math.random() * availableShapes.length)];
+      [, selectedShape] = availableShapes[Math.floor(Math.random() * availableShapes.length)];
     }
   } else {
     // Use specific pattern
     selectedShape = SHAPE_DEFINITIONS[pattern];
-    shapeKey = pattern;
 
     if (!selectedShape) {
       console.error('[Shapes] Invalid pattern:', pattern, '- using random');
       const allShapes = Object.entries(SHAPE_DEFINITIONS);
-      [shapeKey, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
+      [, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
     }
   }
 
@@ -480,31 +478,6 @@ function selectTrendingPosition(validPositions, offsets, historyData, sampleSize
   scoredPositions.sort((a, b) => b.score - a.score);
   const topPositions = scoredPositions.slice(0, 3);
   return topPositions[Math.floor(Math.random() * topPositions.length)];
-}
-
-/**
- * Adjust shape to match desired count (legacy function for compatibility)
- */
-function adjustShapeToCount(shapeKey, shape, targetCount) {
-  const validPositions = getValidPositions(shape.offsets);
-  if (validPositions.length === 0) return [];
-
-  const position = validPositions[Math.floor(Math.random() * validPositions.length)];
-  let numbers = generateShape(position.row, position.col, shape.offsets);
-
-  numbers = adjustShapeSize(numbers, targetCount);
-
-  console.log(`[Shapes] Adjusted ${shape.emoji} ${shape.name} to ${targetCount} numbers:`, numbers);
-
-  if (typeof window !== 'undefined') {
-    window.__keno_lastShapeInfo = {
-      name: shape.name + ' (adjusted)',
-      emoji: shape.emoji,
-      numbers: numbers
-    };
-  }
-
-  return numbers;
 }
 
 /**

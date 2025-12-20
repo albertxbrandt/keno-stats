@@ -383,7 +383,6 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
     // Get last occurrence
     const lastOccurrence = pattern.occurrences[pattern.occurrences.length - 1];
     const lastBetNumber = lastOccurrence.betNumber;
-    const lastTime = new Date(lastOccurrence.time).toLocaleString();
     const betsAgo = state.currentHistory.length - lastBetNumber;
 
     html += `
@@ -412,7 +411,7 @@ async function showResultsModal(patternSize, patterns, stats, sortBy = 'frequenc
     `;
 
     // Add all occurrences (most recent first)
-    pattern.occurrences.slice().reverse().forEach((occurrence, occIndex) => {
+    pattern.occurrences.slice().reverse().forEach((occurrence, _occIndex) => {
       const occTime = new Date(occurrence.time).toLocaleString();
       html += `
                         <div style="padding: 4px; border-bottom: 1px solid #1a2c38; font-size: 10px;">
@@ -680,7 +679,7 @@ export function showLivePatternAnalysis() {
     }
   }
 
-  function dragEnd(e) {
+  function dragEnd(_e) {
     isDragging = false;
   }
 

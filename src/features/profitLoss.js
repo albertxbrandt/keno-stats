@@ -248,7 +248,6 @@ export function updateProfitLossUI() {
         const currencies = getAvailableCurrencies(state.profitByCurrency);
 
         if (currencies.length > 0) {
-            const currentValue = currencySelect.value;
             currencySelect.innerHTML = '';
 
             currencies.forEach(curr => {

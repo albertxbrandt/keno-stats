@@ -25,7 +25,6 @@ function queueStorageWrite(round, totalCount) {
     writeTimeout = setTimeout(() => {
         if (pendingWrite) {
             const { round, totalCount } = pendingWrite;
-            const chunkIndex = Math.floor((totalCount - 1) / CHUNK_SIZE);
             const chunkKey = getChunkKey(totalCount - 1);
 
             // Get current chunk, append round, write back
@@ -253,7 +252,6 @@ export function updateHistoryUI(history) {
 
     // Limit display to last 100 rounds for performance
     const displayHistory = history.slice(-100);
-    const startOffset = history.length - displayHistory.length;
 
     // Only fully rebuild if significantly different (avoid rebuilding on every single round)
     const currentChildren = list.children.length;

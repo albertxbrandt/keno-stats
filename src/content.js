@@ -8,7 +8,7 @@ import { waitForBetButtonReady } from './utils/utils.js';
 import { updateHeatmap } from './features/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbers.js';
-import { loadProfitLoss, updateProfitLossUI, recalculateTotalProfit } from './features/profitLoss.js';
+import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparison.js';
 import './features/patterns.js'; // Import pattern analysis module (sets up window hooks)
 
@@ -45,7 +45,7 @@ function initializeExtension() {
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
 		console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses, fullData: data });
 		// Save full kenoBet structure - preserve all fields except user
-		const { user, state: originalState, ...kenoBetData } = data;
+		const { state: originalState, ...kenoBetData } = data;
 		// Capture generator state if active
 		const generatorInfo = state.isGeneratorActive ? {
 			method: state.generatorMethod,
@@ -85,7 +85,7 @@ function initializeExtension() {
 
 		// Update stats after new round
 		setTimeout(() => {
-			try { updateMultiplierBarStats(); } catch (e) { console.error('[stats] update failed:', e); }
+			try { updateMultiplierBarStats(); } catch (_e) { console.error('[stats] update failed:', _e); }
 		}, 500);
 
 		// Capture predictions BEFORE regenerating (these are what were actually played)
@@ -95,8 +95,8 @@ function initializeExtension() {
 		if (state.isComparisonWindowOpen && window.__keno_trackRound && playedPredictions) {
 			try {
 				window.__keno_trackRound({ drawn, selected, predictions: playedPredictions });
-			} catch (e) {
-				console.error('[Comparison] track round failed:', e);
+			} catch (_e) {
+				console.error('[Comparison] track round failed:', _e);
 			}
 		}
 
@@ -106,8 +106,8 @@ function initializeExtension() {
 				const allPredictions = window.__keno_generateAllPredictions();
 				// Store for next round's comparison
 				state.lastGeneratedPredictions = allPredictions;
-			} catch (e) {
-				console.error('[Generator] Generate all predictions failed:', e);
+			} catch (_e) {
+				console.error('[Generator] Generate all predictions failed:', _e);
 			}
 		}
 
@@ -156,14 +156,14 @@ function initializeExtension() {
 				}).catch(err => {
 					console.error('[AutoPlay] Bet button timeout:', err);
 					state.isAutoPlayMode = false;
-					try { updateAutoPlayUI(); } catch (e) { }
+					try { updateAutoPlayUI(); } catch { }
 				});
 			} else {
 				state.isAutoPlayMode = false;
 				if (state.autoPlayStartTime) {
 					state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
 				}
-				try { updateAutoPlayUI(); } catch (e) { }
+				try { updateAutoPlayUI(); } catch { }
 				console.log('[AutoPlay] Finished all rounds');
 			}
 		}
@@ -191,7 +191,7 @@ function initializeExtension() {
 		// Update autoplay timer every second (only runs when autoplay active)
 		setInterval(() => {
 			if (state.isAutoPlayMode) {
-				try { updateAutoPlayUI(); } catch (e) { }
+				try { updateAutoPlayUI(); } catch { }
 			}
 		}, 1000);
 		// Initialize stats observer for multiplier bar
