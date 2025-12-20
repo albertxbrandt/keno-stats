@@ -5,3 +5,4 @@ dist/
 keno-tracker-plugin/
 data
 scripts/output
+tmp/

@@ -269,13 +269,13 @@ export function calculatePrediction(countOverride) {
  * Window hook wrapper for generateNumbers
  * Generates numbers and selects them on the board (only if auto-select is enabled)
  */
-window.__keno_generateNumbers = function (forceRefresh = false) {
+window.__keno_generateNumbers = async function (forceRefresh = false) {
   const result = generateNumbers(forceRefresh);
 
   // Always place numbers on board when manually called (Refresh/Generate buttons)
   // These buttons explicitly generate and place numbers - that's their purpose
   if (result.predictions.length > 0) {
-    selectPredictedNumbers();
+    await selectPredictedNumbers();
   }
 
   // Update preview to show new countdown
