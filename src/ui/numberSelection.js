@@ -2,11 +2,10 @@
 // UI functions for selecting and displaying generated numbers
 
 import { state } from '../core/state.js';
-import { getHits, getMisses } from '../core/storage.js';
 import { highlightPrediction } from '../features/heatmap.js';
 import { generatorFactory, cacheManager } from '../generators/index.js';
 import { replaceSelection } from '../utils/tileSelection.js';
-import { getSelectedTileNumbers } from '../utils/domReader.js';
+import { getIntValue } from '../utils/domReader.js';
 
 // ============================================================================
 // GENERATOR WRAPPER FUNCTIONS (for backward compatibility)
@@ -217,31 +216,6 @@ export function getColdPredictions(count) {
   return generator.generate(count, state.currentHistory, { sampleSize: state.sampleSize });
 }
 
-export function getMixedPredictions(count) {
-  const generator = generatorFactory.get('mixed');
-  return generator.generate(count, state.currentHistory, { sampleSize: state.sampleSize });
-}
-
-export function getAveragePredictions(count) {
-  const generator = generatorFactory.get('average');
-  return generator.generate(count, state.currentHistory, { sampleSize: state.sampleSize });
-}
-
-export function getAutoPredictions(count) {
-  const generator = generatorFactory.get('auto');
-  const config = {
-    sampleSize: state.sampleSize,
-    comparison: state.generatorComparison || []
-  };
-  return generator.generate(count, state.currentHistory, config);
-}
-
-export function getMomentumBasedPredictions(count) {
-  const generator = generatorFactory.get('momentum');
-  const config = buildGeneratorConfig('momentum');
-  return generator.generate(count, state.currentHistory, config);
-}
-
 // ============================================================================
 // NUMBER SELECTION & UI FUNCTIONS
 // ============================================================================
@@ -286,45 +260,6 @@ export function calculatePrediction(countOverride) {
 }
 
 // ============================================================================
-// MOMENTUM-SPECIFIC UI FUNCTIONS (kept for backward compatibility)
-// ============================================================================
-
-export function updateMomentumPredictions() {
-  if (state.generatorMethod !== 'momentum') return;
-
-  const result = generateNumbers(true, 'momentum');
-  state.momentumNumbers = result.predictions;
-  state.generatedNumbers = result.predictions;
-}
-
-export function selectMomentumNumbers() {
-  if (!state.momentumNumbers || state.momentumNumbers.length === 0) {
-    console.warn('[Momentum] No momentum numbers to select');
-    return;
-  }
-
-  state.generatedNumbers = state.momentumNumbers;
-  selectPredictedNumbers();
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Get momentum configuration from state
- */
-export function getMomentumConfig() {
-  return {
-    patternSize: state.generatorCount || 3,
-    detectionWindow: state.momentumDetectionWindow || 10,
-    baselineWindow: state.momentumBaselineWindow || 50,
-    threshold: state.momentumThreshold || 1.5,
-    poolSize: state.momentumPoolSize || 15
-  };
-}
-
-// ============================================================================
 // WINDOW HOOKS (for cross-module calls from HTML event handlers)
 // ============================================================================
 
@@ -358,7 +293,5 @@ window.__keno_generateNumbers = function (forceRefresh = false) {
 };
 
 window.__keno_selectPredictedNumbers = selectPredictedNumbers;
-window.__keno_updateMomentumPredictions = updateMomentumPredictions;
-window.__keno_selectMomentumNumbers = selectMomentumNumbers;
 window.__keno_generateAllPredictions = generateAllPredictions;
 window.__keno_updateGeneratorPreview = updateGeneratorPreview;

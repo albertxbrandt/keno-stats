@@ -2,7 +2,7 @@
 import { state } from '../core/state.js';
 import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
-import { calculatePrediction, selectPredictedNumbers, generateNumbers, updateMomentumPredictions, selectMomentumNumbers } from './numberSelection.js';
+import { calculatePrediction, selectPredictedNumbers, generateNumbers } from './numberSelection.js';
 import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
 import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from '../utils/domReader.js';
 
@@ -1101,7 +1101,7 @@ export function createOverlay() {
     const momentumAdvancedContent = document.getElementById('momentum-advanced-content');
     const momentumAdvancedArrow = document.getElementById('momentum-advanced-arrow');
     let momentumAdvancedOpen = false;
-    
+
     if (momentumAdvancedToggle && momentumAdvancedContent) {
         momentumAdvancedToggle.addEventListener('click', () => {
             momentumAdvancedOpen = !momentumAdvancedOpen;
@@ -1122,24 +1122,24 @@ export function createOverlay() {
     if (momentumResetBtn) {
         momentumResetBtn.addEventListener('click', () => {
             const sampleSize = state.generatorSampleSize || 20;
-            
+
             // Reset to sampleSize-based defaults
             state.momentumDetectionWindow = sampleSize;
             state.momentumBaselineGames = sampleSize * 4;
             state.momentumThreshold = 1.5;
             state.momentumPoolSize = 15;
-            
+
             // Update UI
             const momentumDetection = document.getElementById('momentum-detection');
             const momentumBaseline = document.getElementById('momentum-baseline');
             const momentumThreshold = document.getElementById('momentum-threshold');
             const momentumPool = document.getElementById('momentum-pool');
-            
+
             if (momentumDetection) momentumDetection.value = sampleSize;
             if (momentumBaseline) momentumBaseline.value = sampleSize * 4;
             if (momentumThreshold) momentumThreshold.value = 1.5;
             if (momentumPool) momentumPool.value = 15;
-            
+
             saveGeneratorSettings();
         });
     }
