@@ -22,7 +22,7 @@ import { replaceSelection } from '../utils/tileSelection.js';
 export function autoPlayPlaceBet() {
     // Get predictions from unified generator or fallback
     let predictions = [];
-    if (state.isGeneratorActive && state.generatedNumbers.length > 0) {
+    if (state.generatedNumbers.length > 0) {
         // Use numbers from unified generator
         predictions = state.generatedNumbers.slice(0, state.autoPlayPredictionCount);
         console.log('[AutoPlay] Using generated numbers:', predictions);

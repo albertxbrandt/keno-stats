@@ -14,6 +14,7 @@ A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com
 ## Features
 
 ### 🗺️ Heatmap Analysis
+
 - **Hot Numbers Mode**: View which numbers appear most frequently based on historical data
 - **Trending Mode**: See which numbers are gaining momentum (appearing more in recent games vs baseline)
 - **Adjustable Sample Size**: Analyze anywhere from 1 to all historical rounds (default 100)
@@ -23,10 +24,11 @@ A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com
   - White = Neutral
 
 ### 🎲 Number Generator
+
 Universal number prediction system with multiple strategies:
 
 - **Frequency** (Hot): Most frequently drawn numbers in sample
-- **Cold**: Least frequently drawn numbers in sample  
+- **Cold**: Least frequently drawn numbers in sample
 - **Mixed**: Combination of hot and cold numbers
 - **Average**: Numbers with median frequency
 - **Momentum**: Numbers with increasing frequency (trending analysis)
@@ -35,6 +37,7 @@ Universal number prediction system with multiple strategies:
   - 3 placement strategies: Random, Hot (frequency-based), Trending (momentum-based)
 
 **Generator Settings:**
+
 - **Unified Sample Size**: One parameter controls analysis window for all methods (default 20)
 - **Count**: How many numbers to generate (1-10)
 - **Auto-Refresh**: Regenerate predictions every N rounds (0 = manual)
@@ -42,32 +45,39 @@ Universal number prediction system with multiple strategies:
 - **Live Preview**: See next predictions and countdown to auto-refresh
 
 ### 📊 Pattern Analysis
+
 Find common N-number combinations (3-10) that appear together frequently:
+
 - View occurrence history with timestamps and bet numbers
 - Click patterns to auto-select those numbers on the board
 - See detailed statistics (total patterns, average appearance rate)
 - Performance-optimized with caching system
 
 ### 📈 Profit/Loss Tracking
+
 - Multi-currency support (BTC, LTC, DOGE, ETH, XRP, TRX, BNB, USDT, USDC, EOS, BCH)
 - Session and total profit tracking
 - Bet book export feature for complete betting history analysis
 - Automatic profit calculation from actual game results
 
 ### 🎮 Auto-Play System
+
 Automatically place bets using prediction algorithms:
+
 - Configure number of rounds to play
 - Uses active generator method for number selection
 - Real-time profit/loss tracking during auto-play
 - Safety features with bet button state monitoring
 
 ### 📝 Unlimited History
+
 - Records every round with complete data (hits, misses, drawn numbers, selected numbers, timestamp)
 - Hover over history items to highlight results on the board
 - Export bet history for external analysis
 - No round limit (previous 100-round cap removed)
 
 ### 💾 Saved Number Sets
+
 - Save and name your favorite number combinations
 - Quick-load saved sets with one click
 - Manage multiple saved strategies
@@ -85,6 +95,7 @@ Automatically place bets using prediction algorithms:
 ## Development
 
 ### Build Commands
+
 - `npm install` - Install dependencies
 - `npm run build` - Build for production (minified)
 - `npm run watch` - Development mode with hot reload
@@ -92,6 +103,7 @@ Automatically place bets using prediction algorithms:
 - `npm run lint:fix` - Auto-fix linting issues
 
 ### Project Structure
+
 - `src/` - Source code (ES6 modules)
   - `core/` - State management and storage
   - `features/` - Feature modules (heatmap, patterns, profit tracking, etc.)
@@ -103,13 +115,16 @@ Automatically place bets using prediction algorithms:
 - `eslint.config.mjs` - Code quality configuration (ESLint v9)
 
 ### Code Quality
+
 - ESLint v9 with flat config format
 - Configured for browser + webextensions environment
 - Enforces unused variable detection (prefix with `_` for intentional unused)
 - Run `npm run lint` before committing
 
 ### Architecture
+
 The extension operates in two security contexts:
+
 1. **MAIN world** (`interceptor.js`): Intercepts fetch() calls to capture game data
 2. **ISOLATED world** (`src/` modules): Extension sandbox with full API access
 
@@ -121,12 +136,12 @@ The extension intercepts Keno game data from Stake.com and provides statistical 
 
 1. **Data Capture**: Intercepts GraphQL responses containing game results
 2. **History Storage**: Records drawn numbers, selected numbers, hits, and misses
-3. **Statistical Analysis**: 
+3. **Statistical Analysis**:
    - Frequency analysis for hot/cold numbers
    - Momentum detection for trending analysis
    - Pattern mining for common combinations
 4. **Visual Feedback**: Displays statistics directly on the game board
-⚠️ **Important Reminders**:
+   ⚠️ **Important Reminders**:
 
 - This extension is for **experimental and educational purposes only**
 - Statistical analysis of past results **does not predict future outcomes**
@@ -138,20 +153,23 @@ The extension intercepts Keno game data from Stake.com and provides statistical 
 - Consider the entertainment value only, not profit potential
 
 ### What This Extension Does:
+
 ✅ Track historical game data  
 ✅ Display statistical patterns  
 ✅ Provide analysis tools  
-✅ Help understand probability concepts  
+✅ Help understand probability concepts
 
 ### What This Extension Does NOT Do:
+
 ❌ Predict future outcomes  
 ❌ Guarantee wins  
 ❌ Overcome house edge  
-❌ Replace responsible gambling practices  
+❌ Replace responsible gambling practices
 
 ## Contributing
 
 Contributions welcome! Please:
+
 - Follow the existing code style
 - Run `npm run lint` before submitting
 - Test your changes thoroughly
@@ -159,7 +177,8 @@ Contributions welcome! Please:
 
 ## Recent Updates
 
-### December 2024
+### December 2025
+
 - ✨ Added heatmap mode toggle (hot numbers vs trending momentum)
 - ✨ Unified sample size system across all generators
 - ✨ Added cold area placement for shapes generator
@@ -172,21 +191,25 @@ Contributions welcome! Please:
 - 🔧 Fixed timing issues with DOM observation patterns (replaced setTimeout with MutationObserver)
 
 **Hot Numbers**: Simple frequency count over sample window
+
 ```
 frequency = count / total_games
 ```
 
 **Trending/Momentum**: Compares recent vs baseline frequency
+
 ```
 momentum_ratio = (recent_frequency / recent_window) / (baseline_frequency / baseline_window)
 ```
 
 **Pattern Analysis**: Finds N-number combinations that appear together in drawn results
+
 - Uses combinatorial analysis on historical data
 - Cached for performance with large datasets
 - Ranks patterns by occurrence frequency
 
 **Shape Placement**:
+
 - **Random**: Any valid position
 - **Hot**: Positions covering most frequently drawn numbers
 - **Trending**: Positions with highest momentum scores

@@ -25,7 +25,8 @@ export function updateGeneratorPreview() {
   if (!previewContainer) return;
 
   const method = state.generatorMethod || 'frequency';
-  const interval = state.generatorInterval || 0;
+  const autoRefresh = state.generatorAutoRefresh;
+  const interval = state.generatorInterval || 5;
   const currentRound = state.currentHistory?.length || 0;
   const lastRefresh = state.generatorLastRefresh || 0;
 
@@ -45,19 +46,20 @@ export function updateGeneratorPreview() {
 
   // Update rounds until refresh
   if (roundsLabel) {
-    if (interval === 0) {
+    if (!autoRefresh) {
       roundsLabel.textContent = 'Manual';
       roundsLabel.style.color = '#666';
     } else {
       const roundsSinceRefresh = currentRound - lastRefresh;
       const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
+      console.log('[Preview] currentRound:', currentRound, 'lastRefresh:', lastRefresh, 'roundsSinceRefresh:', roundsSinceRefresh, 'roundsUntilRefresh:', roundsUntilRefresh);
       roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;
       roundsLabel.style.color = roundsUntilRefresh === 0 ? '#00b894' : '#74b9ff';
     }
   }
 
-  // If manual mode (interval = 0), don't show preview
-  if (interval === 0) {
+  // If manual mode (auto-refresh off), don't show preview
+  if (!autoRefresh) {
     previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">Click Refresh to generate</span>';
     return;
   }
@@ -269,25 +271,15 @@ export function calculatePrediction(countOverride) {
 window.__keno_generateNumbers = function (forceRefresh = false) {
   const result = generateNumbers(forceRefresh);
 
-  // Only auto-select if the setting is enabled
-  if (result.predictions.length > 0 && state.generatorAutoSelect) {
-    // Compare with last auto-selected numbers stored in state (not DOM)
-    // DOM might be cleared by game after bet
-    const lastSelected = state.lastAutoSelectedNumbers || [];
+  // Always place numbers on board when manually called (Refresh/Generate buttons)
+  // These buttons explicitly generate and place numbers - that's their purpose
+  if (result.predictions.length > 0) {
+    selectPredictedNumbers();
+  }
 
-    // Sort both arrays for comparison
-    const newNumbers = [...result.predictions].sort((a, b) => a - b);
-    const oldNumbers = [...lastSelected].sort((a, b) => a - b);
-
-    // Check if arrays are identical
-    const numbersChanged = newNumbers.length !== oldNumbers.length ||
-      newNumbers.some((num, idx) => num !== oldNumbers[idx]);
-
-    if (numbersChanged) {
-      // Store what we're about to select
-      state.lastAutoSelectedNumbers = [...result.predictions];
-      selectPredictedNumbers();
-    }
+  // Update preview to show new countdown
+  if (window.__keno_updateGeneratorPreview) {
+    window.__keno_updateGeneratorPreview();
   }
 };
 
