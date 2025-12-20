@@ -330,7 +330,36 @@ export function getSelectedTileCount() {
 }
 
 /**
- * Get all tile elements from the game board
+ * Get Keno game container element
+ * @returns {HTMLElement|null} The game container element or null if not found
+ * 
+ * @example
+ * const container = getKenoContainer();
+ * if (container) {
+ *   console.log('Game container found');
+ * }
+ */
+export function getKenoContainer() {
+  return document.querySelector('div[data-testid="game-keno"]');
+}
+
+/**
+ * Get all tile elements from the game board as NodeList
+ * @returns {NodeList|null} NodeList of tile button elements, or null if container not found
+ * 
+ * @example
+ * const tiles = getTileElements();
+ * if (tiles) {
+ *   tiles.forEach(tile => console.log(getTileNumber(tile)));
+ * }
+ */
+export function getTileElements() {
+  const container = getKenoContainer();
+  return container ? container.querySelectorAll('button') : null;
+}
+
+/**
+ * Get all tile elements from the game board as Array
  * @returns {HTMLElement[]|null} Array of tile button elements, or null if container not found
  * 
  * @example
@@ -340,7 +369,7 @@ export function getSelectedTileCount() {
  * }
  */
 export function getAllTileElements() {
-  const container = document.querySelector('div[data-testid="game-keno"]');
+  const container = getKenoContainer();
   if (!container) return null;
   return Array.from(container.querySelectorAll('button'));
 }
@@ -356,6 +385,21 @@ export function getAllTileElements() {
 export function getTileCount() {
   const tiles = getAllTileElements();
   return tiles ? tiles.length : 0;
+}
+
+/**
+ * Extract number from tile text content (handles both % and x suffixes for heatmap)
+ * @param {string} text - Tile text content
+ * @returns {number} Parsed number or NaN if invalid
+ * 
+ * @example
+ * extractNumberFromTile('25%'); // Returns 25
+ * extractNumberFromTile('1.5x'); // Returns 1 (just the number part)
+ * extractNumberFromTile('8'); // Returns 8
+ */
+export function extractNumberFromTile(text) {
+  const cleanText = text.trim().split('%')[0].split('x')[0];
+  return parseInt(cleanText, 10);
 }
 
 /**
