@@ -143,13 +143,14 @@ export function updateHeatmap() {
         if (isNaN(cleanNum)) return;
         const count = counts[cleanNum] || 0;
         let displayText;
+        let percent; // Declare percent outside the if/else
 
         if (state.heatmapMode === 'trending') {
             // Trending mode shows momentum multiplier (e.g., "1.5x" = 50% more frequent)
             displayText = `${count.toFixed(1)}x`;
         } else {
             // Hot mode shows frequency percentage
-            const percent = ((count / totalGames) * 100).toFixed(0);
+            percent = ((count / totalGames) * 100).toFixed(0);
             displayText = `${percent}%`;
         }
 
