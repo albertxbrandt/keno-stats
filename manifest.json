@@ -16,8 +16,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://stake.com/casino/games/keno*",
-        "https://stake.us/casino/games/keno*"
+        "https://stake.com/*",
+        "https://stake.us/*"
       ],
       "js": [
         "dist/content.bundle.js"
@@ -26,8 +26,8 @@
     },
     {
       "matches": [
-        "https://stake.com/casino/games/keno*",
-        "https://stake.us/casino/games/keno*"
+        "https://stake.com/*",
+        "https://stake.us/*"
       ],
       "js": [
         "interceptor.js"

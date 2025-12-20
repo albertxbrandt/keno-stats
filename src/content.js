@@ -14,16 +14,63 @@ import './features/patterns.js'; // Import pattern analysis module (sets up wind
 
 console.log('Keno Tracker loaded');
 
+// Track if we've already initialized to prevent double-initialization
+let extensionInitialized = false;
+let lastUrl = window.location.href;
+
+// Check if we're on the Keno page
+function isOnKenoPage() {
+	return window.location.href.includes('/casino/games/keno');
+}
+
 // Check if disclaimer has been accepted before initializing extension
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
-storageApi.storage.local.get('disclaimerAccepted', (result) => {
-	if (!result.disclaimerAccepted) {
-		console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
+
+function checkAndInitialize() {
+	if (!isOnKenoPage()) {
+		console.log('[Keno Tracker] Not on Keno page, skipping initialization');
+		extensionInitialized = false;
 		return;
 	}
 
-	console.log('[Keno Tracker] Disclaimer accepted, initializing extension...');
-	initializeExtension();
+	if (extensionInitialized) {
+		console.log('[Keno Tracker] Already initialized');
+		return;
+	}
+
+	storageApi.storage.local.get('disclaimerAccepted', (result) => {
+		if (!result.disclaimerAccepted) {
+			console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
+			return;
+		}
+
+		console.log('[Keno Tracker] Disclaimer accepted, initializing extension...');
+		initializeExtension();
+		extensionInitialized = true;
+	});
+}
+
+// Initial check on load
+checkAndInitialize();
+
+// Watch for URL changes (for SPA navigation)
+const observer = new MutationObserver(() => {
+	const currentUrl = window.location.href;
+	if (currentUrl !== lastUrl) {
+		console.log('[Keno Tracker] URL changed from', lastUrl, 'to', currentUrl);
+		lastUrl = currentUrl;
+
+		// Wait a bit for the page to render
+		setTimeout(() => {
+			checkAndInitialize();
+		}, 500);
+	}
+});
+
+// Start observing URL changes via DOM changes
+observer.observe(document.body, {
+	childList: true,
+	subtree: true
 });
 
 function initializeExtension() {
