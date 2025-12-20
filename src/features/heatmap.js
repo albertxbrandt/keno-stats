@@ -77,14 +77,63 @@ export function updateHeatmap() {
     const sampleCount = Math.min(state.heatmapSampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     if (sample.length === 0) return;
-    const counts = {};
+    
+    let counts = {};
     const totalGames = sample.length;
-    sample.forEach(round => {
-        const hits = getHits(round);
-        const misses = getMisses(round);
-        const allDrawn = [...hits, ...misses];
-        allDrawn.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
-    });
+    
+    if (state.heatmapMode === 'trending') {
+        // Trending mode: Calculate momentum scores
+        const recentWindow = Math.floor(sampleCount / 4) || 5; // Recent 25% or minimum 5
+        const baselineWindow = sampleCount - recentWindow;
+        
+        if (baselineWindow < 5) {
+            // Not enough data for trending, fall back to hot
+            sample.forEach(round => {
+                const hits = getHits(round);
+                const misses = getMisses(round);
+                const allDrawn = [...hits, ...misses];
+                allDrawn.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+            });
+        } else {
+            const recentSample = sample.slice(-recentWindow);
+            const baselineSample = sample.slice(0, baselineWindow);
+            
+            // Count frequencies in both windows
+            const recentCounts = {};
+            const baselineCounts = {};
+            
+            recentSample.forEach(round => {
+                const hits = getHits(round);
+                const misses = getMisses(round);
+                const allDrawn = [...hits, ...misses];
+                allDrawn.forEach(num => { recentCounts[num] = (recentCounts[num] || 0) + 1; });
+            });
+            
+            baselineSample.forEach(round => {
+                const hits = getHits(round);
+                const misses = getMisses(round);
+                const allDrawn = [...hits, ...misses];
+                allDrawn.forEach(num => { baselineCounts[num] = (baselineCounts[num] || 0) + 1; });
+            });
+            
+            // Calculate momentum ratios (recent frequency / baseline frequency)
+            for (let num = 1; num <= 40; num++) {
+                const recentRate = (recentCounts[num] || 0) / recentWindow;
+                const baselineRate = (baselineCounts[num] || 0.01) / baselineWindow; // Avoid division by zero
+                const momentum = recentRate / baselineRate;
+                // Scale momentum to percentage-like values (>1 = trending up, <1 = trending down)
+                counts[num] = momentum * 50; // Scale for display
+            }
+        }
+    } else {
+        // Hot mode: Simple frequency count
+        sample.forEach(round => {
+            const hits = getHits(round);
+            const misses = getMisses(round);
+            const allDrawn = [...hits, ...misses];
+            allDrawn.forEach(num => { counts[num] = (counts[num] || 0) + 1; });
+        });
+    }
     const container = document.querySelector('div[data-testid="game-keno"]');
     if (!container) return;
     const tiles = container.querySelectorAll('button');
@@ -93,7 +142,16 @@ export function updateHeatmap() {
         const cleanNum = parseInt(numText.split('%')[0]);
         if (isNaN(cleanNum)) return;
         const count = counts[cleanNum] || 0;
-        const percent = ((count / totalGames) * 100).toFixed(0);
+        let percent;
+        
+        if (state.heatmapMode === 'trending') {
+            // Trending mode shows momentum score as percentage
+            percent = count.toFixed(0);
+        } else {
+            // Hot mode shows frequency percentage
+            percent = ((count / totalGames) * 100).toFixed(0);
+        }
+        
         let statBox = tile.querySelector('.keno-stat-box');
         if (!statBox) {
             statBox = document.createElement('div');
@@ -103,9 +161,21 @@ export function updateHeatmap() {
             tile.appendChild(statBox);
         }
         statBox.innerText = `${percent}%`;
-        const thresholdHot = state.isHotMode ? 40 : 30;
-        const thresholdCold = state.isHotMode ? 0 : 10;
-        if (parseInt(percent) >= thresholdHot) statBox.style.color = '#00b894'; else if (parseInt(percent) <= thresholdCold) statBox.style.color = '#ff7675'; else statBox.style.color = 'rgba(255,255,255,0.7)';
+        
+        // Different thresholds for different modes
+        if (state.heatmapMode === 'trending') {
+            // Trending: green for momentum > 50 (increasing), red for < 30 (decreasing)
+            if (parseInt(percent) >= 60) statBox.style.color = '#00b894';
+            else if (parseInt(percent) <= 30) statBox.style.color = '#ff7675';
+            else statBox.style.color = 'rgba(255,255,255,0.7)';
+        } else {
+            // Hot mode: green for high frequency, red for low
+            const thresholdHot = state.isHotMode ? 40 : 30;
+            const thresholdCold = state.isHotMode ? 0 : 10;
+            if (parseInt(percent) >= thresholdHot) statBox.style.color = '#00b894';
+            else if (parseInt(percent) <= thresholdCold) statBox.style.color = '#ff7675';
+            else statBox.style.color = 'rgba(255,255,255,0.7)';
+        }
     });
 }
 

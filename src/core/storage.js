@@ -368,3 +368,32 @@ export function loadGeneratorSettings() {
         return null;
     });
 }
+
+/**
+ * Save heatmap settings to storage
+ */
+export function saveHeatmapSettings() {
+    const settings = {
+        heatmapMode: state.heatmapMode,
+        heatmapSampleSize: state.heatmapSampleSize
+    };
+
+    storageApi.storage.local.set({ heatmapSettings: settings });
+}
+
+/**
+ * Load heatmap settings from storage
+ */
+export function loadHeatmapSettings() {
+    return storageApi.storage.local.get('heatmapSettings').then(res => {
+        if (res.heatmapSettings) {
+            const settings = res.heatmapSettings;
+
+            if (settings.heatmapMode !== undefined) state.heatmapMode = settings.heatmapMode;
+            if (settings.heatmapSampleSize !== undefined) state.heatmapSampleSize = settings.heatmapSampleSize;
+
+            return settings;
+        }
+        return null;
+    });
+}
