@@ -192,8 +192,7 @@ function buildGeneratorConfig(method) {
   }
 
   if (method === 'momentum') {
-    config.detectionWindow = state.momentumDetectionWindow || 10;
-    config.baselineWindow = state.momentumBaselineWindow || 50;
+    // sampleSize is used as detection window, baseline is 4x automatically
     config.threshold = state.momentumThreshold || 1.5;
     config.poolSize = state.momentumPoolSize || 15;
   }

@@ -15,8 +15,9 @@ export class ShapesGenerator extends BaseGenerator {
 
     const pattern = config.pattern || 'random';
     const placement = config.placement || 'random';
+    const sampleSize = config.sampleSize || 20;
 
-    const prediction = getShapePredictions(count, pattern, placement, history);
+    const prediction = getShapePredictions(count, pattern, placement, history, sampleSize);
 
     if (!prediction || prediction.length === 0) {
       console.warn('[ShapesGenerator] No prediction returned, using fallback');

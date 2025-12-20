@@ -13,10 +13,11 @@ export class MomentumGenerator extends BaseGenerator {
   generate(count, history, config = {}) {
     count = this.validateCount(count);
 
-    // Default momentum config
+    // Use sampleSize as detection window, baseline = 4x sampleSize
+    const sampleSize = config.sampleSize || 20;
     const momentumConfig = {
-      detectionWindow: config.detectionWindow || 10,
-      baselineWindow: config.baselineWindow || 50,
+      detectionWindow: sampleSize,
+      baselineWindow: sampleSize * 4,
       threshold: config.threshold || 1.5,
       poolSize: config.poolSize || 15
     };
