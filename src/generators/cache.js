@@ -25,12 +25,12 @@ export class CacheManager {
    * Check if cached predictions exist and are still valid based on interval
    * @param {string} method - Generator method name (frequency, cold, etc.)
    * @param {number} count - Number of predictions
-   * @param {Object} state - Global state object (contains generatorInterval)
+   * @param {Object} state - Global state object (contains generatorInterval, generatorLastRefresh)
    * @param {Object} config - Method-specific config (pattern, placement, etc.)
    * @returns {Array<number>|null} Cached predictions if valid, null if expired/missing
    * @description
    * - interval=0 (manual): cache never expires until user clicks Refresh
-   * - interval>0 (auto): cache expires after N rounds since creation
+   * - interval>0 (auto): cache expires after N rounds since last refresh
    */
   get(method, count, state, config = {}) {
     const key = this._getCacheKey(method, count, config);
@@ -38,7 +38,7 @@ export class CacheManager {
 
     if (!cached) return null;
 
-    const { predictions, roundNumber } = cached;
+    const { predictions } = cached;
     const interval = state.generatorInterval || 0;
 
     // Manual refresh (interval = 0): always use cache until manually refreshed
@@ -46,11 +46,12 @@ export class CacheManager {
       return predictions;
     }
 
-    // Auto refresh: check if enough rounds have passed
+    // Auto refresh: check if enough rounds have passed since last refresh
     const currentRound = state.currentHistory.length;
-    const roundsSinceCache = currentRound - roundNumber; // Compare to when cache was created
+    const lastRefresh = state.generatorLastRefresh || 0;
+    const roundsSinceRefresh = currentRound - lastRefresh;
 
-    if (roundsSinceCache < interval) {
+    if (roundsSinceRefresh < interval) {
       // Still within interval, use cache
       return predictions;
     }
@@ -69,11 +70,9 @@ export class CacheManager {
    */
   set(method, count, predictions, state, config = {}) {
     const key = this._getCacheKey(method, count, config);
-    const roundNumber = state.currentHistory.length; // Use current history length when caching
 
     this.cache.set(key, {
       predictions,
-      roundNumber,
       timestamp: Date.now()
     });
   }

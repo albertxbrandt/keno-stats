@@ -14,16 +14,91 @@ import './features/patterns.js'; // Import pattern analysis module (sets up wind
 
 console.log('Keno Tracker loaded');
 
+// Track if we've already initialized to prevent double-initialization
+let extensionInitialized = false;
+let lastUrl = window.location.href;
+
+// Check if we're on the Keno page
+function isOnKenoPage() {
+	return window.location.href.includes('/casino/games/keno');
+}
+
 // Check if disclaimer has been accepted before initializing extension
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
-storageApi.storage.local.get('disclaimerAccepted', (result) => {
-	if (!result.disclaimerAccepted) {
-		console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
+
+// Wait for Keno game elements to be present in DOM
+function waitForKenoElements(callback, maxAttempts = 20) {
+	let attempts = 0;
+	
+	const checkElements = () => {
+		// Check for key Keno game elements
+		const kenoContainer = document.querySelector('div[data-testid="game-keno"]');
+		const betButton = document.querySelector('button[data-testid="bet-button"]');
+		
+		if (kenoContainer && betButton) {
+			console.log('[Keno Tracker] Keno elements found, ready to initialize');
+			callback();
+		} else if (attempts < maxAttempts) {
+			attempts++;
+			setTimeout(checkElements, 100);
+		} else {
+			console.warn('[Keno Tracker] Keno elements not found after', maxAttempts, 'attempts');
+		}
+	};
+	
+	checkElements();
+}
+
+function checkAndInitialize() {
+	if (!isOnKenoPage()) {
+		console.log('[Keno Tracker] Not on Keno page, skipping initialization');
+		extensionInitialized = false;
 		return;
 	}
 
-	console.log('[Keno Tracker] Disclaimer accepted, initializing extension...');
-	initializeExtension();
+	if (extensionInitialized) {
+		console.log('[Keno Tracker] Already initialized');
+		return;
+	}
+
+	storageApi.storage.local.get('disclaimerAccepted', (result) => {
+		if (!result.disclaimerAccepted) {
+			console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
+			return;
+		}
+
+		console.log('[Keno Tracker] Disclaimer accepted, waiting for Keno elements...');
+		
+		// Wait for Keno game to fully load before initializing
+		waitForKenoElements(() => {
+			console.log('[Keno Tracker] Initializing extension...');
+			initializeExtension();
+			extensionInitialized = true;
+		});
+	});
+}
+
+// Initial check on load
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', checkAndInitialize);
+} else {
+	checkAndInitialize();
+}
+
+// Watch for URL changes (for SPA navigation)
+const observer = new MutationObserver(() => {
+	const currentUrl = window.location.href;
+	if (currentUrl !== lastUrl) {
+		console.log('[Keno Tracker] URL changed from', lastUrl, 'to', currentUrl);
+		lastUrl = currentUrl;
+		checkAndInitialize();
+	}
+});
+
+// Start observing URL changes via DOM changes
+observer.observe(document.body, {
+	childList: true,
+	subtree: true
 });
 
 function initializeExtension() {

@@ -1,6 +1,6 @@
 // src/overlay.js
 import { state } from '../core/state.js';
-import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings } from '../core/storage.js';
+import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings, saveHeatmapSettings, loadHeatmapSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
 import { calculatePrediction } from './numberSelection.js';
 import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
@@ -38,6 +38,14 @@ export function createOverlay() {
                 </div>
                 
                 <div id="heatmap-details" style="max-height:0; overflow:hidden; transition:max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease; opacity:0;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                        <span style="color:#aaa; font-size:10px;">Mode:</span>
+                        <select id="heatmap-mode-select" 
+                            style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:11px;">
+                            <option value="hot">🔥 Hot Numbers</option>
+                            <option value="trending">📈 Trending</option>
+                        </select>
+                    </div>
                     <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
                         <span style="color:#aaa; font-size:10px;">Sample Size:</span>
                         <input type="number" id="heatmap-sample-size" min="1" value="100" 
@@ -520,7 +528,7 @@ export function createOverlay() {
                 heatmapDetails.style.maxHeight = '0';
                 heatmapDetails.style.opacity = '0';
             } else {
-                heatmapDetails.style.maxHeight = '100px';
+                heatmapDetails.style.maxHeight = '120px';
                 heatmapDetails.style.opacity = '1';
             }
         });
@@ -532,7 +540,7 @@ export function createOverlay() {
             if (heatmapDot) { heatmapDot.style.transform = 'translateX(14px)'; heatmapDot.style.backgroundColor = '#ffd700'; }
             if (heatmapStatus) heatmapStatus.textContent = 'Active';
             if (heatmapDetails) {
-                heatmapDetails.style.maxHeight = '100px';
+                heatmapDetails.style.maxHeight = '120px';
                 heatmapDetails.style.opacity = '1';
             }
         }
@@ -559,7 +567,7 @@ export function createOverlay() {
 
             // Expand details when enabled
             if (state.isHeatmapActive && heatmapDetails) {
-                heatmapDetails.style.maxHeight = '100px';
+                heatmapDetails.style.maxHeight = '120px';
                 heatmapDetails.style.opacity = '1';
             }
 
@@ -580,6 +588,18 @@ export function createOverlay() {
             const val = getIntValue(heatmapSampleInput, 1, { min: 1, max });
             state.heatmapSampleSize = val;
             heatmapSampleInput.value = val;
+            saveHeatmapSettings();
+            if (state.isHeatmapActive) updateHeatmap();
+        });
+    }
+
+    // Heatmap mode toggle (Hot vs Trending)
+    const heatmapModeSelect = document.getElementById('heatmap-mode-select');
+    if (heatmapModeSelect) {
+        heatmapModeSelect.value = state.heatmapMode || 'hot';
+        heatmapModeSelect.addEventListener('change', () => {
+            state.heatmapMode = getSelectValue(heatmapModeSelect, 'hot');
+            saveHeatmapSettings();
             if (state.isHeatmapActive) updateHeatmap();
         });
     }
@@ -1514,7 +1534,8 @@ export function injectFooterButton() {
 
 // Expose for main entry to call
 export function initOverlay() {
-    loadGeneratorSettings().then(() => {
+    // Load both generator and heatmap settings
+    Promise.all([loadGeneratorSettings(), loadHeatmapSettings()]).then(() => {
         createOverlay();
         // Update UI with loaded settings after overlay is created
         setTimeout(() => {

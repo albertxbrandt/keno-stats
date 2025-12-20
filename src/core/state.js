@@ -3,6 +3,7 @@ export const state = {
     currentHistory: [],
     // Heatmap settings
     isHeatmapActive: true,
+    heatmapMode: 'hot', // 'hot' = frequency-based, 'trending' = momentum-based
     heatmapSampleSize: 100, // Heatmap uses separate sample size
     // Unified Number Generator (replaces isPredictMode and isMomentumMode)
     isGeneratorActive: false,
