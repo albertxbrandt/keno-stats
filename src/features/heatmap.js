@@ -77,15 +77,15 @@ export function updateHeatmap() {
     const sampleCount = Math.min(state.heatmapSampleSize, state.currentHistory.length);
     let sample = state.currentHistory.slice(-sampleCount);
     if (sample.length === 0) return;
-    
+
     let counts = {};
     const totalGames = sample.length;
-    
+
     if (state.heatmapMode === 'trending') {
         // Trending mode: Calculate momentum scores
         const recentWindow = Math.floor(sampleCount / 4) || 5; // Recent 25% or minimum 5
         const baselineWindow = sampleCount - recentWindow;
-        
+
         if (baselineWindow < 5) {
             // Not enough data for trending, fall back to hot
             sample.forEach(round => {
@@ -97,32 +97,32 @@ export function updateHeatmap() {
         } else {
             const recentSample = sample.slice(-recentWindow);
             const baselineSample = sample.slice(0, baselineWindow);
-            
+
             // Count frequencies in both windows
             const recentCounts = {};
             const baselineCounts = {};
-            
+
             recentSample.forEach(round => {
                 const hits = getHits(round);
                 const misses = getMisses(round);
                 const allDrawn = [...hits, ...misses];
                 allDrawn.forEach(num => { recentCounts[num] = (recentCounts[num] || 0) + 1; });
             });
-            
+
             baselineSample.forEach(round => {
                 const hits = getHits(round);
                 const misses = getMisses(round);
                 const allDrawn = [...hits, ...misses];
                 allDrawn.forEach(num => { baselineCounts[num] = (baselineCounts[num] || 0) + 1; });
             });
-            
+
             // Calculate momentum ratios (recent frequency / baseline frequency)
             for (let num = 1; num <= 40; num++) {
                 const recentRate = (recentCounts[num] || 0) / recentWindow;
                 const baselineRate = (baselineCounts[num] || 0.01) / baselineWindow; // Avoid division by zero
                 const momentum = recentRate / baselineRate;
-                // Scale momentum to percentage-like values (>1 = trending up, <1 = trending down)
-                counts[num] = momentum * 50; // Scale for display
+                // Store raw momentum ratio (1.0 = neutral, >1 = trending up, <1 = trending down)
+                counts[num] = momentum;
             }
         }
     } else {
@@ -139,19 +139,20 @@ export function updateHeatmap() {
     const tiles = container.querySelectorAll('button');
     tiles.forEach(tile => {
         const numText = tile.textContent.trim();
-        const cleanNum = parseInt(numText.split('%')[0]);
+        const cleanNum = parseInt(numText.split('%')[0].split('x')[0]); // Handle both % and x suffix
         if (isNaN(cleanNum)) return;
         const count = counts[cleanNum] || 0;
-        let percent;
-        
+        let displayText;
+
         if (state.heatmapMode === 'trending') {
-            // Trending mode shows momentum score as percentage
-            percent = count.toFixed(0);
+            // Trending mode shows momentum multiplier (e.g., "1.5x" = 50% more frequent)
+            displayText = `${count.toFixed(1)}x`;
         } else {
             // Hot mode shows frequency percentage
-            percent = ((count / totalGames) * 100).toFixed(0);
+            const percent = ((count / totalGames) * 100).toFixed(0);
+            displayText = `${percent}%`;
         }
-        
+
         let statBox = tile.querySelector('.keno-stat-box');
         if (!statBox) {
             statBox = document.createElement('div');
@@ -160,13 +161,13 @@ export function updateHeatmap() {
             tile.style.position = 'relative';
             tile.appendChild(statBox);
         }
-        statBox.innerText = `${percent}%`;
-        
+        statBox.innerText = displayText;
+
         // Different thresholds for different modes
         if (state.heatmapMode === 'trending') {
-            // Trending: green for momentum > 50 (increasing), red for < 30 (decreasing)
-            if (parseInt(percent) >= 60) statBox.style.color = '#00b894';
-            else if (parseInt(percent) <= 30) statBox.style.color = '#ff7675';
+            // Trending: green for momentum > 1.2 (20%+ increase), red for < 0.8 (20%+ decrease)
+            if (count >= 1.2) statBox.style.color = '#00b894';
+            else if (count <= 0.8) statBox.style.color = '#ff7675';
             else statBox.style.color = 'rgba(255,255,255,0.7)';
         } else {
             // Hot mode: green for high frequency, red for low
