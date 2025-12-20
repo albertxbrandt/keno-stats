@@ -876,7 +876,7 @@ export function showLivePatternAnalysis() {
         const pattern = patternObj.numbers;
         let hitCount = 0;
         let lastFullHit = -1; // Track when pattern last fully matched in ENTIRE history
-        let recentBuildups = []; // Track recent buildups
+        const recentBuildups = []; // Track recent buildups
 
         // Single pass through tracking cache for full hits
         trackingDrawnCache.forEach((drawnSet, index) => {
@@ -918,10 +918,10 @@ export function showLivePatternAnalysis() {
       // Convert to array and apply filters
       const allPatternsFromMap = Array.from(patternsMap.entries()).map(([key, value]) => ({ pattern: key.split(',').map(Number), ...value }));
 
-      let afterHitRate = allPatternsFromMap.filter(p => p.hitRate >= 10);
+      const afterHitRate = allPatternsFromMap.filter(p => p.hitRate >= 10);
 
       // Conditionally apply buildup filter
-      let afterBuildup = requireBuildups
+      const afterBuildup = requireBuildups
         ? afterHitRate.filter(p => p.hasRecentBuildup)
         : afterHitRate;
 

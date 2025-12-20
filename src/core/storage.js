@@ -29,7 +29,7 @@ function queueStorageWrite(round, totalCount) {
 
             // Get current chunk, append round, write back
             storageApi.storage.local.get([chunkKey, 'history_count']).then(res => {
-                let chunk = res[chunkKey] || [];
+                const chunk = res[chunkKey] || [];
                 chunk.push(round);
 
                 const writeData = {

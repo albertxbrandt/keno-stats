@@ -287,7 +287,7 @@ function generatePayoutGraph(numbers, lookbackBets = 50, riskMode = 'high') {
   }
 
   // Generate point circles with color based on profit/loss
-  let circlesHtml = points.map(p => {
+  const circlesHtml = points.map(p => {
     const color = p.pl > 0 ? '#00b894' : p.pl < 0 ? '#ff7675' : '#888';
     return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#fff" stroke-width="1">
       <title>${p.hits} hits = ${p.mult}x (${p.pl >= 0 ? '+' : ''}${p.pl.toFixed(2)}x profit)</title>
@@ -531,7 +531,7 @@ function buildModal(numbers, comboName, hits, initialRiskMode, initialLookback) 
       lookbackInput.addEventListener('change', (e) => {
         const min = parseInt(e.target.min);
         const max = parseInt(e.target.max);
-        let value = getIntValue(e.target, 50, { min, max });
+        const value = getIntValue(e.target, 50, { min, max });
 
         currentLookback = value;
         // Save preference
