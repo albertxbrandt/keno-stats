@@ -6,13 +6,12 @@ export const state = {
     heatmapMode: 'hot', // 'hot' = frequency-based, 'trending' = momentum-based
     heatmapSampleSize: 100, // Heatmap uses separate sample size
     // Unified Number Generator (replaces isPredictMode and isMomentumMode)
-    isGeneratorActive: false,
     generatorMethod: 'frequency', // 'frequency', 'momentum', or 'cold'
     generatorCount: 3, // Unified count for all generator methods
     generatorSampleSize: 20, // Universal sample size for all generators
     generatedNumbers: [],
-    generatorAutoSelect: false,
-    generatorInterval: 0, // Universal refresh interval in rounds (0 = manual)
+    generatorAutoRefresh: true, // Auto-refresh toggle (on by default)
+    generatorInterval: 5, // Auto-refresh interval in rounds (min 1)
     generatorLastRefresh: 0, // Universal last refresh round counter
     generatorActuallyRefreshed: false, // Track if generator was actually refreshed vs cached
     lastGeneratedPredictions: null, // Store predictions for comparison tracking

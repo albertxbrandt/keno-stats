@@ -29,7 +29,7 @@ function queueStorageWrite(round, totalCount) {
 
             // Get current chunk, append round, write back
             storageApi.storage.local.get([chunkKey, 'history_count']).then(res => {
-                let chunk = res[chunkKey] || [];
+                const chunk = res[chunkKey] || [];
                 chunk.push(round);
 
                 const writeData = {
@@ -194,7 +194,6 @@ export function loadHistory() {
             });
         } else if (res.history) {
             // Old format: migrate to chunked storage
-            console.log('[storage] Migrating to chunked storage format...');
             state.currentHistory = res.history;
 
             // Migrate in background
@@ -213,7 +212,6 @@ export function loadHistory() {
                 storageApi.storage.local.set(writeData).then(() => {
                     // Remove old format
                     storageApi.storage.local.remove('history');
-                    console.log('[storage] Migration complete');
                 }).catch(e => console.error('[storage] Migration failed:', e));
             }, 1000);
 
@@ -323,7 +321,7 @@ export function saveGeneratorSettings() {
         generatorMethod: state.generatorMethod,
         generatorCount: state.generatorCount,
         generatorInterval: state.generatorInterval,
-        generatorAutoSelect: state.generatorAutoSelect,
+        generatorAutoRefresh: state.generatorAutoRefresh,
         generatorSampleSize: state.generatorSampleSize,
         // Shapes settings
         shapesPattern: state.shapesPattern,
@@ -350,7 +348,7 @@ export function loadGeneratorSettings() {
             if (settings.generatorMethod !== undefined) state.generatorMethod = settings.generatorMethod;
             if (settings.generatorCount !== undefined) state.generatorCount = settings.generatorCount;
             if (settings.generatorInterval !== undefined) state.generatorInterval = settings.generatorInterval;
-            if (settings.generatorAutoSelect !== undefined) state.generatorAutoSelect = settings.generatorAutoSelect;
+            if (settings.generatorAutoRefresh !== undefined) state.generatorAutoRefresh = settings.generatorAutoRefresh;
             if (settings.generatorSampleSize !== undefined) state.generatorSampleSize = settings.generatorSampleSize;
 
             // Shapes settings

@@ -296,8 +296,6 @@ export function getShapePredictions(count = 5, pattern = 'random', placement = '
     numbers = adjustShapeSize(numbers, count);
   }
 
-  console.log(`[Shapes] Generated ${selectedShape.emoji} ${selectedShape.name} at (${position.row}, ${position.col}) using ${placement} placement:`, numbers);
-
   // Store last shape info for UI display
   if (typeof window !== 'undefined') {
     window.__keno_lastShapeInfo = {

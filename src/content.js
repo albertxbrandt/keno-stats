@@ -2,7 +2,7 @@
 import { state } from './core/state.js';
 import { initOverlay, injectFooterButton } from './ui/overlay.js';
 import { loadHistory, updateHistoryUI } from './core/storage.js';
-import { calculatePrediction, selectPredictedNumbers } from './ui/numberSelection.js';
+import { selectPredictedNumbers } from './ui/numberSelection.js';
 import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { waitForBetButtonReady } from './utils/utils.js';
 import { updateHeatmap } from './features/heatmap.js';
@@ -12,6 +12,7 @@ import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparison.js';
 import './features/patterns.js'; // Import pattern analysis module (sets up window hooks)
 
+// eslint-disable-next-line no-console
 console.log('Keno Tracker loaded');
 
 // Track if we've already initialized to prevent double-initialization
@@ -36,6 +37,7 @@ function waitForKenoElements(callback, maxAttempts = 50) {
 		const betButton = document.querySelector('button[data-testid="bet-button"]');
 
 		if (kenoContainer && betButton) {
+			// eslint-disable-next-line no-console
 			console.log('[Keno Tracker] Keno elements found after', attempts, 'attempts, ready to initialize');
 			callback();
 		} else if (attempts < maxAttempts) {
@@ -54,7 +56,6 @@ function waitForKenoElements(callback, maxAttempts = 50) {
 
 function checkAndInitialize() {
 	if (!isOnKenoPage()) {
-		console.log('[Keno Tracker] Not on Keno page, skipping initialization');
 		extensionInitialized = false;
 		return;
 	}
@@ -62,25 +63,26 @@ function checkAndInitialize() {
 	// Check if overlay already exists (more reliable than flag)
 	const existingOverlay = document.getElementById('keno-tracker-overlay');
 	if (existingOverlay && extensionInitialized) {
-		console.log('[Keno Tracker] Already initialized (overlay exists)');
 		return;
 	}
 
 	if (extensionInitialized && !existingOverlay) {
-		console.log('[Keno Tracker] Was initialized but overlay missing, re-initializing');
 		extensionInitialized = false;
 	}
 
 	storageApi.storage.local.get('disclaimerAccepted', (result) => {
 		if (!result.disclaimerAccepted) {
+			// eslint-disable-next-line no-console
 			console.log('[Keno Tracker] Disclaimer not accepted. Extension will not function.');
 			return;
 		}
 
+		// eslint-disable-next-line no-console
 		console.log('[Keno Tracker] Disclaimer accepted, waiting for Keno elements...');
 
 		// Wait for Keno game to fully load before initializing
 		waitForKenoElements(() => {
+			// eslint-disable-next-line no-console
 			console.log('[Keno Tracker] Initializing extension...');
 			initializeExtension();
 			extensionInitialized = true;
@@ -99,7 +101,6 @@ if (document.readyState === 'loading') {
 const observer = new MutationObserver(() => {
 	const currentUrl = window.location.href;
 	if (currentUrl !== lastUrl) {
-		console.log('[Keno Tracker] URL changed from', lastUrl, 'to', currentUrl);
 		lastUrl = currentUrl;
 		checkAndInitialize();
 	}
@@ -116,11 +117,11 @@ let messageListenerAdded = false;
 
 function addMessageListener() {
 	if (messageListenerAdded) {
-		console.log('[Keno Tracker] Message listener already added, skipping');
 		return;
 	}
 
 	messageListenerAdded = true;
+	// eslint-disable-next-line no-console
 	console.log('[Keno Tracker] Adding message listener');
 
 	window.addEventListener('message', (event) => {
@@ -138,15 +139,14 @@ function addMessageListener() {
 		hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
-		console.log('[KENO] Round received:', { rawDrawn, rawSelected, drawn, selected, hits, misses, fullData: data });
 		// Save full kenoBet structure - preserve all fields except user
 		const { state: originalState, ...kenoBetData } = data;
-		// Capture generator state if active
-		const generatorInfo = state.isGeneratorActive ? {
+		// Capture generator state
+		const generatorInfo = {
 			method: state.generatorMethod,
 			count: state.generatorCount,
 			interval: state.generatorInterval,
-			autoSelect: state.generatorAutoSelect,
+			autoRefresh: state.generatorAutoRefresh,
 			sampleSize: state.generatorSampleSize,
 			// Method-specific settings
 			shapesPattern: state.shapesPattern,
@@ -155,7 +155,7 @@ function addMessageListener() {
 			momentumBaselineGames: state.momentumBaselineGames,
 			momentumThreshold: state.momentumThreshold,
 			momentumPoolSize: state.momentumPoolSize
-		} : null;
+		};
 
 		const betData = {
 			id: data.id,
@@ -170,98 +170,105 @@ function addMessageListener() {
 			generator: generatorInfo, // Store generator info if used
 			time: Date.now()
 		};
-		console.log('[KENO] Saving bet data:', betData);
-		import('./core/storage.js').then(mod => mod.saveRound(betData));
 
-		// Track the played numbers for recent plays section
-		trackPlayedNumbers(selected).then(() => {
-			updateRecentPlayedUI();
-		}).catch(err => console.error('[savedNumbers] trackPlayedNumbers failed:', err));
+		// Wait for saveRound to complete before checking history.length for preview updates
+		import('./core/storage.js').then(async mod => {
+			await mod.saveRound(betData);
 
-		// Update stats after new round
-		setTimeout(() => {
-			try { updateMultiplierBarStats(); } catch (_e) { console.error('[stats] update failed:', _e); }
-		}, 500);
+			// Track the played numbers for recent plays section
+			trackPlayedNumbers(selected).then(() => {
+				updateRecentPlayedUI();
+			}).catch(err => console.error('[savedNumbers] trackPlayedNumbers failed:', err));
 
-		// Capture predictions BEFORE regenerating (these are what were actually played)
-		const playedPredictions = state.lastGeneratedPredictions ? { ...state.lastGeneratedPredictions } : null;
+			// Update stats after new round
+			setTimeout(() => {
+				try { updateMultiplierBarStats(); } catch (_e) { console.error('[stats] update failed:', _e); }
+			}, 500);
 
-		// Track comparison BEFORE auto-generation (use numbers that were actually played)
-		if (state.isComparisonWindowOpen && window.__keno_trackRound && playedPredictions) {
-			try {
-				window.__keno_trackRound({ drawn, selected, predictions: playedPredictions });
-			} catch (_e) {
-				console.error('[Comparison] track round failed:', _e);
-			}
-		}
+			// Capture predictions BEFORE regenerating (these are what were actually played)
+			const playedPredictions = state.lastGeneratedPredictions ? { ...state.lastGeneratedPredictions } : null;
 
-		// NOW generate new numbers for next round
-		if ((state.isComparisonWindowOpen || state.isGeneratorActive) && window.__keno_generateAllPredictions) {
-			try {
-				const allPredictions = window.__keno_generateAllPredictions();
-				// Store for next round's comparison
-				state.lastGeneratedPredictions = allPredictions;
-			} catch (_e) {
-				console.error('[Generator] Generate all predictions failed:', _e);
-			}
-		}
-
-		// If generator is active (not just comparison), also generate and select numbers
-		if (state.isGeneratorActive && window.__keno_generateNumbers) {
-			try {
-				waitForBetButtonReady(3000).then(() => {
-					window.__keno_generateNumbers(); // This will check auto-refresh interval
-
-					// Update preview after generation
-					if (window.__keno_updateGeneratorPreview) {
-						window.__keno_updateGeneratorPreview();
-					}
-				}).catch(err => {
-					console.error('[Content] Bet button timeout, generating anyway:', err);
-					window.__keno_generateNumbers(); // Try anyway
-
-					// Update preview even on timeout
-					if (window.__keno_updateGeneratorPreview) {
-						window.__keno_updateGeneratorPreview();
-					}
-				});
-			} catch (e) {
-				console.error('[Generator] Generate numbers failed:', e);
-			}
-		} else if (window.__keno_updateGeneratorPreview) {
-			// Even if not generating, update the countdown
-			window.__keno_updateGeneratorPreview();
-		}
-
-		// Legacy: Auto Predict (deprecated)
-		else if (state.isPredictMode) {
-			calculatePrediction();
-		}
-		// Auto Play Logic
-		if (state.isAutoPlayMode && state.autoPlayRoundsRemaining > 0) {
-			state.autoPlayRoundsRemaining--;
-			// update UI immediately so Playing: <num> reflects remaining rounds
-			try { updateAutoPlayUI(); } catch (e) { console.warn('[content] updateAutoPlayUI failed', e); }
-			// Wait for bet button to be ready, then place next bet
-			if (state.autoPlayRoundsRemaining > 0) {
-				console.log('[AutoPlay] Waiting for bet button before next round...');
-				waitForBetButtonReady(3000).then(() => {
-					console.log('[AutoPlay] Bet button ready, placing next bet. Rounds remaining:', state.autoPlayRoundsRemaining);
-					autoPlayPlaceBet();
-				}).catch(err => {
-					console.error('[AutoPlay] Bet button timeout:', err);
-					state.isAutoPlayMode = false;
-					try { updateAutoPlayUI(); } catch { }
-				});
-			} else {
-				state.isAutoPlayMode = false;
-				if (state.autoPlayStartTime) {
-					state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
+			// Track comparison BEFORE auto-generation (use numbers that were actually played)
+			if (state.isComparisonWindowOpen && window.__keno_trackRound && playedPredictions) {
+				try {
+					window.__keno_trackRound({ drawn, selected, predictions: playedPredictions });
+				} catch (_e) {
+					console.error('[Comparison] track round failed:', _e);
 				}
-				try { updateAutoPlayUI(); } catch { }
-				console.log('[AutoPlay] Finished all rounds');
 			}
-		}
+
+			// NOW generate new numbers for next round (for comparison tracking)
+			if (state.isComparisonWindowOpen && window.__keno_generateAllPredictions) {
+				try {
+					const allPredictions = window.__keno_generateAllPredictions();
+					// Store for next round's comparison
+					state.lastGeneratedPredictions = allPredictions;
+				} catch (_e) {
+					console.error('[Generator] Generate all predictions failed:', _e);
+				}
+			}
+
+			// Auto-place numbers on board if Auto-Refresh is enabled and interval reached
+			if (state.generatorAutoRefresh && window.__keno_generateNumbers) {
+				const interval = state.generatorInterval || 5;
+				const currentRound = state.currentHistory.length;
+				const lastRefresh = state.generatorLastRefresh || 0;
+				const roundsSinceRefresh = currentRound - lastRefresh;
+
+				// Only auto-place if interval has been reached
+				if (roundsSinceRefresh >= interval) {
+					try {
+						waitForBetButtonReady(3000).then(() => {
+							window.__keno_generateNumbers(); // Places numbers on board automatically
+
+							// Update preview after generation
+							if (window.__keno_updateGeneratorPreview) {
+								window.__keno_updateGeneratorPreview();
+							}
+						}).catch(err => {
+							console.error('[Content] Bet button timeout, generating anyway:', err);
+							window.__keno_generateNumbers(); // Try anyway
+
+							// Update preview even on timeout
+							if (window.__keno_updateGeneratorPreview) {
+								window.__keno_updateGeneratorPreview();
+							}
+						});
+					} catch (e) {
+						console.error('[Generator] Generate numbers failed:', e);
+					}
+				} else if (window.__keno_updateGeneratorPreview) {
+					// Not yet time to refresh, just update preview countdown
+					window.__keno_updateGeneratorPreview();
+				}
+			} else if (window.__keno_updateGeneratorPreview) {
+				// Auto-refresh disabled, still update preview
+				window.__keno_updateGeneratorPreview();
+			}
+
+			// Auto Play Logic
+			if (state.isAutoPlayMode && state.autoPlayRoundsRemaining > 0) {
+				state.autoPlayRoundsRemaining--;
+				// update UI immediately so Playing: <num> reflects remaining rounds
+				try { updateAutoPlayUI(); } catch (e) { console.warn('[content] updateAutoPlayUI failed', e); }
+				// Wait for bet button to be ready, then place next bet
+				if (state.autoPlayRoundsRemaining > 0) {
+					waitForBetButtonReady(3000).then(() => {
+						autoPlayPlaceBet();
+					}).catch(err => {
+						console.error('[AutoPlay] Bet button timeout:', err);
+						state.isAutoPlayMode = false;
+						try { updateAutoPlayUI(); } catch { }
+					});
+				} else {
+					state.isAutoPlayMode = false;
+					if (state.autoPlayStartTime) {
+						state.autoPlayElapsedTime = Math.floor((Date.now() - state.autoPlayStartTime) / 1000);
+					}
+					try { updateAutoPlayUI(); } catch { }
+				}
+			}
+		});
 	});
 }
 

@@ -16,7 +16,19 @@ export default [
     },
     rules: {
       "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-      "no-console": "off", // Allow console for extension logging
+      "no-console": ["warn", {
+        "allow": ["warn", "error"]
+      }], // Warn on console.log, allow console.warn and console.error
+
+      // Prevent common bugs
+      "no-duplicate-imports": "error",
+      "no-const-assign": "error",
+      "no-unreachable": "error",
+      "no-dupe-keys": "error",
+
+      // Code consistency
+      "prefer-const": "warn",
+      "no-var": "error"
     }
   },
 
