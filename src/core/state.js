@@ -8,7 +8,7 @@ export const state = {
     isGeneratorActive: false,
     generatorMethod: 'frequency', // 'frequency', 'momentum', or 'cold'
     generatorCount: 3, // Unified count for all generator methods
-    generatorSampleSize: 5, // Generator uses separate sample size
+    generatorSampleSize: 20, // Universal sample size for all generators
     generatedNumbers: [],
     generatorAutoSelect: false,
     generatorInterval: 0, // Universal refresh interval in rounds (0 = manual)
