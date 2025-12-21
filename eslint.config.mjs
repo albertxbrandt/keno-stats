@@ -18,7 +18,7 @@ export default [
       "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
       "no-console": ["warn", {
         "allow": ["warn", "error"]
-      }], // Warn on console.log, allow console.warn and console.error
+      }], // Allow console.warn for warnings and console.error for errors. Do NOT use console.warn for debugging.
 
       // Prevent common bugs
       "no-duplicate-imports": "error",

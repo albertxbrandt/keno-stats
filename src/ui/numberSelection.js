@@ -94,7 +94,7 @@ export function updateGeneratorPreview() {
     const lastRoundDrawn = new Set();
     if (history.length > 0) {
       const lastRound = history[history.length - 1];
-      
+
       // Check multiple possible locations for drawn numbers
       let drawnNumbers = null;
       if (lastRound.drawn) {
@@ -104,7 +104,7 @@ export function updateGeneratorPreview() {
       } else if (lastRound.kenoBet?.drawnNumbers) {
         drawnNumbers = lastRound.kenoBet.drawnNumbers;
       }
-      
+
       if (drawnNumbers) {
         drawnNumbers.forEach(num => lastRoundDrawn.add(num));
       }

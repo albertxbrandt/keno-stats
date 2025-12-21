@@ -520,22 +520,54 @@ import { state } from './state.js'; // Only import what you use
 
 ### Console Logging Policy (Dec 2024)
 
+**CRITICAL: console.warn is for WARNINGS, NOT for debugging!**
+
+ESLint allows `console.warn` and `console.error`, but they have specific purposes:
+
+- ✅ `console.warn` - Production warnings (timeouts, fallbacks, non-critical issues)
+- ✅ `console.error` - Real errors only
+- ❌ `console.log` - BLOCKED by ESLint
+- ❌ `console.info` - BLOCKED
+- ❌ `console.debug` - BLOCKED
+
+**Correct usage of console.warn:**
+
+```javascript
+// ✅ Good - actual warning about problematic state
+console.warn("[Utils] Bet button timeout, using fallback");
+
+// ❌ Bad - using warn to bypass linting for debug logs
+console.warn("[Preview Debug] Last round:", lastRound);
+console.warn("[Preview Debug] Matches found:", hits);
+```
+
 **Keep**:
 
-- Initialization logs: `console.log('[STATS] initStatsObserver called')`
-- Warnings: `console.warn('[Utils] Bet button timeout')`
-- Errors: `console.error('[Generator] Failed:', error)`
-- Important state changes (user-visible actions)
+- Critical initialization logs with suppression:
+  ```javascript
+  // eslint-disable-next-line no-console
+  console.log("[Extension] Keno Tracker loaded");
+  ```
+- Real warnings: `console.warn('[Utils] Bet button timeout')`
+- Real errors: `console.error('[Generator] Failed to generate:', error)`
 
 **Remove**:
 
+- Debug logs disguised as warnings (any log with "Debug" in the message)
 - Cache status logs that execute every generation
 - "Called with..." logs on every function invocation
 - Selection/tile operation details
-- Settings change confirmations (unless debugging)
+- Settings change confirmations
 - Any log that executes more than once per minute in normal usage
 
-**Rationale**: Console should show initialization flow and problems, not verbose operational details.
+**For temporary debugging**:
+
+1. Use `console.log` locally (ESLint will flag it)
+2. Remove ALL debug logs before committing
+3. **NEVER use `console.warn` to bypass linting** - this defeats the entire purpose
+4. Never suppress console.log with `eslint-disable-next-line` unless it's a critical initialization log
+
+**Rationale**: Console should show initialization flow, warnings about non-ideal states, and real errors - not verbose operational details or debug spam.
 
 ### Function Documentation
 
