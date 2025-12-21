@@ -269,6 +269,8 @@ function addMessageListener() {
 				window.__keno_updateGeneratorPreview();
 			}
 
+			// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
+			/*
 			// Auto Play Logic
 			if (state.isAutoPlayMode && state.autoPlayRoundsRemaining > 0) {
 				state.autoPlayRoundsRemaining--;
@@ -291,6 +293,7 @@ function addMessageListener() {
 					try { updateAutoPlayUI(); } catch { }
 				}
 			}
+			*/
 		});
 	});
 }
@@ -318,12 +321,15 @@ function initializeExtension() {
 		updateHeatmap();
 		// Check for footer button less frequently (performance optimization)
 		setInterval(injectFooterButton, 3000);
+		// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
+		/*
 		// Update autoplay timer every second (only runs when autoplay active)
 		setInterval(() => {
 			if (state.isAutoPlayMode) {
 				try { updateAutoPlayUI(); } catch { }
 			}
 		}, 1000);
+		*/
 		// Initialize stats observer for multiplier bar
 		console.warn('[CONTENT] About to call initStatsObserver in 3s');
 		setTimeout(() => {

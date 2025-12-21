@@ -213,6 +213,8 @@ export function createOverlay() {
                 <div style="color:#ff7675">Miss: <span id="tracker-misses">-</span></div>
             </div>
 
+            <!-- AUTO-PLAY DISABLED FOR TOS COMPLIANCE -->
+            <!--
             <div data-section="autoplay" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
                 <div id="autoplay-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <span id="autoplay-label" style="color:#74b9ff; font-weight:bold;">Auto-Play</span>
@@ -234,6 +236,7 @@ export function createOverlay() {
                     </div>
                 </div>
             </div>
+            -->
             
             <div data-section="profitLoss" style="margin-bottom:15px; background:#0f212e; padding:8px; border-radius:4px; cursor:pointer;">
                 <div id="profitLoss-header" style="display:flex; justify-content:space-between; align-items:center;">
@@ -852,6 +855,8 @@ export function createOverlay() {
         });
     }
 
+    // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
+    /* 
     // Auto-Play hover expand/collapse with pin functionality
     const autoplaySection = document.querySelector('[data-section="autoplay"]');
     const autoplayDetails = document.getElementById('autoplay-details');
@@ -887,6 +892,7 @@ export function createOverlay() {
             }
         });
     }
+    */
 
     // Pattern Analysis hover expand/collapse with pin functionality
     const patternSection = document.querySelector('[data-section="patternAnalysis"]');
@@ -996,6 +1002,8 @@ export function createOverlay() {
         });
     }
 
+    // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
+    /*
     const apBtn = document.getElementById('autoplay-btn');
     if (apBtn) apBtn.addEventListener('click', () => {
         const roundsInput = document.getElementById('autoplay-rounds');
@@ -1020,6 +1028,7 @@ export function createOverlay() {
     });
     const apPredCount = document.getElementById('autoplay-pred-count');
     if (apPredCount) apPredCount.addEventListener('change', () => { const rawVal = parseInt(apPredCount.value) || 3; state.autoPlayPredictionCount = Math.min(Math.max(rawVal, 1), 40); });
+    */
 
     // Global sample size input
     const generatorSampleSizeInput = document.getElementById('generator-sample-size');
