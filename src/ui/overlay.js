@@ -1211,18 +1211,55 @@ export function createOverlay() {
 
     const generatorRefreshBtn = document.getElementById('generator-refresh-btn');
     if (generatorRefreshBtn) {
-        generatorRefreshBtn.addEventListener('click', () => {
-            // Trigger immediate regeneration
-            if (window.__keno_generateNumbers) {
-                window.__keno_generateNumbers(true); // Force refresh
+        generatorRefreshBtn.addEventListener('click', async () => {
+            // Use the previewed numbers if available
+            if (state.nextNumbers && state.nextNumbers.length > 0) {
+                state.generatedNumbers = state.nextNumbers;
+                
+                // Place them on board
+                if (window.__keno_selectPredictedNumbers) {
+                    await window.__keno_selectPredictedNumbers();
+                }
+                
+                // Update last refresh counter
+                state.generatorLastRefresh = state.currentHistory.length;
+                
+                // Update preview to show next set
+                if (window.__keno_updateGeneratorPreview) {
+                    window.__keno_updateGeneratorPreview();
+                }
+            } else {
+                // Fallback: generate fresh if no preview available
+                if (window.__keno_generateNumbers) {
+                    await window.__keno_generateNumbers(true);
+                }
+                
+                state.generatorLastRefresh = state.currentHistory.length;
+                
+                if (window.__keno_updateGeneratorPreview) {
+                    window.__keno_updateGeneratorPreview();
+                }
             }
+        });
+    }
 
-            // Update last refresh counter
-            state.generatorLastRefresh = state.currentHistory.length;
+    // Add hover handlers to preview section for board highlighting
+    const generatorPreview = document.getElementById('generator-preview');
+    if (generatorPreview) {
+        generatorPreview.addEventListener('mouseenter', () => {
+            // Highlight preview numbers on the board
+            if (state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
+                window.__keno_highlightPrediction(state.nextNumbers);
+            }
+        });
 
-            // Update preview UI
-            if (window.__keno_updateGeneratorPreview) {
-                window.__keno_updateGeneratorPreview();
+        generatorPreview.addEventListener('mouseleave', () => {
+            // Restore current generated numbers highlight (if auto-refresh is on)
+            if (state.generatorAutoRefresh && state.generatedNumbers && state.generatedNumbers.length > 0 && window.__keno_highlightPrediction) {
+                window.__keno_highlightPrediction(state.generatedNumbers);
+            } else if (window.__keno_clearHighlight) {
+                // If auto-refresh is off, clear highlights
+                window.__keno_clearHighlight();
             }
         });
     }

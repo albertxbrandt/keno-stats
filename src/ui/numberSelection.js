@@ -60,6 +60,7 @@ export function updateGeneratorPreview() {
   // If manual mode (auto-refresh off), don't show preview
   if (!autoRefresh) {
     previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">Click Refresh to generate</span>';
+    state.nextNumbers = []; // Clear preview numbers
     return;
   }
 
@@ -73,11 +74,15 @@ export function updateGeneratorPreview() {
 
     const generator = generatorFactory.get(method);
     if (generator) {
-      // Generate fresh preview without updating cache or state
+      // Generate fresh preview without updating cache
       previewPredictions = generator.generate(count, history, config);
+      
+      // Store in state for use by Refresh button
+      state.nextNumbers = previewPredictions;
     }
   } catch (e) {
     console.error('[Preview] Failed to generate preview:', e);
+    state.nextNumbers = [];
   }
 
   // Update preview numbers

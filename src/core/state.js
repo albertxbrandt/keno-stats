@@ -10,6 +10,7 @@ export const state = {
     generatorCount: 3, // Unified count for all generator methods
     generatorSampleSize: 20, // Universal sample size for all generators
     generatedNumbers: [],
+    nextNumbers: [], // Preview numbers shown to user (updates every round)
     generatorAutoRefresh: true, // Auto-refresh toggle (on by default)
     generatorInterval: 5, // Auto-refresh interval in rounds (min 1)
     generatorLastRefresh: 0, // Universal last refresh round counter

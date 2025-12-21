@@ -217,16 +217,40 @@ function addMessageListener() {
 				// Only auto-place if interval has been reached
 				if (roundsSinceRefresh >= interval) {
 					try {
-						waitForBetButtonReady(3000).then(() => {
-							window.__keno_generateNumbers(); // Places numbers on board automatically
+						waitForBetButtonReady(3000).then(async () => {
+							// Use previewed numbers if available
+							if (state.nextNumbers && state.nextNumbers.length > 0) {
+								state.generatedNumbers = state.nextNumbers;
+								
+								if (window.__keno_selectPredictedNumbers) {
+									await window.__keno_selectPredictedNumbers();
+								}
+								
+								state.generatorLastRefresh = currentRound;
+							} else {
+								// Fallback: generate fresh
+								await window.__keno_generateNumbers();
+							}
 
 							// Update preview after generation
 							if (window.__keno_updateGeneratorPreview) {
 								window.__keno_updateGeneratorPreview();
 							}
-						}).catch(err => {
+						}).catch(async err => {
 							console.error('[Content] Bet button timeout, generating anyway:', err);
-							window.__keno_generateNumbers(); // Try anyway
+							
+							// Use previewed numbers even on timeout
+							if (state.nextNumbers && state.nextNumbers.length > 0) {
+								state.generatedNumbers = state.nextNumbers;
+								
+								if (window.__keno_selectPredictedNumbers) {
+									await window.__keno_selectPredictedNumbers();
+								}
+								
+								state.generatorLastRefresh = currentRound;
+							} else {
+								await window.__keno_generateNumbers();
+							}
 
 							// Update preview even on timeout
 							if (window.__keno_updateGeneratorPreview) {
