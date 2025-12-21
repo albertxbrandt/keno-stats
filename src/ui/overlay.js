@@ -1215,15 +1215,15 @@ export function createOverlay() {
             // Use the previewed numbers if available
             if (state.nextNumbers && state.nextNumbers.length > 0) {
                 state.generatedNumbers = state.nextNumbers;
-                
+
                 // Place them on board
                 if (window.__keno_selectPredictedNumbers) {
                     await window.__keno_selectPredictedNumbers();
                 }
-                
+
                 // Update last refresh counter
                 state.generatorLastRefresh = state.currentHistory.length;
-                
+
                 // Update preview to show next set
                 if (window.__keno_updateGeneratorPreview) {
                     window.__keno_updateGeneratorPreview();
@@ -1233,12 +1233,28 @@ export function createOverlay() {
                 if (window.__keno_generateNumbers) {
                     await window.__keno_generateNumbers(true);
                 }
-                
+
                 state.generatorLastRefresh = state.currentHistory.length;
-                
+
                 if (window.__keno_updateGeneratorPreview) {
                     window.__keno_updateGeneratorPreview();
                 }
+            }
+        });
+
+        // Add hover to show preview numbers on board
+        generatorRefreshBtn.addEventListener('mouseenter', () => {
+            if (state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
+                window.__keno_highlightPrediction(state.nextNumbers);
+            }
+        });
+
+        generatorRefreshBtn.addEventListener('mouseleave', () => {
+            // Restore current generated numbers highlight (if auto-refresh is on)
+            if (state.generatorAutoRefresh && state.generatedNumbers && state.generatedNumbers.length > 0 && window.__keno_highlightPrediction) {
+                window.__keno_highlightPrediction(state.generatedNumbers);
+            } else if (window.__keno_clearHighlight) {
+                window.__keno_clearHighlight();
             }
         });
     }

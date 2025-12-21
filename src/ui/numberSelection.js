@@ -67,16 +67,17 @@ export function updateGeneratorPreview() {
   // Generate preview of what NEXT numbers will be (force fresh generation)
   // This shows what you'd get if you clicked Refresh now
   let previewPredictions = [];
+  const count = state.generatorCount || 3;
+  const history = state.currentHistory || [];
+
   try {
-    const count = state.generatorCount || 3;
-    const history = state.currentHistory || [];
     const config = buildGeneratorConfig(method);
 
     const generator = generatorFactory.get(method);
     if (generator) {
       // Generate fresh preview without updating cache
       previewPredictions = generator.generate(count, history, config);
-      
+
       // Store in state for use by Refresh button
       state.nextNumbers = previewPredictions;
     }
@@ -85,12 +86,43 @@ export function updateGeneratorPreview() {
     state.nextNumbers = [];
   }
 
-  // Update preview numbers
+  // Update preview numbers with hit/miss styling
   if (previewPredictions.length === 0) {
     previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions available</span>';
   } else {
+    // Get drawn numbers from most recent round only
+    const lastRoundDrawn = new Set();
+    if (history.length > 0) {
+      const lastRound = history[history.length - 1];
+      
+      // Check multiple possible locations for drawn numbers
+      let drawnNumbers = null;
+      if (lastRound.drawn) {
+        drawnNumbers = lastRound.drawn;
+      } else if (lastRound.kenoBet?.state?.drawnNumbers) {
+        drawnNumbers = lastRound.kenoBet.state.drawnNumbers;
+      } else if (lastRound.kenoBet?.drawnNumbers) {
+        drawnNumbers = lastRound.kenoBet.drawnNumbers;
+      }
+      
+      if (drawnNumbers) {
+        drawnNumbers.forEach(num => lastRoundDrawn.add(num));
+      }
+    }
+
     previewContainer.innerHTML = previewPredictions
-      .map(num => `<span style="background:#2a3f4f; color:#74b9ff; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600;">${num}</span>`)
+      .map(num => {
+        const wasHit = lastRoundDrawn.has(num);
+        const baseStyle = 'display:inline-block; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600; transition: all 0.2s;';
+
+        if (wasHit) {
+          // Hit in last round - darker with inset shadow and different color
+          return `<span style="${baseStyle} background:#162026; color:#7a9fb5; box-shadow:inset 0 2px 4px rgba(0,0,0,0.6); border: 1px solid #0a1419;">${num}</span>`;
+        } else {
+          // Not hit - normal bright style
+          return `<span style="${baseStyle} background:#2a3f4f; color:#74b9ff;">${num}</span>`;
+        }
+      })
       .join('');
   }
 }
