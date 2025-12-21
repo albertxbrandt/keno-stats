@@ -235,7 +235,10 @@ export function getShapePredictions(count = 5, pattern = 'random', placement = '
   let selectedShape;
 
   // Select shape based on pattern parameter
-  if (pattern === 'random') {
+  if (pattern === 'smart') {
+    // Smart selection: score all shapes based on placement strategy
+    selectedShape = selectSmartShape(count, placement, historyData, sampleSize);
+  } else if (pattern === 'random') {
     // Filter shapes that match the requested count
     const availableShapes = Object.entries(SHAPE_DEFINITIONS).filter(
       ([_key, shape]) => shape.offsets.length === count
@@ -328,6 +331,156 @@ function adjustShapeSize(numbers, targetCount) {
   }
 
   return numbers;
+}
+
+/**
+ * Smart shape selection: scores all shapes and picks the best one for the placement strategy
+ * @param {number} count - Desired number of predictions
+ * @param {string} placement - Placement strategy (hot/cold/trending/random)
+ * @param {Array} historyData - Game history
+ * @param {number} sampleSize - Analysis window size
+ * @returns {Object} Best shape definition for the placement strategy
+ */
+function selectSmartShape(count, placement, historyData, sampleSize) {
+  // If no history or random placement, pick any shape that matches count
+  if (placement === 'random' || !historyData || historyData.length === 0) {
+    const matchingShapes = Object.entries(SHAPE_DEFINITIONS).filter(
+      ([_key, shape]) => shape.offsets.length === count
+    );
+    if (matchingShapes.length > 0) {
+      // eslint-disable-next-line no-unused-vars
+      const [_key, shape] = matchingShapes[Math.floor(Math.random() * matchingShapes.length)];
+      return shape;
+    }
+    // Fallback: any shape
+    const allShapes = Object.entries(SHAPE_DEFINITIONS);
+    return allShapes[Math.floor(Math.random() * allShapes.length)][1];
+  }
+
+  // Score each shape based on placement strategy
+  const shapeScores = [];
+
+  for (const [key, shape] of Object.entries(SHAPE_DEFINITIONS)) {
+    // Skip shapes that don't match count exactly (for now)
+    if (shape.offsets.length !== count) continue;
+
+    const validPositions = getValidPositions(shape.offsets);
+    if (validPositions.length === 0) continue;
+
+    // Score all positions for this shape
+    let totalScore = 0;
+    let positionCount = 0;
+
+    for (const pos of validPositions) {
+      const shapeNumbers = generateShape(pos.row, pos.col, shape.offsets);
+      let posScore = 0;
+
+      if (placement === 'hot') {
+        // Hot: sum of frequencies (higher is better)
+        const frequency = calculateFrequency(historyData, sampleSize);
+        posScore = shapeNumbers.reduce((sum, num) => sum + (frequency[num] || 0), 0);
+      } else if (placement === 'cold') {
+        // Cold: inverse of frequencies (lower freq is better, so negate)
+        const frequency = calculateFrequency(historyData, sampleSize);
+        posScore = shapeNumbers.reduce((sum, num) => sum - (frequency[num] || 0), 0);
+      } else if (placement === 'trending') {
+        // Trending: sum of momentum ratios
+        const momentum = calculateMomentum(historyData, sampleSize);
+        posScore = shapeNumbers.reduce((sum, num) => sum + (momentum[num] || 1.0), 0);
+      }
+
+      totalScore += posScore;
+      positionCount++;
+    }
+
+    // Average score across all valid positions
+    const avgScore = positionCount > 0 ? totalScore / positionCount : 0;
+    shapeScores.push({ key, shape, score: avgScore, positionCount });
+  }
+
+  // If no shapes match exact count, relax constraint
+  if (shapeScores.length === 0) {
+    const allShapes = Object.entries(SHAPE_DEFINITIONS);
+    return allShapes[Math.floor(Math.random() * allShapes.length)][1];
+  }
+
+  // Sort by score (descending) and pick best
+  shapeScores.sort((a, b) => b.score - a.score);
+  return shapeScores[0].shape;
+}
+
+/**
+ * Calculate frequency map for all numbers 1-40
+ */
+function calculateFrequency(historyData, sampleSize) {
+  const frequency = {};
+  for (let i = 1; i <= 40; i++) {
+    frequency[i] = 0;
+  }
+
+  const recentHistory = historyData.slice(-sampleSize);
+  recentHistory.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (frequency[num] !== undefined) frequency[num]++;
+    });
+  });
+
+  return frequency;
+}
+
+/**
+ * Calculate momentum (trending) map for all numbers 1-40
+ * Returns ratio of recent frequency to baseline frequency
+ */
+function calculateMomentum(historyData, sampleSize) {
+  const minHistory = sampleSize * 5;
+  if (historyData.length < minHistory) {
+    // Not enough history, return neutral momentum
+    const neutral = {};
+    for (let i = 1; i <= 40; i++) {
+      neutral[i] = 1.0;
+    }
+    return neutral;
+  }
+
+  const recentWindow = sampleSize;
+  const baselineWindow = sampleSize * 4;
+
+  const recent = historyData.slice(-recentWindow);
+  const baseline = historyData.slice(-(recentWindow + baselineWindow), -recentWindow);
+
+  const recentFreq = {};
+  const baselineFreq = {};
+
+  for (let i = 1; i <= 40; i++) {
+    recentFreq[i] = 0;
+    baselineFreq[i] = 0;
+  }
+
+  recent.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (recentFreq[num] !== undefined) recentFreq[num]++;
+    });
+  });
+
+  baseline.forEach(round => {
+    const drawn = round.kenoBet?.state?.drawnNumbers || round.drawn || [];
+    drawn.forEach(num => {
+      if (baselineFreq[num] !== undefined) baselineFreq[num]++;
+    });
+  });
+
+  // Calculate momentum ratios
+  const momentum = {};
+  for (let i = 1; i <= 40; i++) {
+    const recentRate = recentFreq[i] / recentWindow;
+    const baselineRate = baselineFreq[i] / baselineWindow;
+    momentum[i] = baselineRate > 0 ? recentRate / baselineRate : 1.0;
+  }
+
+  return momentum;
 }
 
 /**

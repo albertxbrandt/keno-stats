@@ -124,6 +124,7 @@ export function createOverlay() {
                         <div style="margin-bottom:8px;">
                             <span style="color:#aaa; font-size:10px;">Pattern:</span>
                             <select id="shapes-pattern-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:10px; margin-top:4px;">
+                                <option value="smart">🧠 Smart Shape (Auto-Select Best)</option>
                                 <option value="random">🎲 Random Shape</option>
                                 <option value="plus">➕ Plus</option>
                                 <option value="cross">✖️ Cross</option>
