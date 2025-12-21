@@ -16,6 +16,9 @@ import './features/patterns.js'; // Import pattern analysis module (sets up wind
 // eslint-disable-next-line no-console
 console.log('Keno Tracker loaded');
 
+// Expose state globally for shuffle functionality
+window.__keno_state = state;
+
 // Track if we've already initialized to prevent double-initialization
 let extensionInitialized = false;
 let lastUrl = window.location.href;

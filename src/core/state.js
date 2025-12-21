@@ -59,9 +59,10 @@ export const state = {
     comparisonData: [], // Array of {round, frequency: {predicted, hits, profit}, momentum: {predicted, hits, profit}, cold: {predicted, hits, profit}}
     gameDifficulty: 'classic', // Current game difficulty (classic, low, medium, high)
     // Shapes Generator Config
-    shapesPattern: 'random', // Selected shape pattern ('random' or specific shape key)
+    shapesPattern: 'random', // Selected shape pattern ('random', 'smart', or specific shape key)
     shapesPlacement: 'random', // Placement strategy ('random', 'hot', 'trending')
     shapesInterval: 0, // Auto-refresh interval in rounds (0 = manual)
     shapesLastRefresh: 0, // Last round number when shapes was refreshed
-    shapesActuallyRefreshed: false // Track if shapes was actually regenerated vs cached
+    shapesActuallyRefreshed: false, // Track if shapes was actually regenerated vs cached
+    shapesUsageHistory: [] // Array of recently used shape keys (for weighted random)
 };

@@ -239,18 +239,8 @@ export function getShapePredictions(count = 5, pattern = 'random', placement = '
     // Smart selection: score all shapes based on placement strategy
     selectedShape = selectSmartShape(count, placement, historyData, sampleSize);
   } else if (pattern === 'random') {
-    // Filter shapes that match the requested count
-    const availableShapes = Object.entries(SHAPE_DEFINITIONS).filter(
-      ([_key, shape]) => shape.offsets.length === count
-    );
-
-    if (availableShapes.length === 0) {
-      console.warn('[Shapes] No shapes with exactly', count, 'numbers, using any available shape');
-      const allShapes = Object.entries(SHAPE_DEFINITIONS);
-      [, selectedShape] = allShapes[Math.floor(Math.random() * allShapes.length)];
-    } else {
-      [, selectedShape] = availableShapes[Math.floor(Math.random() * availableShapes.length)];
-    }
+    // Weighted random: favors shapes not used recently for better variety
+    selectedShape = selectWeightedRandomShape(count);
   } else {
     // Use specific pattern
     selectedShape = SHAPE_DEFINITIONS[pattern];
@@ -331,6 +321,99 @@ function adjustShapeSize(numbers, targetCount) {
   }
 
   return numbers;
+}
+
+/**
+ * Weighted random shape selection: favors shapes not used recently
+ * Creates natural variety without strict predictable order
+ * @param {number} count - Desired number of predictions
+ * @returns {Object} Weighted random shape (less likely to repeat recent selections)
+ */
+function selectWeightedRandomShape(count) {
+  // Access global state for usage history persistence
+  if (typeof window === 'undefined' || !window.__keno_state) {
+    // Fallback if state not available: pure random
+    const matchingShapes = Object.entries(SHAPE_DEFINITIONS).filter(
+      ([_key, shape]) => shape.offsets.length === count
+    );
+    if (matchingShapes.length > 0) {
+      return matchingShapes[Math.floor(Math.random() * matchingShapes.length)][1];
+    }
+    const allShapes = Object.entries(SHAPE_DEFINITIONS);
+    return allShapes[Math.floor(Math.random() * allShapes.length)][1];
+  }
+
+  const state = window.__keno_state;
+
+  // Initialize usage history if needed
+  if (!state.shapesUsageHistory) {
+    state.shapesUsageHistory = [];
+  }
+
+  // Get all shapes that match the count
+  const matchingShapes = Object.entries(SHAPE_DEFINITIONS)
+    .filter(([_key, shape]) => shape.offsets.length === count);
+
+  let shapesToConsider;
+  if (matchingShapes.length === 0) {
+    // No exact matches, use all shapes
+    shapesToConsider = Object.entries(SHAPE_DEFINITIONS);
+  } else {
+    shapesToConsider = matchingShapes;
+  }
+
+  // Calculate weights based on usage history
+  // Recent usage = lower weight, not used recently = higher weight
+  const weights = shapesToConsider.map(([key, shape]) => {
+    const historySize = state.shapesUsageHistory.length;
+    const lastUsedIndex = state.shapesUsageHistory.lastIndexOf(key);
+
+    if (lastUsedIndex === -1) {
+      // Never used or not in recent history: maximum weight
+      return { key, shape, weight: 10 };
+    }
+
+    // Calculate recency (0 = most recent, higher = older)
+    const recency = historySize - lastUsedIndex - 1;
+
+    // Weight increases with recency (exponential)
+    // Most recent (recency=0): weight ≈ 0.5
+    // 2 shapes ago (recency=2): weight ≈ 2
+    // 5 shapes ago (recency=5): weight ≈ 7
+    const weight = Math.max(0.5, recency * 1.5);
+
+    return { key, shape, weight };
+  });
+
+  // Weighted random selection
+  const totalWeight = weights.reduce((sum, item) => sum + item.weight, 0);
+  let random = Math.random() * totalWeight;
+
+  let selectedShape;
+  let selectedKey;
+
+  for (const item of weights) {
+    random -= item.weight;
+    if (random <= 0) {
+      selectedShape = item.shape;
+      selectedKey = item.key;
+      break;
+    }
+  }
+
+  // Fallback safety
+  if (!selectedShape) {
+    selectedShape = weights[0].shape;
+    selectedKey = weights[0].key;
+  }
+
+  // Track usage (keep last 20 selections)
+  state.shapesUsageHistory.push(selectedKey);
+  if (state.shapesUsageHistory.length > 20) {
+    state.shapesUsageHistory.shift();
+  }
+
+  return selectedShape;
 }
 
 /**
