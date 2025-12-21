@@ -38,7 +38,7 @@ Code split across specialized modules:
 **Features:**
 
 - **`features/heatmap.js`**: Frequency analysis, tile highlighting, percentage badges
-- **`features/autoplay.js`**: Auto-play betting logic, UI updates
+- **`features/autoplay.js`**: Auto-play betting logic, UI updates (DISABLED for TOS compliance)
 - **`features/stats.js`**: Multiplier bar integration, probability calculation, MutationObserver
 - **`features/patterns.js`**: Pattern analysis, combination finding, caching
 - **`features/savedNumbers.js`**: Saved number sets management
@@ -362,7 +362,7 @@ Three distinct highlight modes triggered on DOM tile buttons:
 - `isHotMode`: Sample last 5 games (slider labeled "Use last 5 games?") vs all 100
 - `isPredictMode`: Show top N predicted numbers overlay; auto-recalculates on mode toggle or count change
 - `isOverlayVisible`: Main UI panel display (toggle button in game footer)
-- **Auto-Play Mode (Planned)**: Extension will automatically play X rounds using prediction algorithm to make strategic guesses based on heatmap frequency analysis
+- **Auto-Play Mode**: DISABLED for TOS compliance (code commented out, can be re-enabled if needed)
 
 ### Heatmap Algorithm
 
@@ -492,7 +492,7 @@ import { state } from './state.js'; // Only import what you use
 5. **Storage**: `chrome.storage.local.get("history")` should return array; test reset clears all data
 6. **Heatmap edge cases**: Empty history (no games), single game (avoid /0), switching modes mid-prediction
 7. **URL scope**: Navigate away from keno page, verify overlay hides and no console errors
-8. **Auto-play simulation**: Verify prediction algorithm ranks numbers correctly and round count decrements properly
+8. **Auto-play**: DISABLED for TOS compliance (feature removed from UI)
 9. **Stats observer**: Check console for `[STATS] initStatsObserver called` and multiplier bar updates on tile clicks
 10. **Module isolation**: Import errors show as "Cannot find module" - ensure all imports use relative paths (`./module.js`)
 11. **Pattern caching**: Check console for "[patterns] Using cached data" on repeated queries; verify `window.__keno_clearPatternCache()` exists
@@ -662,13 +662,18 @@ const checkCleared = () => {
 };
 ```
 
-## Strategic Guessing Implementation Notes
+## Auto-Play Feature Status
 
-When implementing auto-play functionality:
+**DISABLED for TOS compliance** (December 2024)
 
-- **Betting logic**: Use `calculatePrediction()` to generate top N numbers; click tiles via `simulatePointerClick()` from `utils.js`
-- **Round counter**: Track remaining rounds in `state.autoPlayRoundsRemaining`; decremented in `content.js` message listener
-- **Bet confirmation**: Wait 1500ms after round detected before placing next bet (timing in `content.js` auto-play handler)
-- **Fallback strategy**: Use `generateRandomPrediction()` from `autoplay.js` if insufficient history (< 5 games)
-- **UI updates**: Call `updateAutoPlayUI()` after any state change to sync button text and status display
-- **Play button**: Find via `data-testid="bet-button"` selector (see `findAndClickPlayButton()` in `utils.js`)
+The auto-play feature has been disabled to comply with Stake.com Terms of Service Section 5.1(y) which prohibits "software-assisted methods" for game participation. The automated betting functionality was determined to be the highest risk for TOS violation.
+
+**Code location**: All auto-play code is commented out (not deleted) in:
+
+- `src/ui/overlay.js` - UI section and event handlers
+- `src/content.js` - Execution logic and timer
+- `src/features/autoplay.js` - Core betting functions (file still exists but unused)
+
+**To re-enable** (if TOS interpretation changes): Uncomment the marked sections in the files above.
+
+**Remaining features are defensible** as decision support tools that require manual user action for each bet.

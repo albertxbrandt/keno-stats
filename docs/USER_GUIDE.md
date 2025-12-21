@@ -7,10 +7,9 @@
 3. [Number Generator](#number-generator)
 4. [Pattern Analysis](#pattern-analysis)
 5. [Profit/Loss Tracking](#profitloss-tracking)
-6. [Auto-Play System](#auto-play-system)
-7. [Saved Number Sets](#saved-number-sets)
-8. [History Management](#history-management)
-9. [Tips & Best Practices](#tips--best-practices)
+6. [Saved Number Sets](#saved-number-sets)
+7. [History Management](#history-management)
+8. [Tips & Best Practices](#tips--best-practices)
 
 ---
 

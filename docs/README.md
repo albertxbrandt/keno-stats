@@ -13,7 +13,6 @@ Welcome to the documentation for the Keno Stats browser extension!
 - Number Generator strategies
 - Pattern Analysis
 - Profit/Loss Tracking
-- Auto-Play System
 - Tips & Best Practices
 - Troubleshooting
 
@@ -68,7 +67,6 @@ Welcome to the documentation for the Keno Stats browser extension!
 - [Heatmap Analysis](USER_GUIDE.md#heatmap-analysis) - Hot vs Trending explained
 - [Number Generator](USER_GUIDE.md#number-generator) - All methods
 - [Pattern Analysis](USER_GUIDE.md#pattern-analysis)
-- [Auto-Play System](USER_GUIDE.md#auto-play-system)
 - [Tips & Best Practices](USER_GUIDE.md#tips--best-practices)
 - [Troubleshooting](USER_GUIDE.md#troubleshooting)
 

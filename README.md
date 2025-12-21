@@ -60,15 +60,6 @@ Find common N-number combinations (3-10) that appear together frequently:
 - Bet book export feature for complete betting history analysis
 - Automatic profit calculation from actual game results
 
-### 🎮 Auto-Play System
-
-Automatically place bets using prediction algorithms:
-
-- Configure number of rounds to play
-- Uses active generator method for number selection
-- Real-time profit/loss tracking during auto-play
-- Safety features with bet button state monitoring
-
 ### 📝 Unlimited History
 
 - Records every round with complete data (hits, misses, drawn numbers, selected numbers, timestamp)

@@ -139,7 +139,7 @@ function addMessageListener() {
 		hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
 		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
-		
+
 		// Capture generator state
 		const generatorInfo = {
 			method: state.generatorMethod,
@@ -221,11 +221,11 @@ function addMessageListener() {
 							// Use previewed numbers if available
 							if (state.nextNumbers && state.nextNumbers.length > 0) {
 								state.generatedNumbers = state.nextNumbers;
-								
+
 								if (window.__keno_selectPredictedNumbers) {
 									await window.__keno_selectPredictedNumbers();
 								}
-								
+
 								state.generatorLastRefresh = currentRound;
 							} else {
 								// Fallback: generate fresh
@@ -238,15 +238,15 @@ function addMessageListener() {
 							}
 						}).catch(async err => {
 							console.error('[Content] Bet button timeout, generating anyway:', err);
-							
+
 							// Use previewed numbers even on timeout
 							if (state.nextNumbers && state.nextNumbers.length > 0) {
 								state.generatedNumbers = state.nextNumbers;
-								
+
 								if (window.__keno_selectPredictedNumbers) {
 									await window.__keno_selectPredictedNumbers();
 								}
-								
+
 								state.generatorLastRefresh = currentRound;
 							} else {
 								await window.__keno_generateNumbers();
