@@ -3,7 +3,8 @@ import { state } from './core/state.js';
 import { initOverlay, injectFooterButton } from './ui/overlay.js';
 import { loadHistory, updateHistoryUI } from './core/storage.js';
 import { selectPredictedNumbers } from './ui/numberSelection.js';
-import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
+// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
+// import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { waitForBetButtonReady } from './utils/utils.js';
 import { updateHeatmap } from './features/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';

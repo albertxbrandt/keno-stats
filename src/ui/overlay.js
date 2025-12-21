@@ -3,7 +3,8 @@ import { state } from '../core/state.js';
 import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings, saveHeatmapSettings, loadHeatmapSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
 import { calculatePrediction } from './numberSelection.js';
-import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
+// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
+// import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
 import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from '../utils/domReader.js';
 
 export function createOverlay() {
