@@ -1,5 +1,8 @@
 // disclaimer.js - Handles disclaimer acceptance logic
 
+// Browser compatibility: Firefox uses 'browser', Chrome uses 'chrome'
+const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+
 const acceptCheckbox = document.getElementById('acceptCheckbox');
 const acceptBtn = document.getElementById('acceptBtn');
 const declineBtn = document.getElementById('declineBtn');
@@ -12,7 +15,7 @@ acceptCheckbox.addEventListener('change', (e) => {
 // Handle accept button click
 acceptBtn.addEventListener('click', () => {
   // Save acceptance to storage
-  chrome.storage.local.set({ disclaimerAccepted: true, acceptedDate: Date.now() }, () => {
+  storageApi.storage.local.set({ disclaimerAccepted: true, acceptedDate: Date.now() }, () => {
     console.log('[Disclaimer] User accepted terms');
     // Close this tab
     window.close();
@@ -23,12 +26,12 @@ acceptBtn.addEventListener('click', () => {
 declineBtn.addEventListener('click', () => {
   if (confirm('Are you sure? Declining will uninstall the extension.')) {
     // Uninstall the extension
-    chrome.management.uninstallSelf();
+    storageApi.management.uninstallSelf();
   }
 });
 
 // Check if already accepted (shouldn't normally happen, but just in case)
-chrome.storage.local.get('disclaimerAccepted', (result) => {
+storageApi.storage.local.get('disclaimerAccepted', (result) => {
   if (result.disclaimerAccepted) {
     console.log('[Disclaimer] Already accepted, closing page');
     window.close();
