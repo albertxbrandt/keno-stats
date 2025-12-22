@@ -215,7 +215,7 @@ function findMultiplierContainers() {
             // Remove any existing stats overlay to get clean text
             const overlay = el.querySelector('.keno-stats-overlay');
             const text = overlay ? el.textContent.replace(overlay.textContent, '').trim() : el.textContent.trim();
-            const matches = /^\d+[×x]\s*[🔒📦]?$/i.test(text);
+            const matches = /^\d+[×x]\s*[🔒📦]?$/iu.test(text);
             return matches;
         });
 

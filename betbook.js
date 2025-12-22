@@ -400,7 +400,7 @@ function handleFileUpload(e) {
         alert('Bet history imported (not saved to extension storage).');
         renderTable();
       }
-    } catch (err) {
+    } catch {
       alert('Invalid file format. Please upload a valid JSON bet history.');
     }
   };

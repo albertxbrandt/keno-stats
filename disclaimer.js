@@ -16,6 +16,7 @@ acceptCheckbox.addEventListener('change', (e) => {
 acceptBtn.addEventListener('click', () => {
   // Save acceptance to storage
   storageApi.storage.local.set({ disclaimerAccepted: true, acceptedDate: Date.now() }, () => {
+    // eslint-disable-next-line no-console
     console.log('[Disclaimer] User accepted terms');
     // Close this tab
     window.close();
@@ -33,6 +34,7 @@ declineBtn.addEventListener('click', () => {
 // Check if already accepted (shouldn't normally happen, but just in case)
 storageApi.storage.local.get('disclaimerAccepted', (result) => {
   if (result.disclaimerAccepted) {
+    // eslint-disable-next-line no-console
     console.log('[Disclaimer] Already accepted, closing page');
     window.close();
   }

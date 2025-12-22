@@ -1,6 +1,7 @@
 // src/patterns.js - Pattern analysis for finding common number combinations
 import { state } from '../core/state.js';
 import { getDrawn } from '../core/storage.js';
+import { getSelectValue, getIntValue, getTileNumber, getCheckboxValue } from '../utils/domReader.js';
 
 // Cache for pattern analysis results
 const patternCache = {
@@ -916,7 +917,7 @@ export function showLivePatternAnalysis() {
       });
 
       // Convert to array and apply filters
-      const allPatternsFromMap = Array.from(patternsMap.entries()).map(([key, value]) => ({ pattern: key.split(',').map(Number), ...value }));
+      const allPatternsFromMap = Array.from(patternCountsMap.entries()).map(([key, value]) => ({ pattern: key.split(',').map(Number), ...value }));
 
       const afterHitRate = allPatternsFromMap.filter(p => p.hitRate >= 10);
 

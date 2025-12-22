@@ -96,7 +96,7 @@ export function deselectTile(tile) {
   } catch {
     try {
       tile.click();
-    } catch { }
+    } catch { /* fallback click failed, ignore */ }
   }
 
   // Clear highlight styles

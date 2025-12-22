@@ -7,6 +7,7 @@ if (!window.kenoInterceptorActive) {
 
     // Only log if on Keno page
     if (window.location.href.includes('/casino/games/keno')) {
+        // eslint-disable-next-line no-console
         console.log("%c KENO TRACKER", "background: #0051e9ff; color: #fff; padding: 3px; border-radius: 3px;");
         // Ping UI to turn dot Yellow
         setTimeout(() => window.postMessage({ type: "KENO_CONNECTION_TEST" }, "*"), 500);
@@ -22,12 +23,7 @@ if (!window.kenoInterceptorActive) {
         }
 
         // 1. Pass request through
-        let response;
-        try {
-            response = await originalFetch.apply(this, args);
-        } catch (err) {
-            throw err;
-        }
+        const response = await originalFetch.apply(this, args);
 
         // 2. Clone and inspect
         const clone = response.clone();
@@ -57,6 +53,7 @@ if (!window.kenoInterceptorActive) {
 
                 // If valid game data found
                 if (kenoData && kenoData.state) {
+                    // eslint-disable-next-line no-console
                     console.log("%c ✅ BET DATA FOUND! ", "background: #00b894; color: white; font-size: 14px;");
 
                     window.postMessage({
@@ -65,7 +62,7 @@ if (!window.kenoInterceptorActive) {
                     }, "*");
                 }
 
-            }).catch(e => { error("Keno Interceptor JSON Parse Error:", e); });
+            }).catch(e => { console.error("Keno Interceptor JSON Parse Error:", e); });
         }
 
         return response;

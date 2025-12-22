@@ -14,6 +14,10 @@ export { ShapesGenerator } from './shapes.js';
 export { GeneratorFactory, generatorFactory } from './factory.js';
 export { CacheManager, cacheManager } from './cache.js';
 
+// Import for use in this file's functions
+import { generatorFactory } from './factory.js';
+import { cacheManager } from './cache.js';
+
 /**
  * Generate predictions using specified method
  * Main entry point for prediction generation

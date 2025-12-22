@@ -1,6 +1,7 @@
 // src/savedNumbers.js - Manage saved number combinations
 import { state } from '../core/state.js';
 import { getDrawn } from '../core/storage.js';
+import { getSelectValue, getIntValue, getTileNumber } from '../utils/domReader.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 

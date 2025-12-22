@@ -561,7 +561,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'heatmap-slider-dot');
                     if (track) track.style.backgroundColor = state.isHeatmapActive ? '#2a3b4a' : '#444';
                 }
-            } catch { }
+            } catch { /* ignore styling errors */ }
 
             // Expand details when enabled
             if (state.isHeatmapActive && heatmapDetails) {
@@ -694,7 +694,6 @@ export function createOverlay() {
             }
 
             // Update legacy state for backward compatibility
-            state.isPredictMode = usesSampleSize;
             state.isMomentumMode = state.generatorMethod === 'momentum';
 
             // Update momentum countdown if switching to momentum
@@ -747,7 +746,7 @@ export function createOverlay() {
                     const track = Array.from(parentLabel.querySelectorAll('span')).find(s => s.id !== 'generator-autorefresh-dot');
                     if (track) track.style.backgroundColor = state.generatorAutoRefresh ? '#2a3b4a' : '#444';
                 }
-            } catch { }
+            } catch { /* ignore styling errors */ }
 
             // Toggle highlights based on auto-refresh state
             if (state.generatorAutoRefresh) {
