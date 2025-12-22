@@ -7,7 +7,6 @@ export default [
   // JavaScript files
   {
     files: ["**/*.{js,mjs,cjs}"],
-    ...js.configs.recommended,
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -15,6 +14,7 @@ export default [
       }
     },
     rules: {
+      ...js.configs.recommended.rules,
       "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
       "no-console": ["warn", {
         "allow": ["warn", "error"]
@@ -30,22 +30,6 @@ export default [
       "prefer-const": "warn",
       "no-var": "error"
     }
-  },
-
-  // JSON files
-  {
-    files: ["**/*.json"],
-    plugins: { json },
-    language: "json/json",
-    ...json.configs.recommended
-  },
-
-  // Markdown files
-  {
-    files: ["**/*.md"],
-    plugins: { markdown },
-    language: "markdown/commonmark",
-    ...markdown.configs.recommended
   },
 
   // Ignore patterns

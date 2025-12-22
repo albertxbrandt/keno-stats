@@ -37,7 +37,7 @@ let currentPage = 1;
 const itemsPerPage = 25;
 
 // Load column visibility from localStorage or use defaults
-let columnVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {
+const columnVisibility = JSON.parse(localStorage.getItem('columnVisibility')) || {
   date: true,
   amount: true,
   payout: true,
@@ -411,7 +411,7 @@ function renderTable() {
   const query = searchInput.value.trim().toLowerCase();
   betTableBody.innerHTML = '';
 
-  let filtered = betHistory.filter(bet => {
+  const filtered = betHistory.filter(bet => {
     // Parse multiple field-specific searches separated by spaces (e.g., "amount:100 currency:gold")
     // Also handle spaces after colon: "amount: 1000" -> "amount:1000"
     const normalizedQuery = query.replace(/(\w+):\s+/g, '$1:');
