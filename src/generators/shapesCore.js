@@ -350,13 +350,13 @@ function selectWeightedRandomShape(count) {
     state.shapesUsageHistory = [];
   }
 
-  // Get all shapes that match the count
+  // Get all shapes that have at least the desired count (can be trimmed to fit)
   const matchingShapes = Object.entries(SHAPE_DEFINITIONS)
-    .filter(([_key, shape]) => shape.offsets.length === count);
+    .filter(([_key, shape]) => shape.offsets.length >= count);
 
   let shapesToConsider;
   if (matchingShapes.length === 0) {
-    // No exact matches, use all shapes
+    // No shapes have enough offsets, use all shapes anyway
     shapesToConsider = Object.entries(SHAPE_DEFINITIONS);
   } else {
     shapesToConsider = matchingShapes;
