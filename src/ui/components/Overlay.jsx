@@ -7,6 +7,8 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../core/state.js';
 // eslint-disable-next-line no-unused-vars
 import { HitsMissSection } from './sections/HitsMissSection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { GeneratorSection } from './sections/GeneratorSection.jsx';
 
 /**
  * Overlay Component
@@ -37,11 +39,11 @@ import { HitsMissSection } from './sections/HitsMissSection.jsx';
  * @migration-status
  * Currently migrated:
  * - HitsMissSection ✅
+ * - GeneratorSection ✅
  * 
  * TODO:
  * - DragHandle component
  * - HeatmapSection
- * - GeneratorSection (priority - biggest complexity)
  * - ProfitLossSection
  * - PatternAnalysisSection
  * - RecentPlaysSection
@@ -148,7 +150,9 @@ export function Overlay() {
         }}
       >
         {/* TODO: HeatmapSection */}
-        {/* TODO: GeneratorSection */}
+        
+        {/* Migrated: GeneratorSection */}
+        <GeneratorSection />
         
         {/* Migrated: HitsMissSection */}
         <HitsMissSection />
