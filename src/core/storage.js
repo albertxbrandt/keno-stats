@@ -334,6 +334,12 @@ export function saveGeneratorSettings() {
     };
 
     storageApi.storage.local.set({ generatorSettings: settings });
+
+    // Auto-update preview after any generator setting changes
+    // This keeps the "Next Numbers" preview in sync with current configuration
+    if (window.__keno_updateGeneratorPreview) {
+        window.__keno_updateGeneratorPreview();
+    }
 }
 
 /**

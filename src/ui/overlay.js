@@ -702,12 +702,9 @@ export function createOverlay() {
                 window.__keno_updateMomentumCountdown();
             }
 
-            // Regenerate with new method and update preview
+            // Regenerate with new method (saveGeneratorSettings auto-updates preview)
             if (window.__keno_generateNumbers) {
                 window.__keno_generateNumbers(true); // Force refresh with new method
-            }
-            if (window.__keno_updateGeneratorPreview) {
-                window.__keno_updateGeneratorPreview();
             }
         });
 
