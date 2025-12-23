@@ -75,26 +75,6 @@ export function createOverlay() {
                             style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     </div>
                     
-                    <!-- Universal Refresh Control -->
-                    <div style="margin-bottom:8px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <span style="color:#aaa; font-size:10px;">Auto-Refresh:</span>
-                            <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
-                                <input type="checkbox" id="generator-autorefresh-switch" style="opacity:0; width:0; height:0;">
-                                <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
-                                <span id="generator-autorefresh-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
-                            </label>
-                        </div>
-                        <div style="display:flex; gap:4px; margin-bottom:4px;">
-                            <button id="generator-refresh-btn" style="flex:1; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:10px;">🔄 Refresh</button>
-                            <input type="number" id="generator-interval" min="1" max="20" value="5" placeholder="Auto" style="width:50px; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px;">
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:#666; font-size:8px;">Interval: rounds</span>
-                            <span id="generator-rounds-until-refresh" style="color:#74b9ff; font-size:8px; font-weight:600;"></span>
-                        </div>
-                    </div>
-                    
                     <!-- Live Preview of Next Numbers -->
                     <div id="generator-preview" style="margin-bottom:10px; padding:8px; background:#14202b; border-radius:4px; border:1px solid #3a5f6f;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -202,6 +182,26 @@ export function createOverlay() {
                             </div>
                         </div>
                         </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Auto-Refresh Control -->
+                    <div style="margin-top:8px; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="color:#aaa; font-size:10px;">Auto-Refresh:</span>
+                            <label class="switch" style="position:relative; display:inline-block; width:34px; height:20px;">
+                                <input type="checkbox" id="generator-autorefresh-switch" style="opacity:0; width:0; height:0;">
+                                <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#444; transition:.4s; border-radius:20px;"></span>
+                                <span id="generator-autorefresh-dot" style="position:absolute; content:''; height:14px; width:14px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; cursor:pointer;"></span>
+                            </label>
+                        </div>
+                        <div style="display:flex; gap:4px; align-items:center; margin-top:4px;">
+                            <span style="color:#666; font-size:9px; white-space:nowrap;">Every</span>
+                            <input type="number" id="generator-interval" min="1" max="20" value="5" disabled style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:10px; opacity:0.5;">
+                            <span style="color:#666; font-size:9px; white-space:nowrap;">rounds</span>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; margin-top:2px;">
+                            <span id="generator-rounds-until-refresh" style="color:#74b9ff; font-size:8px; font-weight:600;"></span>
                         </div>
                     </div>
                     
@@ -725,12 +725,20 @@ export function createOverlay() {
     // Auto-refresh toggle handler
     const genAutoRefreshSwitch = document.getElementById('generator-autorefresh-switch');
     const genArDot = document.getElementById('generator-autorefresh-dot');
+    const intervalInput = document.getElementById('generator-interval');
+
     if (genAutoRefreshSwitch) {
         genAutoRefreshSwitch.checked = !!state.generatorAutoRefresh;
         if (genArDot) {
             genArDot.style.transform = state.generatorAutoRefresh ? 'translateX(14px)' : 'translateX(0px)';
             genArDot.style.backgroundColor = state.generatorAutoRefresh ? '#74b9ff' : 'white';
         }
+        // Enable/disable interval input based on initial state
+        if (intervalInput) {
+            intervalInput.disabled = !state.generatorAutoRefresh;
+            intervalInput.style.opacity = state.generatorAutoRefresh ? '1' : '0.5';
+        }
+
         genAutoRefreshSwitch.addEventListener('change', (e) => {
             state.generatorAutoRefresh = e.target.checked;
             saveGeneratorSettings();
@@ -739,6 +747,13 @@ export function createOverlay() {
                 genArDot.style.transform = state.generatorAutoRefresh ? 'translateX(14px)' : 'translateX(0px)';
                 genArDot.style.backgroundColor = state.generatorAutoRefresh ? '#74b9ff' : 'white';
             }
+
+            // Enable/disable interval input
+            if (intervalInput) {
+                intervalInput.disabled = !state.generatorAutoRefresh;
+                intervalInput.style.opacity = state.generatorAutoRefresh ? '1' : '0.5';
+            }
+
             // Update track background
             try {
                 const parentLabel = genAutoRefreshSwitch.closest('label');
@@ -1216,56 +1231,6 @@ export function createOverlay() {
 
             // Reset last refresh counter
             state.generatorLastRefresh = 0;
-        });
-    }
-
-    const generatorRefreshBtn = document.getElementById('generator-refresh-btn');
-    if (generatorRefreshBtn) {
-        generatorRefreshBtn.addEventListener('click', async () => {
-            // Use the previewed numbers if available
-            if (state.nextNumbers && state.nextNumbers.length > 0) {
-                state.generatedNumbers = state.nextNumbers;
-
-                // Place them on board
-                if (window.__keno_selectPredictedNumbers) {
-                    await window.__keno_selectPredictedNumbers();
-                }
-
-                // Update last refresh counter
-                state.generatorLastRefresh = state.currentHistory.length;
-
-                // Update preview to show next set
-                if (window.__keno_updateGeneratorPreview) {
-                    window.__keno_updateGeneratorPreview();
-                }
-            } else {
-                // Fallback: generate fresh if no preview available
-                if (window.__keno_generateNumbers) {
-                    await window.__keno_generateNumbers(true);
-                }
-
-                state.generatorLastRefresh = state.currentHistory.length;
-
-                if (window.__keno_updateGeneratorPreview) {
-                    window.__keno_updateGeneratorPreview();
-                }
-            }
-        });
-
-        // Add hover to show preview numbers on board
-        generatorRefreshBtn.addEventListener('mouseenter', () => {
-            if (state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
-                window.__keno_highlightPrediction(state.nextNumbers);
-            }
-        });
-
-        generatorRefreshBtn.addEventListener('mouseleave', () => {
-            // Restore current generated numbers highlight (if auto-refresh is on)
-            if (state.generatorAutoRefresh && state.generatedNumbers && state.generatedNumbers.length > 0 && window.__keno_highlightPrediction) {
-                window.__keno_highlightPrediction(state.generatedNumbers);
-            } else if (window.__keno_clearHighlight) {
-                window.__keno_clearHighlight();
-            }
         });
     }
 
