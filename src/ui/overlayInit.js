@@ -32,6 +32,15 @@ export async function initOverlay() {
   // Render Preact component
   render(<Overlay />, container);
 
+  // Trigger initial generator preview (after a short delay to ensure hooks are ready)
+  setTimeout(() => {
+    if (window.__keno_generateNumbers) {
+      window.__keno_generateNumbers(false, false).catch(() => {
+        // Ignore errors on initial generation (history might be empty)
+      });
+    }
+  }, 100);
+  
   // eslint-disable-next-line no-console
   console.log('[Overlay] Preact overlay initialized');
 }
