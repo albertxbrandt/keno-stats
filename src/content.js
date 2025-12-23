@@ -12,6 +12,7 @@ import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumber
 import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparison.js';
 import './features/patterns.js'; // Import pattern analysis module (sets up window hooks)
+import './ui/previewHighlight.js'; // Import preview highlight module (sets up hover handlers)
 
 // eslint-disable-next-line no-console
 console.log('Keno Tracker loaded');

@@ -3,6 +3,7 @@ import { state } from '../core/state.js';
 import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings, saveHeatmapSettings, loadHeatmapSettings } from '../core/storage.js';
 import { updateHeatmap } from '../features/heatmap.js';
 import { calculatePrediction } from './numberSelection.js';
+import { initButtonPreviewHighlight, initPreviewBoxHighlight, refreshPreviewHighlight, isButtonHovering } from './previewHighlight.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 // import { updateAutoPlayUI, autoPlayPlaceBet } from '../features/autoplay.js';
 import { getIntValue, getCheckboxValue, getSelectValue, getFloatValue } from '../utils/domReader.js';
@@ -777,8 +778,6 @@ export function createOverlay() {
     }
 
     // Select button handler - applies current preview and generates new one
-    let isHoveringSelectButton = false;
-
     if (generateBtn) {
         generateBtn.addEventListener('click', async () => {
             // Use preview numbers if available
@@ -800,26 +799,14 @@ export function createOverlay() {
                 }
 
                 // If still hovering, update highlight with new preview
-                if (isHoveringSelectButton && state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
-                    window.__keno_highlightPrediction(state.nextNumbers);
+                if (isButtonHovering()) {
+                    refreshPreviewHighlight();
                 }
             }
         });
 
-        // Hover to preview numbers on board
-        generateBtn.addEventListener('mouseenter', () => {
-            isHoveringSelectButton = true;
-            if (state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
-                window.__keno_highlightPrediction(state.nextNumbers);
-            }
-        });
-
-        generateBtn.addEventListener('mouseleave', () => {
-            isHoveringSelectButton = false;
-            if (window.__keno_clearHighlight) {
-                window.__keno_clearHighlight();
-            }
-        });
+        // Initialize hover-based preview highlighting
+        initButtonPreviewHighlight(generateBtn);
     }
 
     const clearBtn = document.getElementById('clear-btn');
@@ -1262,23 +1249,10 @@ export function createOverlay() {
         });
     }
 
-    // Add hover handlers to preview section for board highlighting
+    // Initialize hover-based preview highlighting for preview box
     const generatorPreview = document.getElementById('generator-preview');
     if (generatorPreview) {
-        generatorPreview.addEventListener('mouseenter', () => {
-            // Highlight preview numbers on the board
-            if (state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
-                window.__keno_highlightPrediction(state.nextNumbers);
-            }
-        });
-
-        generatorPreview.addEventListener('mouseleave', () => {
-            // Clear highlights when not hovering
-            // (Highlights are only for preview, not for showing selected numbers)
-            if (window.__keno_clearHighlight) {
-                window.__keno_clearHighlight();
-            }
-        });
+        initPreviewBoxHighlight(generatorPreview);
     }
 
     // View switching
