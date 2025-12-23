@@ -2,13 +2,20 @@ import js from "@eslint/js";
 import globals from "globals";
 
 export default [
-  // JavaScript files
+  // JavaScript and JSX files
   {
-    files: ["**/*.{js,mjs,cjs}"],
+    files: ["**/*.{js,mjs,cjs,jsx}"],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.webextensions
+      },
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true
+        }
       }
     },
     rules: {
@@ -26,7 +33,13 @@ export default [
 
       // Code consistency
       "prefer-const": "warn",
-      "no-var": "error"
+      "no-var": "error",
+
+      // Track TODOs and FIXMEs during refactoring
+      "no-warning-comments": ["warn", {
+        "terms": ["TODO", "FIXME", "XXX", "HACK", "REFACTOR"],
+        "location": "start"
+      }]
     }
   },
 

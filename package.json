@@ -7,8 +7,8 @@
     "build": "esbuild src/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser",
     "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser",
     "dev": "web-ext run --source-dir . --url https://stake.com/casino/games/keno --watch-file dist/content.bundle.js",
-    "lint": "eslint \"**/*.js\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\"",
-    "lint:fix": "eslint \"**/*.js\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\" --fix"
+    "lint": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\"",
+    "lint:fix": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\" --fix"
   },
   "devDependencies": {
     "@eslint/css": "^0.14.1",
@@ -19,5 +19,8 @@
     "eslint": "^9.39.2",
     "globals": "^14.0.0",
     "web-ext": "^8.3.0"
+  },
+  "dependencies": {
+    "preact": "^10.28.0"
   }
 }
