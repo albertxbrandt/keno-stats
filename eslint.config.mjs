@@ -1,7 +1,5 @@
 import js from "@eslint/js";
 import globals from "globals";
-import json from "@eslint/json";
-import markdown from "@eslint/markdown";
 
 export default [
   // JavaScript files
