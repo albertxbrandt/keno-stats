@@ -75,17 +75,6 @@ export function createOverlay() {
                             style="flex:1; background:#14202b; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; text-align:center; font-size:11px;">
                     </div>
                     
-                    <!-- Live Preview of Next Numbers -->
-                    <div id="generator-preview" style="margin-bottom:10px; padding:8px; background:#14202b; border-radius:4px; border:1px solid #3a5f6f;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <span style="color:#74b9ff; font-size:9px; font-weight:600;">Next Numbers:</span>
-                            <span id="generator-preview-method" style="color:#666; font-size:8px;"></span>
-                        </div>
-                        <div id="generator-preview-numbers" style="display:flex; flex-wrap:wrap; gap:4px; min-height:24px; align-items:center;">
-                            <span style="color:#666; font-size:9px;">-</span>
-                        </div>
-                    </div>
-                    
                     <div style="margin-bottom:8px;">
                         <span style="color:#aaa; font-size:10px;">Method:</span>
                         <select id="generator-method-select" style="width:100%; background:#14202b; border:1px solid #444; color:#fff; padding:6px; border-radius:4px; margin-top:4px; cursor:pointer; font-size:11px;">
@@ -205,7 +194,18 @@ export function createOverlay() {
                         </div>
                     </div>
                     
-                    <button id="generate-numbers-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:11px; margin-top:4px;">Generate Numbers</button>
+                    <!-- Live Preview of Next Numbers -->
+                    <div id="generator-preview" style="margin-top:8px; margin-bottom:8px; padding:8px; background:#14202b; border-radius:4px; border:1px solid #3a5f6f;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="color:#74b9ff; font-size:9px; font-weight:600;">Next Numbers:</span>
+                            <span id="generator-preview-method" style="color:#666; font-size:8px;"></span>
+                        </div>
+                        <div id="generator-preview-numbers" style="display:flex; flex-wrap:wrap; gap:4px; min-height:24px; align-items:center;">
+                            <span style="color:#666; font-size:9px;">-</span>
+                        </div>
+                    </div>
+                    
+                    <button id="generate-numbers-btn" style="width:100%; background:#74b9ff; color:#fff; border:none; padding:8px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; margin-top:0px;">Select</button>
                     <button id="method-comparison-btn" style="width:100%; background:#2a3f4f; color:#74b9ff; border:1px solid #3a5f6f; padding:4px; border-radius:4px; cursor:pointer; font-size:9px; margin-top:4px;">📊 Compare Methods</button>
                 </div>
             </div>
@@ -785,11 +785,48 @@ export function createOverlay() {
         });
     }
 
-    // Generate button handler
+    // Select button handler - applies current preview and generates new one
+    let isHoveringSelectButton = false;
+
     if (generateBtn) {
-        generateBtn.addEventListener('click', () => {
-            if (window.__keno_generateNumbers) {
-                window.__keno_generateNumbers(true); // Force refresh even for momentum
+        generateBtn.addEventListener('click', async () => {
+            // Use preview numbers if available
+            if (state.nextNumbers && state.nextNumbers.length > 0) {
+                // Apply the preview numbers to the board
+                state.generatedNumbers = state.nextNumbers;
+                if (window.__keno_selectPredictedNumbers) {
+                    await window.__keno_selectPredictedNumbers();
+                }
+
+                // Generate new preview for next time
+                if (window.__keno_generateNumbers) {
+                    await window.__keno_generateNumbers(true);
+                }
+
+                // Update preview immediately
+                if (window.__keno_updateGeneratorPreview) {
+                    window.__keno_updateGeneratorPreview();
+                }
+
+                // If still hovering, update highlight with new preview
+                if (isHoveringSelectButton && state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
+                    window.__keno_highlightPrediction(state.nextNumbers);
+                }
+            }
+        });
+
+        // Hover to preview numbers on board
+        generateBtn.addEventListener('mouseenter', () => {
+            isHoveringSelectButton = true;
+            if (state.nextNumbers && state.nextNumbers.length > 0 && window.__keno_highlightPrediction) {
+                window.__keno_highlightPrediction(state.nextNumbers);
+            }
+        });
+
+        generateBtn.addEventListener('mouseleave', () => {
+            isHoveringSelectButton = false;
+            if (window.__keno_clearHighlight) {
+                window.__keno_clearHighlight();
             }
         });
     }
@@ -1550,6 +1587,11 @@ export function initOverlay() {
 
             const momentumPool = document.getElementById('momentum-pool');
             if (momentumPool) momentumPool.value = state.momentumPoolSize || 15;
+
+            // Initial preview generation after UI is ready
+            if (window.__keno_updateGeneratorPreview) {
+                window.__keno_updateGeneratorPreview();
+            }
         }, 100);
     });
     setInterval(injectFooterButton, 1000);

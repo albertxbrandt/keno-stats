@@ -57,12 +57,8 @@ export function updateGeneratorPreview() {
     }
   }
 
-  // If manual mode (auto-refresh off), don't show preview
-  if (!autoRefresh) {
-    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">Click Refresh to generate</span>';
-    state.nextNumbers = []; // Clear preview numbers
-    return;
-  }
+  // Always show preview (even in manual mode)
+  // Users can see what they'll get before clicking "Select These Numbers"
 
   // Generate preview of what NEXT numbers will be (force fresh generation)
   // This shows what you'd get if you clicked Refresh now
@@ -304,21 +300,24 @@ export function calculatePrediction(countOverride) {
 
 /**
  * Window hook wrapper for generateNumbers
- * Generates numbers and selects them on the board (only if auto-select is enabled)
+ * Generates numbers WITHOUT selecting them (for preview regeneration)
+ * @param {boolean} forceRefresh - Force cache bypass
+ * @param {boolean} autoSelect - Whether to auto-select after generation (default: false)
  */
-window.__keno_generateNumbers = async function (forceRefresh = false) {
+window.__keno_generateNumbers = async function (forceRefresh = false, autoSelect = false) {
   const result = generateNumbers(forceRefresh);
 
-  // Always place numbers on board when manually called (Refresh/Generate buttons)
-  // These buttons explicitly generate and place numbers - that's their purpose
-  if (result.predictions.length > 0) {
+  // Only auto-select if explicitly requested (not when regenerating preview)
+  if (autoSelect && result.predictions.length > 0) {
     await selectPredictedNumbers();
   }
 
-  // Update preview to show new countdown
+  // Update preview to show new numbers
   if (window.__keno_updateGeneratorPreview) {
     window.__keno_updateGeneratorPreview();
   }
+  
+  return result;
 };
 
 window.__keno_selectPredictedNumbers = selectPredictedNumbers;
