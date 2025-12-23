@@ -35,9 +35,13 @@ export async function initOverlay() {
   // Trigger initial generator preview (after a short delay to ensure hooks are ready)
   setTimeout(() => {
     if (window.__keno_generateNumbers) {
+      // eslint-disable-next-line no-console
+      console.log('[Overlay] Triggering initial generator preview');
       window.__keno_generateNumbers(false, false).catch(() => {
         // Ignore errors on initial generation (history might be empty)
       });
+    } else {
+      console.warn('[Overlay] window.__keno_generateNumbers not available yet');
     }
   }, 100);
 

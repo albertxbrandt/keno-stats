@@ -86,16 +86,25 @@ export function GeneratorSection() {
   };
 
   const handleSelectClick = async () => {
+    // eslint-disable-next-line no-console
+    console.log('[GeneratorSection] Select clicked, nextNumbers:', state.nextNumbers);
+    
     // Apply preview numbers and generate new ones
     if (state.nextNumbers && state.nextNumbers.length > 0) {
       state.generatedNumbers = state.nextNumbers;
       
+      // eslint-disable-next-line no-console
+      console.log('[GeneratorSection] Calling selectPredictedNumbers');
       if (window.__keno_selectPredictedNumbers) {
         await window.__keno_selectPredictedNumbers();
+      } else {
+        console.error('[GeneratorSection] window.__keno_selectPredictedNumbers not found!');
       }
 
       // Generate new preview
       if (window.__keno_generateNumbers) {
+        // eslint-disable-next-line no-console
+        console.log('[GeneratorSection] Regenerating preview');
         await window.__keno_generateNumbers(true);
       }
 
@@ -110,6 +119,8 @@ export function GeneratorSection() {
           window.__keno_refreshPreviewHighlight();
         }
       }
+    } else {
+      console.warn('[GeneratorSection] No nextNumbers to select');
     }
   };
 

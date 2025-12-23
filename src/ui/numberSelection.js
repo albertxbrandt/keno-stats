@@ -22,7 +22,8 @@ export function updateGeneratorPreview() {
   const methodLabel = document.getElementById('generator-preview-method');
   const roundsLabel = document.getElementById('generator-rounds-until-refresh');
 
-  if (!previewContainer) return;
+  // NOTE: DOM elements may not exist in Preact version, but we still need to update state.nextNumbers
+  // So we can't return early just because the container is missing
 
   const method = state.generatorMethod || 'frequency';
   const autoRefresh = state.generatorAutoRefresh;
@@ -30,7 +31,7 @@ export function updateGeneratorPreview() {
   const currentRound = state.currentHistory?.length || 0;
   const lastRefresh = state.generatorLastRefresh || 0;
 
-  // Update method label
+  // Update method label (if DOM exists)
   const methodNames = {
     'frequency': '🔥 Hot',
     'cold': '❄️ Cold',
@@ -82,44 +83,46 @@ export function updateGeneratorPreview() {
     state.nextNumbers = [];
   }
 
-  // Update preview numbers with hit/miss styling
-  if (previewPredictions.length === 0) {
-    previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions available</span>';
-  } else {
-    // Get drawn numbers from most recent round only
-    const lastRoundDrawn = new Set();
-    if (history.length > 0) {
-      const lastRound = history[history.length - 1];
+  // Update preview numbers with hit/miss styling (only if DOM container exists)
+  if (previewContainer) {
+    if (previewPredictions.length === 0) {
+      previewContainer.innerHTML = '<span style="color:#666; font-size:9px;">No predictions available</span>';
+    } else {
+      // Get drawn numbers from most recent round only
+      const lastRoundDrawn = new Set();
+      if (history.length > 0) {
+        const lastRound = history[history.length - 1];
 
-      // Check multiple possible locations for drawn numbers
-      let drawnNumbers = null;
-      if (lastRound.drawn) {
-        drawnNumbers = lastRound.drawn;
-      } else if (lastRound.kenoBet?.state?.drawnNumbers) {
-        drawnNumbers = lastRound.kenoBet.state.drawnNumbers;
-      } else if (lastRound.kenoBet?.drawnNumbers) {
-        drawnNumbers = lastRound.kenoBet.drawnNumbers;
-      }
-
-      if (drawnNumbers) {
-        drawnNumbers.forEach(num => lastRoundDrawn.add(num));
-      }
-    }
-
-    previewContainer.innerHTML = previewPredictions
-      .map(num => {
-        const wasHit = lastRoundDrawn.has(num);
-        const baseStyle = 'display:inline-block; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600; transition: all 0.2s;';
-
-        if (wasHit) {
-          // Hit in last round - darker with inset shadow and different color
-          return `<span style="${baseStyle} background:#162026; color:#7a9fb5; box-shadow:inset 0 2px 4px rgba(0,0,0,0.6); border: 1px solid #0a1419;">${num}</span>`;
-        } else {
-          // Not hit - normal bright style
-          return `<span style="${baseStyle} background:#2a3f4f; color:#74b9ff;">${num}</span>`;
+        // Check multiple possible locations for drawn numbers
+        let drawnNumbers = null;
+        if (lastRound.drawn) {
+          drawnNumbers = lastRound.drawn;
+        } else if (lastRound.kenoBet?.state?.drawnNumbers) {
+          drawnNumbers = lastRound.kenoBet.state.drawnNumbers;
+        } else if (lastRound.kenoBet?.drawnNumbers) {
+          drawnNumbers = lastRound.kenoBet.drawnNumbers;
         }
-      })
-      .join('');
+
+        if (drawnNumbers) {
+          drawnNumbers.forEach(num => lastRoundDrawn.add(num));
+        }
+      }
+
+      previewContainer.innerHTML = previewPredictions
+        .map(num => {
+          const wasHit = lastRoundDrawn.has(num);
+          const baseStyle = 'display:inline-block; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600; transition: all 0.2s;';
+
+          if (wasHit) {
+            // Hit in last round - darker with inset shadow and different color
+            return `<span style="${baseStyle} background:#162026; color:#7a9fb5; box-shadow:inset 0 2px 4px rgba(0,0,0,0.6); border: 1px solid #0a1419;">${num}</span>`;
+          } else {
+            // Not hit - normal bright style
+            return `<span style="${baseStyle} background:#2a3f4f; color:#74b9ff;">${num}</span>`;
+          }
+        })
+        .join('');
+    }
   }
 }
 
