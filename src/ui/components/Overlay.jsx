@@ -11,6 +11,8 @@ import { HitsMissSection } from './sections/HitsMissSection.jsx';
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
 // eslint-disable-next-line no-unused-vars
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
 
 /**
  * Overlay Component
@@ -43,10 +45,11 @@ import { HeatmapSection } from './sections/HeatmapSection.jsx';
  * - HitsMissSection ✅
  * - GeneratorSection ✅
  * - HeatmapSection ✅
+ * - ProfitLossSection ✅
  * 
  * TODO:
  * - DragHandle component
- * - ProfitLossSection
+ * - PatternAnalysisSection
  * - PatternAnalysisSection
  * - RecentPlaysSection
  * - HistorySection
@@ -174,7 +177,9 @@ export function Overlay() {
         {/* Migrated: HitsMissSection */}
         <HitsMissSection />
         
-        {/* TODO: ProfitLossSection */}
+        {/* Migrated: ProfitLossSection */}
+        <ProfitLossSection />
+        
         {/* TODO: PatternAnalysisSection */}
         {/* TODO: RecentPlaysSection */}
         {/* TODO: HistorySection */}
