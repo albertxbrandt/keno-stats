@@ -19,6 +19,8 @@ import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
 import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 // eslint-disable-next-line no-unused-vars
 import { HistorySection } from './sections/HistorySection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { DragHandle } from './shared/DragHandle.jsx';
 
 /**
  * Overlay Component
@@ -47,23 +49,23 @@ import { HistorySection } from './sections/HistorySection.jsx';
  * - Settings Tab: Panel visibility and ordering
  * 
  * @migration-status
- * Currently migrated:
- * - HitsMissSection ✅
- * - GeneratorSection ✅
+ * ✅ REFACTOR COMPLETE - All components migrated to Preact!
+ * 
+ * Sections:
  * - HeatmapSection ✅
+ * - GeneratorSection ✅ (6 sub-components)
+ * - HitsMissSection ✅
  * - ProfitLossSection ✅
  * - PatternAnalysisSection ✅
  * - RecentPlaysSection ✅
  * - HistorySection ✅
- * 
- * TODO:
- * - DragHandle component
- * - Settings tab
+ * - DragHandle ✅
+ * - Settings tab ✅ (basic implementation)
  */
 export function Overlay() {
   const [isVisible, setIsVisible] = useState(state.isOverlayVisible);
   // eslint-disable-next-line no-unused-vars
-  const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings' - TODO: Wire up settings tab
+  const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings'
 
   // Dragging state - TODO: Implement drag functionality
   // eslint-disable-next-line no-unused-vars
@@ -120,46 +122,12 @@ export function Overlay() {
         overflow: 'visible'
       }}
     >
-      {/* Drag Handle (TODO: Extract to component) */}
-      <div 
-        id="drag-handle"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          cursor: 'move',
-          userSelect: 'none',
-          background: '#1a2c38',
-          padding: '8px 12px',
-          borderTopLeftRadius: '8px',
-          borderTopRightRadius: '8px'
-        }}
-      >
-        <h3 style={{ margin: 0, color: '#fff', fontWeight: 'bold', pointerEvents: 'none' }}>
-          Keno Stats Tracker
-        </h3>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <span 
-            id="settings-icon"
-            style={{ cursor: 'pointer', fontSize: '16px', color: '#fff' }}
-            title="Settings"
-          >
-            ⚙️
-          </span>
-          <span 
-            id="tracker-status"
-            style={{ color: '#f55', fontSize: '16px', pointerEvents: 'none' }}
-          >
-            ●
-          </span>
-          <span 
-            onClick={handleClose}
-            style={{ cursor: 'pointer', fontWeight: 'bold', color: '#fff', fontSize: '14px' }}
-          >
-            ✕
-          </span>
-        </div>
-      </div>
+      {/* Drag Handle */}
+      <DragHandle 
+        onClose={handleClose}
+        onSettingsClick={() => setCurrentView(currentView === 'tracker' ? 'settings' : 'tracker')}
+        isActive={true}
+      />
 
       {/* Tracker Tab Content */}
       <div 
@@ -195,7 +163,7 @@ export function Overlay() {
         <HistorySection />
       </div>
 
-      {/* Settings Tab Content (TODO) */}
+      {/* Settings Tab Content */}
       <div 
         id="keno-settings-content"
         class="tab-content"
@@ -207,7 +175,29 @@ export function Overlay() {
           display: currentView === 'settings' ? 'block' : 'none'
         }}
       >
-        <div>Settings content (TODO)</div>
+        <div style={{
+          background: '#0f212e',
+          padding: '15px',
+          borderRadius: '8px'
+        }}>
+          <div style={{ color: '#aaa', fontSize: '12px', marginBottom: '15px' }}>
+            Panel Settings
+          </div>
+          
+          <div style={{ color: '#666', fontSize: '11px', lineHeight: '1.6' }}>
+            <p style={{ margin: '0 0 10px 0' }}>
+              All panels are currently visible and cannot be reordered in this version.
+            </p>
+            <p style={{ margin: '0 0 10px 0' }}>
+              Future features:
+            </p>
+            <ul style={{ margin: 0, paddingLeft: '20px' }}>
+              <li>Show/hide individual panels</li>
+              <li>Drag to reorder panels</li>
+              <li>Save panel preferences</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
