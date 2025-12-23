@@ -13,6 +13,12 @@ import { GeneratorSection } from './sections/GeneratorSection.jsx';
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
 // eslint-disable-next-line no-unused-vars
 import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { HistorySection } from './sections/HistorySection.jsx';
 
 /**
  * Overlay Component
@@ -46,13 +52,12 @@ import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
  * - GeneratorSection ✅
  * - HeatmapSection ✅
  * - ProfitLossSection ✅
+ * - PatternAnalysisSection ✅
+ * - RecentPlaysSection ✅
+ * - HistorySection ✅
  * 
  * TODO:
  * - DragHandle component
- * - PatternAnalysisSection
- * - PatternAnalysisSection
- * - RecentPlaysSection
- * - HistorySection
  * - Settings tab
  */
 export function Overlay() {
@@ -180,9 +185,14 @@ export function Overlay() {
         {/* Migrated: ProfitLossSection */}
         <ProfitLossSection />
         
-        {/* TODO: PatternAnalysisSection */}
-        {/* TODO: RecentPlaysSection */}
-        {/* TODO: HistorySection */}
+        {/* Migrated: PatternAnalysisSection */}
+        <PatternAnalysisSection />
+        
+        {/* Migrated: RecentPlaysSection */}
+        <RecentPlaysSection />
+        
+        {/* Migrated: HistorySection */}
+        <HistorySection />
       </div>
 
       {/* Settings Tab Content (TODO) */}
