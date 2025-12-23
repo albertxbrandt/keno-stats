@@ -1,5 +1,6 @@
 // src/storage.js
 import { state } from './state.js';
+import { stateEvents, EVENTS } from './stateEvents.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -124,6 +125,10 @@ export function saveRound(round) {
     // Queue the chunked write (only writes one chunk, not entire history)
     queueStorageWrite(round, totalCount);
 
+    // Emit event for listeners
+    stateEvents.emit(EVENTS.ROUND_SAVED, { round, totalCount });
+    stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
+
     // Update profit/loss if data is available
     if (round.kenoBet && round.kenoBet.amount && round.kenoBet.payout !== undefined) {
         const betAmount = parseFloat(round.kenoBet.amount) || 0;
@@ -190,6 +195,7 @@ export function loadHistory() {
                     const chunk = chunks[`history_chunk_${i}`] || [];
                     state.currentHistory.push(...chunk);
                 }
+                stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
                 return state.currentHistory;
             });
         } else if (res.history) {
@@ -226,6 +232,7 @@ export function loadHistory() {
 export function clearHistory() {
     return storageApi.storage.local.clear().then(() => {
         state.currentHistory = [];
+        stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
         return state.currentHistory;
     });
 }

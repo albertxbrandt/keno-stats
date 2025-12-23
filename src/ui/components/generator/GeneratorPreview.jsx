@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
+import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 
 /**
  * GeneratorPreview Component
@@ -47,7 +48,6 @@ export function GeneratorPreview() {
   };
 
   // Update preview when state changes
-  // TODO: Replace with proper event-driven updates instead of polling
   useEffect(() => {
     const updatePreview = () => {
       const currentMethod = state.generatorMethod || 'frequency';
@@ -96,11 +96,16 @@ export function GeneratorPreview() {
     // Initial update
     updatePreview();
 
-    // Poll for changes every 500ms
-    // TODO: Replace with event-driven updates
-    const interval = setInterval(updatePreview, 500);
+    // Subscribe to state change events
+    const unsubPreview = stateEvents.on(EVENTS.GENERATOR_PREVIEW_UPDATED, updatePreview);
+    const unsubHistory = stateEvents.on(EVENTS.HISTORY_UPDATED, updatePreview);
+    const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updatePreview);
 
-    return () => clearInterval(interval);
+    return () => {
+      unsubPreview();
+      unsubHistory();
+      unsubSettings();
+    };
   }, []);
 
   return (

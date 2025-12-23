@@ -1,6 +1,9 @@
 // src/state.js
 export const state = {
     currentHistory: [],
+    // Tracker state (hits/misses from last round)
+    trackerHits: '-',
+    trackerMisses: '-',
     // Heatmap settings
     isHeatmapActive: true,
     heatmapMode: 'hot', // 'hot' = frequency-based, 'trending' = momentum-based

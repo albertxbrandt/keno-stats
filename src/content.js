@@ -1,5 +1,6 @@
 // src/content.js - entry point for bundled content script
 import { state } from './core/state.js';
+import { stateEvents, EVENTS } from './core/stateEvents.js';
 import { initOverlay, injectFooterButton } from './ui/overlayInit.js';
 import { loadHistory, updateHistoryUI } from './core/storage.js';
 import { selectPredictedNumbers } from './ui/numberSelection.js';
@@ -142,8 +143,17 @@ function addMessageListener() {
 		selected.forEach(num => { if (drawn.includes(num)) hits.push(num); });
 		drawn.forEach(num => { if (!selected.includes(num)) misses.push(num); });
 		hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
+		
+		// Update state for components to consume
+		state.trackerHits = hits.join(', ') || 'None';
+		state.trackerMisses = misses.join(', ') || 'None';
+		
+		// Update DOM elements (legacy support)
 		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
-		if (hEl) hEl.innerText = hits.join(', ') || 'None'; if (mEl) mEl.innerText = misses.join(', ') || 'None';
+		if (hEl) hEl.innerText = state.trackerHits; if (mEl) mEl.innerText = state.trackerMisses;
+		
+		// Emit event for components
+		stateEvents.emit(EVENTS.ROUND_SAVED, { hits, misses, drawn, selected });
 
 		// Capture generator state
 		const generatorInfo = {

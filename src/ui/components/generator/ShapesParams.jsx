@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
+import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { saveGeneratorSettings } from '../../../core/storage.js';
 
 /**
@@ -27,22 +28,25 @@ export function ShapesParams() {
   const [placement, setPlacement] = useState(state.shapesPlacement || 'random');
   const [currentShape, setCurrentShape] = useState('-');
 
-  // Sync with global state on mount
+  // Sync with global state on mount and when generator updates
   useEffect(() => {
-    setPattern(state.shapesPattern || 'smart');
-    setPlacement(state.shapesPlacement || 'random');
-    
-    // Update current shape display
-    updateCurrentShapeDisplay();
-  }, []);
-
-  // TODO: Replace with event-driven updates
-  useEffect(() => {
-    const interval = setInterval(() => {
+    const updateFromState = () => {
+      setPattern(state.shapesPattern || 'smart');
+      setPlacement(state.shapesPlacement || 'random');
       updateCurrentShapeDisplay();
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
+    // Initial update
+    updateFromState();
+    
+    // Subscribe to state change events
+    const unsubGenerator = stateEvents.on(EVENTS.GENERATOR_UPDATED, updateCurrentShapeDisplay);
+    const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updateFromState);
+
+    return () => {
+      unsubGenerator();
+      unsubSettings();
+    };
   }, []);
 
   const updateCurrentShapeDisplay = () => {

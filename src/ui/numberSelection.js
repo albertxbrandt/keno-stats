@@ -2,6 +2,7 @@
 // UI functions for selecting and displaying generated numbers
 
 import { state } from '../core/state.js';
+import { stateEvents, EVENTS } from '../core/stateEvents.js';
 import { highlightPrediction } from '../features/heatmap.js';
 import { generatorFactory, cacheManager } from '../generators/index.js';
 import { replaceSelection } from '../utils/tileSelection.js';
@@ -77,10 +78,14 @@ export function updateGeneratorPreview() {
 
       // Store in state for use by Refresh button
       state.nextNumbers = previewPredictions;
+
+      // Emit event for listeners
+      stateEvents.emit(EVENTS.GENERATOR_PREVIEW_UPDATED, previewPredictions);
     }
   } catch (e) {
     console.error('[Preview] Failed to generate preview:', e);
     state.nextNumbers = [];
+    stateEvents.emit(EVENTS.GENERATOR_PREVIEW_UPDATED, []);
   }
 
   // Update preview numbers with hit/miss styling (only if DOM container exists)

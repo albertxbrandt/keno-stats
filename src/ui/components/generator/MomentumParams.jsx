@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
+import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { saveGeneratorSettings } from '../../../core/storage.js';
 // eslint-disable-next-line no-unused-vars
 import { NumberInput } from '../shared/NumberInput.jsx';
@@ -37,24 +38,27 @@ export function MomentumParams() {
   const [threshold, setThreshold] = useState(state.momentumThreshold || 1.5);
   const [poolSize, setPoolSize] = useState(state.momentumPoolSize || 15);
 
-  // Sync with global state on mount
+  // Sync with global state on mount and when generator updates
   useEffect(() => {
-    setDetectionWindow(state.momentumDetectionWindow || 20);
-    setBaselineWindow(state.momentumBaselineGames || 80);
-    setThreshold(state.momentumThreshold || 1.5);
-    setPoolSize(state.momentumPoolSize || 15);
-
-    // Update current numbers display
-    updateCurrentNumbers();
-  }, []);
-
-  // TODO: Replace with event-driven updates
-  useEffect(() => {
-    const interval = setInterval(() => {
+    const updateFromState = () => {
+      setDetectionWindow(state.momentumDetectionWindow || 20);
+      setBaselineWindow(state.momentumBaselineGames || 80);
+      setThreshold(state.momentumThreshold || 1.5);
+      setPoolSize(state.momentumPoolSize || 15);
       updateCurrentNumbers();
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
+    // Initial update
+    updateFromState();
+
+    // Subscribe to state change events
+    const unsubGenerator = stateEvents.on(EVENTS.GENERATOR_UPDATED, updateCurrentNumbers);
+    const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updateFromState);
+
+    return () => {
+      unsubGenerator();
+      unsubSettings();
+    };
   }, []);
 
   const updateCurrentNumbers = () => {
