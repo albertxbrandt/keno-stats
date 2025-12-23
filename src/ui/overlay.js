@@ -763,19 +763,10 @@ export function createOverlay() {
                 }
             } catch { /* ignore styling errors */ }
 
-            // Toggle highlights based on auto-refresh state
-            if (state.generatorAutoRefresh) {
-                // Turning on: highlight current predictions if they exist
-                if (state.generatedNumbers && state.generatedNumbers.length > 0) {
-                    if (window.__keno_highlightPrediction) {
-                        window.__keno_highlightPrediction(state.generatedNumbers);
-                    }
-                }
-            } else {
-                // Turning off: clear highlights
-                if (window.__keno_clearHighlight) {
-                    window.__keno_clearHighlight();
-                }
+            // Always clear highlights when toggling auto-refresh
+            // (Highlights are only for hover preview, not for showing selected numbers)
+            if (window.__keno_clearHighlight) {
+                window.__keno_clearHighlight();
             }
 
             // Update preview
@@ -1282,11 +1273,9 @@ export function createOverlay() {
         });
 
         generatorPreview.addEventListener('mouseleave', () => {
-            // Restore current generated numbers highlight (if auto-refresh is on)
-            if (state.generatorAutoRefresh && state.generatedNumbers && state.generatedNumbers.length > 0 && window.__keno_highlightPrediction) {
-                window.__keno_highlightPrediction(state.generatedNumbers);
-            } else if (window.__keno_clearHighlight) {
-                // If auto-refresh is off, clear highlights
+            // Clear highlights when not hovering
+            // (Highlights are only for preview, not for showing selected numbers)
+            if (window.__keno_clearHighlight) {
                 window.__keno_clearHighlight();
             }
         });

@@ -269,10 +269,8 @@ export async function selectPredictedNumbers() {
     console.warn('[selectPredictedNumbers] Failed to select tiles:', result.failed);
   }
 
-  // Only highlight predictions if auto-refresh is enabled
-  if (state.generatorAutoRefresh) {
-    highlightPrediction(predictions);
-  }
+  // Don't highlight after selection - game UI shows selected tiles
+  // Highlights are only for hover preview of next numbers
 }
 
 /**
@@ -316,7 +314,7 @@ window.__keno_generateNumbers = async function (forceRefresh = false, autoSelect
   if (window.__keno_updateGeneratorPreview) {
     window.__keno_updateGeneratorPreview();
   }
-  
+
   return result;
 };
 
