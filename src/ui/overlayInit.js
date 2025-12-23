@@ -40,7 +40,7 @@ export async function initOverlay() {
       });
     }
   }, 100);
-  
+
   // eslint-disable-next-line no-console
   console.log('[Overlay] Preact overlay initialized');
 }

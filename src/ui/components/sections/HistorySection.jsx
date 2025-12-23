@@ -102,7 +102,8 @@ export function HistorySection() {
               No history yet
             </div>
           ) : (
-            [...history].reverse().map((round, index) => (
+            // Only render last 100 rounds to prevent performance issues
+            [...history].reverse().slice(0, 100).map((round, index) => (
               <div
                 key={index}
                 style={{
