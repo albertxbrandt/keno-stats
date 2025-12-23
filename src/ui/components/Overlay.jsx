@@ -64,7 +64,6 @@ import { DragHandle } from './shared/DragHandle.jsx';
  */
 export function Overlay() {
   const [isVisible, setIsVisible] = useState(state.isOverlayVisible);
-  // eslint-disable-next-line no-unused-vars
   const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings'
 
   // Dragging state - TODO: Implement drag functionality

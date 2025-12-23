@@ -25,7 +25,7 @@ export function HistorySection() {
   // Update history from state
   useEffect(() => {
     const updateHistory = () => {
-      setHistory([...state.currentHistory] || []);
+      setHistory([...(state.currentHistory || [])]);
     };
 
     updateHistory();
