@@ -4,8 +4,8 @@
   "private": true,
   "description": "Keno Stats extension - bundled build with esbuild",
   "scripts": {
-    "build": "esbuild src/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser",
-    "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser",
+    "build": "esbuild src/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser --loader:.js=jsx",
+    "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser --loader:.js=jsx",
     "dev": "web-ext run --source-dir . --url https://stake.com/casino/games/keno --watch-file dist/content.bundle.js",
     "lint": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\"",
     "lint:fix": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\" --fix"

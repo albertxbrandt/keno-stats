@@ -1,6 +1,6 @@
 // src/content.js - entry point for bundled content script
 import { state } from './core/state.js';
-import { initOverlay, injectFooterButton } from './ui/overlay.js';
+import { initOverlay, injectFooterButton } from './ui/overlayInit.js';
 import { loadHistory, updateHistoryUI } from './core/storage.js';
 import { selectPredictedNumbers } from './ui/numberSelection.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE

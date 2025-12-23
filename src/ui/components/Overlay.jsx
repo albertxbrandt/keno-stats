@@ -51,7 +51,7 @@ import { GeneratorSection } from './sections/GeneratorSection.jsx';
  * - Settings tab
  */
 export function Overlay() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(state.isOverlayVisible);
   // eslint-disable-next-line no-unused-vars
   const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings' - TODO: Wire up settings tab
 
@@ -61,14 +61,28 @@ export function Overlay() {
   // eslint-disable-next-line no-unused-vars
   const [position, setPosition] = useState({ top: 80, right: 20 });
 
-  // Sync with global state
+  // Listen for toggle events from footer button
   useEffect(() => {
-    setIsVisible(state.isOverlayVisible);
-  }, [state.isOverlayVisible]);
+    const handleToggle = () => {
+      setIsVisible(state.isOverlayVisible);
+    };
+    
+    window.addEventListener('keno-overlay-toggle', handleToggle);
+    
+    return () => {
+      window.removeEventListener('keno-overlay-toggle', handleToggle);
+    };
+  }, []);
 
   const handleClose = () => {
     setIsVisible(false);
     state.isOverlayVisible = false;
+    
+    // Update footer button text
+    const btn = document.getElementById('keno-tracker-toggle-btn');
+    if (btn) {
+      btn.textContent = '📊 Open Stats';
+    }
   };
 
   if (!isVisible) {
