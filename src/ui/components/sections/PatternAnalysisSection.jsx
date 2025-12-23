@@ -2,9 +2,7 @@
 // Pattern analysis section - find recurring number combinations
 
 import { useState } from 'preact/hooks';
-// eslint-disable-next-line no-unused-vars
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { NumberInput } from '../shared/NumberInput.jsx';
 
 /**

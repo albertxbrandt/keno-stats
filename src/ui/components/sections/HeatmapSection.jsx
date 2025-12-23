@@ -4,11 +4,8 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { saveHeatmapSettings } from '../../../core/storage.js';
-// eslint-disable-next-line no-unused-vars
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
-// eslint-disable-next-line no-unused-vars
 import { NumberInput } from '../shared/NumberInput.jsx';
 
 /**

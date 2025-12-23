@@ -1,10 +1,20 @@
 import js from "@eslint/js";
 import globals from "globals";
+import react from "eslint-plugin-react";
 
 export default [
   // JavaScript and JSX files
   {
     files: ["**/*.{js,mjs,cjs,jsx}"],
+    plugins: {
+      react
+    },
+    settings: {
+      react: {
+        pragma: "h",  // Preact uses h pragma (or automatic with new JSX transform)
+        version: "detect"
+      }
+    },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -21,6 +31,8 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
       "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      "react/jsx-uses-react": "error",  // Prevent React/Preact being marked as unused
+      "react/jsx-uses-vars": "error",   // Prevent variables used in JSX being marked as unused
       "no-console": ["warn", {
         "allow": ["warn", "error"]
       }], // Allow console.warn for warnings and console.error for errors. Do NOT use console.warn for debugging.

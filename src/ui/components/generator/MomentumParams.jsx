@@ -6,7 +6,6 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { saveGeneratorSettings } from '../../../core/storage.js';
-// eslint-disable-next-line no-unused-vars
 import { NumberInput } from '../shared/NumberInput.jsx';
 
 /**

@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
-// eslint-disable-next-line no-unused-vars
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 
 /**

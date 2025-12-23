@@ -4,19 +4,12 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
-// eslint-disable-next-line no-unused-vars
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { NumberInput } from '../shared/NumberInput.jsx';
-// eslint-disable-next-line no-unused-vars
 import { GeneratorPreview } from '../generator/GeneratorPreview.jsx';
-// eslint-disable-next-line no-unused-vars
 import { MethodSelector } from '../generator/MethodSelector.jsx';
-// eslint-disable-next-line no-unused-vars
 import { AutoRefreshControl } from '../generator/AutoRefreshControl.jsx';
-// eslint-disable-next-line no-unused-vars
 import { ShapesParams } from '../generator/ShapesParams.jsx';
-// eslint-disable-next-line no-unused-vars
 import { MomentumParams } from '../generator/MomentumParams.jsx';
 import { saveGeneratorSettings } from '../../../core/storage.js';
 

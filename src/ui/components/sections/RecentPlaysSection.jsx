@@ -2,7 +2,6 @@
 // Recent plays section - displays recently played number combinations
 
 import { useState, useEffect } from 'preact/hooks';
-// eslint-disable-next-line no-unused-vars
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 
 /**

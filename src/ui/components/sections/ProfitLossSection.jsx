@@ -2,7 +2,6 @@
 // Profit/Loss tracking section
 
 import { useState, useEffect } from 'preact/hooks';
-// eslint-disable-next-line no-unused-vars
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 
 /**

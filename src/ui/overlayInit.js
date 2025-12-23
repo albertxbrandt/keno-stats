@@ -3,7 +3,6 @@
 // Replaces the old overlay.js createOverlay() pattern
 
 import { render } from 'preact';
-// eslint-disable-next-line no-unused-vars
 import { Overlay } from './components/Overlay.jsx';
 import { loadGeneratorSettings, loadHeatmapSettings } from '../core/storage.js';
 import { state } from '../core/state.js';

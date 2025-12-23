@@ -5,21 +5,13 @@
 import { render } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../core/state.js';
-// eslint-disable-next-line no-unused-vars
 import { HitsMissSection } from './sections/HitsMissSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { HistorySection } from './sections/HistorySection.jsx';
-// eslint-disable-next-line no-unused-vars
 import { DragHandle } from './shared/DragHandle.jsx';
 
 /**
