@@ -9,6 +9,8 @@ import { state } from '../../core/state.js';
 import { HitsMissSection } from './sections/HitsMissSection.jsx';
 // eslint-disable-next-line no-unused-vars
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
+// eslint-disable-next-line no-unused-vars
+import { HeatmapSection } from './sections/HeatmapSection.jsx';
 
 /**
  * Overlay Component
@@ -40,10 +42,10 @@ import { GeneratorSection } from './sections/GeneratorSection.jsx';
  * Currently migrated:
  * - HitsMissSection ✅
  * - GeneratorSection ✅
+ * - HeatmapSection ✅
  * 
  * TODO:
  * - DragHandle component
- * - HeatmapSection
  * - ProfitLossSection
  * - PatternAnalysisSection
  * - RecentPlaysSection
@@ -163,7 +165,8 @@ export function Overlay() {
           display: currentView === 'tracker' ? 'block' : 'none'
         }}
       >
-        {/* TODO: HeatmapSection */}
+        {/* Migrated: HeatmapSection */}
+        <HeatmapSection />
         
         {/* Migrated: GeneratorSection */}
         <GeneratorSection />
