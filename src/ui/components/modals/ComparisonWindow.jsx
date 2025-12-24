@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
+import { Modal } from '../shared/Modal.jsx';
 
 /**
  * ComparisonWindow Component
@@ -15,13 +16,8 @@ export function ComparisonWindow({ onClose }) {
   const [lookback, setLookback] = useState(state.comparisonLookback || 100);
   const [showOthers, setShowOthers] = useState(false);
   const [comparisonData, setComparisonData] = useState([...state.comparisonData]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 520, y: 100 });
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   
-  const windowRef = useRef(null);
   const canvasRef = useRef(null);
-  const headerRef = useRef(null);
 
   // Update from state when data changes
   useEffect(() => {
@@ -54,39 +50,6 @@ export function ComparisonWindow({ onClose }) {
       }
     }
   };
-
-  // Dragging handlers
-  const handleMouseDown = (e) => {
-    if (e.target.closest('input') || e.target.closest('button')) return;
-    setIsDragging(true);
-    setDragOffset({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!isDragging) return;
-      setPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
-      });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragOffset]);
 
   // Calculate method stats
   const methods = [
@@ -257,172 +220,118 @@ export function ComparisonWindow({ onClose }) {
   const others = methodStats.slice(3, 5);
   const recent = comparisonData.slice(-10).reverse();
 
-  return (
-    <div
-      ref={windowRef}
-      style={{
-        position: 'fixed',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: '500px',
-        minWidth: '400px',
-        height: '650px',
-        minHeight: '400px',
-        background: 'linear-gradient(135deg, #0f212e 0%, #1a2c38 100%)',
-        border: '2px solid #2a3f4f',
-        borderRadius: '12px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-        zIndex: 10002,
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-        overflow: 'hidden',
-        resize: 'both'
-      }}
-    >
-      {/* Header */}
-      <div
-        ref={headerRef}
-        onMouseDown={handleMouseDown}
+  // Header extra content (lookback input)
+  const headerExtra = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <span style={{ color: '#aaa', fontSize: '10px' }}>Lookback:</span>
+      <input
+        type="number"
+        min="10"
+        max="500"
+        value={lookback}
+        onChange={handleLookbackChange}
         style={{
-          background: 'linear-gradient(90deg, #1a2c38 0%, #2a3f4f 100%)',
-          padding: '12px 16px',
-          cursor: isDragging ? 'grabbing' : 'move',
-          borderBottom: '2px solid #3a5f6f',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          width: '50px',
+          background: '#14202b',
+          border: '1px solid #444',
+          color: '#fff',
+          padding: '3px 6px',
+          borderRadius: '4px',
+          textAlign: 'center',
+          fontSize: '10px'
         }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📊</span>
-          <span style={{ color: '#74b9ff', fontWeight: 700, fontSize: '14px' }}>Method Comparison</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ color: '#aaa', fontSize: '10px' }}>Lookback:</span>
-            <input
-              type="number"
-              min="10"
-              max="500"
-              value={lookback}
-              onChange={handleLookbackChange}
-              style={{
-                width: '50px',
-                background: '#14202b',
-                border: '1px solid #444',
-                color: '#fff',
-                padding: '3px 6px',
-                borderRadius: '4px',
-                textAlign: 'center',
-                fontSize: '10px'
-              }}
-            />
+      />
+    </div>
+  );
+
+  return (
+    <Modal
+      title="Method Comparison"
+      icon="📊"
+      onClose={onClose}
+      headerExtra={headerExtra}
+      defaultPosition={{ x: window.innerWidth - 520, y: 100 }}
+      defaultSize={{ width: 500, height: 650 }}
+    >
+      {/* Top 3 methods */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+        {top3.map((method, index) => (
+          <MethodCard key={method.key} method={method} rank={index} />
+        ))}
+      </div>
+
+      {/* 4th and 5th place */}
+      {others.length > 0 && (
+        <>
+          <div style={{
+            display: showOthers ? 'grid' : 'none',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '10px'
+          }}>
+            {others.map((method, index) => (
+              <MethodCard key={method.key} method={method} rank={index + 3} />
+            ))}
           </div>
           <button
-            onClick={onClose}
+            onClick={() => setShowOthers(!showOthers)}
             style={{
-              background: 'none',
-              border: 'none',
-              color: '#ff7675',
+              width: '100%',
+              background: '#2a3f4f',
+              color: '#74b9ff',
+              border: '1px solid #3a5f6f',
+              padding: '6px',
+              borderRadius: '4px',
               cursor: 'pointer',
-              fontSize: '18px',
-              lineHeight: 1,
-              padding: 0
+              fontSize: '10px'
             }}
           >
-            ✕
+            {showOthers ? 'Show Less ▲' : 'Show More Methods ▼'}
           </button>
-        </div>
+        </>
+      )}
+
+      {/* Chart */}
+      <div style={{
+        flex: 1,
+        minHeight: '250px',
+        background: '#14202b',
+        borderRadius: '8px',
+        padding: '12px',
+        position: 'relative'
+      }}>
+        <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
       </div>
 
-      {/* Content */}
-      <div style={{
-        padding: '16px',
-        height: 'calc(100% - 50px)',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px'
-      }}>
-        {/* Top 3 methods */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-          {top3.map((method, index) => (
-            <MethodCard key={method.key} method={method} rank={index} />
-          ))}
-        </div>
-
-        {/* 4th and 5th place */}
-        {others.length > 0 && (
-          <>
-            <div style={{
-              display: showOthers ? 'grid' : 'none',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '10px'
-            }}>
-              {others.map((method, index) => (
-                <MethodCard key={method.key} method={method} rank={index + 3} />
-              ))}
-            </div>
-            <button
-              onClick={() => setShowOthers(!showOthers)}
-              style={{
-                width: '100%',
-                background: '#2a3f4f',
-                color: '#74b9ff',
-                border: '1px solid #3a5f6f',
-                padding: '6px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '10px'
-              }}
-            >
-              {showOthers ? 'Show Less ▲' : 'Show More Methods ▼'}
-            </button>
-          </>
-        )}
-
-        {/* Chart */}
-        <div style={{
-          flex: 1,
-          minHeight: '250px',
-          background: '#14202b',
-          borderRadius: '8px',
-          padding: '12px',
-          position: 'relative'
-        }}>
-          <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />
-        </div>
-
-        {/* Recent performance */}
-        <div style={{ padding: '10px', background: '#14202b', borderRadius: '6px' }}>
-          <div style={{ color: '#888', fontSize: '10px', marginBottom: '6px' }}>Recent Performance:</div>
-          <div style={{ fontSize: '10px', color: '#aaa', maxHeight: '120px', overflowY: 'auto' }}>
-            {recent.length === 0 ? (
-              <div>No data yet. Play some rounds to see comparisons.</div>
-            ) : (
-              recent.map((point, idx) => (
-                <div key={idx} style={{ padding: '4px 0', borderBottom: '1px solid #2a3f4f' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                    <span style={{ color: '#666', fontSize: '10px' }}>
-                      Round {point.round} <span style={{ color: '#555' }}>({point.difficulty || 'classic'})</span>
-                    </span>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
-                      <span style={{ color: '#e17055' }}>🔥 {point.frequency.profit.toFixed(1)}x</span>
-                      <span style={{ color: '#74b9ff' }}>❄️ {point.cold.profit.toFixed(1)}x</span>
-                      <span style={{ color: '#a29bfe' }}>🔀 {point.mixed.profit.toFixed(1)}x</span>
-                      <span style={{ color: '#55efc4' }}>📊 {point.average.profit.toFixed(1)}x</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
-                    <span style={{ color: '#fdcb6e' }}>⚡ {point.momentum.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#00cec9' }}>🤖 {point.auto.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#fd79a8' }}>🔷 {point.shapes.profit.toFixed(1)}x</span>
+      {/* Recent performance */}
+      <div style={{ padding: '10px', background: '#14202b', borderRadius: '6px' }}>
+        <div style={{ color: '#888', fontSize: '10px', marginBottom: '6px' }}>Recent Performance:</div>
+        <div style={{ fontSize: '10px', color: '#aaa', maxHeight: '120px', overflowY: 'auto' }}>
+          {recent.length === 0 ? (
+            <div>No data yet. Play some rounds to see comparisons.</div>
+          ) : (
+            recent.map((point, idx) => (
+              <div key={idx} style={{ padding: '4px 0', borderBottom: '1px solid #2a3f4f' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
+                  <span style={{ color: '#666', fontSize: '10px' }}>
+                    Round {point.round} <span style={{ color: '#555' }}>({point.difficulty || 'classic'})</span>
+                  </span>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
+                    <span style={{ color: '#e17055' }}>🔥 {point.frequency.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#74b9ff' }}>❄️ {point.cold.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#a29bfe' }}>🔀 {point.mixed.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#55efc4' }}>📊 {point.average.profit.toFixed(1)}x</span>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
+                  <span style={{ color: '#fdcb6e' }}>⚡ {point.momentum.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#00cec9' }}>🤖 {point.auto.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#fd79a8' }}>🔷 {point.shapes.profit.toFixed(1)}x</span>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
