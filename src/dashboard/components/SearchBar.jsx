@@ -4,14 +4,14 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * SearchBar Component
- * Search input for filtering bet history
+ * Search input for filtering bet history with field-specific search support
  */
 export function SearchBar({ value, onChange }) {
   return (
     <div style={{ marginBottom: SPACING.lg }}>
       <input
         type="text"
-        placeholder="Search by currency, amount, payout, or risk..."
+        placeholder="Search: text or field:value (e.g., amount:100 currency:gold risk:high)"
         value={value}
         onInput={(e) => onChange(e.target.value)}
         style={{

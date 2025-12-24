@@ -56,18 +56,82 @@ export function BetHistory() {
 
     // Apply search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(bet => {
-        const currency = bet.kenoBet?.currency?.toLowerCase() || '';
-        const amount = bet.kenoBet?.amount?.toString() || '';
-        const payout = bet.kenoBet?.payout?.toString() || '';
-        const risk = bet.kenoBet?.risk?.toLowerCase() || '';
-        
-        return currency.includes(query) || 
-               amount.includes(query) || 
-               payout.includes(query) ||
-               risk.includes(query);
-      });
+      const query = searchQuery.trim().toLowerCase();
+      
+      // Parse field-specific searches (e.g., "amount:100 currency:gold")
+      // Handle spaces after colon: "amount: 1000" -> "amount:1000"
+      const normalizedQuery = query.replace(/(\w+):\s+/g, '$1:');
+      const fieldMatches = normalizedQuery.match(/(\w+):([^\s]+)/g);
+
+      if (fieldMatches && fieldMatches.length > 0) {
+        // Field-specific search: check all field:value pairs
+        filtered = filtered.filter(bet => {
+          return fieldMatches.every(fieldQuery => {
+            const [field, value] = fieldQuery.split(':');
+            const searchValue = value.toLowerCase();
+
+            switch (field) {
+              case 'amount': {
+                const betAmount = (bet.kenoBet?.amount || 0).toFixed(2);
+                return betAmount.includes(searchValue) || betAmount === parseFloat(searchValue).toFixed(2);
+              }
+              case 'payout': {
+                const betPayout = (bet.kenoBet?.payout || 0).toFixed(2);
+                return betPayout.includes(searchValue) || betPayout === parseFloat(searchValue).toFixed(2);
+              }
+              case 'multiplier': {
+                const betMult = (bet.kenoBet?.payoutMultiplier || 0).toFixed(2);
+                return betMult.includes(searchValue) || betMult === parseFloat(searchValue).toFixed(2);
+              }
+              case 'currency':
+                return (bet.kenoBet?.currency || '').toLowerCase().includes(searchValue);
+              case 'risk':
+                return (bet.kenoBet?.risk || '').toLowerCase().includes(searchValue);
+              case 'hits': {
+                const hits = bet.kenoBet?.state?.selectedNumbers?.filter(n => 
+                  bet.kenoBet?.state?.drawnNumbers?.includes(n)
+                ) || [];
+                return hits.join(',').toLowerCase().includes(searchValue);
+              }
+              case 'misses': {
+                const misses = bet.kenoBet?.state?.drawnNumbers?.filter(n => 
+                  !bet.kenoBet?.state?.selectedNumbers?.includes(n)
+                ) || [];
+                return misses.join(',').toLowerCase().includes(searchValue);
+              }
+              case 'date':
+                return new Date(bet.time).toLocaleString().toLowerCase().includes(searchValue);
+              default:
+                return false;
+            }
+          });
+        });
+      } else {
+        // General search across all fields
+        filtered = filtered.filter(bet => {
+          const dateStr = new Date(bet.time).toLocaleString().toLowerCase();
+          const hits = (bet.kenoBet?.state?.selectedNumbers?.filter(n => 
+            bet.kenoBet?.state?.drawnNumbers?.includes(n)
+          ) || []).join(', ');
+          const misses = (bet.kenoBet?.state?.drawnNumbers?.filter(n => 
+            !bet.kenoBet?.state?.selectedNumbers?.includes(n)
+          ) || []).join(', ');
+          const amount = (bet.kenoBet?.amount || 0).toFixed(2);
+          const payout = (bet.kenoBet?.payout || 0).toFixed(2);
+          const multiplier = (bet.kenoBet?.payoutMultiplier || 0).toFixed(2);
+          const currency = (bet.kenoBet?.currency || '').toLowerCase();
+          const risk = (bet.kenoBet?.risk || '').toLowerCase();
+          
+          return dateStr.includes(query) ||
+                 hits.toLowerCase().includes(query) ||
+                 misses.toLowerCase().includes(query) ||
+                 amount.includes(query) ||
+                 payout.includes(query) ||
+                 multiplier.includes(query) ||
+                 currency.includes(query) ||
+                 risk.includes(query);
+        });
+      }
     }
 
     // Apply sorting
