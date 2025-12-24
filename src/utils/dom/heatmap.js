@@ -1,6 +1,6 @@
 // src/features/heatmap.js
 import { state } from '../../core/state.js';
-import { getHits, getMisses } from '../../core/storage.js';
+import { getHits, getMisses, getDrawn } from '../../core/storage.js';
 import { getTileElements, extractNumberFromTile } from './domReader.js';
 import { COLORS as THEME_COLORS } from '../../ui/constants/colors.js';
 
@@ -47,17 +47,6 @@ const KENO_NUMBERS = {
 // ==================== HELPER FUNCTIONS ====================
 
 /**
- * Get all drawn numbers from a round
- * @param {Object} round - Round data
- * @returns {number[]}
- */
-function getDrawnNumbers(round) {
-    const hits = getHits(round);
-    const misses = getMisses(round);
-    return [...hits, ...misses];
-}
-
-/**
  * Count number frequencies in sample
  * @param {Array} sample - Round history sample
  * @returns {Object} Frequency counts by number
@@ -65,7 +54,7 @@ function getDrawnNumbers(round) {
 function countFrequencies(sample) {
     const counts = {};
     sample.forEach(round => {
-        const drawnNumbers = getDrawnNumbers(round);
+        const drawnNumbers = getDrawn(round);
         drawnNumbers.forEach(num => {
             counts[num] = (counts[num] || 0) + 1;
         });
