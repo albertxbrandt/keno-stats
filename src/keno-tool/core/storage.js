@@ -20,5 +20,7 @@ export {
   saveGeneratorSettings,
   loadGeneratorSettings,
   saveHeatmapSettings,
-  loadHeatmapSettings
+  loadHeatmapSettings,
+  savePanelVisibility,
+  loadPanelVisibility
 } from '@/shared/storage/settings.js';

@@ -4,7 +4,7 @@
 import { render } from 'preact';
 import { App } from './App.jsx';
 import { state } from '@/keno-tool/core/state.js';
-import { loadGeneratorSettings, loadHeatmapSettings } from '@/keno-tool/core/storage.js';
+import { loadGeneratorSettings, loadHeatmapSettings, loadPanelVisibility } from '@/keno-tool/core/storage.js';
 import { initWindowGlobals } from '@/keno-tool/bridges/windowGlobals.js';
 
 // Store modals API reference
@@ -18,7 +18,7 @@ let modalsApiRef = null;
  */
 export async function initOverlay() {
   // Load all settings first
-  await Promise.all([loadGeneratorSettings(), loadHeatmapSettings()]);
+  await Promise.all([loadGeneratorSettings(), loadHeatmapSettings(), loadPanelVisibility()]);
 
   // Create container if it doesn't exist
   let container = document.getElementById('keno-tracker-root');
@@ -65,7 +65,11 @@ function toggleOverlay() {
   // Update button text
   const btn = document.getElementById('keno-tracker-toggle-btn');
   if (btn) {
-    btn.textContent = state.isOverlayVisible ? '📊 Close Stats' : '📊 Open Stats';
+    const statusText = state.isOverlayVisible ? 'Close Stats' : 'Open Stats';
+    const span = btn.querySelector('span');
+    if (span) {
+      span.textContent = statusText;
+    }
   }
 
   // Trigger re-render by dispatching custom event
@@ -130,20 +134,32 @@ export function injectFooterButton() {
   }
 
   // Create toggle button
-  const btn = document.createElement('button');
+  const btn = document.createElement('div');
   btn.id = 'keno-tracker-toggle-btn';
-  btn.textContent = state.isOverlayVisible ? '📊 Close Stats' : '📊 Open Stats';
+  
   Object.assign(btn.style, {
-    padding: '8px 12px',
-    background: '#1a2c38',
-    color: '#fff',
-    border: '1px solid #2f4553',
-    borderRadius: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     cursor: 'pointer',
-    fontSize: '11px',
-    fontWeight: 'bold',
-    marginTop: '8px'
+    padding: '0 10px',
+    opacity: '0.7',
+    transition: 'opacity 0.2s'
   });
+  
+  const statusText = state.isOverlayVisible ? 'Close Stats' : 'Open Stats';
+  btn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
+      <line x1="18" y1="20" x2="18" y2="10"></line>
+      <line x1="12" y1="20" x2="12" y2="4"></line>
+      <line x1="6" y1="20" x2="6" y2="14"></line>
+    </svg>
+    <span style="margin-left:5px; font-size:12px; font-weight:bold; color:#fff;">${statusText}</span>
+  `;
+  
+  // Hover effect
+  btn.addEventListener('mouseenter', () => btn.style.opacity = '1');
+  btn.addEventListener('mouseleave', () => btn.style.opacity = '0.7');
 
   // Toggle overlay visibility
   btn.addEventListener('click', toggleOverlay);

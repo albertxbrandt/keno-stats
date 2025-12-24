@@ -5,6 +5,7 @@
 import { render } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
+import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { HitsMissSection } from './sections/HitsMissSection.jsx';
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
@@ -13,6 +14,7 @@ import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
 import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 import { HistorySection } from './sections/HistorySection.jsx';
 import { DragHandle } from './shared/DragHandle.jsx';
+import { SettingsPanel } from './SettingsPanel.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 
@@ -59,21 +61,28 @@ import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 export function Overlay() {
   const [isVisible, setIsVisible] = useState(state.isOverlayVisible);
   const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings'
+  const [panelVisibility, setPanelVisibility] = useState(state.panelVisibility);
 
   // Dragging state
   const [position, setPosition] = useState({ top: 80, left: null, right: 20 });
   const dragStartRef = useRef({ top: 0, left: 0 });
 
-  // Listen for toggle events from footer button
+  // Listen for toggle events from footer button and settings changes
   useEffect(() => {
     const handleToggle = () => {
       setIsVisible(state.isOverlayVisible);
     };
     
+    const handleSettingsChange = (newVisibility) => {
+      setPanelVisibility({ ...newVisibility });
+    };
+
     window.addEventListener('keno-overlay-toggle', handleToggle);
+    const unsubscribe = stateEvents.on(EVENTS.SETTINGS_CHANGED, handleSettingsChange);
     
     return () => {
       window.removeEventListener('keno-overlay-toggle', handleToggle);
+      unsubscribe();
     };
   }, []);
 
@@ -108,7 +117,10 @@ export function Overlay() {
     // Update footer button text
     const btn = document.getElementById('keno-tracker-toggle-btn');
     if (btn) {
-      btn.textContent = '📊 Open Stats';
+      const span = btn.querySelector('span');
+      if (span) {
+        span.textContent = 'Open Stats';
+      }
     }
   };
 
@@ -124,7 +136,7 @@ export function Overlay() {
         ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
         top: `${position.top}px`,
         width: '240px',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.bg.darker,
         color: '#fff',
         padding: '0',
         borderRadius: '8px',
@@ -160,25 +172,25 @@ export function Overlay() {
         }}
       >
         {/* Migrated: HeatmapSection */}
-        <HeatmapSection />
+        {panelVisibility.heatmap !== false && <HeatmapSection />}
         
         {/* Migrated: GeneratorSection */}
-        <GeneratorSection />
+        {panelVisibility.numberGenerator !== false && <GeneratorSection />}
         
         {/* Migrated: HitsMissSection */}
-        <HitsMissSection />
+        {panelVisibility.hitsMiss !== false && <HitsMissSection />}
         
         {/* Migrated: ProfitLossSection */}
-        <ProfitLossSection />
+        {panelVisibility.profitLoss !== false && <ProfitLossSection />}
         
         {/* Migrated: PatternAnalysisSection */}
-        <PatternAnalysisSection />
+        {panelVisibility.patternAnalysis !== false && <PatternAnalysisSection />}
         
         {/* Migrated: RecentPlaysSection */}
-        <RecentPlaysSection />
+        {panelVisibility.recentPlays !== false && <RecentPlaysSection />}
         
         {/* Migrated: HistorySection */}
-        <HistorySection />
+        {panelVisibility.history !== false && <HistorySection />}
       </div>
 
       {/* Settings Tab Content */}
@@ -193,29 +205,7 @@ export function Overlay() {
           display: currentView === 'settings' ? 'block' : 'none'
         }}
       >
-        <div style={{
-          background: COLORS.bg.dark,
-          padding: SPACING.md,
-          borderRadius: BORDER_RADIUS.lg
-        }}>
-          <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: SPACING.md }}>
-            Panel Settings
-          </div>
-          
-          <div style={{ color: COLORS.text.tertiary, fontSize: '11px', lineHeight: '1.6' }}>
-            <p style={{ margin: '0 0 10px 0' }}>
-              All panels are currently visible and cannot be reordered in this version.
-            </p>
-            <p style={{ margin: '0 0 10px 0' }}>
-              Future features:
-            </p>
-            <ul style={{ margin: 0, paddingLeft: '20px' }}>
-              <li>Show/hide individual panels</li>
-              <li>Drag to reorder panels</li>
-              <li>Save panel preferences</li>
-            </ul>
-          </div>
-        </div>
+        <SettingsPanel />
       </div>
     </div>
   );

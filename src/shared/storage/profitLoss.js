@@ -9,12 +9,9 @@ const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
  * Load profit/loss data from storage
  */
 export function loadProfitLoss() {
-  return storageApi.storage.local.get(['history', 'sessionStartTime', 'selectedCurrency']).then((res) => {
-    // Load selected currency
-    state.selectedCurrency = res.selectedCurrency || 'btc';
-
-    // Calculate profit by currency from history
-    const history = res.history || [];
+  return storageApi.storage.local.get(['sessionStartTime', 'selectedCurrency']).then((res) => {
+    // Calculate profit by currency from history (use state.currentHistory, already loaded)
+    const history = state.currentHistory || [];
     const lastSessionTime = res.sessionStartTime || 0;
     const now = Date.now();
 
@@ -29,14 +26,46 @@ export function loadProfitLoss() {
     // Calculate profits by currency
     state.profitByCurrency = calculateProfitByCurrency(history, state.sessionStartTime);
 
-    // Update legacy state for selected currency
-    const selectedCurr = state.selectedCurrency.toLowerCase();
-    if (state.profitByCurrency[selectedCurr]) {
-      state.totalProfit = state.profitByCurrency[selectedCurr].total;
-      state.sessionProfit = state.profitByCurrency[selectedCurr].session;
+    // Get available currencies from history
+    const availableCurrencies = Object.keys(state.profitByCurrency);
+
+    // Set selected currency: use saved preference, or first available currency from history, or null if no data
+    if (res.selectedCurrency && availableCurrencies.includes(res.selectedCurrency)) {
+      state.selectedCurrency = res.selectedCurrency;
+    } else if (availableCurrencies.length > 0) {
+      state.selectedCurrency = availableCurrencies[0];
     } else {
+      state.selectedCurrency = null;
+    }
+
+    // Update legacy state for selected currency
+    if (state.selectedCurrency) {
+      const selectedCurr = state.selectedCurrency.toLowerCase();
+      if (state.profitByCurrency[selectedCurr]) {
+        state.totalProfit = state.profitByCurrency[selectedCurr].total;
+        state.sessionProfit = state.profitByCurrency[selectedCurr].session;
+      } else {
+        state.totalProfit = 0;
+        state.sessionProfit = 0;
+      }
+
+      // Emit event so components can initialize
+      stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+        currency: selectedCurr,
+        sessionProfit: state.sessionProfit,
+        totalProfit: state.totalProfit
+      });
+    } else {
+      // No data - set to zeros
       state.totalProfit = 0;
       state.sessionProfit = 0;
+      
+      // Still emit event so UI updates
+      stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+        currency: null,
+        sessionProfit: 0,
+        totalProfit: 0
+      });
     }
 
     // Update UI if available
@@ -60,17 +89,23 @@ export function saveSessionProfit() {
  * @param {number} profit - Profit from this round (can be negative)
  * @param {string} currency - Currency code (e.g., 'btc', 'usd')
  */
-export function updateSessionProfit(profit, currency = 'btc') {
+export function updateSessionProfit(profit, currency) {
   const curr = currency.toLowerCase();
 
   if (!state.profitByCurrency[curr]) {
     state.profitByCurrency[curr] = { total: 0, session: 0 };
   }
 
+  // Increment both session AND total profit (optimization: no need to recalculate from entire history)
   state.profitByCurrency[curr].session += profit;
+  state.profitByCurrency[curr].total += profit;
 
   // Update selectedCurrency to match the bet that just completed
   state.selectedCurrency = curr;
+
+  // Update legacy state
+  state.totalProfit = state.profitByCurrency[curr].total;
+  state.sessionProfit = state.profitByCurrency[curr].session;
 
   saveSessionProfit();
 
