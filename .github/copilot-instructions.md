@@ -553,6 +553,36 @@ import { state } from './state.js'; // Only import what you use
 
 ## Common Pitfalls & Anti-Patterns
 
+### 🚨 CRITICAL: Check CONTRIBUTING.md First!
+
+**Before implementing any feature, consult `CONTRIBUTING.md` for:**
+- Anti-patterns to avoid (setInterval, window globals, duplicates)
+- Code quality standards and best practices
+- Module organization and import patterns
+- When ESLint exemptions are acceptable
+
+### Architecture Anti-Patterns (Will Fail ESLint)
+
+**1. Using `setInterval()` for state/DOM polling:**
+- ❌ `setInterval(() => checkState(), 1000)` - Use events or MutationObserver
+- ✅ `stateEvents.on(EVENTS.STATE_UPDATED, callback)` - Reactive
+- ✅ `new MutationObserver(callback)` - DOM observation
+
+**2. Accessing `window.__keno_*` in components:**
+- ❌ `window.__keno_generateNumbers()` - Hidden dependency
+- ✅ `import { generateNumbers } from './numberSelection.js'` - Explicit import
+
+**3. Creating duplicate functions:**
+- ❌ Copying existing function to new file
+- ✅ Search codebase first: `grep -r "function name"` or semantic search
+- ✅ Import from canonical location (usually `storage/` or `utils/`)
+
+**4. Hardcoding values:**
+- ❌ `backgroundColor: '#1a1b26'`, `padding: '12px'`, `maxRounds: 1000`
+- ✅ `import { COLORS, PADDING, DEFAULTS } from './ui/constants/*'`
+
+### Development Anti-Patterns
+
 - **Message source validation**: Always check `event.source !== window` to filter external scripts
 - **DOM assumptions**: Selectors may break on Stake UI updates; test after page changes
 - **Storage timing**: `storage.local.get()` is async; ensure Promise resolution before DOM updates
@@ -569,6 +599,21 @@ import { state } from './state.js'; // Only import what you use
 - **Preview recursion**: `updateGeneratorPreview()` must NOT call `generateNumbers()` - call `generator.generate()` directly
 - **Auto-save missing**: Every settings change event handler MUST call `saveGeneratorSettings()` or equivalent
 - **Console log spam**: Remove verbose debug logs from production; keep only initialization, warnings, and errors
+
+### DRY Principle Enforcement
+
+**ALWAYS search before creating:**
+1. Use semantic search or grep: `grep -r "similar function name"`
+2. Check existing modules: `storage/`, `utils/`, `generators/`
+3. Review constants: `src/ui/constants/*.js`
+4. If found, import it; if not found, create in appropriate module
+
+**Common duplicate locations to check:**
+- `getDrawn()` → `storage/history.js` (canonical)
+- `getHits()`, `getMisses()` → `storage/history.js`
+- Color values → `src/ui/constants/colors.js`
+- Padding/spacing → `src/ui/constants/styles.js`
+- Default values → `src/ui/constants/defaults.js`
 
 ## Code Quality Standards
 
