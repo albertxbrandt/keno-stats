@@ -1,7 +1,7 @@
 // src/content.js - entry point for bundled content script
 import { state } from './core/state.js';
 import { stateEvents, EVENTS } from './core/stateEvents.js';
-import { initOverlay, injectFooterButton } from './ui/overlayInit.js';
+import { initOverlay, observeFooterForButton } from './ui/overlayInit.js';
 import { loadHistory, updateHistoryUI } from './core/storage.js';
 import { selectPredictedNumbers } from './ui/numberSelection.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
@@ -329,8 +329,8 @@ function initializeExtension() {
 		try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
 		// Initial heatmap update
 		updateHeatmap();
-		// Check for footer button less frequently (performance optimization)
-		setInterval(injectFooterButton, 3000);
+		// Observe footer for button injection (reactive, no polling)
+		observeFooterForButton();
 		// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 		/*
 		// Update autoplay timer every second (only runs when autoplay active)

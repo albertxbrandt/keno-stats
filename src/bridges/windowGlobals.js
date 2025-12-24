@@ -90,7 +90,7 @@ export function initWindowGlobals(modalsApi) {
 }
 
 /**
- * Detect game difficulty periodically and update state
+ * Detect game difficulty and observe changes using MutationObserver
  * @private
  */
 function detectGameDifficultyPeriodically() {
@@ -104,6 +104,18 @@ function detectGameDifficultyPeriodically() {
   // Initial detection
   updateDifficulty();
 
-  // Periodic detection every 2 seconds
-  setInterval(updateDifficulty, 2000);
+  // Observe difficulty select changes
+  const difficultySelect = document.querySelector('select[data-testid="game-difficulty"]');
+  if (difficultySelect) {
+    const observer = new MutationObserver(updateDifficulty);
+    observer.observe(difficultySelect, {
+      attributes: true,
+      attributeFilter: ['value'],
+      childList: true,
+      subtree: true
+    });
+
+    // Also listen to change event (more reliable for select elements)
+    difficultySelect.addEventListener('change', updateDifficulty);
+  }
 }

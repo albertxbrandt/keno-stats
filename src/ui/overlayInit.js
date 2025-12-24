@@ -74,6 +74,32 @@ function toggleOverlay() {
 }
 
 /**
+ * Observe the game container and inject footer button when footer appears
+ * This uses MutationObserver to detect footer changes without polling
+ * @returns {void}
+ */
+export function observeFooterForButton() {
+  const gameContainer = document.querySelector('div[data-testid="game-keno"]');
+  if (!gameContainer) {
+    console.warn('[Overlay] Game container not found, button injection disabled');
+    return;
+  }
+
+  // Try to inject immediately
+  injectFooterButton();
+
+  // Observe footer changes (for SPA navigation and dynamic updates)
+  const observer = new MutationObserver(() => {
+    injectFooterButton();
+  });
+
+  observer.observe(gameContainer, {
+    childList: true,
+    subtree: true
+  });
+}
+
+/**
  * Inject footer button to toggle overlay visibility
  * This uses DOM manipulation since it's outside the Preact component tree
  * 
