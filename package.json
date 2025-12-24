@@ -5,9 +5,9 @@
   "description": "Keno Stats extension - bundled build with esbuild",
   "scripts": {
     "build": "npm run build:content && npm run build:dashboard",
-    "build:content": "esbuild src/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact",
-    "build:dashboard": "esbuild src/dashboard/dashboard-entry.js --bundle --minify --sourcemap --outfile=dist/dashboard.bundle.js --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact",
-    "watch": "esbuild src/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact",
+    "build:content": "esbuild src/keno-tool/content.js --bundle --minify --sourcemap --outfile=dist/content.bundle.js --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
+    "build:dashboard": "esbuild src/dashboard/dashboard-entry.js --bundle --minify --sourcemap --outfile=dist/dashboard.bundle.js --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
+    "watch": "esbuild src/keno-tool/content.js --bundle --outfile=dist/content.bundle.js --watch --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
     "dev": "web-ext run --source-dir . --url https://stake.com/casino/games/keno --watch-file dist/content.bundle.js",
     "lint": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\"",
     "lint:fix": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\" --fix"

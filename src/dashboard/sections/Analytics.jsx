@@ -1,8 +1,8 @@
 // src/dashboard/sections/Analytics.jsx
 // Analytics section - placeholder for future advanced analytics
 
-import { COLORS } from '../../ui/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '../../ui/constants/styles.js';
+import { COLORS } from '@/shared/constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * Analytics Section

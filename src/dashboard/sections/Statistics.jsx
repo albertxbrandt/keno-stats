@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { loadBetHistory } from '../utils/storage.js';
-import { COLORS } from '../../ui/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '../../ui/constants/styles.js';
+import { COLORS } from '@/shared/constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * Statistics Section

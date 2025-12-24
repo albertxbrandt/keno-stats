@@ -1,56 +1,8 @@
 // src/dashboard/utils/storage.js
-// Storage utilities for dashboard
+// Dashboard-specific storage utilities
 
-const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
-
-const CHUNK_SIZE = 1000; // Same as history.js
-
-/**
- * Get chunk key for storage
- * @param {number} index - Round index
- * @returns {string} Chunk key
- */
-function getChunkKey(index) {
-  return `history_chunk_${Math.floor(index / CHUNK_SIZE)}`;
-}
-
-/**
- * Load all bet history from chunked storage
- * @returns {Promise<Array>} Complete bet history
- */
-export async function loadBetHistory() {
-  try {
-    // Get total count first
-    const countResult = await storageApi.storage.local.get('history_count');
-    const totalCount = countResult.history_count || 0;
-
-    if (totalCount === 0) {
-      return [];
-    }
-
-    // Calculate how many chunks we need to load
-    const numChunks = Math.ceil(totalCount / CHUNK_SIZE);
-    const chunkKeys = [];
-    for (let i = 0; i < numChunks; i++) {
-      chunkKeys.push(`history_chunk_${i}`);
-    }
-
-    // Load all chunks
-    const result = await storageApi.storage.local.get(chunkKeys);
-
-    // Combine all chunks into single array
-    const history = [];
-    for (let i = 0; i < numChunks; i++) {
-      const chunk = result[`history_chunk_${i}`] || [];
-      history.push(...chunk);
-    }
-
-    return history;
-  } catch (err) {
-    console.error('[Dashboard] Failed to load history:', err);
-    return [];
-  }
-}
+// Re-export shared storage functions with dashboard-friendly names
+export { loadHistoryRaw as loadBetHistory } from '@/shared/storage/history.js';
 
 /**
  * Export bet history as JSON file
@@ -76,6 +28,8 @@ export function exportBetHistory(history) {
  * @returns {Promise<void>}
  */
 export async function deleteAllHistory() {
+  const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
+
   try {
     // Get total count to know how many chunks to delete
     const countResult = await storageApi.storage.local.get('history_count');
@@ -86,6 +40,7 @@ export async function deleteAllHistory() {
     }
 
     // Calculate chunk keys to delete
+    const CHUNK_SIZE = 1000;
     const numChunks = Math.ceil(totalCount / CHUNK_SIZE);
     const keysToDelete = ['history_count'];
     for (let i = 0; i < numChunks; i++) {

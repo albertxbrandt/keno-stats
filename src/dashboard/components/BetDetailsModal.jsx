@@ -1,7 +1,7 @@
-// src/betbook/components/BetDetailsModal.jsx
-import { getHits, getMisses } from '../../storage/history.js';
-import { COLORS } from '../../ui/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '../../ui/constants/styles.js';
+// src/dashboard/components/BetDetailsModal.jsx
+import { getHits, getMisses } from '@/shared/storage/history.js';
+import { COLORS } from '@/shared/constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * BetDetailsModal Component

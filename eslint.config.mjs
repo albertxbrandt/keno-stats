@@ -91,24 +91,24 @@ export default [
   // Exemptions for specific files with legitimate uses
   {
     files: [
-      "src/content.js",                          // Message listener needs window.__keno_state
-      "src/bridges/windowGlobals.js",            // Intentional bridge for cross-context communication
-      "src/ui/previewHighlight.js",              // Bridge module
-      "src/ui/overlayInit.js",                   // Needs window globals for button handlers
-      "src/ui/numberSelection.js",               // Exports to window for content.js
-      "src/utils/dom/heatmap.js",                // Exports to window for event handlers
-      "src/storage/patterns.js",                 // Cache clearing function
-      "src/storage/history.js",                  // Callback functions use window globals
-      "src/storage/profitLoss.js",               // Updates use window globals temporarily
-      "src/storage/settings.js",                 // Settings updates use window globals
-      "src/generators/momentumCore.js",          // Debug function export
-      "src/generators/shapesCore.js",            // Debug function export
-      "src/hooks/useModals.js",                  // Modal manager uses window bridge
-      "src/ui/components/generator/AutoRefreshControl.jsx"  // Intentional state variable named setInterval
+      "src/keno-tool/content.js",                          // Message listener needs window.__keno_state
+      "src/keno-tool/bridges/windowGlobals.js",            // Intentional bridge for cross-context communication
+      "src/keno-tool/ui/previewHighlight.js",              // Bridge module
+      "src/keno-tool/ui/overlayInit.js",                   // Needs window globals for button handlers
+      "src/keno-tool/ui/numberSelection.js",               // Exports to window for content.js
+      "src/shared/utils/dom/heatmap.js",                   // Exports to window for event handlers
+      "src/shared/storage/patterns.js",                    // Cache clearing function
+      "src/shared/storage/history.js",                     // Callback functions use window globals
+      "src/shared/storage/profitLoss.js",                  // Updates use window globals temporarily
+      "src/shared/storage/settings.js",                    // Settings updates use window globals
+      "src/keno-tool/generators/momentumCore.js",          // Debug function export
+      "src/keno-tool/generators/shapesCore.js",            // Debug function export
+      "src/keno-tool/hooks/useModals.js",                  // Modal manager uses window bridge
+      "src/keno-tool/ui/components/generator/AutoRefreshControl.jsx"  // Intentional setInterval for countdown
     ],
     rules: {
       "no-restricted-syntax": "off",             // Allow window globals in these files
-      "no-restricted-globals": "off"             // Allow setInterval in AutoRefreshControl (state variable)
+      "no-restricted-globals": "off"             // Allow setInterval in AutoRefreshControl
     }
   }
 ];

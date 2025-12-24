@@ -5,8 +5,8 @@ import { useState } from 'preact/hooks';
 import { BetHistory } from './sections/BetHistory.jsx';
 import { Statistics } from './sections/Statistics.jsx';
 import { Analytics } from './sections/Analytics.jsx';
-import { COLORS } from '../ui/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '../ui/constants/styles.js';
+import { COLORS } from '@/shared/constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * Dashboard Component

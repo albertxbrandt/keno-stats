@@ -1,7 +1,7 @@
-// src/betbook/components/BetTable.jsx
-import { getHits, getMisses } from '../../storage/history.js';
-import { COLORS } from '../../ui/constants/colors.js';
-import { SPACING } from '../../ui/constants/styles.js';
+// src/dashboard/components/BetTable.jsx
+import { getHits, getMisses } from '@/shared/storage/history.js';
+import { COLORS } from '@/shared/constants/colors.js';
+import { SPACING } from '@/shared/constants/styles.js';
 
 /**
  * BetTable Component

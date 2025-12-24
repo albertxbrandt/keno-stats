@@ -1,6 +1,6 @@
-// src/betbook/components/SearchBar.jsx
-import { COLORS } from '../../ui/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '../../ui/constants/styles.js';
+// src/dashboard/components/SearchBar.jsx
+import { COLORS } from '@/shared/constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * SearchBar Component
