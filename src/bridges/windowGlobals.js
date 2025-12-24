@@ -32,6 +32,10 @@ export function initWindowGlobals(modalsApi) {
     modalsApi.showPatternAnalysis(patternSize, sortBy, sampleSize);
   };
 
+  window.__keno_showLivePatternAnalysis = () => {
+    modalsApi.showLivePatternAnalysis();
+  };
+
   // ===== Comparison Window =====
   window.__keno_toggleComparison = modalsApi.toggleComparison;
   window.__keno_trackRound = trackRoundComparison;

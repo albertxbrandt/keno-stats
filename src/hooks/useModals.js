@@ -12,6 +12,7 @@ export function ModalsProvider({ children }) {
     combinationHits: { open: false, data: null },
     patternAnalysis: { open: false, data: null },
     patternLoading: { open: false },
+    livePatternAnalysis: { open: false },
     comparison: { open: false }
   });
 
@@ -35,6 +36,7 @@ export function ModalsProvider({ children }) {
       combinationHits: { open: false, data: null },
       patternAnalysis: { open: false, data: null },
       patternLoading: { open: false },
+      livePatternAnalysis: { open: false },
       comparison: { open: false }
     });
   };
@@ -52,6 +54,8 @@ export function ModalsProvider({ children }) {
       openModal('patternAnalysis', { patternSize, sortBy, sampleSize }),
     showPatternLoading: () => openModal('patternLoading'),
     hidePatternLoading: () => closeModal('patternLoading'),
+    showLivePatternAnalysis: () => openModal('livePatternAnalysis'),
+    hideLivePatternAnalysis: () => closeModal('livePatternAnalysis'),
     showComparison: () => openModal('comparison'),
     toggleComparison: (show) => {
       if (show) openModal('comparison');

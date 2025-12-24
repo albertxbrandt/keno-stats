@@ -21,20 +21,16 @@ import { NumberInput } from '../shared/NumberInput.jsx';
  */
 export function PatternAnalysisSection() {
   const [patternSize, setPatternSize] = useState(5);
-  const [isLiveAnalysisActive, setIsLiveAnalysisActive] = useState(false);
 
   const handleAnalyze = () => {
-    if (window.__keno_showPatternAnalysisModal) {
-      window.__keno_showPatternAnalysisModal(patternSize);
+    if (window.__keno_showPatternAnalysis) {
+      window.__keno_showPatternAnalysis(patternSize);
     }
   };
 
   const handleLiveToggle = () => {
-    const newState = !isLiveAnalysisActive;
-    setIsLiveAnalysisActive(newState);
-    
-    if (window.__keno_toggleLivePatternAnalysis) {
-      window.__keno_toggleLivePatternAnalysis(newState, patternSize);
+    if (window.__keno_showLivePatternAnalysis) {
+      window.__keno_showLivePatternAnalysis();
     }
   };
 
@@ -84,7 +80,7 @@ export function PatternAnalysisSection() {
           onClick={handleLiveToggle}
           style={{
             width: '100%',
-            background: isLiveAnalysisActive ? '#f87171' : '#00b894',
+            background: '#00b894',
             color: '#fff',
             border: 'none',
             padding: '8px',
@@ -98,17 +94,11 @@ export function PatternAnalysisSection() {
             justifyContent: 'center',
             gap: '6px'
           }}
-          onMouseEnter={(e) => {
-            e.target.style.background = isLiveAnalysisActive ? '#dc2626' : '#059669';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = isLiveAnalysisActive ? '#f87171' : '#00b894';
-          }}
+          onMouseEnter={(e) => e.target.style.background = '#059669'}
+          onMouseLeave={(e) => e.target.style.background = '#00b894'}
         >
-          <span style={{ fontSize: '14px' }}>
-            {isLiveAnalysisActive ? '⏸' : '▶'}
-          </span>
-          {isLiveAnalysisActive ? 'Stop Live Analysis' : 'Start Live Analysis'}
+          <span style={{ fontSize: '14px' }}>🔴</span>
+          Start Live Analysis
         </button>
 
         {/* Info Text */}

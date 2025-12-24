@@ -5,6 +5,7 @@ import { SavedNumbersModal } from './components/modals/SavedNumbersModal.jsx';
 import { CombinationHitsModal } from './components/modals/CombinationHitsModal.jsx';
 import { PatternAnalysisModal } from './components/modals/PatternAnalysisModal.jsx';
 import { PatternLoadingModal } from './components/modals/PatternLoadingModal.jsx';
+import { LivePatternAnalysisModal } from './components/modals/LivePatternAnalysisModal.jsx';
 import { ComparisonWindow } from './components/modals/ComparisonWindow.jsx';
 import {
   getSavedNumbers,
@@ -232,6 +233,14 @@ export function ModalsManager() {
 
       {/* Pattern Loading Modal */}
       {activeModals.patternLoading.open && <PatternLoadingModal />}
+
+      {/* Live Pattern Analysis Modal */}
+      {activeModals.livePatternAnalysis.open && (
+        <LivePatternAnalysisModal
+          isOpen={activeModals.livePatternAnalysis.open}
+          onClose={() => closeModal('livePatternAnalysis')}
+        />
+      )}
 
       {/* Comparison Window */}
       {activeModals.comparison.open && (
