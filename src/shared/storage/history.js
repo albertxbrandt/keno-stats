@@ -306,10 +306,24 @@ export function loadHistory() {
  * @returns {Promise<Array>} Empty history array
  */
 export function clearHistory() {
-  return storageApi.storage.local.clear().then(() => {
-    state.currentHistory = [];
-    stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
-    return state.currentHistory;
+  // Preserve disclaimerAccepted when clearing history
+  return storageApi.storage.local.get(['disclaimerAccepted', 'acceptedDate']).then((preserved) => {
+    return storageApi.storage.local.clear().then(() => {
+      // Restore preserved data
+      const restoreData = {};
+      if (preserved.disclaimerAccepted) {
+        restoreData.disclaimerAccepted = preserved.disclaimerAccepted;
+      }
+      if (preserved.acceptedDate) {
+        restoreData.acceptedDate = preserved.acceptedDate;
+      }
+      
+      return storageApi.storage.local.set(restoreData).then(() => {
+        state.currentHistory = [];
+        stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
+        return state.currentHistory;
+      });
+    });
   });
 }
 
@@ -404,7 +418,10 @@ export async function importHistory(historyData) {
     throw new Error('History data must be an array');
   }
 
-  // Clear existing history
+  // Preserve disclaimerAccepted before clearing
+  const preserved = await storageApi.storage.local.get(['disclaimerAccepted', 'acceptedDate']);
+
+  // Clear existing history (this will also preserve disclaimerAccepted internally)
   await clearHistory();
 
   // Chunk the data for storage
@@ -413,11 +430,19 @@ export async function importHistory(historyData) {
     chunks.push(historyData.slice(i, i + CHUNK_SIZE));
   }
 
-  // Write all chunks
+  // Write all chunks plus preserved data
   const writeData = { history_count: historyData.length };
   chunks.forEach((chunk, index) => {
     writeData[`history_chunk_${index}`] = chunk;
   });
+  
+  // Ensure disclaimerAccepted is preserved
+  if (preserved.disclaimerAccepted) {
+    writeData.disclaimerAccepted = preserved.disclaimerAccepted;
+  }
+  if (preserved.acceptedDate) {
+    writeData.acceptedDate = preserved.acceptedDate;
+  }
 
   await storageApi.storage.local.set(writeData);
 
