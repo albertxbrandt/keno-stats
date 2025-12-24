@@ -44,7 +44,6 @@ export function GeneratorSection() {
   const modals = useModals();
 
   // Determine which method uses which params
-  const usesFrequencyParams = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(selectedMethod);
   const showShapesParams = selectedMethod === 'shapes';
   const showMomentumParams = selectedMethod === 'momentum';
 
