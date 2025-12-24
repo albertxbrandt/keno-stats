@@ -45,7 +45,8 @@ export function HeatmapSection() {
     return unsubscribe;
   }, []);
 
-  const handleToggle = (enabled) => {
+  const handleToggle = (e) => {
+    const enabled = e.target.checked;
     setIsEnabled(enabled);
     state.isHeatmapActive = enabled;
     saveHeatmapSettings();
