@@ -192,7 +192,7 @@ export function saveRound(round) {
     const profit = payout - betAmount;
     const currency = (round.kenoBet.currency || 'btc').toLowerCase();
 
-    // Update session profit only via profitLoss module if available
+    // Update profit incrementally (both session and total)
     if (window.__keno_updateProfit) {
       try {
         window.__keno_updateProfit(profit, currency);
@@ -200,15 +200,7 @@ export function saveRound(round) {
         console.warn('[Storage] updateProfit failed', e);
       }
     }
-
-    // Recalculate total profit from history
-    if (window.__keno_recalculateTotalProfit) {
-      try {
-        window.__keno_recalculateTotalProfit();
-      } catch (e) {
-        console.warn('[Storage] recalculateTotalProfit failed', e);
-      }
-    }
+    // NOTE: No longer calling recalculateTotalProfit() here - updateProfit now handles total incrementally
   }
 
   // Defer non-critical UI updates to avoid blocking main thread

@@ -26,22 +26,47 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 export function ProfitLossSection() {
   const [sessionProfit, setSessionProfit] = useState(0);
   const [totalProfit, setTotalProfit] = useState(0);
-  const [currency, setCurrency] = useState('BTC');
+  const [currency, setCurrency] = useState(null);
+  const [availableCurrencies, setAvailableCurrencies] = useState([]);
 
   // Update profit values from events
   useEffect(() => {
-    // Initial load
-    setSessionProfit(getSessionProfit());
-    setTotalProfit(getTotalProfit());
-    setCurrency(state.selectedCurrency?.toUpperCase() || 'BTC');
+    // Function to update all values from state
+    const updateFromState = () => {
+      setSessionProfit(getSessionProfit());
+      setTotalProfit(getTotalProfit());
+      
+      // Get available currencies from profitByCurrency
+      const currencies = Object.keys(state.profitByCurrency || {}).map(c => c.toUpperCase());
+      setAvailableCurrencies(currencies);
+      
+      // Set currency: use state currency or first available currency
+      if (state.selectedCurrency) {
+        setCurrency(state.selectedCurrency.toUpperCase());
+      } else if (currencies.length > 0) {
+        setCurrency(currencies[0]);
+      }
+    };
+
+    // Initial load - check if data already exists
+    updateFromState();
 
     // Listen for profit updates - event includes currency from bet data
     const unsubscribe = stateEvents.on(EVENTS.PROFIT_UPDATED, (eventData) => {
       setSessionProfit(getSessionProfit());
       setTotalProfit(getTotalProfit());
-      // Use currency from the bet that just completed
+      
+      // Get available currencies from profitByCurrency
+      const currencies = Object.keys(state.profitByCurrency || {}).map(c => c.toUpperCase());
+      setAvailableCurrencies(currencies);
+      
+      // Set currency: use event currency, or state currency, or first available currency
       if (eventData?.currency) {
         setCurrency(eventData.currency.toUpperCase());
+      } else if (state.selectedCurrency) {
+        setCurrency(state.selectedCurrency.toUpperCase());
+      } else if (currencies.length > 0) {
+        setCurrency(currencies[0]);
       }
     });
 
@@ -60,6 +85,14 @@ export function ProfitLossSection() {
   };
 
   const formatProfit = (value) => {
+    if (!currency) {
+      return (
+        <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>
+          No data
+        </span>
+      );
+    }
+    
     const isPositive = value >= 0;
     const color = isPositive ? '#4ade80' : '#f87171';
     const sign = isPositive ? '+' : '';
@@ -76,11 +109,12 @@ export function ProfitLossSection() {
       icon="💰"
       title="Profit/Loss"
       defaultExpanded={false}
-      headerExtra={
+      headerActions={
         <select
-          value={currency}
+          value={currency || ''}
           onChange={handleCurrencyChange}
           onClick={(e) => e.stopPropagation()} // Prevent collapse toggle
+          disabled={availableCurrencies.length === 0}
           style={{
             background: COLORS.bg.darkest,
             border: `1px solid ${COLORS.border.default}`,
@@ -88,12 +122,17 @@ export function ProfitLossSection() {
             padding: '2px 4px',
             borderRadius: BORDER_RADIUS.sm,
             fontSize: '10px',
-            cursor: 'pointer'
+            cursor: availableCurrencies.length === 0 ? 'not-allowed' : 'pointer',
+            opacity: availableCurrencies.length === 0 ? 0.5 : 1
           }}
         >
-          <option value="BTC">BTC</option>
-          <option value="USD">USD</option>
-          <option value="ETH">ETH</option>
+          {availableCurrencies.length === 0 ? (
+            <option value="">No data</option>
+          ) : (
+            availableCurrencies.map(curr => (
+              <option key={curr} value={curr}>{curr}</option>
+            ))
+          )}
         </select>
       }
     >

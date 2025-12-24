@@ -41,7 +41,7 @@ export const state = {
     sessionStartTime: Date.now(),
     totalProfit: 0,
     sessionProfit: 0,
-    selectedCurrency: 'btc', // Default currency for display
+    selectedCurrency: null, // Will be set from user's bet history
     profitByCurrency: {}, // { btc: { total: 0, session: 0 }, usd: { total: 0, session: 0 }, ... }
     panelVisibility: {
         heatmap: true,
