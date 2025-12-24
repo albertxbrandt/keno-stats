@@ -3,7 +3,7 @@
 // Root of the Preact component tree for the Keno Stats Tracker UI
 
 import { render } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '../../core/state.js';
 import { HitsMissSection } from './sections/HitsMissSection.jsx';
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
@@ -60,7 +60,7 @@ export function Overlay() {
 
   // Dragging state
   const [position, setPosition] = useState({ top: 80, left: null, right: 20 });
-  const [dragStart, setDragStart] = useState({ top: 0, left: 0 });
+  const dragStartRef = useRef({ top: 0, left: 0 });
 
   // Listen for toggle events from footer button
   useEffect(() => {
@@ -76,19 +76,21 @@ export function Overlay() {
   }, []);
 
   const handleDragStart = () => {
-    // Convert right-based positioning to left-based for dragging
+    // Store the current position when drag starts
     const overlay = document.getElementById('keno-tracker-overlay');
     if (!overlay) return;
     
     const rect = overlay.getBoundingClientRect();
-    setDragStart({ top: rect.top, left: rect.left });
+    dragStartRef.current = { top: rect.top, left: rect.left };
+    
+    // Convert right-based positioning to left-based for dragging
     setPosition({ top: rect.top, left: rect.left, right: null });
   };
 
   const handleDrag = (dx, dy) => {
     setPosition({
-      top: dragStart.top + dy,
-      left: dragStart.left + dx,
+      top: dragStartRef.current.top + dy,
+      left: dragStartRef.current.left + dx,
       right: null
     });
   };
