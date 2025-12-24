@@ -10,18 +10,32 @@ This is a Chrome/Firefox browser extension that tracks Keno game statistics on S
 
 ### Module Architecture (src/)
 
-Code split across specialized modules:
+Code split across specialized modules with clear separation of concerns:
 
 **Core:**
 
-- **`content.js`**: Entry point, message listener, initialization orchestration, round processing, generator triggering
+- **`content.js`**: Entry point, message listener, initialization orchestration, round processing, Preact rendering
 - **`core/state.js`**: Centralized reactive state (all `state.*` properties live here)
-- **`core/storage.js`**: Chrome/Firefox storage API, history CRUD, settings persistence (auto-save system)
+- **`core/storage.js`**: Backward compatibility re-export wrapper for storage functions
 
-**UI:**
+**UI (Preact Components):**
 
-- **`ui/overlay.js`**: Main UI creation, event binding, panel visibility, footer button injection
+- **`ui/App.jsx`**: Root Preact component, wraps Overlay and ModalsManager with ModalsProvider
+- **`ui/components/Overlay.jsx`**: Main draggable overlay container with tab switching (Tracker/Settings)
+- **`ui/components/shared/`**: Reusable UI primitives (DragHandle, ToggleSwitch, CollapsibleSection, etc.)
+- **`ui/components/sections/`**: Major overlay sections (Heatmap, Generator, HitsMiss, ProfitLoss, etc.)
+- **`ui/components/modals/`**: Modal dialogs (SavedNumbers, PatternAnalysis, Comparison, etc.)
+- **`ui/ModalsManager.jsx`**: Central modal coordination using useModals hook
 - **`ui/numberSelection.js`**: Generator coordination, prediction caching, auto-select logic, preview system
+
+**Storage Layer:**
+
+- **`storage/history.js`**: Game history CRUD with chunked storage (1000 rounds per chunk)
+- **`storage/settings.js`**: Generator and heatmap settings persistence
+- **`storage/savedNumbers.js`**: CRUD for saved number combinations
+- **`storage/patterns.js`**: Pattern cache management with TTL
+- **`storage/comparison.js`**: Comparison tracking data (in-memory)
+- **`storage/profitLoss.js`**: Profit/loss data persistence and state management
 
 **Generators:** (src/generators/)
 
@@ -35,20 +49,28 @@ Code split across specialized modules:
 - **`shapes.js`**: Shape-based selection (wraps shapesCore)
 - **`shapesCore.js`**: Shape definitions, placement strategies (hot/trending/random)
 
-**Features:**
-
-- **`features/heatmap.js`**: Frequency analysis, tile highlighting, percentage badges
-- **`features/autoplay.js`**: Auto-play betting logic, UI updates (DISABLED for TOS compliance)
-- **`features/stats.js`**: Multiplier bar integration, probability calculation, MutationObserver
-- **`features/patterns.js`**: Pattern analysis, combination finding, caching
-- **`features/savedNumbers.js`**: Saved number sets management
-- **`features/comparison.js`**: Method comparison window, profit tracking
-
 **Utils:**
 
-- **`utils/utils.js`**: DOM helpers (simulatePointerClick, clearTable, waitForBetButtonReady)
-- **`utils/tileSelection.js`**: Tile selection/deselection, waitForTilesCleared, replaceSelection
-- **`utils/domReader.js`**: DOM state reading (getSelectedTileNumbers, getIntValue, etc.)
+- **`utils/dom/`**: DOM operations
+  - `utils.js`: DOM helpers (simulatePointerClick, clearTable, waitForBetButtonReady)
+  - `tileSelection.js`: Tile selection/deselection, waitForTilesCleared, replaceSelection
+  - `domReader.js`: DOM state reading (getSelectedTileNumbers, getIntValue, etc.)
+  - `heatmap.js`: Heatmap visualization and tile highlighting
+  - `profitLossUI.js`: Profit/loss UI updates
+- **`utils/calculations/`**: Pure math/analysis functions
+  - `payoutCalculations.js`: Payout analysis and multiplier calculations
+  - `profitCalculations.js`: Profit/loss calculations, currency formatting
+  - `patternAlgorithms.js`: Pattern finding algorithms (combinatorial analysis)
+- **`utils/analysis/`**: Data analysis helpers
+  - `combinationAnalysis.js`: Combination hit rate analysis
+
+**Bridges:**
+
+- **`bridges/windowGlobals.js`**: Consolidated window.\__keno_\* global functions for cross-context access
+
+**Hooks:**
+
+- **`hooks/useModals.js`**: ModalsProvider context for managing modal state across components
 
 ## Critical Implementation Patterns
 
@@ -78,12 +100,44 @@ window.addEventListener("message", (event) => {
 
 ### 2. URL-Scoped Functionality
 
-Critical safety check: Functions in `overlay.js` verify `window.location.href.includes("keno")` before DOM manipulation:
+Critical safety check: Functions verify `window.location.href.includes("keno")` before DOM manipulation:
 
-- If not on Keno page: removes injected buttons, hides overlay, exits early via `injectFooterButton()`
+- If not on Keno page: removes injected buttons, hides overlay, exits early
 - Prevents errors on non-Keno game pages within Stake.com
 
-### 3. Number Transformation (Keno-Specific)
+### 3. Preact Component Architecture
+
+The UI is built with Preact (3KB React alternative) for maintainability and performance:
+
+**Component Hierarchy:**
+
+```
+App (ModalsProvider wrapper)
+├── Overlay (draggable container)
+│   ├── DragHandle (mouse + touch drag support)
+│   ├── HeatmapSection
+│   ├── GeneratorSection
+│   ├── HitsMissSection
+│   ├── ProfitLossSection
+│   ├── PatternAnalysisSection
+│   ├── RecentPlaysSection
+│   └── HistorySection
+└── ModalsManager (modal coordination)
+    ├── SavedNumbersModal
+    ├── CombinationHitsModal
+    ├── PatternAnalysisModal
+    ├── PatternLoadingModal
+    └── ComparisonModal
+```
+
+**Key patterns:**
+
+- Shared components in `ui/components/shared/` (ToggleSwitch, CollapsibleSection, NumberInput, etc.)
+- State managed via `state` object imported from `core/state.js`
+- Modals controlled via `useModals` hook context
+- JSX transpiled by esbuild with `--jsx=automatic --jsx-import-source=preact`
+
+### 4. Number Transformation (Keno-Specific)
 
 Stake API returns 0-39 indices; UI displays 1-40 board:
 
@@ -93,7 +147,7 @@ const drawn = rawDrawn.map((n) => n + 1); // Always add 1 from API
 
 This offset is applied in `content.js` after message receipt. Tests should verify this transformation.
 
-### 4. Storage Abstraction (`storage.js`)
+### 5. Storage Abstraction
 
 Supports both Chrome and Firefox via conditional API selection:
 

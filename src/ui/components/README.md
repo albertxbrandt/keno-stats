@@ -1,8 +1,8 @@
-# Preact Component Migration
+# Preact Component Architecture
 
 ## Overview
 
-This directory contains the Preact-based refactor of the Keno Stats Tracker overlay UI. The goal is to break down the monolithic 1581-line `overlay.js` file into maintainable, testable, and reusable components.
+The Keno Stats Tracker overlay UI has been fully refactored to use Preact components. This provides a maintainable, testable, and performant architecture with clear separation of concerns.
 
 ## Why Preact?
 
@@ -16,57 +16,79 @@ This directory contains the Preact-based refactor of the Keno Stats Tracker over
 
 ```
 src/ui/components/
-├── Overlay.jsx                    # Main container (entry point)
+├── Overlay.jsx                    # ✅ Main container with drag support
 ├── README.md                      # This file
-├── shared/                        # Reusable UI primitives
+├── shared/                        # ✅ Reusable UI primitives
+│   ├── DragHandle.jsx            # ✅ Draggable header (mouse + touch)
 │   ├── ToggleSwitch.jsx          # ✅ Animated toggle component
 │   ├── CollapsibleSection.jsx    # ✅ Hover/pin expandable sections
-│   └── NumberInput.jsx            # ✅ Validated number input
-├── sections/                      # Major overlay sections
-│   ├── HitsMissSection.jsx       # ✅ Simple hits/miss display
-│   ├── HeatmapSection.jsx        # TODO: Heatmap controls
-│   ├── GeneratorSection.jsx      # TODO: Main generator UI (large)
-│   ├── ProfitLossSection.jsx     # TODO: Profit/loss tracker
-│   ├── PatternAnalysisSection.jsx # TODO: Pattern analysis
-│   ├── RecentPlaysSection.jsx    # TODO: Recent plays list
-│   └── HistorySection.jsx        # TODO: Bet history
-└── generator/                     # Generator sub-components
-    ├── GeneratorHeader.jsx        # TODO: Collapsible header
-    ├── GeneratorPreview.jsx       # TODO: Next numbers preview
-    ├── MethodSelector.jsx         # TODO: Method dropdown
-    ├── ShapesParams.jsx           # TODO: Shapes configuration
-    ├── MomentumParams.jsx         # TODO: Momentum configuration
-    └── AutoRefreshControl.jsx     # TODO: Auto-refresh toggle/interval
+│   ├── NumberInput.jsx            # ✅ Validated number input
+│   └── Modal.jsx                  # ✅ Base modal component
+├── sections/                      # ✅ Major overlay sections
+│   ├── HeatmapSection.jsx        # ✅ Heatmap controls
+│   ├── GeneratorSection.jsx      # ✅ Main generator UI
+│   ├── HitsMissSection.jsx       # ✅ Hits/miss display
+│   ├── ProfitLossSection.jsx     # ✅ Profit/loss tracker
+│   ├── PatternAnalysisSection.jsx # ✅ Pattern analysis
+│   ├── RecentPlaysSection.jsx    # ✅ Recent plays list
+│   └── HistorySection.jsx        # ✅ Bet history
+├── generator/                     # ✅ Generator sub-components
+│   ├── GeneratorHeader.jsx        # ✅ Collapsible header
+│   ├── GeneratorPreview.jsx       # ✅ Next numbers preview
+│   ├── MethodSelector.jsx         # ✅ Method dropdown
+│   ├── ShapesParams.jsx           # ✅ Shapes configuration
+│   ├── MomentumParams.jsx         # ✅ Momentum configuration
+│   └── AutoRefreshControl.jsx     # ✅ Auto-refresh toggle/interval
+└── modals/                        # ✅ Modal dialogs
+    ├── SavedNumbersModal.jsx      # ✅ Saved numbers management
+    ├── CombinationHitsModal.jsx   # ✅ Combination analysis
+    ├── PatternAnalysisModal.jsx   # ✅ Pattern results
+    ├── PatternLoadingModal.jsx    # ✅ Pattern loading spinner
+    └── ComparisonModal.jsx        # ✅ Method comparison window
 ```
 
 ## Migration Status
 
-### ✅ Complete
+### ✅ Complete - ALL COMPONENTS MIGRATED!
 
-- **Foundation**: Directory structure, JSX setup with esbuild
-- **Shared Components**: ToggleSwitch, CollapsibleSection, NumberInput
-- **Proof of Concept**: HitsMissSection migrated and working
+**Foundation:**
+- ✅ Overlay container with drag support (mouse + touch)
+- ✅ DragHandle component with position management
+- ✅ Tab switching (Tracker/Settings)
+- ✅ Modal system with useModals hook
 
-### 🚧 In Progress
+**Sections:**
+- ✅ HeatmapSection - Mode toggle, sample size input
+- ✅ GeneratorSection - All sub-components:
+  - ✅ GeneratorHeader
+  - ✅ GeneratorPreview (Next Numbers display)
+  - ✅ MethodSelector (with param visibility logic)
+  - ✅ ShapesParams
+  - ✅ MomentumParams
+  - ✅ AutoRefreshControl
+- ✅ HitsMissSection - Hits/miss display
+- ✅ ProfitLossSection - Session/total display, currency selector
+- ✅ PatternAnalysisSection - Pattern size input, analyze button
+- ✅ RecentPlaysSection - Recent plays list, saved combos button
+- ✅ HistorySection - Bet history list, clear button, bet book button
 
-- Overlay shell with dragging and tab switching
+**Modals:**
+- ✅ SavedNumbersModal - Save/load/delete number combinations
+- ✅ CombinationHitsModal - Analyze combination hit rates
+- ✅ PatternAnalysisModal - Display pattern results
+- ✅ PatternLoadingModal - Loading spinner
+- ✅ ComparisonModal - Method comparison window
 
-### 📋 TODO (Priority Order)
+**Shared Components:**
+- ✅ DragHandle - Draggable header (mouse + touch support)
+- ✅ ToggleSwitch - Animated toggle component
+- ✅ CollapsibleSection - Hover/pin expandable sections
+- ✅ NumberInput - Validated number input
+- ✅ Modal - Base modal component
 
-1. **DragHandle Component** - Extract drag logic from Overlay
-2. **GeneratorSection** - Largest component, break into sub-components:
-   - GeneratorHeader
-   - GeneratorPreview (Next Numbers display)
-   - MethodSelector (with param visibility logic)
-   - ShapesParams
-   - MomentumParams
-   - AutoRefreshControl
-3. **HeatmapSection** - Mode toggle, sample size input
-4. **HistorySection** - Bet history list, clear button, bet book button
-5. **ProfitLossSection** - Session/total display, currency selector
-6. **PatternAnalysisSection** - Pattern size input, analyze button
-7. **RecentPlaysSection** - Recent plays list, saved combos button
-8. **Settings Tab** - Panel visibility toggles, drag-to-reorder
+**Legacy Code:**
+- ✅ `overlay.js` archived to `archived/legacy-overlay/`
+- ✅ All functionality moved to Preact components
 
 ## Component Patterns
 
@@ -250,17 +272,34 @@ return <input ref={inputRef} />;
 
 ## Migration Checklist
 
-For each section to migrate:
+All sections have been successfully migrated! ✅
 
-- [ ] Create component file in appropriate directory
-- [ ] Add comprehensive JSDoc documentation
-- [ ] Extract inline styles to style objects
-- [ ] Convert event handlers to hooks pattern
-- [ ] Replace `document.getElementById` with refs or state
-- [ ] Test in isolation
-- [ ] Integrate into Overlay.jsx
-- [ ] Remove old code from overlay.js
-- [ ] Update any external references
+**Completed:**
+- ✅ Created all component files in appropriate directories
+- ✅ Added comprehensive JSDoc documentation
+- ✅ Extracted inline styles to style objects
+- ✅ Converted event handlers to hooks pattern
+- ✅ Replaced `document.getElementById` with refs or state
+- ✅ Tested functionality in extension
+- ✅ Integrated all components into Overlay.jsx
+- ✅ Archived old overlay.js to `archived/legacy-overlay/`
+- ✅ Updated all external references
+
+## Architecture Improvements
+
+**Before (Legacy):**
+- Single 1581-line overlay.js file
+- Imperative DOM manipulation
+- Global event handlers
+- Difficult to test and maintain
+
+**After (Preact):**
+- 40+ small, focused components
+- Declarative UI with JSX
+- Component-scoped state
+- Easy to test and extend
+- Drag support with touch events
+- Modal system with centralized state
 
 ## Getting Help
 
@@ -268,10 +307,10 @@ For each section to migrate:
 - **Hooks API**: https://preactjs.com/guide/v10/hooks
 - **JSX in Preact**: https://preactjs.com/guide/v10/getting-started#alternatives-to-jsx
 
-## Next Steps
+## Future Enhancements
 
-1. Complete DragHandle component
-2. Start GeneratorSection migration (biggest complexity)
-3. Add unit tests for shared components
-4. Document state management patterns
-5. Create component showcase/demo page
+1. Add unit tests for components
+2. Implement position persistence (save/restore overlay location)
+3. Add keyboard shortcuts for common actions
+4. Create component showcase/demo page
+5. Add accessibility features (ARIA labels, keyboard navigation)

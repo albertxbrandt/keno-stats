@@ -95,12 +95,18 @@ Find common N-number combinations (3-10) that appear together frequently:
 
 ### Project Structure
 
-- `src/` - Source code (ES6 modules)
-  - `core/` - State management and storage
-  - `features/` - Feature modules (heatmap, patterns, profit tracking, etc.)
+- `src/` - Source code (ES6 modules + Preact JSX)
+  - `core/` - State management and storage wrappers
+  - `storage/` - All persistence operations (history, settings, saved numbers, patterns, profit/loss)
   - `generators/` - Number generation strategies
-  - `ui/` - UI components and overlay
-  - `utils/` - Utility functions
+  - `ui/` - Preact components and UI logic
+    - `components/` - Reusable UI components (Overlay, sections, modals, shared)
+  - `utils/` - Utility functions organized by type
+    - `dom/` - DOM operations (utils, tileSelection, domReader, heatmap, profitLossUI)
+    - `calculations/` - Pure math functions (payouts, profits, patterns)
+    - `analysis/` - Data analysis helpers
+  - `bridges/` - Window global functions for cross-context access
+  - `hooks/` - React/Preact hooks (useModals)
 - `dist/` - Built output (bundled with esbuild)
 - `interceptor.js` - Page-level data interception (runs in MAIN world)
 - `eslint.config.mjs` - Code quality configuration (ESLint v9)
@@ -117,9 +123,16 @@ Find common N-number combinations (3-10) that appear together frequently:
 The extension operates in two security contexts:
 
 1. **MAIN world** (`interceptor.js`): Intercepts fetch() calls to capture game data
-2. **ISOLATED world** (`src/` modules): Extension sandbox with full API access
+2. **ISOLATED world** (`src/` modules): Extension sandbox with Preact UI and full API access
 
 Data flows: `interceptor.js` → `window.postMessage()` → `content.js` → Module functions → Chrome storage API
+
+The UI is built with **Preact** (3KB React alternative) for maintainability and small bundle size:
+
+- Component-based architecture with hooks
+- Draggable overlay with mouse and touch support
+- Modal system with centralized state management
+- Reusable shared components (ToggleSwitch, CollapsibleSection, DragHandle, etc.)
 
 ## How It Works
 
