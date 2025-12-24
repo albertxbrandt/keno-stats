@@ -1,5 +1,6 @@
 // src/storage/profitLoss.js
 import { state } from '../core/state.js';
+import { stateEvents, EVENTS } from '../core/stateEvents.js';
 import { calculateProfitByCurrency } from '../utils/calculations/profitCalculations.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
@@ -69,6 +70,13 @@ export function updateSessionProfit(profit, currency = 'btc') {
   state.profitByCurrency[curr].session += profit;
   saveSessionProfit();
 
+  // Emit event for listeners
+  stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+    currency: curr,
+    sessionProfit: state.profitByCurrency[curr].session,
+    totalProfit: state.profitByCurrency[curr].total
+  });
+
   // Update UI if available
   if (window.__keno_updateProfitLossUI) {
     window.__keno_updateProfitLossUI();
@@ -90,6 +98,13 @@ export function recalculateTotalProfit() {
       state.sessionProfit = state.profitByCurrency[selectedCurr].session;
     }
 
+    // Emit event for listeners
+    stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+      currency: selectedCurr,
+      sessionProfit: state.sessionProfit,
+      totalProfit: state.totalProfit
+    });
+
     if (window.__keno_updateProfitLossUI) {
       window.__keno_updateProfitLossUI();
     }
@@ -110,6 +125,13 @@ export function resetSessionProfit() {
   state.sessionStartTime = Date.now();
   storageApi.storage.local.set({
     sessionStartTime: state.sessionStartTime
+  });
+
+  // Emit event for listeners
+  stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+    currency: selectedCurr,
+    sessionProfit: 0,
+    totalProfit: state.totalProfit
   });
 
   if (window.__keno_updateProfitLossUI) {
@@ -134,6 +156,13 @@ export function changeCurrency(currency) {
     state.totalProfit = 0;
     state.sessionProfit = 0;
   }
+
+  // Emit event for listeners
+  stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+    currency: selectedCurr,
+    sessionProfit: state.sessionProfit,
+    totalProfit: state.totalProfit
+  });
 
   if (window.__keno_updateProfitLossUI) {
     window.__keno_updateProfitLossUI();

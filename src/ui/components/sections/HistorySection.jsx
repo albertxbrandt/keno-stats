@@ -5,6 +5,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { clearHistory } from '../../../storage/history.js';
 import { highlightRound } from '../../../utils/dom/heatmap.js';
+import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
@@ -27,18 +28,17 @@ const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 export function HistorySection() {
   const [history, setHistory] = useState([]);
 
-  // Update history from state
+  // Update history from events
   useEffect(() => {
-    const updateHistory = () => {
-      setHistory([...(state.currentHistory || [])]);
-    };
+    // Initial load
+    setHistory([...(state.currentHistory || [])]);
 
-    updateHistory();
+    // Listen for history updates
+    const unsubscribe = stateEvents.on(EVENTS.HISTORY_UPDATED, (newHistory) => {
+      setHistory([...newHistory]);
+    });
 
-    // Poll for updates (TODO: Replace with event-driven)
-    const interval = setInterval(updateHistory, 1000);
-
-    return () => clearInterval(interval);
+    return unsubscribe;
   }, []);
 
   const handleClear = (e) => {

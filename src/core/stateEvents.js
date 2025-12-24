@@ -68,4 +68,5 @@ export const EVENTS = {
   HEATMAP_UPDATED: 'heatmap:updated',
   ROUND_SAVED: 'round:saved',
   SETTINGS_CHANGED: 'settings:changed',
+  PROFIT_UPDATED: 'profit:updated',
 };

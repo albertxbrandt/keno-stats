@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '../../../storage/profitLoss.js';
+import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
@@ -26,19 +27,19 @@ export function ProfitLossSection() {
   const [totalProfit, setTotalProfit] = useState(0);
   const [currency, setCurrency] = useState('BTC');
 
-  // Update profit values from state
+  // Update profit values from events
   useEffect(() => {
-    const updateProfits = () => {
+    // Initial load
+    setSessionProfit(getSessionProfit());
+    setTotalProfit(getTotalProfit());
+
+    // Listen for profit updates
+    const unsubscribe = stateEvents.on(EVENTS.PROFIT_UPDATED, () => {
       setSessionProfit(getSessionProfit());
       setTotalProfit(getTotalProfit());
-    };
+    });
 
-    updateProfits();
-
-    // Poll for updates (TODO: Replace with event-driven)
-    const interval = setInterval(updateProfits, 1000);
-
-    return () => clearInterval(interval);
+    return unsubscribe;
   }, []);
 
   const handleCurrencyChange = (e) => {

@@ -5,6 +5,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { saveHeatmapSettings } from '../../../core/storage.js';
 import { updateHeatmap } from '../../../utils/dom/heatmap.js';
+import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
@@ -33,16 +34,15 @@ export function HeatmapSection() {
 
   // Update max sample size when history changes
   useEffect(() => {
-    const updateMax = () => {
-      setMaxSampleSize(state.currentHistory.length || 100);
-    };
+    // Initial load
+    setMaxSampleSize(state.currentHistory.length || 100);
     
-    updateMax();
+    // Listen for history updates
+    const unsubscribe = stateEvents.on(EVENTS.HISTORY_UPDATED, (newHistory) => {
+      setMaxSampleSize(newHistory.length || 100);
+    });
     
-    // Poll for history updates (TODO: Replace with event-driven)
-    const interval = setInterval(updateMax, 1000);
-    
-    return () => clearInterval(interval);
+    return unsubscribe;
   }, []);
 
   const handleToggle = (enabled) => {
