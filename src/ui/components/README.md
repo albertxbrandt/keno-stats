@@ -52,12 +52,14 @@ src/ui/components/
 ### ✅ Complete - ALL COMPONENTS MIGRATED!
 
 **Foundation:**
+
 - ✅ Overlay container with drag support (mouse + touch)
 - ✅ DragHandle component with position management
 - ✅ Tab switching (Tracker/Settings)
 - ✅ Modal system with useModals hook
 
 **Sections:**
+
 - ✅ HeatmapSection - Mode toggle, sample size input
 - ✅ GeneratorSection - All sub-components:
   - ✅ GeneratorHeader
@@ -73,6 +75,7 @@ src/ui/components/
 - ✅ HistorySection - Bet history list, clear button, bet book button
 
 **Modals:**
+
 - ✅ SavedNumbersModal - Save/load/delete number combinations
 - ✅ CombinationHitsModal - Analyze combination hit rates
 - ✅ PatternAnalysisModal - Display pattern results
@@ -80,6 +83,7 @@ src/ui/components/
 - ✅ ComparisonModal - Method comparison window
 
 **Shared Components:**
+
 - ✅ DragHandle - Draggable header (mouse + touch support)
 - ✅ ToggleSwitch - Animated toggle component
 - ✅ CollapsibleSection - Hover/pin expandable sections
@@ -87,6 +91,7 @@ src/ui/components/
 - ✅ Modal - Base modal component
 
 **Legacy Code:**
+
 - ✅ `overlay.js` archived to `archived/legacy-overlay/`
 - ✅ All functionality moved to Preact components
 
@@ -275,6 +280,7 @@ return <input ref={inputRef} />;
 All sections have been successfully migrated! ✅
 
 **Completed:**
+
 - ✅ Created all component files in appropriate directories
 - ✅ Added comprehensive JSDoc documentation
 - ✅ Extracted inline styles to style objects
@@ -288,12 +294,14 @@ All sections have been successfully migrated! ✅
 ## Architecture Improvements
 
 **Before (Legacy):**
+
 - Single 1581-line overlay.js file
 - Imperative DOM manipulation
 - Global event handlers
 - Difficult to test and maintain
 
 **After (Preact):**
+
 - 40+ small, focused components
 - Declarative UI with JSX
 - Component-scoped state
