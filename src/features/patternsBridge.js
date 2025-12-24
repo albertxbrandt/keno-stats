@@ -1,8 +1,7 @@
-// src/features/patternsBridge.js - Bridge between legacy patterns.js and Preact components
 import { h, render } from 'preact';
 import { PatternLoadingModal } from '../ui/components/modals/PatternLoadingModal.jsx';
 import { PatternAnalysisModal } from '../ui/components/modals/PatternAnalysisModal.jsx';
-import { saveNumberCombination } from './savedNumbers.js';
+import { saveNumberCombination } from './savedNumbersCore.js';
 import { waitForBetButtonReady } from '../utils/utils.js';
 import { replaceSelection } from '../utils/tileSelection.js';
 

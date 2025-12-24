@@ -9,7 +9,7 @@ import { selectPredictedNumbers } from './ui/numberSelection.js';
 import { waitForBetButtonReady } from './utils/utils.js';
 import { updateHeatmap } from './features/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
-import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbers.js';
+import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbersBridge.js';
 import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparisonBridge.js';
 import './features/patternsBridge.js'; // Pattern analysis (Preact components)
