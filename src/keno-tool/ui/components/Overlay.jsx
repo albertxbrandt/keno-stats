@@ -62,6 +62,10 @@ export function Overlay() {
   const [isVisible, setIsVisible] = useState(state.isOverlayVisible);
   const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings'
   const [panelVisibility, setPanelVisibility] = useState(state.panelVisibility);
+  const [panelOrder, setPanelOrder] = useState(state.panelOrder || defaultOrder);
+
+  // Default order fallback
+  const defaultOrder = ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'];
 
   // Dragging state
   const [position, setPosition] = useState({ top: 80, left: null, right: 20 });
@@ -77,12 +81,18 @@ export function Overlay() {
       setPanelVisibility({ ...newVisibility });
     };
 
+    const handleOrderChange = (newOrder) => {
+      setPanelOrder([...newOrder]);
+    };
+
     window.addEventListener('keno-overlay-toggle', handleToggle);
-    const unsubscribe = stateEvents.on(EVENTS.SETTINGS_CHANGED, handleSettingsChange);
+    const unsubscribeSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, handleSettingsChange);
+    const unsubscribeOrder = stateEvents.on('order:changed', handleOrderChange);
     
     return () => {
       window.removeEventListener('keno-overlay-toggle', handleToggle);
-      unsubscribe();
+      unsubscribeSettings();
+      unsubscribeOrder();
     };
   }, []);
 
@@ -121,6 +131,22 @@ export function Overlay() {
       if (span) {
         span.textContent = 'Open Stats';
       }
+    }
+  };
+
+  const renderSection = (sectionId) => {
+    if (panelVisibility[sectionId] === false) return null;
+
+    switch (sectionId) {
+      case 'heatmap': return <HeatmapSection key="heatmap" />;
+      case 'numberGenerator': return <GeneratorSection key="generator" />;
+      case 'hitsMiss': return <HitsMissSection key="hitsMiss" />;
+      case 'profitLoss': return <ProfitLossSection key="profitLoss" />;
+      case 'patternAnalysis': return <PatternAnalysisSection key="patternAnalysis" />;
+      case 'recentPlays': return <RecentPlaysSection key="recentPlays" />;
+      case 'history': return <HistorySection key="history" />;
+      case 'autoplay': return null; // Disabled
+      default: return null;
     }
   };
 
@@ -171,26 +197,7 @@ export function Overlay() {
           display: currentView === 'tracker' ? 'block' : 'none'
         }}
       >
-        {/* Migrated: HeatmapSection */}
-        {panelVisibility.heatmap !== false && <HeatmapSection />}
-        
-        {/* Migrated: GeneratorSection */}
-        {panelVisibility.numberGenerator !== false && <GeneratorSection />}
-        
-        {/* Migrated: HitsMissSection */}
-        {panelVisibility.hitsMiss !== false && <HitsMissSection />}
-        
-        {/* Migrated: ProfitLossSection */}
-        {panelVisibility.profitLoss !== false && <ProfitLossSection />}
-        
-        {/* Migrated: PatternAnalysisSection */}
-        {panelVisibility.patternAnalysis !== false && <PatternAnalysisSection />}
-        
-        {/* Migrated: RecentPlaysSection */}
-        {panelVisibility.recentPlays !== false && <RecentPlaysSection />}
-        
-        {/* Migrated: HistorySection */}
-        {panelVisibility.history !== false && <HistorySection />}
+        {panelOrder.map(renderSection)}
       </div>
 
       {/* Settings Tab Content */}
