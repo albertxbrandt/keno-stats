@@ -393,3 +393,43 @@ function createHistoryItem(round, roundNumber, hits, misses) {
   `;
   return div;
 }
+
+/**
+ * Import bulk history data (replace existing history)
+ * @param {Array} historyData - Array of round objects
+ * @returns {Promise<void>}
+ */
+export async function importHistory(historyData) {
+  if (!Array.isArray(historyData)) {
+    throw new Error('History data must be an array');
+  }
+
+  // Clear existing history
+  await clearHistory();
+
+  // Chunk the data for storage
+  const chunks = [];
+  for (let i = 0; i < historyData.length; i += CHUNK_SIZE) {
+    chunks.push(historyData.slice(i, i + CHUNK_SIZE));
+  }
+
+  // Write all chunks
+  const writeData = { history_count: historyData.length };
+  chunks.forEach((chunk, index) => {
+    writeData[`history_chunk_${index}`] = chunk;
+  });
+
+  await storageApi.storage.local.set(writeData);
+
+  // Update in-memory state
+  state.currentHistory = [...historyData];
+  state.recentPlays = getRecentPlays(5);
+
+  // Emit events
+  stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
+
+  // Trigger heatmap update if on Keno page
+  if (window.__keno_updateHeatmap) {
+    window.__keno_updateHeatmap();
+  }
+}

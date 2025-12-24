@@ -2,7 +2,7 @@
 // Dashboard-specific storage utilities
 
 // Re-export shared storage functions with dashboard-friendly names
-export { loadHistoryRaw as loadBetHistory } from '@/shared/storage/history.js';
+export { loadHistoryRaw as loadBetHistory, importHistory } from '@/shared/storage/history.js';
 
 /**
  * Export bet history as JSON file

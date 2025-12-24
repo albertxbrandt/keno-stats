@@ -7,7 +7,7 @@ import { SearchBar } from '../components/SearchBar.jsx';
 import { Pagination } from '../components/Pagination.jsx';
 import { SettingsModal } from '../components/SettingsModal.jsx';
 import { BetDetailsModal } from '../components/BetDetailsModal.jsx';
-import { loadBetHistory, exportBetHistory, deleteAllHistory } from '../utils/storage.js';
+import { loadBetHistory, exportBetHistory, deleteAllHistory, importHistory } from '../utils/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -222,20 +222,26 @@ export function BetHistory() {
     }
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const data = JSON.parse(event.target.result);
         if (Array.isArray(data)) {
+          // Save to storage
+          await importHistory(data);
+          // Update UI
           setBetHistory(data);
           setFilteredBets(data);
+          alert(`Successfully imported ${data.length} rounds!`);
+        } else {
+          alert('Invalid file format - expected an array of rounds');
         }
       } catch (err) {
-        alert('Failed to parse JSON file');
+        alert('Failed to parse JSON file: ' + err.message);
         console.error(err);
       }
     };
