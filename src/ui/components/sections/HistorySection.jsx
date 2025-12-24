@@ -3,9 +3,13 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
+import { clearHistory } from '../../../storage/history.js';
+import { highlightRound } from '../../../utils/dom/heatmap.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
+
+const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
 /**
  * HistorySection Component
@@ -39,16 +43,15 @@ export function HistorySection() {
 
   const handleClear = (e) => {
     e.stopPropagation();
-    if (window.__keno_clearHistory && confirm('Clear all history?')) {
-      window.__keno_clearHistory();
+    if (confirm('Clear all history?')) {
+      clearHistory();
       setHistory([]);
     }
   };
 
   const handleOpenBetBook = () => {
-    if (window.__keno_openBetBook) {
-      window.__keno_openBetBook();
-    }
+    const url = storageApi.runtime.getURL('betbook.html');
+    window.open(url, '_blank', 'width=1200,height=800');
   };
 
   const formatRoundNumber = (index) => {
@@ -121,11 +124,7 @@ export function HistorySection() {
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = COLORS.bg.darker}
                 onMouseLeave={(e) => e.currentTarget.style.background = COLORS.bg.dark}
-                onClick={() => {
-                  if (window.__keno_highlightRound) {
-                    window.__keno_highlightRound(round);
-                  }
-                }}
+                onClick={() => highlightRound(round)}
               >
                 <span style={{ color: COLORS.accent.info, fontWeight: 'bold', minWidth: '35px' }}>
                   {formatRoundNumber(index)}

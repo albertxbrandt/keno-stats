@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
+import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '../../../storage/profitLoss.js';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
@@ -28,13 +29,8 @@ export function ProfitLossSection() {
   // Update profit values from state
   useEffect(() => {
     const updateProfits = () => {
-      // Read from state or window hooks
-      if (window.__keno_getSessionProfit) {
-        setSessionProfit(window.__keno_getSessionProfit());
-      }
-      if (window.__keno_getTotalProfit) {
-        setTotalProfit(window.__keno_getTotalProfit());
-      }
+      setSessionProfit(getSessionProfit());
+      setTotalProfit(getTotalProfit());
     };
 
     updateProfits();
@@ -48,18 +44,12 @@ export function ProfitLossSection() {
   const handleCurrencyChange = (e) => {
     const newCurrency = e.target.value;
     setCurrency(newCurrency);
-    
-    // Trigger currency change via window hook
-    if (window.__keno_changeCurrency) {
-      window.__keno_changeCurrency(newCurrency);
-    }
+    changeCurrency(newCurrency);
   };
 
   const handleResetSession = () => {
-    if (window.__keno_resetSessionProfit) {
-      window.__keno_resetSessionProfit();
-      setSessionProfit(0);
-    }
+    resetSessionProfit();
+    setSessionProfit(0);
   };
 
   const formatProfit = (value) => {

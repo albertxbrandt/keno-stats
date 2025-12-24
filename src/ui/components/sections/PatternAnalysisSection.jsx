@@ -4,6 +4,7 @@
 import { useState } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
+import { useModals } from '../../../hooks/useModals.js';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
@@ -23,17 +24,14 @@ import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
  */
 export function PatternAnalysisSection() {
   const [patternSize, setPatternSize] = useState(5);
+  const modals = useModals();
 
   const handleAnalyze = () => {
-    if (window.__keno_showPatternAnalysis) {
-      window.__keno_showPatternAnalysis(patternSize);
-    }
+    modals.showPatternAnalysis(patternSize);
   };
 
   const handleLiveToggle = () => {
-    if (window.__keno_showLivePatternAnalysis) {
-      window.__keno_showLivePatternAnalysis();
-    }
+    modals.showLivePatternAnalysis();
   };
 
   return (

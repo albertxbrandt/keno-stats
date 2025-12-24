@@ -4,6 +4,9 @@
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { state } from '../../../core/state.js';
+import { useModals } from '../../../hooks/useModals.js';
+import { replaceSelection } from '../../../utils/dom/tileSelection.js';
+import { waitForBetButtonReady } from '../../../utils/dom/utils.js';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
@@ -23,6 +26,7 @@ import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
  */
 export function RecentPlaysSection() {
   const [recentPlays, setRecentPlays] = useState([]);
+  const modals = useModals();
 
   // Update recent plays - listen to kenoNewRound event for live updates
   useEffect(() => {
@@ -42,21 +46,20 @@ export function RecentPlaysSection() {
   }, []);
 
   const handleViewSavedNumbers = () => {
-    if (window.__keno_showSavedNumbers) {
-      window.__keno_showSavedNumbers();
-    }
+    modals.showSavedNumbers();
   };
 
-  const handleSelectNumbers = (numbers) => {
-    if (window.__keno_selectNumbers) {
-      window.__keno_selectNumbers(numbers);
+  const handleSelectNumbers = async (numbers) => {
+    try {
+      await waitForBetButtonReady(3000);
+      await replaceSelection(numbers);
+    } catch (err) {
+      console.warn('[RecentPlays] Failed to select numbers:', err);
     }
   };
 
   const handleShowInfo = (numbers) => {
-    if (window.__keno_analyzeCombination) {
-      window.__keno_analyzeCombination(numbers, 'Recent Play');
-    }
+    modals.showCombinationHits(numbers, 'Recent Play');
   };
 
   return (

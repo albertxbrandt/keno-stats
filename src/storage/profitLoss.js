@@ -139,3 +139,21 @@ export function changeCurrency(currency) {
     window.__keno_updateProfitLossUI();
   }
 }
+
+/**
+ * Get session profit for selected currency
+ * @returns {number} Session profit
+ */
+export function getSessionProfit() {
+  const selectedCurr = state.selectedCurrency.toLowerCase();
+  return state.profitByCurrency[selectedCurr]?.session || 0;
+}
+
+/**
+ * Get total profit for selected currency
+ * @returns {number} Total profit
+ */
+export function getTotalProfit() {
+  const selectedCurr = state.selectedCurrency.toLowerCase();
+  return state.profitByCurrency[selectedCurr]?.total || 0;
+}

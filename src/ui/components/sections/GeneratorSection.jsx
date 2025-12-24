@@ -12,6 +12,8 @@ import { AutoRefreshControl } from '../generator/AutoRefreshControl.jsx';
 import { ShapesParams } from '../generator/ShapesParams.jsx';
 import { MomentumParams } from '../generator/MomentumParams.jsx';
 import { saveGeneratorSettings } from '../../../core/storage.js';
+import { generateNumbers, selectPredictedNumbers } from '../../../ui/numberSelection.js';
+import { useModals } from '../../../hooks/useModals.js';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
@@ -39,6 +41,7 @@ export function GeneratorSection() {
   const [count, setCount] = useState(state.generatorCount || 3);
   const [sampleSize, setSampleSize] = useState(state.generatorSampleSize || 20);
   const [selectedMethod, setSelectedMethod] = useState(state.generatorMethod || 'frequency');
+  const modals = useModals();
 
   // Determine which method uses which params
   const usesFrequencyParams = ['frequency', 'cold', 'mixed', 'average', 'auto'].includes(selectedMethod);
@@ -75,9 +78,7 @@ export function GeneratorSection() {
     state.isMomentumMode = newMethod === 'momentum';
 
     // Force refresh with new method
-    if (window.__keno_generateNumbers) {
-      window.__keno_generateNumbers(true);
-    }
+    generateNumbers(true);
   };
 
   const handleSelectClick = async () => {
@@ -90,39 +91,19 @@ export function GeneratorSection() {
       
       // eslint-disable-next-line no-console
       console.log('[GeneratorSection] Calling selectPredictedNumbers');
-      if (window.__keno_selectPredictedNumbers) {
-        await window.__keno_selectPredictedNumbers();
-      } else {
-        console.error('[GeneratorSection] window.__keno_selectPredictedNumbers not found!');
-      }
+      await selectPredictedNumbers();
 
       // Generate new preview
-      if (window.__keno_generateNumbers) {
-        // eslint-disable-next-line no-console
-        console.log('[GeneratorSection] Regenerating preview');
-        await window.__keno_generateNumbers(true);
-      }
-
-      // Update preview
-      if (window.__keno_updateGeneratorPreview) {
-        window.__keno_updateGeneratorPreview();
-      }
-
-      // Refresh highlight if hovering
-      if (window.__keno_isButtonHovering && window.__keno_isButtonHovering()) {
-        if (window.__keno_refreshPreviewHighlight) {
-          window.__keno_refreshPreviewHighlight();
-        }
-      }
+      // eslint-disable-next-line no-console
+      console.log('[GeneratorSection] Regenerating preview');
+      await generateNumbers(true);
     } else {
       console.warn('[GeneratorSection] No nextNumbers to select');
     }
   };
 
   const handleCompareClick = () => {
-    if (window.__keno_openMethodComparison) {
-      window.__keno_openMethodComparison();
-    }
+    modals.toggleComparison();
   };
 
   return (

@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { saveHeatmapSettings } from '../../../core/storage.js';
+import { updateHeatmap } from '../../../utils/dom/heatmap.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
@@ -48,11 +49,7 @@ export function HeatmapSection() {
     setIsEnabled(enabled);
     state.heatmapEnabled = enabled;
     saveHeatmapSettings();
-    
-    // Trigger heatmap update via window hook
-    if (window.__keno_updateHeatmap) {
-      window.__keno_updateHeatmap();
-    }
+    updateHeatmap();
   };
 
   const handleModeChange = (e) => {
@@ -60,22 +57,14 @@ export function HeatmapSection() {
     setMode(newMode);
     state.heatmapMode = newMode;
     saveHeatmapSettings();
-    
-    // Update heatmap display
-    if (window.__keno_updateHeatmap) {
-      window.__keno_updateHeatmap();
-    }
+    updateHeatmap();
   };
 
   const handleSampleSizeChange = (value) => {
     setSampleSize(value);
     state.heatmapSampleSize = value;
     saveHeatmapSettings();
-    
-    // Update heatmap display
-    if (window.__keno_updateHeatmap) {
-      window.__keno_updateHeatmap();
-    }
+    updateHeatmap();
   };
 
   return (
