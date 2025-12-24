@@ -108,7 +108,10 @@ export function Overlay() {
     // Update footer button text
     const btn = document.getElementById('keno-tracker-toggle-btn');
     if (btn) {
-      btn.textContent = '📊 Open Stats';
+      const span = btn.querySelector('span');
+      if (span) {
+        span.textContent = 'Open Stats';
+      }
     }
   };
 
@@ -124,7 +127,7 @@ export function Overlay() {
         ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
         top: `${position.top}px`,
         width: '240px',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.bg.darker,
         color: '#fff',
         padding: '0',
         borderRadius: '8px',
