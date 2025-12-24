@@ -7,7 +7,7 @@
  * @returns {number} Net profit (payout - bet)
  */
 export function calculateProfit(betAmount, payout) {
-    return payout - betAmount;
+  return payout - betAmount;
 }
 
 /**
@@ -17,32 +17,32 @@ export function calculateProfit(betAmount, payout) {
  * @returns {Object} Profit by currency { btc: { total: 0, session: 0 }, usd: { total: 0, session: 0 }, ... }
  */
 export function calculateProfitByCurrency(history, sessionStartTime) {
-    if (!history || history.length === 0) return {};
+  if (!history || history.length === 0) return {};
 
-    const profitByCurrency = {};
+  const profitByCurrency = {};
 
-    history.forEach(bet => {
-        if (bet && bet.kenoBet) {
-            const amount = parseFloat(bet.kenoBet.amount) || 0;
-            const payout = parseFloat(bet.kenoBet.payout) || 0;
-            const currency = (bet.kenoBet.currency?.toLowerCase() || 'btc').toLowerCase();
-            const profit = payout - amount;
-            const betTime = bet.time || 0;
+  history.forEach(bet => {
+    if (bet && bet.kenoBet) {
+      const amount = parseFloat(bet.kenoBet.amount) || 0;
+      const payout = parseFloat(bet.kenoBet.payout) || 0;
+      const currency = (bet.kenoBet.currency?.toLowerCase() || 'btc').toLowerCase();
+      const profit = payout - amount;
+      const betTime = bet.time || 0;
 
-            if (!profitByCurrency[currency]) {
-                profitByCurrency[currency] = { total: 0, session: 0 };
-            }
+      if (!profitByCurrency[currency]) {
+        profitByCurrency[currency] = { total: 0, session: 0 };
+      }
 
-            profitByCurrency[currency].total += profit;
+      profitByCurrency[currency].total += profit;
 
-            // Add to session if bet is after session start
-            if (sessionStartTime && betTime >= sessionStartTime) {
-                profitByCurrency[currency].session += profit;
-            }
-        }
-    });
+      // Add to session if bet is after session start
+      if (sessionStartTime && betTime >= sessionStartTime) {
+        profitByCurrency[currency].session += profit;
+      }
+    }
+  });
 
-    return profitByCurrency;
+  return profitByCurrency;
 }
 
 /**
@@ -51,7 +51,7 @@ export function calculateProfitByCurrency(history, sessionStartTime) {
  * @returns {Array} Array of currency codes
  */
 export function getAvailableCurrencies(profitByCurrency) {
-    return Object.keys(profitByCurrency).sort();
+  return Object.keys(profitByCurrency).sort();
 }
 
 /**
@@ -61,12 +61,12 @@ export function getAvailableCurrencies(profitByCurrency) {
  * @returns {string} Formatted string
  */
 export function formatCurrency(value, currency = 'btc') {
-    const formatted = Math.abs(value).toFixed(2);
-    const currSymbol = currency.toUpperCase();
+  const formatted = Math.abs(value).toFixed(2);
+  const currSymbol = currency.toUpperCase();
 
-    if (value > 0) return `+${formatted} ${currSymbol}`;
-    if (value < 0) return `-${formatted} ${currSymbol}`;
-    return `${formatted} ${currSymbol}`;
+  if (value > 0) return `+${formatted} ${currSymbol}`;
+  if (value < 0) return `-${formatted} ${currSymbol}`;
+  return `${formatted} ${currSymbol}`;
 }
 
 /**
@@ -75,7 +75,7 @@ export function formatCurrency(value, currency = 'btc') {
  * @returns {string} CSS color
  */
 export function getProfitColor(value) {
-    if (value > 0) return '#00b894'; // Green
-    if (value < 0) return '#ff7675'; // Red
-    return '#aaa'; // Gray for zero
+  if (value > 0) return '#00b894'; // Green
+  if (value < 0) return '#ff7675'; // Red
+  return '#aaa'; // Gray for zero
 }

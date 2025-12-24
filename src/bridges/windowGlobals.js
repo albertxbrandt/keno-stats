@@ -4,11 +4,11 @@
 
 import { state } from '../core/state.js';
 import { detectGameDifficulty, trackRoundComparison } from '../storage/comparison.js';
-import { 
-  recalculateTotalProfit, 
-  resetSessionProfit, 
-  changeCurrency, 
-  updateSessionProfit 
+import {
+  recalculateTotalProfit,
+  resetSessionProfit,
+  changeCurrency,
+  updateSessionProfit
 } from '../storage/profitLoss.js';
 import { updateProfitLossUI } from '../utils/dom/profitLossUI.js';
 
