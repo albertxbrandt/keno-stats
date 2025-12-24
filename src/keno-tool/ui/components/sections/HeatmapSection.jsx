@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { saveHeatmapSettings } from '@/keno-tool/core/storage.js';
-import { updateHeatmap } from '@/shared/utils/dom/heatmap.js';
+import { updateHeatmap, clearHeatmap } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
@@ -27,7 +27,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
  * @returns {preact.VNode} The rendered heatmap section
  */
 export function HeatmapSection() {
-  const [isEnabled, setIsEnabled] = useState(state.heatmapEnabled || false);
+  const [isEnabled, setIsEnabled] = useState(state.isHeatmapActive);
   const [mode, setMode] = useState(state.heatmapMode || 'hot');
   const [sampleSize, setSampleSize] = useState(state.heatmapSampleSize || 100);
   const [maxSampleSize, setMaxSampleSize] = useState(100);
@@ -47,9 +47,15 @@ export function HeatmapSection() {
 
   const handleToggle = (enabled) => {
     setIsEnabled(enabled);
-    state.heatmapEnabled = enabled;
+    state.isHeatmapActive = enabled;
     saveHeatmapSettings();
-    updateHeatmap();
+    
+    if (enabled) {
+      updateHeatmap();
+    } else {
+      // Clear heatmap stat boxes when disabled
+      clearHeatmap();
+    }
   };
 
   const handleModeChange = (e) => {

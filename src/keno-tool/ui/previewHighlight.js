@@ -3,7 +3,8 @@
 // Handles hover-based preview of next numbers on the game board
 
 import { state } from '@/keno-tool/core/state.js';
-import { highlightPrediction, clearHighlight } from '@/shared/utils/dom/heatmap.js';
+import { highlightPrediction } from '@/shared/utils/dom/heatmap.js';
+import { clearHighlight } from '@/shared/utils/dom/tileSelection.js';
 
 // ==================== STATE ====================
 

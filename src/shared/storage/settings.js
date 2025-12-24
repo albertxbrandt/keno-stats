@@ -82,6 +82,7 @@ export function loadGeneratorSettings() {
  */
 export function saveHeatmapSettings() {
   const settings = {
+    isHeatmapActive: state.isHeatmapActive,
     heatmapMode: state.heatmapMode,
     heatmapSampleSize: state.heatmapSampleSize
   };
@@ -98,6 +99,7 @@ export function loadHeatmapSettings() {
     if (res.heatmapSettings) {
       const settings = res.heatmapSettings;
 
+      if (settings.isHeatmapActive !== undefined) state.isHeatmapActive = settings.isHeatmapActive;
       if (settings.heatmapMode !== undefined) state.heatmapMode = settings.heatmapMode;
       if (settings.heatmapSampleSize !== undefined) state.heatmapSampleSize = settings.heatmapSampleSize;
 

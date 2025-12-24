@@ -2,6 +2,7 @@
 import { state } from '@/keno-tool/core/state.js';
 import { getHits, getMisses, getDrawn } from '@/keno-tool/core/storage.js';
 import { getTileElements, extractNumberFromTile } from './domReader.js';
+import { clearHighlight } from './tileSelection.js';
 import { COLORS as THEME_COLORS } from '@/shared/constants/colors.js';
 
 // ==================== CONSTANTS ====================
@@ -229,18 +230,6 @@ function applyPredictionHighlight(tile, isPredicted) {
     }
 }
 
-/**
- * Reset all tile styles
- * @param {HTMLElement} tile - Tile element
- */
-function resetTileStyles(tile) {
-    tile.style.boxShadow = '';
-    tile.style.opacity = '1';
-    tile.style.transform = '';
-    tile.style.borderColor = '';
-    tile.style.zIndex = '';
-}
-
 // ==================== PUBLIC API ====================
 
 /**
@@ -277,7 +266,7 @@ export function highlightPrediction(numbers) {
     if (!tiles) return;
 
     // Reset all tiles first
-    tiles.forEach(resetTileStyles);
+    clearHighlight();
 
     // Apply prediction highlights
     tiles.forEach(tile => {
@@ -289,18 +278,19 @@ export function highlightPrediction(numbers) {
 }
 
 /**
- * Clear all highlights and restore to default state
+ * Clear heatmap stat boxes from tiles
+ * Used when disabling heatmap feature
  */
-export function clearHighlight() {
-    if (state.isPredictMode && window.__keno_calculatePrediction) {
-        window.__keno_calculatePrediction();
-        return;
-    }
-
+export function clearHeatmap() {
     const tiles = getTileElements();
     if (!tiles) return;
 
-    tiles.forEach(resetTileStyles);
+    tiles.forEach(tile => {
+        const statBox = tile.querySelector('.keno-stat-box');
+        if (statBox) {
+            statBox.remove();
+        }
+    });
 }
 
 /**
@@ -339,7 +329,7 @@ export function updateHeatmap() {
 
 // Expose to window for cross-module callbacks in storage UI
 window.__keno_highlightRound = highlightRound;
-window.__keno_clearHighlight = clearHighlight;
+window.__keno_clearHeatmap = clearHeatmap;
 window.__keno_updateHeatmap = updateHeatmap;
 window.__keno_highlightPrediction = highlightPrediction;
 
