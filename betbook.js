@@ -1,34 +1,14 @@
 // betbook.js
 // Handles bet history import, search, and table rendering
 
+// Import helper functions from storage layer
+import { getHits, getMisses } from './src/storage/history.js';
+
 // Browser compatibility: Firefox uses 'browser', Chrome uses 'chrome'
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
 // Chunked storage constants (must match storage.js)
 const CHUNK_SIZE = 1000;
-
-// Utility functions to handle both old and new data formats
-function getHits(round) {
-  if (!round) return [];
-  if (round.hits) return round.hits; // Old format
-  if (round.kenoBet?.state?.selectedNumbers && round.kenoBet?.state?.drawnNumbers) {
-    const selected = round.kenoBet.state.selectedNumbers;
-    const drawn = round.kenoBet.state.drawnNumbers;
-    return selected.filter(num => drawn.includes(num));
-  }
-  return [];
-}
-
-function getMisses(round) {
-  if (!round) return [];
-  if (round.misses) return round.misses; // Old format
-  if (round.kenoBet?.state?.selectedNumbers && round.kenoBet?.state?.drawnNumbers) {
-    const selected = round.kenoBet.state.selectedNumbers;
-    const drawn = round.kenoBet.state.drawnNumbers;
-    return drawn.filter(num => !selected.includes(num));
-  }
-  return [];
-}
 
 let betHistory = [];
 let currentSort = 'date';

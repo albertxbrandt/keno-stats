@@ -7,6 +7,7 @@ import { highlightPrediction } from '../utils/dom/heatmap.js';
 import { generatorFactory, cacheManager } from '../generators/index.js';
 import { replaceSelection } from '../utils/dom/tileSelection.js';
 import { getIntValue } from '../utils/dom/domReader.js';
+import { getDrawn } from '../storage/history.js';
 import { COLORS } from './constants/colors.js';
 
 // ============================================================================
@@ -98,16 +99,7 @@ export function updateGeneratorPreview() {
       const lastRoundDrawn = new Set();
       if (history.length > 0) {
         const lastRound = history[history.length - 1];
-
-        // Check multiple possible locations for drawn numbers
-        let drawnNumbers = null;
-        if (lastRound.drawn) {
-          drawnNumbers = lastRound.drawn;
-        } else if (lastRound.kenoBet?.state?.drawnNumbers) {
-          drawnNumbers = lastRound.kenoBet.state.drawnNumbers;
-        } else if (lastRound.kenoBet?.drawnNumbers) {
-          drawnNumbers = lastRound.kenoBet.drawnNumbers;
-        }
+        const drawnNumbers = getDrawn(lastRound);
 
         if (drawnNumbers) {
           drawnNumbers.forEach(num => lastRoundDrawn.add(num));

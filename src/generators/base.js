@@ -1,3 +1,5 @@
+import { getDrawn } from '../storage/history.js';
+
 /**
  * Base class for all number generators
  * Each generator must implement the generate() method
@@ -64,17 +66,8 @@ export class BaseGenerator {
     }
 
     for (const round of sample) {
-      // Extract drawn numbers from various possible data structures
-      let numbers = [];
-
-      // New format: round.kenoBet.state.drawnNumbers
-      if (round.kenoBet && round.kenoBet.state && round.kenoBet.state.drawnNumbers) {
-        numbers = round.kenoBet.state.drawnNumbers;
-      }
-      // Legacy format: round.drawn
-      else if (round.drawn) {
-        numbers = round.drawn;
-      }
+      // Extract drawn numbers using helper function
+      const numbers = getDrawn(round) || [];
 
       for (const num of numbers) {
         if (counts[num] !== undefined) {
