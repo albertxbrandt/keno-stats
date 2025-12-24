@@ -6,14 +6,12 @@ import { loadHistory, updateHistoryUI } from './core/storage.js';
 import { selectPredictedNumbers } from './ui/numberSelection.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 // import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
-import { waitForBetButtonReady } from './utils/utils.js';
+import { waitForBetButtonReady } from './utils/dom/utils.js';
 import { updateHeatmap } from './features/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
-import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbersBridge.js';
+import { trackPlayedNumbers } from './storage/savedNumbers.js';
 import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
-import { initComparisonWindow } from './features/comparisonBridge.js';
-import './features/patternsBridge.js'; // Pattern analysis (Preact components)
-import './ui/previewHighlight.js'; // Import preview highlight module (sets up hover handlers)
+import './ui/previewHighlight.js'; // Preview highlight module
 
 // eslint-disable-next-line no-console
 console.log('Keno Tracker loaded');
@@ -190,9 +188,8 @@ function addMessageListener() {
 			await mod.saveRound(betData);
 
 			// Track the played numbers for recent plays section
-			trackPlayedNumbers(selected).then(() => {
-				updateRecentPlayedUI();
-			}).catch(err => console.error('[savedNumbers] trackPlayedNumbers failed:', err));
+			// Note: updateRecentPlayedUI removed - RecentPlays component handles UI updates automatically via event subscription
+			trackPlayedNumbers(selected).catch(err => console.error('[savedNumbers] trackPlayedNumbers failed:', err));
 
 			// Update stats after new round
 			setTimeout(() => {
@@ -326,12 +323,8 @@ function initializeExtension() {
 
 		// Initialize UI after history has been loaded
 		initOverlay();
-		// Initialize comparison window
-		initComparisonWindow();
 		// Ensure history list in overlay shows current history
 		try { updateHistoryUI(state.currentHistory || []); } catch (e) { console.warn('[content] updateHistoryUI failed', e); }
-		// Initialize recent played UI
-		try { updateRecentPlayedUI(); } catch (e) { console.warn('[content] updateRecentPlayedUI failed', e); }
 		// Initial heatmap update
 		updateHeatmap();
 		// Check for footer button less frequently (performance optimization)

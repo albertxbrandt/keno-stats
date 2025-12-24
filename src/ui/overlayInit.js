@@ -1,24 +1,24 @@
 // src/ui/overlayInit.js
-// Initialization bridge between content.js and Preact Overlay component
-// Replaces the old overlay.js createOverlay() pattern
+// Initialization bridge between content.js and Preact App component
 
 import { render } from 'preact';
-import { Overlay } from './components/Overlay.jsx';
-import { loadGeneratorSettings, loadHeatmapSettings } from '../core/storage.js';
+import { App } from './App.jsx';
 import { state } from '../core/state.js';
+import { loadGeneratorSettings, loadHeatmapSettings } from '../core/storage.js';
+import { initWindowGlobals } from '../bridges/windowGlobals.js';
+
+// Store modals API reference
+let modalsApiRef = null;
 
 /**
- * Initialize the Preact overlay component
- * Loads settings and renders the Overlay component into the DOM
+ * Initialize the Preact app
+ * Loads settings and renders the App component into the DOM
  * 
  * @returns {Promise<void>}
  */
 export async function initOverlay() {
   // Load all settings first
-  await Promise.all([
-    loadGeneratorSettings(),
-    loadHeatmapSettings()
-  ]);
+  await Promise.all([loadGeneratorSettings(), loadHeatmapSettings()]);
 
   // Create container if it doesn't exist
   let container = document.getElementById('keno-tracker-root');
@@ -28,24 +28,31 @@ export async function initOverlay() {
     document.body.appendChild(container);
   }
 
-  // Render Preact component
-  render(<Overlay />, container);
+  // Render Preact app (includes Overlay + ModalsManager)
+  render(<App />, container);
 
-  // Trigger initial generator preview (after a short delay to ensure hooks are ready)
+  // Wait for app to mount, then expose modals API via a hook in App
   setTimeout(() => {
+    // Access modals API from window (set by ModalsProvider)
+    if (window.__keno_modalsApi) {
+      modalsApiRef = window.__keno_modalsApi;
+
+      // Initialize all bridge globals with modals API
+      initWindowGlobals(modalsApiRef);
+    }
+
+    // Trigger initial generator preview
     if (window.__keno_generateNumbers) {
       // eslint-disable-next-line no-console
       console.log('[Overlay] Triggering initial generator preview');
       window.__keno_generateNumbers(false, false).catch(() => {
         // Ignore errors on initial generation (history might be empty)
       });
-    } else {
-      console.warn('[Overlay] window.__keno_generateNumbers not available yet');
     }
   }, 100);
 
   // eslint-disable-next-line no-console
-  console.log('[Overlay] Preact overlay initialized');
+  console.log('[Overlay] Preact app initialized');
 }
 
 /**

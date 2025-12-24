@@ -1,7 +1,7 @@
 // src/features/heatmap.js
 import { state } from '../core/state.js';
 import { getHits, getMisses } from '../core/storage.js';
-import { getTileElements, extractNumberFromTile } from '../utils/domReader.js';
+import { getTileElements, extractNumberFromTile } from '../utils/dom/domReader.js';
 
 // ==================== CONSTANTS ====================
 

@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Modal } from '../shared/Modal.jsx';
+import { PayoutGraph } from '../PayoutGraph.jsx';
 import { state } from '../../../core/state.js';
 
 /**
@@ -47,7 +48,7 @@ export function CombinationHitsModal({
   numbers,
   comboName,
   hits,
-  payoutGraphHtml,
+  betMultipliers,
   onClose,
   onRiskModeChange,
   onLookbackChange,
@@ -197,10 +198,13 @@ export function CombinationHitsModal({
       </div>
 
       {/* Payout graph */}
-      {payoutGraphHtml && (
-        <div
-          dangerouslySetInnerHTML={{ __html: payoutGraphHtml }}
-          className="payout-graph-wrapper"
+      {betMultipliers && (
+        <PayoutGraph
+          numbers={numbers}
+          history={state.currentHistory}
+          betMultipliers={betMultipliers}
+          riskMode={riskMode}
+          lookback={lookback}
         />
       )}
 

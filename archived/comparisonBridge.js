@@ -1,12 +1,8 @@
 // src/features/comparisonBridge.js
-// Bridge between legacy comparison.js API and new Preact ComparisonWindow
+// Exposes comparison functions and handles data tracking
 
-import { render } from 'preact';
-import { ComparisonWindow } from '../ui/components/modals/ComparisonWindow.jsx';
 import { state } from '../core/state.js';
 import betMultis from '../../config/bet-multis.json';
-
-let comparisonRoot = null;
 
 /**
  * Calculate profit for a prediction based on hits and difficulty
@@ -45,19 +41,12 @@ function detectGameDifficulty() {
 }
 
 /**
- * Initialize comparison window
+ * Initialize comparison tracking
+ * @param {Object} modalsApi - Modal management API from useModals hook
  */
-export function initComparisonWindow() {
-  // Create container for Preact component
-  let container = document.getElementById('keno-comparison-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'keno-comparison-container';
-    document.body.appendChild(container);
-  }
-
+export function initComparisonGlobals(modalsApi) {
   // Expose toggle function globally
-  window.__keno_toggleComparison = toggleComparisonWindow;
+  window.__keno_toggleComparison = modalsApi.toggleComparison;
   window.__keno_trackRound = trackRoundComparison;
 
   // Start difficulty detection
@@ -66,35 +55,9 @@ export function initComparisonWindow() {
 }
 
 /**
- * Toggle comparison window visibility
- */
-export function toggleComparisonWindow(show) {
-  const shouldShow = show !== undefined ? show : !state.isComparisonWindowOpen;
-  state.isComparisonWindowOpen = shouldShow;
-
-  const container = document.getElementById('keno-comparison-container');
-  if (!container) return;
-
-  if (shouldShow) {
-    // Render Preact component
-    render(
-      <ComparisonWindow onClose={() => toggleComparisonWindow(false)} />,
-      container
-    );
-    comparisonRoot = container;
-  } else {
-    // Unmount Preact component
-    render(null, container);
-    comparisonRoot = null;
-  }
-}
-
-/**
  * Track a round for comparison
  */
 export function trackRoundComparison(roundData) {
-  if (!state.isComparisonWindowOpen) return;
-
   const { drawn, predictions } = roundData;
   if (!drawn || drawn.length === 0 || !predictions) return;
 
@@ -108,9 +71,9 @@ export function trackRoundComparison(roundData) {
     difficulty
   };
 
-  methods.forEach(method => {
+  methods.forEach((method) => {
     const predicted = predictions[method] || [];
-    const hits = predicted.filter(n => drawn.includes(n)).length;
+    const hits = predicted.filter((n) => drawn.includes(n)).length;
     const profit = calculateProfit(count, hits, difficulty);
 
     dataPoint[method] = {
@@ -126,13 +89,5 @@ export function trackRoundComparison(roundData) {
   // Trim to lookback size
   if (state.comparisonData.length > state.comparisonLookback) {
     state.comparisonData.shift();
-  }
-
-  // Re-render component to update with new data
-  if (comparisonRoot) {
-    render(
-      <ComparisonWindow onClose={() => toggleComparisonWindow(false)} />,
-      comparisonRoot
-    );
   }
 }

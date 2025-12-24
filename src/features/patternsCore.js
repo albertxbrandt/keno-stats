@@ -1,46 +1,15 @@
 // src/features/patternsCore.js - Core pattern analysis logic (UI-agnostic)
 import { state } from '../core/state.js';
 import { getDrawn } from '../core/storage.js';
-import { showLoadingModal, hideLoadingModal, showPatternModal } from './patternsBridge.js';
+import { getPatternCache } from '../storage/patterns.js';
 
-// Cache for pattern analysis results
-const patternCache = {
-  data: new Map(), // key: `${patternSize}-${historyLength}-${sampleSize}` -> { patterns, stats, timestamp }
-  maxAge: 300000, // 5 minutes
-
-  get(patternSize, historyLength, sampleSize) {
-    const key = `${patternSize}-${historyLength}-${sampleSize}`;
-    const cached = this.data.get(key);
-
-    if (cached && Date.now() - cached.timestamp < this.maxAge) {
-      return cached;
-    }
-    return null;
-  },
-
-  set(patternSize, historyLength, sampleSize, patterns, stats) {
-    const key = `${patternSize}-${historyLength}-${sampleSize}`;
-    this.data.set(key, {
-      patterns,
-      stats,
-      timestamp: Date.now()
-    });
-  },
-
-  clear() {
-    this.data.clear();
-  }
-};
-
-// Clear cache when history changes (expose globally)
-window.__keno_clearPatternCache = () => patternCache.clear();
+// Get pattern cache instance from storage
+const patternCache = getPatternCache();
 
 /**
- * Export clear function
+ * Re-export clear function for external use
  */
-export function clearPatternCache() {
-  patternCache.clear();
-}
+export { clearPatternCache } from '../storage/patterns.js';
 
 /**
  * Generate all combinations of size k from an array
@@ -196,55 +165,4 @@ export function getPatternStats(patternSize, sampleSize = 0) {
       : 0;
 
   return { totalCombinations, avgAppearance };
-}
-
-/**
- * Display pattern analysis results in a modal
- * @param {number} patternSize - The size of patterns to find (3-10)
- * @param {string} sortBy - Sort method: 'frequency', 'recent', 'hot'
- * @param {number} sampleSize - Number of recent rounds to analyze (0 = all)
- */
-export function showPatternAnalysisModal(patternSize, sortBy = 'frequency', sampleSize = 0) {
-  // Show loading modal first
-  showLoadingModal();
-
-  // Use setTimeout to allow the loading modal to render
-  setTimeout(() => {
-    try {
-      let patterns = findCommonPatterns(patternSize, 100, true, sampleSize);
-
-      // Apply sorting
-      if (sortBy === 'recent') {
-        patterns.sort((a, b) => b.lastOccurrenceIndex - a.lastOccurrenceIndex);
-      } else if (sortBy === 'hot') {
-        patterns.sort((a, b) => a.hotness - b.hotness);
-      }
-      // Default 'frequency' is already sorted by count
-
-      patterns = patterns.slice(0, 15);
-      const stats = getPatternStats(patternSize, sampleSize);
-
-      // Remove loading modal
-      hideLoadingModal();
-
-      if (patterns.length === 0) {
-        alert(
-          `No pattern data available.\nPlay more rounds to analyze patterns of size ${patternSize}.`
-        );
-        return;
-      }
-
-      // Callback to refresh with new filters
-      const handleRefresh = (newSortBy, newSampleSize) => {
-        showPatternAnalysisModal(patternSize, newSortBy, newSampleSize);
-      };
-
-      // Show results modal using Preact component
-      showPatternModal(patternSize, patterns, stats, sortBy, sampleSize, handleRefresh);
-    } catch (error) {
-      console.error('[patterns] Error analyzing patterns:', error);
-      hideLoadingModal();
-      alert('Error analyzing patterns. Please try again.');
-    }
-  }, 100);
 }
