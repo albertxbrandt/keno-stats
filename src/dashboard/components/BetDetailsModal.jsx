@@ -5,7 +5,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * BetDetailsModal Component
- * Modal showing detailed information about a specific bet
+ * Modal showing detailed information about a specific bet with visual board
  */
 export function BetDetailsModal({ bet, onClose }) {
   if (!bet) return null;
@@ -14,6 +14,7 @@ export function BetDetailsModal({ bet, onClose }) {
   const hits = getHits(bet);
   const misses = getMisses(bet);
   const selected = kenoBet.state?.selectedNumbers || [];
+  const drawn = kenoBet.state?.drawnNumbers || [];
   const profitLoss = (parseFloat(kenoBet.payout) || 0) - (parseFloat(kenoBet.amount) || 0);
   const isProfitable = profitLoss >= 0;
 
@@ -34,6 +35,120 @@ export function BetDetailsModal({ bet, onClose }) {
     </div>
   );
 
+  // Render Keno board (8x5 grid, numbers 1-40)
+  const renderBoard = () => {
+    const tiles = [];
+    for (let i = 1; i <= 40; i++) {
+      const isSelected = selected.includes(i);
+      const isHit = hits.includes(i);
+      const isDrawn = drawn.includes(i);
+
+      let backgroundColor, color;
+      if (isHit) {
+        // Green for hits
+        backgroundColor = COLORS.accent.success;
+        color = '#fff';
+      } else if (isSelected) {
+        // Purple for selected but not drawn
+        backgroundColor = '#7b2cbf';
+        color = '#fff';
+      } else if (isDrawn) {
+        // Red for drawn but not selected (misses)
+        backgroundColor = COLORS.accent.error;
+        color = '#fff';
+      } else {
+        // Gray for neither
+        backgroundColor = COLORS.bg.darker;
+        color = COLORS.text.secondary;
+      }
+
+      tiles.push(
+        <div
+          key={i}
+          style={{
+            backgroundColor,
+            color,
+            padding: '8px',
+            borderRadius: BORDER_RADIUS.sm,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            border: `1px solid ${COLORS.border.default}`
+          }}
+        >
+          {i}
+        </div>
+      );
+    }
+
+    return (
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(8, 1fr)',
+        gap: '4px',
+        marginBottom: SPACING.md
+      }}>
+        {tiles}
+      </div>
+    );
+  };
+
+  // Render generator info if available
+  const renderGeneratorInfo = () => {
+    if (!bet.generator) return null;
+
+    const gen = bet.generator;
+    const methodNames = {
+      frequency: '🔥 Frequency (Hot)',
+      cold: '❄️ Cold',
+      mixed: '🔀 Mixed',
+      average: '📊 Average',
+      momentum: '🚀 Momentum',
+      shapes: '🔷 Shapes'
+    };
+
+    return (
+      <div style={{
+        marginTop: SPACING.lg,
+        padding: SPACING.md,
+        background: COLORS.bg.darker,
+        borderRadius: BORDER_RADIUS.md,
+        border: `1px solid ${COLORS.border.default}`
+      }}>
+        <h3 style={{
+          color: COLORS.text.primary,
+          fontSize: '1.1em',
+          marginBottom: SPACING.sm
+        }}>
+          🎲 Number Generator Used
+        </h3>
+        <div style={{ display: 'grid', gap: SPACING.xs, fontSize: '13px' }}>
+          <DetailRow label="Method" value={methodNames[gen.method] || gen.method} />
+          <DetailRow label="Count" value={gen.count} />
+          <DetailRow label="Refresh" value={gen.interval === 0 ? 'Manual' : `${gen.interval} rounds`} />
+          <DetailRow label="Auto-select" value={gen.autoSelect ? 'Yes' : 'No'} />
+          {gen.sampleSize && <DetailRow label="Sample Size" value={gen.sampleSize} />}
+          {gen.method === 'shapes' && (
+            <>
+              <DetailRow label="Pattern" value={gen.shapesPattern} />
+              <DetailRow label="Placement" value={gen.shapesPlacement} />
+            </>
+          )}
+          {gen.method === 'momentum' && (
+            <>
+              <DetailRow label="Detection Window" value={gen.momentumDetectionWindow} />
+              <DetailRow label="Baseline Games" value={gen.momentumBaselineGames} />
+              <DetailRow label="Threshold" value={gen.momentumThreshold} />
+              <DetailRow label="Pool Size" value={gen.momentumPoolSize} />
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
       style={{
@@ -47,155 +162,115 @@ export function BetDetailsModal({ bet, onClose }) {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        overflow: 'auto'
+        padding: SPACING.md
       }}
       onClick={onClose}
     >
       <div
         style={{
-          background: COLORS.background.secondary,
-          padding: SPACING.xl,
+          background: COLORS.bg.dark,
+          padding: SPACING.lg,
           borderRadius: BORDER_RADIUS.lg,
-          maxWidth: '600px',
-          width: '90%',
+          maxWidth: '700px',
+          width: '100%',
           maxHeight: '90vh',
           overflow: 'auto',
           boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 style={{
-          margin: `0 0 ${SPACING.lg} 0`,
-          color: COLORS.text.primary,
-          fontSize: '1.3em'
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: SPACING.lg,
+          paddingBottom: SPACING.md,
+          borderBottom: `2px solid ${COLORS.border.default}`
         }}>
-          Bet Details
-        </h2>
+          <h2 style={{
+            margin: 0,
+            color: COLORS.text.primary,
+            fontSize: '1.5em'
+          }}>
+            📊 Bet Details
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: COLORS.text.secondary,
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: '0 8px'
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
-        {/* Basic Info */}
+        {/* Bet Information Section */}
         <div style={{ marginBottom: SPACING.lg }}>
+          <h3 style={{
+            color: COLORS.text.primary,
+            fontSize: '1.1em',
+            marginBottom: SPACING.sm
+          }}>
+            📊 Bet Information
+          </h3>
           <DetailRow label="Date" value={formatDate(bet.time)} />
+          {bet.id && <DetailRow label="Bet ID" value={bet.id} />}
           <DetailRow label="Currency" value={kenoBet.currency || 'BTC'} />
-          <DetailRow label="Risk" value={kenoBet.risk || 'Classic'} />
-          <DetailRow label="Amount" value={parseFloat(kenoBet.amount).toFixed(8)} />
+          <DetailRow label="Difficulty" value={kenoBet.risk || 'Classic'} />
+          <DetailRow label="Amount" value={`${parseFloat(kenoBet.amount || 0).toFixed(8)} ${kenoBet.currency || 'BTC'}`} />
           <DetailRow 
             label="Payout" 
-            value={parseFloat(kenoBet.payout).toFixed(8)}
-            color={isProfitable ? COLORS.accent.success : COLORS.accent.danger}
+            value={`${parseFloat(kenoBet.payout || 0).toFixed(8)} ${kenoBet.currency || 'BTC'}`}
+            color={isProfitable ? COLORS.accent.success : COLORS.accent.error}
           />
           <DetailRow 
             label="Profit/Loss" 
-            value={(profitLoss >= 0 ? '+' : '') + profitLoss.toFixed(8)}
-            color={isProfitable ? COLORS.accent.success : COLORS.accent.danger}
+            value={`${profitLoss >= 0 ? '+' : ''}${profitLoss.toFixed(8)} ${kenoBet.currency || 'BTC'}`}
+            color={isProfitable ? COLORS.accent.success : COLORS.accent.error}
           />
           {kenoBet.payoutMultiplier && (
             <DetailRow label="Multiplier" value={`${kenoBet.payoutMultiplier}x`} />
           )}
+          <DetailRow 
+            label="Hits / Misses" 
+            value={`${hits.length} / ${misses.length}`}
+            color={COLORS.text.primary}
+          />
         </div>
 
-        {/* Numbers */}
+        {/* Number Board Section */}
         <div style={{ marginBottom: SPACING.lg }}>
-          <h3 style={{ color: COLORS.text.primary, fontSize: '1.1em', marginBottom: SPACING.sm }}>
-            Numbers
+          <h3 style={{
+            color: COLORS.text.primary,
+            fontSize: '1.1em',
+            marginBottom: SPACING.sm
+          }}>
+            🎯 Number Board
           </h3>
+          {renderBoard()}
           
-          <div style={{ marginBottom: SPACING.md }}>
-            <div style={{ color: COLORS.text.secondary, marginBottom: SPACING.xs }}>
-              Selected ({selected.length}):
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: SPACING.xs }}>
-              {selected.map(num => (
-                <span
-                  key={num}
-                  style={{
-                    padding: '4px 8px',
-                    background: hits.includes(num) ? COLORS.accent.success : COLORS.bg.darker,
-                    color: COLORS.text.primary,
-                    borderRadius: BORDER_RADIUS.sm,
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {num}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ marginBottom: SPACING.md }}>
-            <div style={{ color: COLORS.text.secondary, marginBottom: SPACING.xs }}>
-              Hits ({hits.length}):
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: SPACING.xs }}>
-              {hits.map(num => (
-                <span
-                  key={num}
-                  style={{
-                    padding: '4px 8px',
-                    background: COLORS.accent.success,
-                    color: '#fff',
-                    borderRadius: BORDER_RADIUS.sm,
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {num}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div style={{ color: COLORS.text.secondary, marginBottom: SPACING.xs }}>
-              Misses ({misses.length}):
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: SPACING.xs }}>
-              {misses.map(num => (
-                <span
-                  key={num}
-                  style={{
-                    padding: '4px 8px',
-                    background: COLORS.accent.danger,
-                    color: '#fff',
-                    borderRadius: BORDER_RADIUS.sm,
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {num}
-                </span>
-              ))}
-            </div>
+          {/* Legend */}
+          <div style={{
+            fontSize: '12px',
+            color: COLORS.text.secondary,
+            display: 'grid',
+            gap: '4px'
+          }}>
+            <div>🟢 <span style={{ color: COLORS.accent.success, fontWeight: 'bold' }}>Green</span> = Hit (Selected & Drawn)</div>
+            <div>🟣 <span style={{ color: '#7b2cbf', fontWeight: 'bold' }}>Purple</span> = Selected (Not Drawn)</div>
+            <div>🔴 <span style={{ color: COLORS.accent.error, fontWeight: 'bold' }}>Red</span> = Drawn (Not Selected)</div>
+            <div>⬜ <span style={{ color: COLORS.text.secondary }}>Gray</span> = Not selected or drawn</div>
           </div>
         </div>
 
-        {/* Generator Info (if available) */}
-        {bet.generator && (
-          <div style={{ marginBottom: SPACING.lg }}>
-            <h3 style={{ color: COLORS.text.primary, fontSize: '1.1em', marginBottom: SPACING.sm }}>
-              Generator Settings
-            </h3>
-            <DetailRow label="Method" value={bet.generator.method} />
-            <DetailRow label="Count" value={bet.generator.count} />
-            <DetailRow label="Sample Size" value={bet.generator.sampleSize} />
-          </div>
-        )}
-
-        <button
-          onClick={onClose}
-          style={{
-            width: '100%',
-            padding: SPACING.md,
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
-        >
-          Close
-        </button>
+        {/* Generator Info */}
+        {renderGeneratorInfo()}
       </div>
     </div>
   );
