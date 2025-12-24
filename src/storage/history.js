@@ -3,6 +3,7 @@
 
 import { state } from '../core/state.js';
 import { stateEvents, EVENTS } from '../core/stateEvents.js';
+import { COLORS } from '../ui/constants/colors.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -381,10 +382,10 @@ function createHistoryItem(round, roundNumber, hits, misses) {
     if (window.__keno_clearHighlight) window.__keno_clearHighlight();
   });
   div.innerHTML = `
-    <span style="color:#888">#${roundNumber}</span>
-    <span style="color:#00b894">H:${hits.length}</span>
-    <span style="color:#ff7675">M:${misses.length}</span>
-    <div style="color:#666; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
+    <span style="color:${COLORS.text.secondary}">#${roundNumber}</span>
+    <span style="color:${COLORS.accent.success}">H:${hits.length}</span>
+    <span style="color:${COLORS.accent.error}">M:${misses.length}</span>
+    <div style="color:${COLORS.text.tertiary}; font-size:10px;">${hits.join(',') || '-'} / ${misses.join(',') || '-'}</div>
   `;
   return div;
 }

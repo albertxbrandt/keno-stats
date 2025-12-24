@@ -5,6 +5,9 @@ import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '../../../core/state.js';
 import { saveGraphPreferences } from '../../../storage/savedNumbers.js';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '../../constants/styles.js';
+import { DEFAULTS } from '../../constants/defaults.js';
 
 /**
  * Hit occurrence card component
@@ -17,10 +20,10 @@ function HitCard({ hit, totalBets }) {
   return (
     <div
       style={{
-        background: '#0f212e',
+        background: COLORS.bg.dark,
         padding: '10px 12px',
-        borderRadius: '6px',
-        borderLeft: '3px solid #00b894'
+        borderRadius: BORDER_RADIUS.md,
+        borderLeft: `3px solid ${COLORS.accent.success}`
       }}
     >
       <div
@@ -31,14 +34,14 @@ function HitCard({ hit, totalBets }) {
           marginBottom: '4px'
         }}
       >
-        <span style={{ color: '#00b894', fontWeight: 'bold', fontSize: '12px' }}>
+        <span style={{ color: COLORS.accent.success, fontWeight: 'bold', fontSize: '12px' }}>
           Bet #{betNumber}
         </span>
-        <span style={{ color: '#888', fontSize: '10px' }}>
+        <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
           {betsAgo} bet{betsAgo !== 1 ? 's' : ''} ago
         </span>
       </div>
-      <div style={{ color: '#666', fontSize: '10px' }}>{timeStr}</div>
+      <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>{timeStr}</div>
     </div>
   );
 }
@@ -54,9 +57,9 @@ export function CombinationHitsModal({
   onClose,
   onRiskModeChange,
   onLookbackChange,
-  initialRiskMode = 'high',
-  initialLookback = 50,
-  initialGraphType = 'distribution'
+  initialRiskMode = DEFAULTS.riskMode,
+  initialLookback = DEFAULTS.lookback,
+  initialGraphType = DEFAULTS.graphType
 }) {
   const [riskMode, setRiskMode] = useState(initialRiskMode);
   const [lookback, setLookback] = useState(initialLookback);
@@ -100,16 +103,16 @@ export function CombinationHitsModal({
       {/* Combination summary */}
       <div
         style={{
-          background: '#0f212e',
+          background: COLORS.bg.dark,
           padding: '15px',
-          borderRadius: '8px',
+          borderRadius: BORDER_RADIUS.lg,
           marginBottom: '15px',
-          borderLeft: '3px solid #00b894'
+          borderLeft: `3px solid ${COLORS.accent.success}`
         }}
       >
         <div
           style={{
-            color: '#fff',
+            color: COLORS.text.primary,
             fontSize: '15px',
             fontWeight: 'bold',
             marginBottom: '8px'
@@ -117,7 +120,7 @@ export function CombinationHitsModal({
         >
           {numbers.join(', ')}
         </div>
-        <div style={{ color: '#888', fontSize: '12px', marginBottom: '12px' }}>
+        <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: '12px' }}>
           {comboName}
         </div>
         <div
@@ -125,20 +128,20 @@ export function CombinationHitsModal({
             display: 'flex',
             justifyContent: 'space-between',
             paddingTop: '10px',
-            borderTop: '1px solid #1a2c38'
+            borderTop: `1px solid ${COLORS.border.lighter}`
           }}
         >
           <div>
-            <div style={{ color: '#00b894', fontSize: '20px', fontWeight: 'bold' }}>
+            <div style={{ color: COLORS.accent.success, fontSize: '20px', fontWeight: 'bold' }}>
               {hits.length}
             </div>
-            <div style={{ color: '#666', fontSize: '10px' }}>Complete Hits</div>
+            <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Complete Hits</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ color: '#74b9ff', fontSize: '20px', fontWeight: 'bold' }}>
+            <div style={{ color: COLORS.accent.info, fontSize: '20px', fontWeight: 'bold' }}>
               {hitRate}%
             </div>
-            <div style={{ color: '#666', fontSize: '10px' }}>Hit Rate</div>
+            <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Hit Rate</div>
           </div>
         </div>
       </div>
@@ -149,63 +152,31 @@ export function CombinationHitsModal({
         gap: '8px',
         marginBottom: '15px',
         padding: '12px',
-        background: '#1a2c38',
-        borderRadius: '6px',
+        background: COLORS.bg.darker,
+        borderRadius: BORDER_RADIUS.md,
         alignItems: 'flex-end'
       }}>
         <div style={{ flex: 1 }}>
-          <label
-            style={{
-              color: '#888',
-              fontSize: '10px',
-              display: 'block',
-              marginBottom: '4px'
-            }}
-          >
+          <label style={{ ...LABEL_STYLES.base }}>
             Graph Type
           </label>
           <select
             value={graphType}
             onChange={handleGraphTypeChange}
-            style={{
-              width: '100%',
-              padding: '6px 8px',
-              background: '#0f212e',
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '4px',
-              fontSize: '11px',
-              cursor: 'pointer'
-            }}
+            style={{ ...INPUT_STYLES.select, width: '100%' }}
           >
             <option value="distribution">Distribution</option>
             <option value="profitloss">Profit/Loss</option>
           </select>
         </div>
         <div style={{ flex: 1 }}>
-          <label
-            style={{
-              color: '#888',
-              fontSize: '10px',
-              display: 'block',
-              marginBottom: '4px'
-            }}
-          >
+          <label style={{ ...LABEL_STYLES.base }}>
             Risk Mode
           </label>
           <select
             value={riskMode}
             onChange={handleRiskModeChange}
-            style={{
-              width: '100%',
-              padding: '6px 8px',
-              background: '#0f212e',
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '4px',
-              fontSize: '11px',
-              cursor: 'pointer'
-            }}
+            style={{ ...INPUT_STYLES.select, width: '100%' }}
           >
             <option value="classic">Classic</option>
             <option value="low">Low</option>
@@ -214,32 +185,16 @@ export function CombinationHitsModal({
           </select>
         </div>
         <div>
-          <label
-            style={{
-              color: '#888',
-              fontSize: '10px',
-              display: 'block',
-              marginBottom: '4px'
-            }}
-          >
+          <label style={{ ...LABEL_STYLES.base }}>
             Lookback
           </label>
           <input
             type="number"
-            min="10"
+            min={DEFAULTS.lookbackMin}
             max={totalBets}
             value={lookback}
             onChange={handleLookbackChange}
-            style={{
-              width: '70px',
-              padding: '6px 8px',
-              background: '#0f212e',
-              color: '#fff',
-              border: '1px solid #333',
-              borderRadius: '4px',
-              fontSize: '11px',
-              textAlign: 'center'
-            }}
+            style={{ ...INPUT_STYLES.number, width: '70px' }}
           />
         </div>
       </div>
@@ -270,11 +225,11 @@ export function CombinationHitsModal({
       {hits.length === 0 ? (
         <div
           style={{
-            color: '#666',
+            color: COLORS.text.tertiary,
             textAlign: 'center',
             padding: '30px 20px',
-            background: '#0f212e',
-            borderRadius: '8px'
+            background: COLORS.bg.dark,
+            borderRadius: BORDER_RADIUS.lg
           }}
         >
           This combination has never hit all numbers in your bet history.
@@ -282,7 +237,7 @@ export function CombinationHitsModal({
       ) : (
         <>
           <div style={{ marginBottom: '10px' }}>
-            <h3 style={{ color: '#74b9ff', fontSize: '14px', margin: '0 0 10px 0' }}>
+            <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: '0 0 10px 0' }}>
               All Occurrences ({hits.length})
             </h3>
           </div>
@@ -310,11 +265,11 @@ export function CombinationHitsModal({
         style={{
           marginTop: '20px',
           paddingTop: '15px',
-          borderTop: '1px solid #333'
+          borderTop: `1px solid ${COLORS.border.default}`
         }}
       >
-        <div style={{ color: '#666', fontSize: '11px', lineHeight: '1.5' }}>
-          <strong style={{ color: '#888' }}>Note:</strong> Shows all bets where every number in
+        <div style={{ color: COLORS.text.tertiary, fontSize: '11px', lineHeight: '1.5' }}>
+          <strong style={{ color: COLORS.text.secondary }}>Note:</strong> Shows all bets where every number in
           this combination appeared in the drawn numbers.
         </div>
       </div>

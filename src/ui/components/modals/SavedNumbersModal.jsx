@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { Modal } from '../shared/Modal.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * Saved combination card component
@@ -11,10 +13,10 @@ function SavedComboCard({ combo, onSelect, onDelete, onInfo }) {
   return (
     <div
       style={{
-        background: '#0f212e',
-        padding: '12px',
-        borderRadius: '6px',
-        borderLeft: '3px solid #00b894'
+        background: COLORS.bg.dark,
+        padding: SPACING.md,
+        borderRadius: BORDER_RADIUS.md,
+        borderLeft: `3px solid ${COLORS.accent.success}`
       }}
     >
       <div
@@ -32,7 +34,7 @@ function SavedComboCard({ combo, onSelect, onDelete, onInfo }) {
         >
           <div
             style={{
-              color: '#fff',
+              color: COLORS.text.primary,
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '4px'
@@ -40,17 +42,17 @@ function SavedComboCard({ combo, onSelect, onDelete, onInfo }) {
           >
             {combo.numbers.join(', ')}
           </div>
-          <div style={{ color: '#888', fontSize: '11px' }}>{combo.name}</div>
+          <div style={{ color: COLORS.text.secondary, fontSize: '11px' }}>{combo.name}</div>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           <button
             onClick={() => onInfo(combo.numbers, combo.name)}
             style={{
-              padding: '6px 10px',
-              background: '#2a3b4a',
-              color: '#74b9ff',
+              padding: SPACING.inputPadding,
+              background: COLORS.bg.darker,
+              color: COLORS.accent.info,
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: BORDER_RADIUS.sm,
               fontSize: '11px',
               cursor: 'pointer'
             }}
@@ -60,11 +62,11 @@ function SavedComboCard({ combo, onSelect, onDelete, onInfo }) {
           <button
             onClick={() => onDelete(combo.id)}
             style={{
-              padding: '6px 10px',
-              background: '#ff7675',
-              color: '#fff',
+              padding: SPACING.inputPadding,
+              background: COLORS.accent.error,
+              color: COLORS.text.primary,
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: BORDER_RADIUS.sm,
               fontSize: '11px',
               cursor: 'pointer'
             }}
@@ -73,7 +75,7 @@ function SavedComboCard({ combo, onSelect, onDelete, onInfo }) {
           </button>
         </div>
       </div>
-      <div style={{ color: '#666', fontSize: '10px' }}>Saved: {date}</div>
+      <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Saved: {date}</div>
     </div>
   );
 }

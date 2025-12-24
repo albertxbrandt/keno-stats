@@ -2,6 +2,7 @@
 import { state } from '../../core/state.js';
 import { getHits, getMisses } from '../../core/storage.js';
 import { getTileElements, extractNumberFromTile } from './domReader.js';
+import { COLORS as THEME_COLORS } from '../../ui/constants/colors.js';
 
 // ==================== CONSTANTS ====================
 
@@ -10,9 +11,9 @@ const SELECTORS = {
 };
 
 const COLORS = {
-    HIT: '#00b894',
-    MISS: '#ff7675',
-    PREDICTION: '#74b9ff',
+    HIT: THEME_COLORS.accent.success,
+    MISS: THEME_COLORS.accent.error,
+    PREDICTION: THEME_COLORS.accent.info,
     NEUTRAL: 'rgba(255,255,255,0.7)'
 };
 

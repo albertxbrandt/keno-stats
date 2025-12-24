@@ -6,6 +6,8 @@ import { state } from '../../../core/state.js';
 import { saveGeneratorSettings } from '../../../core/storage.js';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * AutoRefreshControl Component
@@ -49,10 +51,10 @@ export function AutoRefreshControl() {
 
   return (
     <div style={{
-      marginBottom: '8px',
-      padding: '8px',
-      background: '#0f212e',
-      borderRadius: '4px'
+      marginBottom: SPACING.sm,
+      padding: SPACING.sm,
+      background: COLORS.bg.dark,
+      borderRadius: BORDER_RADIUS.sm
     }}>
       <div style={{
         display: 'flex',
@@ -60,7 +62,7 @@ export function AutoRefreshControl() {
         alignItems: 'center',
         marginBottom: '6px'
       }}>
-        <span style={{ color: '#aaa', fontSize: '10px' }}>
+        <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
           Auto-Refresh:
         </span>
         <ToggleSwitch
@@ -77,7 +79,7 @@ export function AutoRefreshControl() {
         marginTop: '4px'
       }}>
         <span style={{
-          color: '#888',
+          color: COLORS.text.secondary,
           fontSize: '9px',
           whiteSpace: 'nowrap'
         }}>
@@ -94,7 +96,7 @@ export function AutoRefreshControl() {
           opacity={autoRefresh ? 1 : 0.5}
         />
         <span style={{
-          color: '#888',
+          color: COLORS.text.secondary,
           fontSize: '9px',
           whiteSpace: 'nowrap'
         }}>
@@ -105,17 +107,17 @@ export function AutoRefreshControl() {
       <div style={{
         marginTop: '6px',
         fontSize: '8px',
-        color: '#666',
+        color: COLORS.text.tertiary,
         textAlign: 'center'
       }}>
         {autoRefresh ? (
           <>
             {state.currentHistory?.length - state.generatorLastRefresh < interval ? (
-              <span style={{ color: '#74b9ff' }}>
+              <span style={{ color: COLORS.accent.info }}>
                 Next refresh in {interval - (state.currentHistory?.length - state.generatorLastRefresh)} rounds
               </span>
             ) : (
-              <span style={{ color: '#00b894' }}>Ready to refresh</span>
+              <span style={{ color: COLORS.accent.success }}>Ready to refresh</span>
             )}
           </>
         ) : (

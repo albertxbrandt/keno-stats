@@ -4,6 +4,8 @@
 import { useState } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * PatternAnalysisSection Component
@@ -43,7 +45,7 @@ export function PatternAnalysisSection() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {/* Pattern Size Input and Analyze Button */}
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-          <span style={{ color: '#aaa', fontSize: '11px', whiteSpace: 'nowrap' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '11px', whiteSpace: 'nowrap' }}>
             Size:
           </span>
           <NumberInput
@@ -58,11 +60,11 @@ export function PatternAnalysisSection() {
             onClick={handleAnalyze}
             style={{
               flex: 1,
-              background: '#ffd700',
+              background: COLORS.accent.warning,
               color: '#222',
               border: 'none',
-              padding: '6px 8px',
-              borderRadius: '4px',
+              padding: SPACING.inputPadding,
+              borderRadius: BORDER_RADIUS.sm,
               fontWeight: 'bold',
               cursor: 'pointer',
               fontSize: '11px',
@@ -80,11 +82,11 @@ export function PatternAnalysisSection() {
           onClick={handleLiveToggle}
           style={{
             width: '100%',
-            background: '#00b894',
-            color: '#fff',
+            background: COLORS.accent.success,
+            color: COLORS.text.primary,
             border: 'none',
-            padding: '8px',
-            borderRadius: '4px',
+            padding: SPACING.sm,
+            borderRadius: BORDER_RADIUS.sm,
             fontWeight: 'bold',
             cursor: 'pointer',
             fontSize: '11px',
@@ -95,7 +97,7 @@ export function PatternAnalysisSection() {
             gap: '6px'
           }}
           onMouseEnter={(e) => e.target.style.background = '#059669'}
-          onMouseLeave={(e) => e.target.style.background = '#00b894'}
+          onMouseLeave={(e) => e.target.style.background = COLORS.accent.success}
         >
           <span style={{ fontSize: '14px' }}>🔴</span>
           Start Live Analysis
@@ -103,12 +105,12 @@ export function PatternAnalysisSection() {
 
         {/* Info Text */}
         <div style={{
-          color: '#666',
+          color: COLORS.text.tertiary,
           fontSize: '9px',
           lineHeight: '1.3',
           padding: '4px',
-          background: '#14202b',
-          borderRadius: '4px'
+          background: COLORS.bg.darkest,
+          borderRadius: BORDER_RADIUS.sm
         }}>
           Find patterns of {patternSize} numbers appearing together in drawn results
         </div>

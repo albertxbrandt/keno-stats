@@ -2,6 +2,7 @@
 import { state } from '../core/state.js';
 import { getHits, getMisses, getDrawn } from '../core/storage.js';
 import { getSelectedTileNumbers } from './dom/domReader.js';
+import { COLORS } from '../ui/constants/colors.js';
 
 /**
  * Calculate stats for selected tiles count
@@ -322,16 +323,16 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
     // Create modal content
     const modal = document.createElement('div');
     Object.assign(modal.style, {
-        backgroundColor: '#0f212e',
+        backgroundColor: COLORS.bg.dark,
         borderRadius: '12px',
         padding: '16px',
         maxWidth: '600px',
         width: '92%',
         maxHeight: '85vh',
         overflow: 'auto',
-        border: '2px solid #1a3a4a',
+        border: `2px solid ${COLORS.border.default}`,
         boxShadow: '0 20px 60px rgba(0,200,83,0.15)',
-        color: '#fff'
+        color: COLORS.text.primary
     });
 
     const dateStr = new Date(round.time).toLocaleString();
@@ -357,7 +358,7 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
                 height: 24px;
                 background: transparent;
                 border: none;
-                color: #ff4757;
+                color: ${COLORS.accent.error};
                 font-size: 24px;
                 font-weight: 400;
                 cursor: pointer;
@@ -369,29 +370,29 @@ function showBetResultModal(selectedNumbers, targetHitCount) {
                 line-height: 1;
             ">×</button>
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                <h2 style="margin: 0 0 4px 0; color: #fff; font-size: 18px; font-weight: 600;">Bet Result</h2>
-                <p style="margin: 0 0 2px 0; color: #74b9ff; font-size: 12px; font-weight: 600;">Bet #${betNumber} - ${betsAgo} Bets Ago</p>
-                <p style="margin: 0; color: #aaa; font-size: 11px;">${dateStr}</p>
+                <h2 style="margin: 0 0 4px 0; color: ${COLORS.text.primary}; font-size: 18px; font-weight: 600;">Bet Result</h2>
+                <p style="margin: 0 0 2px 0; color: ${COLORS.accent.info}; font-size: 12px; font-weight: 600;">Bet #${betNumber} - ${betsAgo} Bets Ago</p>
+                <p style="margin: 0; color: ${COLORS.text.secondary}; font-size: 11px;">${dateStr}</p>
             </div>
         </div>
         
-        <div style="margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, #00c85325, #00c85310); border-radius: 10px; border-left: 3px solid #00c853; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <p style="margin: 0 0 4px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Result</p>
-            <p style="margin: 0; font-size: 20px; font-weight: 700; color: #00c853;">${hits.length} Hits</p>
+        <div style="margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, #00c85325, #00c85310); border-radius: 10px; border-left: 3px solid ${COLORS.accent.success}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            <p style="margin: 0 0 4px 0; color: ${COLORS.text.primary}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Result</p>
+            <p style="margin: 0; font-size: 20px; font-weight: 700; color: ${COLORS.accent.success};">${hits.length} Hits</p>
         </div>
         
         <div style="margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Hits (${hits.length})</p>
+            <p style="margin: 0 0 6px 0; color: ${COLORS.text.primary}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Hits (${hits.length})</p>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;" id="hits-board"></div>
         </div>
         
         <div style="margin-bottom: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Misses (${misses.length})</p>
+            <p style="margin: 0 0 6px 0; color: ${COLORS.text.primary}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Misses (${misses.length})</p>
             <div style="display: flex; flex-wrap: wrap; gap: 5px;" id="misses-board"></div>
         </div>
         
         <div style="margin-bottom: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-            <p style="margin: 0 0 6px 0; color: #fff; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Full Board (1-40)</p>
+            <p style="margin: 0 0 6px 0; color: ${COLORS.text.primary}; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Full Board (1-40)</p>
             <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;" id="full-board"></div>
         </div>
     `;

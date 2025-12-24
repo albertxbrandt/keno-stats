@@ -2,6 +2,8 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Modal } from '../shared/Modal.jsx';
 import { state } from '../../../core/state.js';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * Pattern card component displaying a single pattern result
@@ -21,10 +23,10 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
   return (
     <div
       style={{
-        background: '#0f212e',
-        padding: '12px 15px',
-        borderRadius: '8px',
-        borderLeft: `3px solid ${index < 3 ? '#00b894' : '#74b9ff'}`
+        background: COLORS.bg.dark,
+        padding: SPACING.md,
+        borderRadius: BORDER_RADIUS.md,
+        borderLeft: `3px solid ${index < 3 ? COLORS.accent.success : COLORS.accent.info}`
       }}
     >
       <div
@@ -48,18 +50,18 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
             }}
           >
             <div style={{ flex: 1 }}>
-              <span style={{ color: '#aaa', fontSize: '11px', marginRight: '8px' }}>
+              <span style={{ color: COLORS.text.secondary, fontSize: '11px', marginRight: '8px' }}>
                 #{index + 1}
               </span>
-              <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '15px' }}>
+              <span style={{ color: COLORS.text.primary, fontWeight: 'bold', fontSize: '15px' }}>
                 {pattern.numbers.join(', ')}
               </span>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ color: '#00b894', fontWeight: 'bold', fontSize: '16px' }}>
+              <div style={{ color: COLORS.accent.success, fontWeight: 'bold', fontSize: '16px' }}>
                 {pattern.count}×
               </div>
-              <div style={{ color: '#888', fontSize: '11px' }}>{percentage}%</div>
+              <div style={{ color: COLORS.text.secondary, fontSize: '11px' }}>{percentage}%</div>
             </div>
           </div>
         </div>
@@ -67,11 +69,11 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
           onClick={handleSave}
           style={{
             marginLeft: '10px',
-            padding: '6px 12px',
-            background: '#2a3b4a',
-            color: '#74b9ff',
+            padding: SPACING.inputPadding,
+            background: COLORS.bg.darker,
+            color: COLORS.accent.info,
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '11px',
             cursor: 'pointer',
             whiteSpace: 'nowrap'
@@ -87,7 +89,7 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
         style={{
           marginTop: '8px',
           paddingTop: '8px',
-          borderTop: '1px solid #1a2c38'
+          borderTop: `1px solid ${COLORS.bg.darker}`
         }}
       >
         <div
@@ -99,10 +101,10 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
           }}
           onClick={() => setShowOccurrences(!showOccurrences)}
         >
-          <span style={{ color: '#aaa', fontSize: '11px' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>
             Last seen: Bet #{lastBetNumber} ({betsAgo} bet{betsAgo !== 1 ? 's' : ''} ago)
           </span>
-          <span style={{ color: '#74b9ff', fontSize: '11px' }}>
+          <span style={{ color: COLORS.accent.info, fontSize: '11px' }}>
             {showOccurrences ? '▲' : '▼'} View all ({pattern.count})
           </span>
         </div>
@@ -113,8 +115,8 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
               marginTop: '8px',
               maxHeight: '150px',
               overflowY: 'auto',
-              background: '#14202b',
-              borderRadius: '4px',
+              background: COLORS.bg.darkest,
+              borderRadius: BORDER_RADIUS.sm,
               padding: '6px'
             }}
           >
@@ -128,12 +130,12 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
                     key={occurrence.betNumber}
                     style={{
                       padding: '4px',
-                      borderBottom: '1px solid #1a2c38',
+                      borderBottom: `1px solid ${COLORS.bg.darker}`,
                       fontSize: '10px'
                     }}
                   >
-                    <span style={{ color: '#00b894' }}>Bet #{occurrence.betNumber}</span>
-                    <span style={{ color: '#666', marginLeft: '8px' }}>{occTime}</span>
+                    <span style={{ color: COLORS.accent.success }}>Bet #{occurrence.betNumber}</span>
+                    <span style={{ color: COLORS.text.tertiary, marginLeft: '8px' }}>{occTime}</span>
                   </div>
                 );
               })}
@@ -185,7 +187,7 @@ export function PatternAnalysisModal({
       <div>
         <label
           style={{
-            color: '#888',
+            color: COLORS.text.secondary,
             fontSize: '10px',
             display: 'block',
             marginBottom: '4px'
@@ -197,11 +199,11 @@ export function PatternAnalysisModal({
           value={localSortBy}
           onChange={(e) => setLocalSortBy(e.target.value)}
           style={{
-            padding: '6px 8px',
-            background: '#0f212e',
-            color: '#fff',
-            border: '1px solid #333',
-            borderRadius: '4px',
+            padding: SPACING.inputPadding,
+            background: COLORS.bg.dark,
+            color: COLORS.text.primary,
+            border: `1px solid ${COLORS.border.default}`,
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '11px',
             cursor: 'pointer'
           }}
@@ -214,7 +216,7 @@ export function PatternAnalysisModal({
       <div>
         <label
           style={{
-            color: '#888',
+            color: COLORS.text.secondary,
             fontSize: '10px',
             display: 'block',
             marginBottom: '4px'
@@ -231,11 +233,11 @@ export function PatternAnalysisModal({
           placeholder="All"
           style={{
             width: '60px',
-            padding: '6px 8px',
-            background: '#0f212e',
-            color: '#fff',
-            border: '1px solid #333',
-            borderRadius: '4px',
+            padding: SPACING.inputPadding,
+            background: COLORS.bg.dark,
+            color: COLORS.text.primary,
+            border: `1px solid ${COLORS.border.default}`,
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '11px',
             textAlign: 'center'
           }}
@@ -244,11 +246,11 @@ export function PatternAnalysisModal({
       <button
         onClick={handleRefresh}
         style={{
-          padding: '6px 12px',
-          background: '#2a3b4a',
-          color: '#74b9ff',
+          padding: SPACING.inputPadding,
+          background: COLORS.bg.darker,
+          color: COLORS.accent.info,
           border: 'none',
-          borderRadius: '4px',
+          borderRadius: BORDER_RADIUS.sm,
           fontSize: '11px',
           fontWeight: 'bold',
           cursor: 'pointer',
@@ -273,41 +275,41 @@ export function PatternAnalysisModal({
       {/* Stats summary */}
       <div
         style={{
-          background: '#0f212e',
-          padding: '15px',
-          borderRadius: '8px',
+          background: COLORS.bg.dark,
+          padding: SPACING.lg,
+          borderRadius: BORDER_RADIUS.md,
           marginBottom: '20px'
         }}
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
           <div>
-            <div style={{ color: '#aaa', fontSize: '12px', marginBottom: '5px' }}>
+            <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: '5px' }}>
               Total Patterns Found
             </div>
-            <div style={{ color: '#00b894', fontSize: '22px', fontWeight: 'bold' }}>
+            <div style={{ color: COLORS.accent.success, fontSize: '22px', fontWeight: 'bold' }}>
               {stats.totalCombinations}
             </div>
           </div>
           <div>
-            <div style={{ color: '#aaa', fontSize: '12px', marginBottom: '5px' }}>
+            <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: '5px' }}>
               Avg Appearances
             </div>
-            <div style={{ color: '#74b9ff', fontSize: '22px', fontWeight: 'bold' }}>
+            <div style={{ color: COLORS.accent.info, fontSize: '22px', fontWeight: 'bold' }}>
               {stats.avgAppearance}
             </div>
           </div>
         </div>
-        <div style={{ color: '#666', fontSize: '11px', marginTop: '10px' }}>
+        <div style={{ color: COLORS.text.tertiary, fontSize: '11px', marginTop: '10px' }}>
           Analyzed {analyzedCount} of {totalHistory} rounds
         </div>
       </div>
 
       {/* Header */}
       <div style={{ marginBottom: '15px' }}>
-        <h3 style={{ color: '#74b9ff', fontSize: '16px', margin: '0 0 15px 0' }}>
+        <h3 style={{ color: COLORS.accent.info, fontSize: '16px', margin: '0 0 15px 0' }}>
           Top {patterns.length} Most Common Patterns
         </h3>
-        <div style={{ color: '#888', fontSize: '12px', marginBottom: '10px' }}>
+        <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: '10px' }}>
           These {patternSize}-number combinations appeared together most frequently:
         </div>
       </div>
@@ -328,14 +330,14 @@ export function PatternAnalysisModal({
       {/* Note */}
       <div
         style={{
-          padding: '12px',
-          background: '#0f212e',
-          borderRadius: '6px',
-          borderLeft: '3px solid #fdcb6e'
+          padding: SPACING.md,
+          background: COLORS.bg.dark,
+          borderRadius: BORDER_RADIUS.md,
+          borderLeft: `3px solid ${COLORS.accent.warning}`
         }}
       >
-        <div style={{ color: '#666', fontSize: '11px', lineHeight: '1.5' }}>
-          <strong style={{ color: '#888' }}>Note:</strong> Patterns show which {patternSize}
+        <div style={{ color: COLORS.text.tertiary, fontSize: '11px', lineHeight: '1.5' }}>
+          <strong style={{ color: COLORS.text.secondary }}>Note:</strong> Patterns show which {patternSize}
           -number combinations appeared together most frequently in drawn numbers. This is for
           analysis only and does not predict future outcomes.
         </div>

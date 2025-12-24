@@ -7,6 +7,7 @@ import { highlightPrediction } from '../utils/dom/heatmap.js';
 import { generatorFactory, cacheManager } from '../generators/index.js';
 import { replaceSelection } from '../utils/dom/tileSelection.js';
 import { getIntValue } from '../utils/dom/domReader.js';
+import { COLORS } from './constants/colors.js';
 
 // ============================================================================
 // GENERATOR WRAPPER FUNCTIONS (for backward compatibility)
@@ -50,12 +51,12 @@ export function updateGeneratorPreview() {
   if (roundsLabel) {
     if (!autoRefresh) {
       roundsLabel.textContent = 'Manual';
-      roundsLabel.style.color = '#666';
+      roundsLabel.style.color = COLORS.text.tertiary;
     } else {
       const roundsSinceRefresh = currentRound - lastRefresh;
       const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
       roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;
-      roundsLabel.style.color = roundsUntilRefresh === 0 ? '#00b894' : '#74b9ff';
+      roundsLabel.style.color = roundsUntilRefresh === 0 ? COLORS.accent.success : COLORS.accent.info;
     }
   }
 
@@ -120,10 +121,10 @@ export function updateGeneratorPreview() {
 
           if (wasHit) {
             // Hit in last round - darker with inset shadow and different color
-            return `<span style="${baseStyle} background:#162026; color:#7a9fb5; box-shadow:inset 0 2px 4px rgba(0,0,0,0.6); border: 1px solid #0a1419;">${num}</span>`;
+            return `<span style="${baseStyle} background:${COLORS.bg.darkest}; color:${COLORS.text.secondary}; box-shadow:inset 0 2px 4px rgba(0,0,0,0.6); border: 1px solid #0a1419;">${num}</span>`;
           } else {
             // Not hit - normal bright style
-            return `<span style="${baseStyle} background:#2a3f4f; color:#74b9ff;">${num}</span>`;
+            return `<span style="${baseStyle} background:#2a3f4f; color:${COLORS.accent.info};">${num}</span>`;
           }
         })
         .join('');

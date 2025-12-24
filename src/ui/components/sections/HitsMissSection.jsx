@@ -5,6 +5,8 @@
 import { useEffect, useState } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * HitsMissSection Component
@@ -44,15 +46,15 @@ export function HitsMissSection() {
 
   return (
     <div style={{
-      marginBottom: '15px',
-      background: '#0f212e',
-      padding: '8px',
-      borderRadius: '4px'
+      marginBottom: SPACING.lg,
+      background: COLORS.bg.dark,
+      padding: SPACING.sm,
+      borderRadius: BORDER_RADIUS.sm
     }}>
-      <div style={{ color: '#00b894', fontSize: '12px' }}>
+      <div style={{ color: COLORS.accent.success, fontSize: '12px' }}>
         Hits: <span id="tracker-hits">{hits}</span>
       </div>
-      <div style={{ color: '#ff7675', fontSize: '12px', marginTop: '4px' }}>
+      <div style={{ color: COLORS.accent.error, fontSize: '12px', marginTop: '4px' }}>
         Miss: <span id="tracker-misses">{misses}</span>
       </div>
     </div>

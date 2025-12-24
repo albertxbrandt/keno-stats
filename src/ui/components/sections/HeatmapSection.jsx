@@ -7,6 +7,8 @@ import { saveHeatmapSettings } from '../../../core/storage.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * HeatmapSection Component
@@ -83,10 +85,10 @@ export function HeatmapSection() {
       status={isEnabled ? 'Active' : 'Inactive'}
       defaultExpanded={false}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.sm }}>
         {/* Enable/Disable Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: '#aaa', fontSize: '10px' }}>Enable Heatmap:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Enable Heatmap:</span>
           <ToggleSwitch
             checked={isEnabled}
             onChange={handleToggle}
@@ -95,18 +97,18 @@ export function HeatmapSection() {
         </div>
 
         {/* Mode Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: '#aaa', fontSize: '10px' }}>Mode:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.sm }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Mode:</span>
           <select
             value={mode}
             onChange={handleModeChange}
             style={{
               flex: 1,
-              background: '#14202b',
-              border: '1px solid #444',
-              color: '#fff',
+              background: COLORS.bg.darkest,
+              border: `1px solid ${COLORS.border.default}`,
+              color: COLORS.text.primary,
               padding: '4px',
-              borderRadius: '4px',
+              borderRadius: BORDER_RADIUS.sm,
               fontSize: '11px',
               cursor: 'pointer'
             }}
@@ -117,8 +119,8 @@ export function HeatmapSection() {
         </div>
 
         {/* Sample Size Input */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: '#aaa', fontSize: '10px' }}>Sample Size:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.sm }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Sample Size:</span>
           <NumberInput
             value={sampleSize}
             onChange={handleSampleSizeChange}
@@ -132,11 +134,11 @@ export function HeatmapSection() {
         {isEnabled && (
           <div style={{ 
             marginTop: '4px', 
-            padding: '6px', 
-            background: '#14202b', 
-            borderRadius: '4px',
+            padding: SPACING.inputPadding, 
+            background: COLORS.bg.darkest, 
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '9px',
-            color: '#888'
+            color: COLORS.text.secondary
           }}>
             {mode === 'hot' 
               ? `Highlighting most frequent numbers from last ${sampleSize} games`

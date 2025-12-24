@@ -10,6 +10,7 @@ import { waitForBetButtonReady } from './utils/dom/utils.js';
 import { updateHeatmap } from './utils/dom/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
 import { trackPlayedNumbers } from './storage/savedNumbers.js';
+import { COLORS } from './ui/constants/colors.js';
 import { loadProfitLoss } from './storage/profitLoss.js';
 import { updateProfitLossUI } from './utils/dom/profitLossUI.js';
 import './ui/previewHighlight.js'; // Preview highlight module
@@ -132,7 +133,7 @@ function addMessageListener() {
 	window.addEventListener('message', (event) => {
 		if (event.source !== window || !event.data || event.data.type !== 'KENO_DATA_FROM_PAGE') return;
 		const statusDot = document.getElementById('tracker-status');
-		if (statusDot) { statusDot.style.color = '#00b894'; statusDot.style.textShadow = '0 0 5px #00b894'; }
+		if (statusDot) { statusDot.style.color = COLORS.accent.success; statusDot.style.textShadow = `0 0 5px ${COLORS.accent.success}`; }
 		const data = event.data.payload || {};
 		const rawDrawn = data.state?.drawnNumbers || [];
 		const rawSelected = data.state?.selectedNumbers || [];

@@ -4,6 +4,8 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { findCommonPatterns } from '../../../utils/calculations/patternAlgorithms.js';
+import { COLORS } from '../../constants/colors.js';
+import { SPACING, BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '../../constants/styles.js';
 
 /**
  * LivePatternAnalysisModal Component
@@ -172,7 +174,7 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         transform: position.transform || 'none',
         width: '350px',
         maxHeight: '80vh',
-        backgroundColor: '#1a2c38',
+        backgroundColor: COLORS.bg.darker,
         borderRadius: '12px',
         boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
         zIndex: '9999999',
@@ -187,15 +189,15 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         onMouseDown={handleMouseDownCapture}
         style={{
           padding: '15px',
-          background: '#0f212e',
-          borderBottom: '2px solid #2a3b4a',
+          background: COLORS.bg.dark,
+          borderBottom: `2px solid ${COLORS.border.default}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           cursor: 'move'
         }}
       >
-        <h3 style={{ margin: 0, color: '#74b9ff', fontSize: '16px', pointerEvents: 'none' }}>
+        <h3 style={{ margin: 0, color: COLORS.accent.info, fontSize: '16px', pointerEvents: 'none' }}>
           🔴 Live Pattern Analysis
         </h3>
         <button
@@ -203,7 +205,7 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
           style={{
             background: 'none',
             border: 'none',
-            color: '#fff',
+            color: COLORS.text.primary,
             fontSize: '20px',
             cursor: 'pointer',
             padding: 0,
@@ -216,10 +218,10 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
       </div>
       
       {/* Settings */}
-      <div style={{ padding: '15px', background: '#0f212e', borderBottom: '1px solid #2a3b4a' }}>
+      <div style={{ padding: '15px', background: COLORS.bg.dark, borderBottom: `1px solid ${COLORS.border.default}` }}>
         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
           <div style={{ flex: 1 }}>
-            <label style={{ color: '#888', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+            <label style={{ ...LABEL_STYLES, marginBottom: '4px' }}>
               Pattern Size
             </label>
             <input
@@ -230,12 +232,8 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
               max={10}
               disabled={isRunning}
               style={{
+                ...INPUT_STYLES,
                 width: '100%',
-                background: '#1a2c38',
-                color: '#fff',
-                border: '1px solid #2a3b4a',
-                borderRadius: '4px',
-                padding: '6px 8px',
                 fontSize: '12px'
               }}
             />
@@ -244,7 +242,7 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         
         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
           <div style={{ flex: 1 }}>
-            <label style={{ color: '#888', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+            <label style={{ ...LABEL_STYLES, marginBottom: '4px' }}>
               Min Hits
             </label>
             <input
@@ -255,18 +253,14 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
               max={patternSize}
               disabled={isRunning}
               style={{
+                ...INPUT_STYLES,
                 width: '100%',
-                background: '#1a2c38',
-                color: '#fff',
-                border: '1px solid #2a3b4a',
-                borderRadius: '4px',
-                padding: '6px 8px',
                 fontSize: '12px'
               }}
             />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ color: '#888', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+            <label style={{ ...LABEL_STYLES, marginBottom: '4px' }}>
               Max Hits
             </label>
             <input
@@ -277,12 +271,8 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
               max={patternSize}
               disabled={isRunning}
               style={{
+                ...INPUT_STYLES,
                 width: '100%',
-                background: '#1a2c38',
-                color: '#fff',
-                border: '1px solid #2a3b4a',
-                borderRadius: '4px',
-                padding: '6px 8px',
                 fontSize: '12px'
               }}
             />
@@ -290,7 +280,7 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         </div>
         
         <div style={{ marginBottom: '10px' }}>
-          <label style={{ color: '#888', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+          <label style={{ ...LABEL_STYLES, marginBottom: '4px' }}>
             Sample Size (fewer = faster)
           </label>
           <input
@@ -301,19 +291,15 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
             max={5000}
             disabled={isRunning}
             style={{
+              ...INPUT_STYLES,
               width: '100%',
-              background: '#1a2c38',
-              color: '#fff',
-              border: '1px solid #2a3b4a',
-              borderRadius: '4px',
-              padding: '6px 8px',
               fontSize: '12px'
             }}
           />
         </div>
         
         <div style={{ marginBottom: '10px' }}>
-          <label style={{ color: '#888', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
+          <label style={{ ...LABEL_STYLES, marginBottom: '4px' }}>
             Not Hit In (0 = off)
           </label>
           <input
@@ -324,12 +310,8 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
             max={2000}
             disabled={isRunning}
             style={{
+              ...INPUT_STYLES,
               width: '100%',
-              background: '#1a2c38',
-              color: '#fff',
-              border: '1px solid #2a3b4a',
-              borderRadius: '4px',
-              padding: '6px 8px',
               fontSize: '12px'
             }}
           />
@@ -340,7 +322,7 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            color: '#fff',
+            color: COLORS.text.primary,
             fontSize: '12px',
             cursor: 'pointer'
           }}>
@@ -362,11 +344,11 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
           onClick={isRunning ? handleStop : handleStart}
           style={{
             width: '100%',
-            background: isRunning ? '#f87171' : '#00b894',
-            color: '#fff',
+            background: isRunning ? COLORS.accent.error : COLORS.accent.success,
+            color: COLORS.text.primary,
             border: 'none',
-            padding: '8px',
-            borderRadius: '4px',
+            padding: SPACING.sm,
+            borderRadius: BORDER_RADIUS.sm,
             fontWeight: 'bold',
             cursor: 'pointer',
             fontSize: '12px'
@@ -380,9 +362,9 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
       {isRunning && (
         <div style={{
           padding: '10px 15px',
-          background: '#0a1620',
-          borderBottom: '1px solid #2a3b4a',
-          color: '#888',
+          background: COLORS.bg.darkest,
+          borderBottom: `1px solid ${COLORS.border.default}`,
+          color: COLORS.text.secondary,
           fontSize: '11px'
         }}>
           {isComputing ? (
@@ -398,16 +380,16 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         flex: 1,
         overflowY: 'auto',
         padding: '15px',
-        background: '#213743'
+        background: COLORS.bg.lighter
       }}>
         {!isRunning && (
-          <div style={{ color: '#666', textAlign: 'center', padding: '40px 20px', fontSize: '12px' }}>
+          <div style={{ color: COLORS.text.tertiary, textAlign: 'center', padding: '40px 20px', fontSize: '12px' }}>
             Configure settings above and start analysis
           </div>
         )}
         
         {isRunning && results.length === 0 && (
-          <div style={{ color: '#666', textAlign: 'center', padding: '40px 20px', fontSize: '12px' }}>
+          <div style={{ color: COLORS.text.tertiary, textAlign: 'center', padding: '40px 20px', fontSize: '12px' }}>
             No patterns match your criteria
           </div>
         )}
@@ -416,22 +398,22 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
           <div
             key={index}
             style={{
-              background: '#1a2c38',
-              borderRadius: '8px',
+              background: COLORS.bg.darker,
+              borderRadius: BORDER_RADIUS.lg,
               padding: '12px',
               marginBottom: '10px',
-              border: '1px solid #2a3b4a'
+              border: `1px solid ${COLORS.border.default}`
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <div style={{ color: '#74b9ff', fontWeight: 'bold', fontSize: '14px' }}>
+              <div style={{ color: COLORS.accent.info, fontWeight: 'bold', fontSize: '14px' }}>
                 {pattern.numbers.join(', ')}
               </div>
-              <div style={{ color: '#ffd700', fontSize: '12px' }}>
+              <div style={{ color: COLORS.accent.warning, fontSize: '12px' }}>
                 {pattern.count} hits
               </div>
             </div>
-            <div style={{ color: '#aaa', fontSize: '11px' }}>
+            <div style={{ color: COLORS.text.secondary, fontSize: '11px' }}>
               Last seen: Bet #{pattern.occurrences[pattern.occurrences.length - 1]?.betNumber || 'N/A'}
             </div>
           </div>

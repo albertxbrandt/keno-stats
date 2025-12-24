@@ -1,4 +1,6 @@
 import { h } from 'preact';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS } from '../../constants/styles.js';
 
 /**
  * Loading modal displayed while computing patterns
@@ -22,9 +24,9 @@ export function PatternLoadingModal() {
     >
       <div
         style={{
-          background: '#1a2c38',
+          background: COLORS.bg.darker,
           padding: '40px',
-          borderRadius: '12px',
+          borderRadius: BORDER_RADIUS.lg,
           textAlign: 'center',
           boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
         }}
@@ -34,8 +36,8 @@ export function PatternLoadingModal() {
             display: 'inline-block',
             width: '50px',
             height: '50px',
-            border: '4px solid #333',
-            borderTopColor: '#74b9ff',
+            border: `4px solid ${COLORS.border.default}`,
+            borderTopColor: COLORS.accent.info,
             borderRadius: '50%',
             animation: 'spin 1s linear infinite'
           }}
@@ -43,7 +45,7 @@ export function PatternLoadingModal() {
         <div
           style={{
             marginTop: '20px',
-            color: '#74b9ff',
+            color: COLORS.accent.info,
             fontSize: '16px',
             fontWeight: 'bold'
           }}

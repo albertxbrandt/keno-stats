@@ -4,6 +4,8 @@ import { getRecentlyPlayed } from '../../features/savedNumbersCore.js';
 import { stateEvents, EVENTS } from '../../core/stateEvents.js';
 import { waitForBetButtonReady } from '../../utils/utils.js';
 import { replaceSelection } from '../../utils/tileSelection.js';
+import { COLORS } from '../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../constants/styles.js';
 
 /**
  * Recent play item component
@@ -23,16 +25,16 @@ function PlayItem({ play, onSelect }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '6px 8px',
-        background: isHovered ? '#1a2c38' : '#0f212e',
-        borderRadius: '4px',
+        padding: SPACING.inputPadding,
+        background: isHovered ? COLORS.bg.darker : COLORS.bg.dark,
+        borderRadius: BORDER_RADIUS.sm,
         cursor: 'pointer',
         transition: 'background 0.2s'
       }}
     >
       <span
         style={{
-          color: '#fff',
+          color: COLORS.text.primary,
           fontSize: '11px',
           fontWeight: 'bold'
         }}
@@ -41,7 +43,7 @@ function PlayItem({ play, onSelect }) {
       </span>
       <span
         style={{
-          color: '#666',
+          color: COLORS.text.tertiary,
           fontSize: '9px'
         }}
       >
@@ -81,9 +83,9 @@ export function RecentPlays() {
     return (
       <div
         style={{
-          color: '#666',
+          color: COLORS.text.tertiary,
           fontSize: '10px',
-          padding: '8px',
+          padding: SPACING.sm,
           textAlign: 'center'
         }}
       >

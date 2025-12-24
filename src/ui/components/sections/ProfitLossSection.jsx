@@ -3,6 +3,8 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * ProfitLossSection Component
@@ -83,11 +85,11 @@ export function ProfitLossSection() {
           onChange={handleCurrencyChange}
           onClick={(e) => e.stopPropagation()} // Prevent collapse toggle
           style={{
-            background: '#14202b',
-            border: '1px solid #444',
-            color: '#fff',
+            background: COLORS.bg.darkest,
+            border: `1px solid ${COLORS.border.default}`,
+            color: COLORS.text.primary,
             padding: '2px 4px',
-            borderRadius: '4px',
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '10px',
             cursor: 'pointer'
           }}
@@ -105,7 +107,7 @@ export function ProfitLossSection() {
           justifyContent: 'space-between', 
           alignItems: 'center' 
         }}>
-          <span style={{ color: '#aaa', fontSize: '11px' }}>Session:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>Session:</span>
           {formatProfit(sessionProfit)}
         </div>
 
@@ -115,7 +117,7 @@ export function ProfitLossSection() {
           justifyContent: 'space-between', 
           alignItems: 'center' 
         }}>
-          <span style={{ color: '#aaa', fontSize: '11px' }}>Total:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>Total:</span>
           {formatProfit(totalProfit)}
         </div>
 
@@ -124,11 +126,11 @@ export function ProfitLossSection() {
           onClick={handleResetSession}
           style={{
             width: '100%',
-            background: '#2a3b4a',
-            color: '#74b9ff',
+            background: COLORS.bg.darker,
+            color: COLORS.accent.info,
             border: 'none',
-            padding: '6px',
-            borderRadius: '4px',
+            padding: SPACING.inputPadding,
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '10px',
             cursor: 'pointer',
             marginTop: '2px',

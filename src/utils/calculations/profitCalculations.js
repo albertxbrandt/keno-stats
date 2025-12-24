@@ -1,4 +1,5 @@
 // src/utils/calculations/profitCalculations.js
+import { COLORS } from '../../ui/constants/colors.js';
 
 /**
  * Calculate profit/loss from bet data
@@ -75,7 +76,7 @@ export function formatCurrency(value, currency = 'btc') {
  * @returns {string} CSS color
  */
 export function getProfitColor(value) {
-  if (value > 0) return '#00b894'; // Green
-  if (value < 0) return '#ff7675'; // Red
-  return '#aaa'; // Gray for zero
+  if (value > 0) return COLORS.accent.success; // Green
+  if (value < 0) return COLORS.accent.error; // Red
+  return COLORS.text.secondary; // Gray for zero
 }

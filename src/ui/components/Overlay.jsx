@@ -13,6 +13,8 @@ import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
 import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 import { HistorySection } from './sections/HistorySection.jsx';
 import { DragHandle } from './shared/DragHandle.jsx';
+import { COLORS } from '../constants/colors.js';
+import { SPACING, BORDER_RADIUS } from '../constants/styles.js';
 
 /**
  * Overlay Component
@@ -150,10 +152,10 @@ export function Overlay() {
         id="keno-overlay-content"
         class="tab-content"
         style={{
-          padding: '15px',
-          background: '#213743',
-          borderBottomLeftRadius: '8px',
-          borderBottomRightRadius: '8px',
+          padding: SPACING.md,
+          background: COLORS.bg.lighter,
+          borderBottomLeftRadius: BORDER_RADIUS.lg,
+          borderBottomRightRadius: BORDER_RADIUS.lg,
           display: currentView === 'tracker' ? 'block' : 'none'
         }}
       >
@@ -184,23 +186,23 @@ export function Overlay() {
         id="keno-settings-content"
         class="tab-content"
         style={{
-          padding: '15px',
-          background: '#213743',
-          borderBottomLeftRadius: '8px',
-          borderBottomRightRadius: '8px',
+          padding: SPACING.md,
+          background: COLORS.bg.lighter,
+          borderBottomLeftRadius: BORDER_RADIUS.lg,
+          borderBottomRightRadius: BORDER_RADIUS.lg,
           display: currentView === 'settings' ? 'block' : 'none'
         }}
       >
         <div style={{
-          background: '#0f212e',
-          padding: '15px',
-          borderRadius: '8px'
+          background: COLORS.bg.dark,
+          padding: SPACING.md,
+          borderRadius: BORDER_RADIUS.lg
         }}>
-          <div style={{ color: '#aaa', fontSize: '12px', marginBottom: '15px' }}>
+          <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: SPACING.md }}>
             Panel Settings
           </div>
           
-          <div style={{ color: '#666', fontSize: '11px', lineHeight: '1.6' }}>
+          <div style={{ color: COLORS.text.tertiary, fontSize: '11px', lineHeight: '1.6' }}>
             <p style={{ margin: '0 0 10px 0' }}>
               All panels are currently visible and cannot be reordered in this version.
             </p>

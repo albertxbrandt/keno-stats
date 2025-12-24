@@ -4,6 +4,9 @@
 import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { calculateHitDistribution, getPayoutMultipliers, getBarColor } from '../../utils/calculations/payoutCalculations.js';
+import { COLORS } from '../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../constants/styles.js';
+import { DEFAULTS } from '../constants/defaults.js';
 
 /**
  * PayoutGraph - Displays payout distribution for a number combination
@@ -14,7 +17,7 @@ import { calculateHitDistribution, getPayoutMultipliers, getBarColor } from '../
  * @param {string} props.riskMode - Risk mode (classic, low, medium, high)
  * @param {number} props.lookback - Number of rounds to analyze
  */
-export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high', lookback = 50 }) {
+export function PayoutGraph({ numbers, history, betMultipliers, riskMode = DEFAULTS.riskMode, lookback = DEFAULTS.lookback }) {
   // Calculate distribution data (memoized to avoid recalculation on re-renders)
   const { hitCounts, hitPercentages, analyzedCount } = useMemo(() => {
     return calculateHitDistribution(numbers, history, lookback);
@@ -37,10 +40,10 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
 
   return (
     <div className="payout-graph-wrapper" style={{
-      background: '#0f212e',
-      padding: '15px',
-      borderRadius: '8px',
-      marginBottom: '15px'
+      background: COLORS.bg.dark,
+      padding: SPACING.lg,
+      borderRadius: BORDER_RADIUS.lg,
+      marginBottom: SPACING.lg
     }}>
       {/* Header */}
       <div style={{
@@ -49,13 +52,13 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
         alignItems: 'center',
         marginBottom: '10px'
       }}>
-        <h3 style={{ color: '#74b9ff', fontSize: '14px', margin: 0 }}>
+        <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: 0 }}>
           Payout Distribution
         </h3>
       </div>
 
       {/* Subtitle */}
-      <div style={{ color: '#666', fontSize: '11px', marginBottom: '12px' }}>
+      <div style={{ color: COLORS.text.tertiary, fontSize: '11px', marginBottom: '12px' }}>
         Based on last {analyzedCount} rounds ({riskMode} risk)
       </div>
 
@@ -71,15 +74,15 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
           return (
             <div key={hitCount} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {/* Hit label */}
-              <div style={{ width: '50px', textAlign: 'right', color: '#888', fontSize: '11px' }}>
+              <div style={{ width: '50px', textAlign: 'right', color: COLORS.text.secondary, fontSize: '11px' }}>
                 {hitCount}/{numCount}
               </div>
 
               {/* Bar */}
               <div style={{
                 flex: 1,
-                background: '#14202b',
-                borderRadius: '4px',
+                background: COLORS.bg.darkest,
+                borderRadius: BORDER_RADIUS.sm,
                 height: '24px',
                 position: 'relative',
                 overflow: 'hidden'
@@ -89,7 +92,7 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
                     width: `${barWidth}%`,
                     height: '100%',
                     background: barColor,
-                    borderRadius: '4px'
+                    borderRadius: BORDER_RADIUS.sm
                   }} />
                 )}
               </div>
@@ -98,7 +101,7 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
               <div style={{
                 width: '60px',
                 textAlign: 'right',
-                color: '#fff',
+                color: COLORS.text.primary,
                 fontSize: '11px',
                 fontWeight: 'bold'
               }}>
@@ -109,7 +112,7 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
               <div style={{
                 width: '50px',
                 textAlign: 'right',
-                color: payout > 0 ? '#00b894' : '#666',
+                color: payout > 0 ? COLORS.accent.success : COLORS.text.tertiary,
                 fontSize: '11px'
               }}>
                 {payout}x
@@ -119,7 +122,7 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
               <div style={{
                 width: '40px',
                 textAlign: 'right',
-                color: '#666',
+                color: COLORS.text.tertiary,
                 fontSize: '10px'
               }}>
                 {count}
@@ -135,9 +138,9 @@ export function PayoutGraph({ numbers, history, betMultipliers, riskMode = 'high
         justifyContent: 'space-between',
         marginTop: '12px',
         paddingTop: '10px',
-        borderTop: '1px solid #1a2c38',
+        borderTop: `1px solid ${COLORS.border.lighter}`,
         fontSize: '10px',
-        color: '#666'
+        color: COLORS.text.tertiary
       }}>
         <span>Hits / Total</span>
         <span>Frequency</span>

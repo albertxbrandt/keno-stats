@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * HistorySection Component
@@ -64,7 +66,7 @@ export function HistorySection() {
           style={{
             background: 'none',
             border: 'none',
-            color: '#f55',
+            color: COLORS.accent.error,
             cursor: 'pointer',
             fontSize: '11px',
             fontWeight: 'bold',
@@ -85,17 +87,17 @@ export function HistorySection() {
           style={{
             height: '150px',
             overflowY: 'auto',
-            border: '1px solid #333',
-            background: '#14202b',
+            border: `1px solid ${COLORS.border.default}`,
+            background: COLORS.bg.darkest,
             padding: '5px',
-            borderRadius: '4px'
+            borderRadius: BORDER_RADIUS.sm
           }}
         >
           {history.length === 0 ? (
             <div style={{
-              color: '#666',
+              color: COLORS.text.tertiary,
               fontSize: '10px',
-              padding: '8px',
+              padding: SPACING.sm,
               textAlign: 'center'
             }}>
               No history yet
@@ -108,8 +110,8 @@ export function HistorySection() {
                 style={{
                   padding: '4px 6px',
                   marginBottom: '3px',
-                  background: '#0f212e',
-                  borderRadius: '3px',
+                  background: COLORS.bg.dark,
+                  borderRadius: BORDER_RADIUS.sm,
                   fontSize: '10px',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -117,27 +119,27 @@ export function HistorySection() {
                   cursor: 'pointer',
                   transition: 'background 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#1a2c38'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#0f212e'}
+                onMouseEnter={(e) => e.currentTarget.style.background = COLORS.bg.darker}
+                onMouseLeave={(e) => e.currentTarget.style.background = COLORS.bg.dark}
                 onClick={() => {
                   if (window.__keno_highlightRound) {
                     window.__keno_highlightRound(round);
                   }
                 }}
               >
-                <span style={{ color: '#74b9ff', fontWeight: 'bold', minWidth: '35px' }}>
+                <span style={{ color: COLORS.accent.info, fontWeight: 'bold', minWidth: '35px' }}>
                   {formatRoundNumber(index)}
                 </span>
                 <span style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ color: '#4ade80' }}>
+                  <span style={{ color: COLORS.accent.success }}>
                     ✓ {round.hits?.length || 0}
                   </span>
-                  <span style={{ color: '#f87171' }}>
+                  <span style={{ color: COLORS.accent.error }}>
                     ✗ {round.misses?.length || 0}
                   </span>
                 </span>
                 {round.time && (
-                  <span style={{ color: '#666', fontSize: '8px' }}>
+                  <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
                     {new Date(round.time).toLocaleTimeString()}
                   </span>
                 )}

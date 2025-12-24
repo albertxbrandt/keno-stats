@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { state } from '../../../core/state.js';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * RecentPlaysSection Component
@@ -69,11 +71,11 @@ export function RecentPlaysSection() {
             handleViewSavedNumbers();
           }}
           style={{
-            background: '#2a3b4a',
-            color: '#74b9ff',
+            background: COLORS.bg.darker,
+            color: COLORS.accent.info,
             border: 'none',
-            padding: '3px 8px',
-            borderRadius: '4px',
+            padding: SPACING.inputPadding,
+            borderRadius: BORDER_RADIUS.sm,
             fontSize: '9px',
             cursor: 'pointer',
             fontWeight: 'bold',
@@ -92,16 +94,16 @@ export function RecentPlaysSection() {
           minHeight: '60px',
           maxHeight: '200px',
           overflowY: 'auto',
-          background: '#14202b',
-          borderRadius: '4px',
-          padding: '8px'
+          background: COLORS.bg.darkest,
+          borderRadius: BORDER_RADIUS.sm,
+          padding: SPACING.sm
         }}
       >
         {recentPlays.length === 0 ? (
           <div style={{
-            color: '#666',
+            color: COLORS.text.tertiary,
             fontSize: '10px',
-            padding: '8px',
+            padding: SPACING.sm,
             textAlign: 'center'
           }}>
             No recent plays
@@ -111,11 +113,11 @@ export function RecentPlaysSection() {
             <div
               key={index}
               style={{
-                background: '#0f212e',
-                padding: '8px',
-                borderRadius: '4px',
+                background: COLORS.bg.dark,
+                padding: SPACING.sm,
+                borderRadius: BORDER_RADIUS.sm,
                 marginBottom: '6px',
-                border: '1px solid #2a3b4a',
+                border: `1px solid ${COLORS.border.default}`,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
@@ -126,24 +128,24 @@ export function RecentPlaysSection() {
                 style={{
                   flex: 1,
                   cursor: 'pointer',
-                  color: '#fff',
+                  color: COLORS.text.primary,
                   fontSize: '11px',
                   fontWeight: 'bold',
                   userSelect: 'none'
                 }}
-                onMouseEnter={(e) => e.target.style.color = '#74b9ff'}
-                onMouseLeave={(e) => e.target.style.color = '#fff'}
+                onMouseEnter={(e) => e.target.style.color = COLORS.accent.info}
+                onMouseLeave={(e) => e.target.style.color = COLORS.text.primary}
               >
                 {play.numbers.join(', ')}
               </div>
               <button
                 onClick={() => handleShowInfo(play.numbers)}
                 style={{
-                  padding: '4px 8px',
-                  background: '#2a3b4a',
-                  color: '#74b9ff',
+                  padding: SPACING.inputPadding,
+                  background: COLORS.bg.darker,
+                  color: COLORS.accent.info,
                   border: 'none',
-                  borderRadius: '4px',
+                  borderRadius: BORDER_RADIUS.sm,
                   fontSize: '9px',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',

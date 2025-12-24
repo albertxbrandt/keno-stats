@@ -12,6 +12,8 @@ import { AutoRefreshControl } from '../generator/AutoRefreshControl.jsx';
 import { ShapesParams } from '../generator/ShapesParams.jsx';
 import { MomentumParams } from '../generator/MomentumParams.jsx';
 import { saveGeneratorSettings } from '../../../core/storage.js';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * GeneratorSection Component
@@ -128,14 +130,14 @@ export function GeneratorSection() {
       title="🎲 Number Generator"
       icon={null}
       dataSection="generator"
-      titleColor="#74b9ff"
+      titleColor={COLORS.accent.info}
       maxHeight={650}
       defaultExpanded={true}
       pinnable={true}
     >
       {/* Count input */}
-      <div style={{ marginBottom: '8px' }}>
-        <span style={{ color: '#aaa', fontSize: '10px' }}>
+      <div style={{ marginBottom: SPACING.sm }}>
+        <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
           Count:
         </span>
         <NumberInput
@@ -150,8 +152,8 @@ export function GeneratorSection() {
 
       {/* Sample size input (for frequency-based methods) */}
       {usesFrequencyParams && (
-        <div style={{ marginBottom: '8px' }}>
-          <span style={{ color: '#aaa', fontSize: '10px' }}>
+        <div style={{ marginBottom: SPACING.sm }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
             Sample Size (last N games):
           </span>
           <NumberInput
@@ -184,11 +186,11 @@ export function GeneratorSection() {
         id="generate-numbers-btn"
         style={{
           width: '100%',
-          background: '#74b9ff',
-          color: '#fff',
+          background: COLORS.accent.info,
+          color: COLORS.text.primary,
           border: 'none',
-          padding: '8px',
-          borderRadius: '4px',
+          padding: SPACING.sm,
+          borderRadius: BORDER_RADIUS.sm,
           fontWeight: 'bold',
           cursor: 'pointer',
           fontSize: '12px',
@@ -202,11 +204,11 @@ export function GeneratorSection() {
         onClick={handleCompareClick}
         style={{
           width: '100%',
-          background: '#2a3f4f',
-          color: '#74b9ff',
-          border: '1px solid #3a5f6f',
+          background: COLORS.bg.darker,
+          color: COLORS.accent.info,
+          border: `1px solid ${COLORS.border.light}`,
           padding: '4px',
-          borderRadius: '4px',
+          borderRadius: BORDER_RADIUS.sm,
           cursor: 'pointer',
           fontSize: '9px',
           marginTop: '4px'

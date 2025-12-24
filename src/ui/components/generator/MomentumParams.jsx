@@ -7,6 +7,8 @@ import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { saveGeneratorSettings } from '../../../core/storage.js';
 import { NumberInput } from '../shared/NumberInput.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS } from '../../constants/styles.js';
 
 /**
  * MomentumParams Component
@@ -120,19 +122,19 @@ export function MomentumParams() {
       <div style={{
         marginBottom: '6px',
         padding: '6px',
-        background: '#14202b',
-        borderRadius: '4px'
+        background: COLORS.bg.darkest,
+        borderRadius: BORDER_RADIUS.sm
       }}>
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '2px'
         }}>
-          <span style={{ color: '#666', fontSize: '9px' }}>
+          <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>
             Current Numbers:
           </span>
           <span style={{
-            color: '#74b9ff',
+            color: COLORS.accent.info,
             fontSize: '8px',
             fontWeight: '500',
             lineHeight: '1.3',
@@ -150,9 +152,9 @@ export function MomentumParams() {
           marginBottom: '6px',
           cursor: 'pointer',
           padding: '4px',
-          background: '#14202b',
-          borderRadius: '4px',
-          border: '1px solid #3a5f6f'
+          background: COLORS.bg.darkest,
+          borderRadius: BORDER_RADIUS.sm,
+          border: `1px solid ${COLORS.border.light}`
         }}
       >
         <div style={{
@@ -161,14 +163,14 @@ export function MomentumParams() {
           alignItems: 'center'
         }}>
           <span style={{
-            color: '#74b9ff',
+            color: COLORS.accent.info,
             fontSize: '9px',
             fontWeight: '600'
           }}>
             ⚙️ Advanced Settings
           </span>
           <span style={{
-            color: '#74b9ff',
+            color: COLORS.accent.info,
             fontSize: '10px',
             transform: advancedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 0.3s ease'
@@ -197,15 +199,15 @@ export function MomentumParams() {
             alignItems: 'center',
             marginBottom: '6px'
           }}>
-            <span style={{ color: '#666', fontSize: '8px' }}>
+            <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
               Uses Sample Size × 4 for baseline
             </span>
             <button
               onClick={handleReset}
               style={{
-                background: '#2a3f4f',
-                color: '#74b9ff',
-                border: '1px solid #3a5f6f',
+                background: COLORS.bg.darker,
+                color: COLORS.accent.info,
+                border: `1px solid ${COLORS.border.light}`,
                 padding: '2px 6px',
                 borderRadius: '3px',
                 cursor: 'pointer',
@@ -223,7 +225,7 @@ export function MomentumParams() {
             marginBottom: '6px'
           }}>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: COLORS.text.secondary, fontSize: '9px' }}>
                 Detection:
               </span>
               <NumberInput

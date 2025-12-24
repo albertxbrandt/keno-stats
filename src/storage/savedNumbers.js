@@ -1,6 +1,8 @@
 // src/storage/savedNumbers.js
 // CRUD operations for saved number combinations and recent plays
 
+import { DEFAULTS } from '../ui/constants/defaults.js';
+
 const storageApi = typeof browser !== 'undefined' ? browser : chrome;
 
 /**
@@ -102,8 +104,8 @@ export function getRecentlyPlayed() {
 export function getGraphPreferences() {
   return storageApi.storage.local.get(['graphRiskMode', 'graphLookback']).then((result) => {
     return {
-      riskMode: result.graphRiskMode || 'high',
-      lookback: result.graphLookback || 50
+      riskMode: result.graphRiskMode || DEFAULTS.riskMode,
+      lookback: result.graphLookback || DEFAULTS.lookback
     };
   });
 }

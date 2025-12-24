@@ -5,6 +5,8 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { Modal } from '../shared/Modal.jsx';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * ComparisonWindow Component
@@ -82,13 +84,13 @@ export function ComparisonWindow({ onClose }) {
 
   // Method card component
   const MethodCard = ({ method, rank }) => {
-    const profitColor = method.totalProfit > 0 ? '#00b894' : method.totalProfit < 0 ? '#ff7675' : '#dfe6e9';
+    const profitColor = method.totalProfit > 0 ? COLORS.accent.success : method.totalProfit < 0 ? COLORS.accent.error : COLORS.text.tertiary;
     
     return (
       <div style={{
-        background: 'linear-gradient(135deg, #14202b 0%, #1a2833 100%)',
-        padding: '12px',
-        borderRadius: '8px',
+        background: `linear-gradient(135deg, ${COLORS.bg.darkest} 0%, ${COLORS.bg.darker} 100%)`,
+        padding: SPACING.md,
+        borderRadius: BORDER_RADIUS.md,
         border: `2px solid ${method.color}30`,
         position: 'relative'
       }}>
@@ -102,13 +104,13 @@ export function ComparisonWindow({ onClose }) {
         <div style={{ fontSize: '22px', fontWeight: 700, color: profitColor, marginBottom: '4px' }}>
           {method.totalProfit.toFixed(2)}x
         </div>
-        <div style={{ fontSize: '9px', color: '#888' }}>
+        <div style={{ fontSize: '9px', color: COLORS.text.secondary }}>
           Total Profit ({method.roundsTracked} rounds)
         </div>
-        <div style={{ fontSize: '10px', color: '#aaa', marginTop: '6px' }}>
+        <div style={{ fontSize: '10px', color: COLORS.text.secondary, marginTop: '6px' }}>
           Avg: {method.avgProfit.toFixed(2)}x/round
         </div>
-        <div style={{ fontSize: '9px', color: '#666', marginTop: '2px' }}>
+        <div style={{ fontSize: '9px', color: COLORS.text.tertiary, marginTop: '2px' }}>
           Hits: {method.avgHits.toFixed(2)}/round
         </div>
       </div>
@@ -135,7 +137,7 @@ export function ComparisonWindow({ onClose }) {
     ctx.clearRect(0, 0, width, height);
 
     if (comparisonData.length === 0) {
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = COLORS.text.tertiary;
       ctx.font = '12px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('No data yet', width / 2, height / 2);
@@ -153,7 +155,7 @@ export function ComparisonWindow({ onClose }) {
     const yMax = Math.max(maxProfit + 1, 5);
 
     // Draw grid
-    ctx.strokeStyle = '#2a3f4f';
+    ctx.strokeStyle = COLORS.border.default;
     ctx.lineWidth = 1;
     for (let i = 0; i <= 5; i++) {
       const y = padding.top + (chartHeight / 5) * i;
@@ -164,7 +166,7 @@ export function ComparisonWindow({ onClose }) {
 
       // Y axis labels
       const value = yMax - (yMax / 5) * i;
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = COLORS.text.tertiary;
       ctx.font = '9px Inter, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(value.toFixed(1), padding.left - 8, y + 3);
@@ -223,7 +225,7 @@ export function ComparisonWindow({ onClose }) {
   // Header extra content (lookback input)
   const headerExtra = (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ color: '#aaa', fontSize: '10px' }}>Lookback:</span>
+      <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Lookback:</span>
       <input
         type="number"
         min="10"
@@ -232,11 +234,11 @@ export function ComparisonWindow({ onClose }) {
         onChange={handleLookbackChange}
         style={{
           width: '50px',
-          background: '#14202b',
-          border: '1px solid #444',
-          color: '#fff',
-          padding: '3px 6px',
-          borderRadius: '4px',
+          background: COLORS.bg.darkest,
+          border: `1px solid ${COLORS.border.default}`,
+          color: COLORS.text.primary,
+          padding: SPACING.inputPadding,
+          borderRadius: BORDER_RADIUS.sm,
           textAlign: 'center',
           fontSize: '10px'
         }}

@@ -1,4 +1,5 @@
 // src/utils/calculations/payoutCalculations.js
+import { COLORS } from '../../ui/constants/colors.js';
 // Pure calculation functions for payout analysis
 
 import { getDrawn } from '../../core/storage.js';
@@ -60,8 +61,8 @@ export function getPayoutMultipliers(betMultipliers, riskMode, numCount) {
  * @returns {string} Hex color code
  */
 export function getBarColor(hitCount, totalCount) {
-  if (hitCount === totalCount) return '#00b894'; // Perfect hit - green
-  if (hitCount >= totalCount - 2) return '#74b9ff'; // Close - blue
-  if (hitCount >= totalCount / 2) return '#fdcb6e'; // Half - yellow
-  return '#ff7675'; // Low - red
+  if (hitCount === totalCount) return COLORS.accent.success; // Perfect hit - green
+  if (hitCount >= totalCount - 2) return COLORS.accent.info; // Close - blue
+  if (hitCount >= totalCount / 2) return COLORS.accent.warning; // Half - yellow
+  return COLORS.accent.error; // Low - red
 }

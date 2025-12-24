@@ -2,6 +2,8 @@
 // Reusable toggle switch component with animated dot and track
 // Used throughout the overlay for on/off settings
 
+import { COLORS } from '../../constants/colors.js';
+
 /**
  * ToggleSwitch Component
  * 
@@ -13,10 +15,10 @@
  * @param {boolean} props.checked - Current toggle state (on/off)
  * @param {Function} props.onChange - Callback fired when toggle is clicked
  * @param {string} [props.dotId] - Optional ID for the dot element (for external references)
- * @param {string} [props.activeColor='#74b9ff'] - Color when toggle is ON
- * @param {string} [props.inactiveColor='white'] - Color when toggle is OFF
- * @param {string} [props.trackActiveColor='#2a3b4a'] - Track background when ON
- * @param {string} [props.trackInactiveColor='#444'] - Track background when OFF
+ * @param {string} [props.activeColor] - Color when toggle is ON (defaults to COLORS.accent.info)
+ * @param {string} [props.inactiveColor] - Color when toggle is OFF (defaults to COLORS.text.primary)
+ * @param {string} [props.trackActiveColor] - Track background when ON (defaults to COLORS.bg.darker)
+ * @param {string} [props.trackInactiveColor] - Track background when OFF (defaults to COLORS.border.default)
  * 
  * @example
  * <ToggleSwitch 
@@ -29,10 +31,10 @@ export function ToggleSwitch({
   checked,
   onChange,
   dotId,
-  activeColor = '#74b9ff',
-  inactiveColor = 'white',
-  trackActiveColor = '#2a3b4a',
-  trackInactiveColor = '#444'
+  activeColor = COLORS.accent.info,
+  inactiveColor = COLORS.text.primary,
+  trackActiveColor = COLORS.bg.darker,
+  trackInactiveColor = COLORS.border.default
 }) {
   const dotTransform = checked ? 'translateX(14px)' : 'translateX(0px)';
   const dotColor = checked ? activeColor : inactiveColor;

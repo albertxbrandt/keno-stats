@@ -2,6 +2,8 @@
 // Reusable modal/window component with dragging and optional resizing
 
 import { useState, useEffect, useRef } from 'preact/hooks';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * Modal Component
@@ -86,9 +88,9 @@ export function Modal({
         minWidth: '400px',
         height: `${defaultSize.height}px`,
         minHeight: '400px',
-        background: 'linear-gradient(135deg, #0f212e 0%, #1a2c38 100%)',
-        border: '2px solid #2a3f4f',
-        borderRadius: '12px',
+        background: `linear-gradient(135deg, ${COLORS.bg.dark} 0%, ${COLORS.bg.darker} 100%)`,
+        border: `2px solid ${COLORS.border.default}`,
+        borderRadius: BORDER_RADIUS.lg,
         boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
         zIndex: zIndex,
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -101,10 +103,10 @@ export function Modal({
         ref={headerRef}
         onMouseDown={handleMouseDown}
         style={{
-          background: 'linear-gradient(90deg, #1a2c38 0%, #2a3f4f 100%)',
-          padding: '12px 16px',
+          background: `linear-gradient(90deg, ${COLORS.bg.darker} 0%, ${COLORS.border.default} 100%)`,
+          padding: SPACING.md,
           cursor: isDragging ? 'grabbing' : 'move',
-          borderBottom: '2px solid #3a5f6f',
+          borderBottom: `2px solid ${COLORS.border.light}`,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -113,7 +115,7 @@ export function Modal({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {icon && <span style={{ fontSize: '18px' }}>{icon}</span>}
-          <span style={{ color: '#74b9ff', fontWeight: 700, fontSize: '14px' }}>{title}</span>
+          <span style={{ color: COLORS.accent.info, fontWeight: 700, fontSize: '14px' }}>{title}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {headerExtra}
@@ -122,7 +124,7 @@ export function Modal({
             style={{
               background: 'none',
               border: 'none',
-              color: '#ff7675',
+              color: COLORS.accent.error,
               cursor: 'pointer',
               fontSize: '18px',
               lineHeight: 1,

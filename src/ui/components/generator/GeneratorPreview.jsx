@@ -5,6 +5,8 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * GeneratorPreview Component
@@ -61,12 +63,12 @@ export function GeneratorPreview() {
       // Update countdown
       if (!autoRefresh) {
         setCountdown('Manual');
-        setCountdownColor('#666');
+        setCountdownColor(COLORS.text.tertiary);
       } else {
         const roundsSinceRefresh = currentRound - lastRefresh;
         const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
         setCountdown(`${roundsUntilRefresh}/${interval} rounds`);
-        setCountdownColor(roundsUntilRefresh === 0 ? '#00b894' : '#74b9ff');
+        setCountdownColor(roundsUntilRefresh === 0 ? COLORS.accent.success : COLORS.accent.info);
       }
 
       // Get preview numbers from state.nextNumbers (set by numberSelection.js)
@@ -110,12 +112,12 @@ export function GeneratorPreview() {
 
   return (
     <div style={{
-      marginTop: '8px',
-      marginBottom: '8px',
-      padding: '8px',
-      background: '#14202b',
-      borderRadius: '4px',
-      border: '1px solid #3a5f6f'
+      marginTop: SPACING.sm,
+      marginBottom: SPACING.sm,
+      padding: SPACING.sm,
+      background: COLORS.bg.darkest,
+      borderRadius: BORDER_RADIUS.sm,
+      border: `1px solid ${COLORS.border.light}`
     }}>
       <div style={{
         display: 'flex',
@@ -124,7 +126,7 @@ export function GeneratorPreview() {
         marginBottom: '4px'
       }}>
         <span style={{
-          color: '#74b9ff',
+          color: COLORS.accent.info,
           fontSize: '9px',
           fontWeight: '600'
         }}>
@@ -132,7 +134,7 @@ export function GeneratorPreview() {
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
-            color: '#666',
+            color: COLORS.text.tertiary,
             fontSize: '8px'
           }}>
             {methodDisplay}
@@ -155,7 +157,7 @@ export function GeneratorPreview() {
         alignItems: 'center'
       }}>
         {previewNumbers.length === 0 ? (
-          <span style={{ color: '#666', fontSize: '9px' }}>-</span>
+          <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>-</span>
         ) : (
           previewNumbers.map(({ number, wasHit }) => {
             const baseStyle = {

@@ -3,6 +3,8 @@
 // Handles hover/pin functionality and smooth transitions
 
 import { useState } from 'preact/hooks';
+import { COLORS } from '../../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
 
 /**
  * CollapsibleSection Component
@@ -18,7 +20,7 @@ import { useState } from 'preact/hooks';
  * @param {string} [props.icon] - Optional emoji/icon to display before title
  * @param {preact.VNode} props.children - Content to show when expanded
  * @param {string} [props.dataSection] - data-section attribute for settings persistence
- * @param {string} [props.titleColor='#fff'] - Color of the title text
+ * @param {string} [props.titleColor] - Color of the title text (defaults to COLORS.text.primary)
  * @param {string} [props.maxHeight='200px'] - Maximum height when expanded
  * @param {boolean} [props.defaultExpanded=false] - Whether to start expanded
  * @param {boolean} [props.pinnable=true] - Whether clicking header toggles pinned state
@@ -39,7 +41,7 @@ export function CollapsibleSection({
   icon,
   children,
   dataSection,
-  titleColor = '#fff',
+  titleColor = COLORS.text.primary,
   maxHeight = '200px',
   defaultExpanded = false,
   pinnable = true,
@@ -73,16 +75,16 @@ export function CollapsibleSection({
     }
   };
 
-  const headerBgColor = isPinned ? '#1a2c38' : 'transparent';
+  const headerBgColor = isPinned ? COLORS.bg.darker : 'transparent';
 
   return (
     <div 
       data-section={dataSection}
       style={{
-        marginBottom: '15px',
-        background: '#0f212e',
-        padding: '8px',
-        borderRadius: '4px',
+        marginBottom: SPACING.lg,
+        background: COLORS.bg.dark,
+        padding: SPACING.sm,
+        borderRadius: BORDER_RADIUS.sm,
         cursor: pinnable ? 'pointer' : 'default'
       }}
       onMouseEnter={handleMouseEnter}

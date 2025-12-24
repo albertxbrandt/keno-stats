@@ -3,17 +3,10 @@
 
 import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
-
-/**
- * Get drawn numbers from a round (handles both old and new formats)
- */
-function getDrawn(round) {
-  if (round.drawn) return round.drawn;
-  if (round.kenoBet?.state?.drawnNumbers) {
-    return round.kenoBet.state.drawnNumbers.map(n => n + 1);
-  }
-  return [];
-}
+import { getDrawn } from '../../core/storage.js';
+import { COLORS } from '../constants/colors.js';
+import { BORDER_RADIUS, SPACING } from '../constants/styles.js';
+import { DEFAULTS } from '../constants/defaults.js';
 
 /**
  * ProfitLossGraph - Displays cumulative profit/loss line graph
@@ -24,7 +17,7 @@ function getDrawn(round) {
  * @param {string} props.riskMode - Risk mode (classic, low, medium, high)
  * @param {number} props.lookback - Number of rounds to analyze
  */
-export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = 'high', lookback = 50 }) {
+export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = DEFAULTS.riskMode, lookback = DEFAULTS.lookback }) {
   // Calculate profit/loss data (memoized)
   const graphData = useMemo(() => {
     if (!betMultipliers || !history || history.length === 0) {
@@ -74,7 +67,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
 
   if (!betMultipliers) {
     return (
-      <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
+      <div style={{ color: COLORS.text.tertiary, textAlign: 'center', padding: '20px' }}>
         Loading payout data...
       </div>
     );
@@ -82,7 +75,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
 
   if (graphData.points.length === 0) {
     return (
-      <div style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
+      <div style={{ color: COLORS.text.tertiary, textAlign: 'center', padding: '20px' }}>
         No data available for selected range.
       </div>
     );
@@ -138,10 +131,10 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
 
   return (
     <div style={{
-      background: '#0f212e',
-      padding: '15px',
-      borderRadius: '8px',
-      marginBottom: '15px'
+      background: COLORS.bg.dark,
+      padding: SPACING.lg,
+      borderRadius: BORDER_RADIUS.lg,
+      marginBottom: SPACING.lg
     }}>
       {/* Header */}
       <div style={{
@@ -150,7 +143,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
         alignItems: 'center',
         marginBottom: '10px'
       }}>
-        <h3 style={{ color: '#74b9ff', fontSize: '14px', margin: 0 }}>
+        <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: 0 }}>
           📈 Cumulative Profit/Loss
         </h3>
       </div>
@@ -162,35 +155,35 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
         gap: '10px',
         marginBottom: '15px',
         padding: '10px',
-        background: '#1a2c38',
-        borderRadius: '6px'
+        background: COLORS.bg.darker,
+        borderRadius: BORDER_RADIUS.md
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            color: totalPL >= 0 ? '#00b894' : '#ff7675',
+            color: totalPL >= 0 ? COLORS.accent.success : COLORS.accent.error,
             fontSize: '18px',
             fontWeight: 'bold'
           }}>
             {totalPL >= 0 ? '+' : ''}{totalPL.toFixed(2)}x
           </div>
-          <div style={{ color: '#666', fontSize: '10px' }}>Total P/L</div>
+          <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Total P/L</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#00b894', fontSize: '18px', fontWeight: 'bold' }}>
+          <div style={{ color: COLORS.accent.success, fontSize: '18px', fontWeight: 'bold' }}>
             {wins}
           </div>
-          <div style={{ color: '#666', fontSize: '10px' }}>Wins</div>
+          <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Wins</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#74b9ff', fontSize: '18px', fontWeight: 'bold' }}>
+          <div style={{ color: COLORS.accent.info, fontSize: '18px', fontWeight: 'bold' }}>
             {winRate}%
           </div>
-          <div style={{ color: '#666', fontSize: '10px' }}>Win Rate</div>
+          <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Win Rate</div>
         </div>
       </div>
 
       {/* Subtitle */}
-      <div style={{ color: '#666', fontSize: '11px', marginBottom: '10px' }}>
+      <div style={{ color: COLORS.text.tertiary, fontSize: '11px', marginBottom: '10px' }}>
         Based on last {points.length} rounds ({riskMode} risk)
       </div>
 
@@ -208,7 +201,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
               y1={label.y}
               x2={graphWidth - padding.right}
               y2={label.y}
-              stroke="#2a3b4a"
+              stroke={COLORS.border.light}
               strokeWidth="0.5"
               opacity="0.3"
             />
@@ -231,7 +224,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
           y1={zeroY}
           x2={graphWidth - padding.right}
           y2={zeroY}
-          stroke="#666"
+          stroke={COLORS.text.tertiary}
           strokeWidth="1.5"
           strokeDasharray="4,4"
         />
@@ -240,7 +233,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
           y={zeroY}
           textAnchor="end"
           dominantBaseline="middle"
-          fill="#888"
+          fill={COLORS.text.secondary}
           fontSize="10"
           fontWeight="bold"
         >
@@ -254,7 +247,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
             x={label.x}
             y={graphHeight - 10}
             textAnchor="middle"
-            fill="#666"
+            fill={COLORS.text.tertiary}
             fontSize="9"
           >
             #{label.betNumber}
@@ -264,14 +257,14 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
         {/* Line path */}
         <path
           d={pathData}
-          stroke={totalPL >= 0 ? '#00b894' : '#ff7675'}
+          stroke={totalPL >= 0 ? COLORS.accent.success : COLORS.accent.error}
           strokeWidth="2"
           fill="none"
         />
 
         {/* Data points */}
         {svgPoints.map((p, i) => {
-          const color = p.pl > 0 ? '#00b894' : p.pl < 0 ? '#ff7675' : '#888';
+          const color = p.pl > 0 ? COLORS.accent.success : p.pl < 0 ? COLORS.accent.error : COLORS.text.secondary;
           return (
             <circle
               key={i}
@@ -279,7 +272,7 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
               cy={p.y}
               r="3"
               fill={color}
-              stroke="#fff"
+              stroke={COLORS.text.primary}
               strokeWidth="1"
             >
               <title>
@@ -294,9 +287,9 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = '
       <div style={{
         marginTop: '10px',
         paddingTop: '10px',
-        borderTop: '1px solid #1a2c38',
+        borderTop: `1px solid ${COLORS.border.lighter}`,
         fontSize: '10px',
-        color: '#666',
+        color: COLORS.text.tertiary,
         textAlign: 'center'
       }}>
         Each point shows cumulative profit/loss. Green = win, Red = loss.
