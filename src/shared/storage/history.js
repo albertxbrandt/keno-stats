@@ -3,6 +3,7 @@
 
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
+import { clearHighlight } from '@/shared/utils/dom/tileSelection.js';
 import { COLORS } from '@/shared/constants/colors.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
@@ -309,7 +310,7 @@ export function clearHistory() {
       if (preserved.acceptedDate) {
         restoreData.acceptedDate = preserved.acceptedDate;
       }
-      
+
       return storageApi.storage.local.set(restoreData).then(() => {
         state.currentHistory = [];
         stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
@@ -389,7 +390,7 @@ function createHistoryItem(round, roundNumber, hits, misses) {
   div.addEventListener('mouseleave', () => {
     div.style.backgroundColor = 'transparent';
     div.style.borderRadius = '';
-    if (window.__keno_clearHighlight) window.__keno_clearHighlight();
+    clearHighlight();
   });
   div.innerHTML = `
     <span style="color:${COLORS.text.secondary}">#${roundNumber}</span>
@@ -427,7 +428,7 @@ export async function importHistory(historyData) {
   chunks.forEach((chunk, index) => {
     writeData[`history_chunk_${index}`] = chunk;
   });
-  
+
   // Ensure disclaimerAccepted is preserved
   if (preserved.disclaimerAccepted) {
     writeData.disclaimerAccepted = preserved.disclaimerAccepted;

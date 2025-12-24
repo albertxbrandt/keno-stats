@@ -18,6 +18,17 @@ import { SettingsPanel } from './SettingsPanel.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 
+// Component mapping for sections
+const SECTION_COMPONENTS = {
+  heatmap: HeatmapSection,
+  numberGenerator: GeneratorSection,
+  hitsMiss: HitsMissSection,
+  profitLoss: ProfitLossSection,
+  patternAnalysis: PatternAnalysisSection,
+  recentPlays: RecentPlaysSection,
+  history: HistorySection
+};
+
 /**
  * Overlay Component
  * 
@@ -134,22 +145,6 @@ export function Overlay() {
     }
   };
 
-  const renderSection = (sectionId) => {
-    if (panelVisibility[sectionId] === false) return null;
-
-    switch (sectionId) {
-      case 'heatmap': return <HeatmapSection key="heatmap" />;
-      case 'numberGenerator': return <GeneratorSection key="generator" />;
-      case 'hitsMiss': return <HitsMissSection key="hitsMiss" />;
-      case 'profitLoss': return <ProfitLossSection key="profitLoss" />;
-      case 'patternAnalysis': return <PatternAnalysisSection key="patternAnalysis" />;
-      case 'recentPlays': return <RecentPlaysSection key="recentPlays" />;
-      case 'history': return <HistorySection key="history" />;
-      case 'autoplay': return null; // Disabled
-      default: return null;
-    }
-  };
-
   if (!isVisible) {
     return null;
   }
@@ -197,7 +192,11 @@ export function Overlay() {
           display: currentView === 'tracker' ? 'block' : 'none'
         }}
       >
-        {panelOrder.map(renderSection)}
+        {/* Render sections dynamically based on order and visibility */}
+        {panelOrder.map(sectionId => {
+          const Component = SECTION_COMPONENTS[sectionId];
+          return panelVisibility[sectionId] && Component ? <Component key={sectionId} /> : null;
+        })}
       </div>
 
       {/* Settings Tab Content */}

@@ -46,17 +46,13 @@ export const state = {
     panelVisibility: {
         heatmap: true,
         numberGenerator: true,
-        sampleSize: true, // Legacy
-        predict: true, // Legacy
-        momentum: true, // Legacy
         hitsMiss: true,
-        autoplay: true,
         profitLoss: true,
         patternAnalysis: true,
         recentPlays: true,
         history: true
     },
-    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'],
+    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'],
     // Method Comparison Window
     isComparisonWindowOpen: false,
     comparisonLookback: 50, // How many rounds to track

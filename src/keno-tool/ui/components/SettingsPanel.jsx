@@ -7,33 +7,27 @@ import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { savePanelVisibility, savePanelOrder } from '@/keno-tool/core/storage.js';
+import { PANEL_SECTIONS } from '@/keno-tool/ui/constants/sections.js';
 
 export function SettingsPanel() {
   const [panelVisibility, setPanelVisibility] = useState({ ...state.panelVisibility });
-  const [panelOrder, setPanelOrder] = useState([...(state.panelOrder || defaultOrder)]);
+  const [panelOrder, setPanelOrder] = useState([...(state.panelOrder || getDefaultOrder())]);
   const [draggedItem, setDraggedItem] = useState(null);
 
-  const defaultOrder = ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'];
+  // Get default order from PANEL_SECTIONS
+  function getDefaultOrder() {
+    return PANEL_SECTIONS.map(s => s.id);
+  }
 
-  // Map section IDs to display data
-  const sectionData = {
-    heatmap: { label: 'Heatmap', icon: '🗺️' },
-    numberGenerator: { label: 'Number Generator', icon: '🎲' },
-    hitsMiss: { label: 'Hits / Miss Display', icon: '✅' },
-    autoplay: { label: 'Auto-Play', icon: '▶️' },
-    profitLoss: { label: 'Profit/Loss', icon: '💰' },
-    patternAnalysis: { label: 'Pattern Analysis', icon: '🔍' },
-    recentPlays: { label: 'Recent Plays', icon: '🎯' },
-    history: { label: 'History', icon: '📋' }
-  };
+  // Create section data map from PANEL_SECTIONS
+  const sectionDataMap = PANEL_SECTIONS.reduce((acc, section) => {
+    acc[section.id] = section;
+    return acc;
+  }, {});
 
   // Sync with global state on mount
   useEffect(() => {
-    // Filter out 'autoplay' if it's disabled in the codebase/TOS
-    // For now we keep it in the list if it's in the state order,
-    // but we should probably filter it out if not implemented.
-    // However, keeping state consistent is safer.
-    setPanelOrder([...(state.panelOrder || defaultOrder)]);
+    setPanelOrder([...(state.panelOrder || getDefaultOrder())]);
   }, []);
 
   const handleToggle = (section) => (e) => {
@@ -65,7 +59,7 @@ export function SettingsPanel() {
     }
 
     // Filter out the item being dragged
-    let newOrder = [...panelOrder];
+    const newOrder = [...panelOrder];
     const draggedSectionId = newOrder[draggedItem];
 
     // Remove from old position
@@ -85,13 +79,9 @@ export function SettingsPanel() {
     state.panelOrder = panelOrder;
     savePanelOrder();
 
-    // Emit event to notify Overlay (reuse SETTINGS_CHANGED or add new one)
-    // We can emit SETTINGS_CHANGED with visibility, or a specific ORDER_CHANGED
-    // Overlay currently listens to SETTINGS_CHANGED for visibility.
-    // Let's add ORDER_CHANGED to stateEvents.
+    // Emit event to notify Overlay
     stateEvents.emit('order:changed', panelOrder);
   };
-
   return (
     <div style={{
       background: COLORS.bg.dark,
@@ -104,7 +94,7 @@ export function SettingsPanel() {
 
       <div id="settings-list">
         {panelOrder.map((sectionId, index) => {
-          const section = sectionData[sectionId];
+          const section = sectionDataMap[sectionId];
           if (!section) return null; // Skip unknown sections
 
           return (

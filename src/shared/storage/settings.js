@@ -2,26 +2,33 @@
 // Generator and heatmap settings persistence
 
 import { state } from '@/keno-tool/core/state.js';
+import { validatePanelVisibility } from '@/keno-tool/ui/constants/sections.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
 /**
  * Save panel visibility settings to storage
+ * Validates and cleans panel visibility before saving
  * @returns {void}
  */
 export function savePanelVisibility() {
-  storageApi.storage.local.set({ panelVisibility: state.panelVisibility });
+  const validated = validatePanelVisibility(state.panelVisibility);
+  state.panelVisibility = validated;
+  storageApi.storage.local.set({ panelVisibility: validated });
 }
 
 /**
  * Load panel visibility settings from storage
+ * Validates and merges with defaults
  * @returns {Promise<Object|null>} Settings object or null if not found
  */
 export function loadPanelVisibility() {
   return storageApi.storage.local.get('panelVisibility').then(res => {
     if (res.panelVisibility) {
-      state.panelVisibility = { ...state.panelVisibility, ...res.panelVisibility };
-      return res.panelVisibility;
+      const merged = { ...state.panelVisibility, ...res.panelVisibility };
+      const validated = validatePanelVisibility(merged);
+      state.panelVisibility = validated;
+      return validated;
     }
     return null;
   });
