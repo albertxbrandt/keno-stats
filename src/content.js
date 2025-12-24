@@ -12,7 +12,7 @@ import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
 import { trackPlayedNumbers, updateRecentPlayedUI } from './features/savedNumbers.js';
 import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
 import { initComparisonWindow } from './features/comparisonBridge.js';
-import './features/patterns.js'; // Import pattern analysis module (sets up window hooks)
+import './features/patternsBridge.js'; // Pattern analysis (Preact components)
 import './ui/previewHighlight.js'; // Import preview highlight module (sets up hover handlers)
 
 // eslint-disable-next-line no-console
