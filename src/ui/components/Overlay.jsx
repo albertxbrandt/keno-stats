@@ -58,11 +58,9 @@ export function Overlay() {
   const [isVisible, setIsVisible] = useState(state.isOverlayVisible);
   const [currentView, setCurrentView] = useState('tracker'); // 'tracker' or 'settings'
 
-  // Dragging state - TODO: Implement drag functionality
-  // eslint-disable-next-line no-unused-vars
-  const [isDragging, setIsDragging] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [position, setPosition] = useState({ top: 80, right: 20 });
+  // Dragging state
+  const [position, setPosition] = useState({ top: 80, left: null, right: 20 });
+  const [dragStart, setDragStart] = useState({ top: 0, left: 0 });
 
   // Listen for toggle events from footer button
   useEffect(() => {
@@ -76,6 +74,28 @@ export function Overlay() {
       window.removeEventListener('keno-overlay-toggle', handleToggle);
     };
   }, []);
+
+  const handleDragStart = () => {
+    // Convert right-based positioning to left-based for dragging
+    const overlay = document.getElementById('keno-tracker-overlay');
+    if (!overlay) return;
+    
+    const rect = overlay.getBoundingClientRect();
+    setDragStart({ top: rect.top, left: rect.left });
+    setPosition({ top: rect.top, left: rect.left, right: null });
+  };
+
+  const handleDrag = (dx, dy) => {
+    setPosition({
+      top: dragStart.top + dy,
+      left: dragStart.left + dx,
+      right: null
+    });
+  };
+
+  const handleDragEnd = () => {
+    // Position is already updated in state, nothing more needed
+  };
 
   const handleClose = () => {
     setIsVisible(false);
@@ -97,8 +117,8 @@ export function Overlay() {
       id="keno-tracker-overlay"
       style={{
         position: 'fixed',
+        ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
         top: `${position.top}px`,
-        right: `${position.right}px`,
         width: '240px',
         backgroundColor: 'transparent',
         color: '#fff',
@@ -117,6 +137,9 @@ export function Overlay() {
       <DragHandle 
         onClose={handleClose}
         onSettingsClick={() => setCurrentView(currentView === 'tracker' ? 'settings' : 'tracker')}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
         isActive={true}
       />
 
