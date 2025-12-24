@@ -2,7 +2,6 @@
 // Shared utilities for selecting and deselecting Keno game tiles
 
 import { simulatePointerClick, clearTable } from './utils.js';
-import { state } from '@/keno-tool/core/state.js';
 
 /**
  * Get all tile buttons from the game board
@@ -249,16 +248,8 @@ function resetTileStyles(tile) {
  * Used when clearing round highlights or prediction highlights
  */
 export function clearHighlight() {
-  if (state.isPredictMode && window.__keno_calculatePrediction) {
-    window.__keno_calculatePrediction();
-    return;
-  }
-
   const tiles = getAllTiles();
   if (!tiles) return;
 
   tiles.forEach(resetTileStyles);
 }
-
-// Expose to window for cross-module callbacks
-window.__keno_clearHighlight = clearHighlight;

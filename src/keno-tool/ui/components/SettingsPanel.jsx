@@ -7,6 +7,7 @@ import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { savePanelVisibility } from '@/keno-tool/core/storage.js';
+import { PANEL_SECTIONS } from '@/keno-tool/ui/constants/sections.js';
 
 export function SettingsPanel() {
   const [panelVisibility, setPanelVisibility] = useState({ ...state.panelVisibility });
@@ -29,16 +30,6 @@ export function SettingsPanel() {
     savePanelVisibility();
   };
 
-  const sections = [
-    { id: 'heatmap', label: 'Heatmap', icon: '🗺️' },
-    { id: 'numberGenerator', label: 'Number Generator', icon: '🎲' },
-    { id: 'hitsMiss', label: 'Hits / Miss Display', icon: '✅' },
-    { id: 'profitLoss', label: 'Profit/Loss', icon: '💰' },
-    { id: 'patternAnalysis', label: 'Pattern Analysis', icon: '🔍' },
-    { id: 'recentPlays', label: 'Recent Plays', icon: '🎲' },
-    { id: 'history', label: 'History', icon: '📜' }
-  ];
-
   return (
     <div style={{
       background: COLORS.bg.dark,
@@ -50,7 +41,7 @@ export function SettingsPanel() {
       </div>
 
       <div id="settings-list">
-        {sections.map(section => (
+        {PANEL_SECTIONS.map(section => (
           <div
             key={section.id}
             class="settings-row"

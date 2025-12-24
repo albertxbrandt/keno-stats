@@ -15,8 +15,20 @@ import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 import { HistorySection } from './sections/HistorySection.jsx';
 import { DragHandle } from './shared/DragHandle.jsx';
 import { SettingsPanel } from './SettingsPanel.jsx';
+import { PANEL_SECTIONS } from '@/keno-tool/ui/constants/sections.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
+
+// Component mapping for sections
+const SECTION_COMPONENTS = {
+  heatmap: HeatmapSection,
+  numberGenerator: GeneratorSection,
+  hitsMiss: HitsMissSection,
+  profitLoss: ProfitLossSection,
+  patternAnalysis: PatternAnalysisSection,
+  recentPlays: RecentPlaysSection,
+  history: HistorySection
+};
 
 /**
  * Overlay Component
@@ -171,26 +183,11 @@ export function Overlay() {
           display: currentView === 'tracker' ? 'block' : 'none'
         }}
       >
-        {/* Migrated: HeatmapSection */}
-        {panelVisibility.heatmap !== false && <HeatmapSection />}
-        
-        {/* Migrated: GeneratorSection */}
-        {panelVisibility.numberGenerator !== false && <GeneratorSection />}
-        
-        {/* Migrated: HitsMissSection */}
-        {panelVisibility.hitsMiss !== false && <HitsMissSection />}
-        
-        {/* Migrated: ProfitLossSection */}
-        {panelVisibility.profitLoss !== false && <ProfitLossSection />}
-        
-        {/* Migrated: PatternAnalysisSection */}
-        {panelVisibility.patternAnalysis !== false && <PatternAnalysisSection />}
-        
-        {/* Migrated: RecentPlaysSection */}
-        {panelVisibility.recentPlays !== false && <RecentPlaysSection />}
-        
-        {/* Migrated: HistorySection */}
-        {panelVisibility.history !== false && <HistorySection />}
+        {/* Render sections dynamically based on visibility */}
+        {PANEL_SECTIONS.map(section => {
+          const Component = SECTION_COMPONENTS[section.id];
+          return panelVisibility[section.id] && Component ? <Component key={section.id} /> : null;
+        })}
       </div>
 
       {/* Settings Tab Content */}
