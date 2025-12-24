@@ -28,6 +28,28 @@ export function loadPanelVisibility() {
 }
 
 /**
+ * Save panel order settings to storage
+ * @returns {void}
+ */
+export function savePanelOrder() {
+  storageApi.storage.local.set({ panelOrder: state.panelOrder });
+}
+
+/**
+ * Load panel order settings from storage
+ * @returns {Promise<Array|null>} Order array or null if not found
+ */
+export function loadPanelOrder() {
+  return storageApi.storage.local.get('panelOrder').then(res => {
+    if (res.panelOrder) {
+      state.panelOrder = res.panelOrder;
+      return res.panelOrder;
+    }
+    return null;
+  });
+}
+
+/**
  * Save all generator settings to storage (auto-save system)
  * Persists 11 settings: method, count, interval, auto-refresh, sample size, shapes, momentum
  * Call this immediately after ANY generator setting changes in UI
