@@ -116,34 +116,41 @@ export function GeneratorSection() {
       defaultExpanded={true}
       pinnable={true}
     >
-      {/* Count input */}
-      <div style={{ marginBottom: SPACING.sm }}>
-        <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
-          Count:
-        </span>
-        <NumberInput
-          value={count}
-          onChange={handleCountChange}
-          min={1}
-          max={10}
-          step={1}
-          width="100%"
-        />
-      </div>
+      {/* Count and Sample Size - side by side */}
+      <div style={{ 
+        display: 'flex', 
+        gap: SPACING.sm, 
+        marginBottom: SPACING.sm 
+      }}>
+        {/* Count input */}
+        <div style={{ flex: 1 }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+            Count:
+          </span>
+          <NumberInput
+            value={count}
+            onChange={handleCountChange}
+            min={1}
+            max={10}
+            step={1}
+            width="100%"
+          />
+        </div>
 
-      {/* Sample size input (universal - used by all generators) */}
-      <div style={{ marginBottom: SPACING.sm }}>
-        <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
-          Sample Size (last N games):
-        </span>
-        <NumberInput
-          value={sampleSize}
-          onChange={handleSampleSizeChange}
-          min={1}
-          max={maxSampleSize}
-          step={1}
-          width="100%"
-        />
+        {/* Sample size input (universal - used by all generators) */}
+        <div style={{ flex: 1 }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+            Sample Size:
+          </span>
+          <NumberInput
+            value={sampleSize}
+            onChange={handleSampleSizeChange}
+            min={1}
+            max={maxSampleSize}
+            step={1}
+            width="100%"
+          />
+        </div>
       </div>
 
       {/* Method selector */}
