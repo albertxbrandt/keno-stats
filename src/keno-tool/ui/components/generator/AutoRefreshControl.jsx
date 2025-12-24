@@ -103,27 +103,6 @@ export function AutoRefreshControl() {
           rounds
         </span>
       </div>
-
-      <div style={{
-        marginTop: '6px',
-        fontSize: '8px',
-        color: COLORS.text.tertiary,
-        textAlign: 'center'
-      }}>
-        {autoRefresh ? (
-          <>
-            {state.currentHistory?.length - state.generatorLastRefresh < interval ? (
-              <span style={{ color: COLORS.accent.info }}>
-                Next refresh in {interval - (state.currentHistory?.length - state.generatorLastRefresh)} rounds
-              </span>
-            ) : (
-              <span style={{ color: COLORS.accent.success }}>Ready to refresh</span>
-            )}
-          </>
-        ) : (
-          <span>Manual mode - click Select to apply</span>
-        )}
-      </div>
     </div>
   );
 }
