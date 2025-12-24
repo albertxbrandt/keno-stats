@@ -20,7 +20,7 @@ import { findCommonPatterns } from '../../../utils/calculations/patternAlgorithm
 export function LivePatternAnalysisModal({ isOpen, onClose }) {
   // Settings
   const [patternSize, setPatternSize] = useState(5);
-  const [sampleSize, setSampleSize] = useState(100);
+  const [sampleSize, setSampleSize] = useState(200);
   const [minHits, setMinHits] = useState(3);
   const [maxHits, setMaxHits] = useState(4);
   const [notHitIn, setNotHitIn] = useState(0);
@@ -28,6 +28,7 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
   
   // State
   const [isRunning, setIsRunning] = useState(false);
+  const [isComputing, setIsComputing] = useState(false);
   const [results, setResults] = useState([]);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   
@@ -61,32 +62,43 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
       return;
     }
     
-    // Find patterns from sample size
-    const patterns = findCommonPatterns(patternSize, 50, false); // Get top 50
+    setIsComputing(true);
     
-    // Filter by hit requirements
-    let filtered = patterns;
-    
-    if (requireBuildups) {
-      filtered = filtered.filter(p => {
-        const hits = p.occurrences.length;
-        return hits >= minHits && hits <= maxHits;
-      });
-    }
-    
-    // Filter by "not hit in" requirement
-    if (notHitIn > 0) {
-      filtered = filtered.filter(p => {
-        // Check if pattern hasn't appeared in recent rounds
-        const lastOccurrence = p.occurrences[p.occurrences.length - 1];
-        const lastOccurrenceIndex = history.findIndex(r => r.time === lastOccurrence.time);
-        const roundsSinceLastHit = history.length - lastOccurrenceIndex - 1;
-        return roundsSinceLastHit >= notHitIn;
-      });
-    }
-    
-    setResults(filtered.slice(0, 20)); // Show top 20
-    setLastUpdate(Date.now());
+    // Use setTimeout to prevent UI blocking
+    setTimeout(() => {
+      try {
+        // Enable cache (true) for much better performance with large datasets
+        const patterns = findCommonPatterns(patternSize, 20, true, sampleSize);
+        
+        // Filter by hit requirements
+        let filtered = patterns;
+        
+        if (requireBuildups) {
+          filtered = filtered.filter(p => {
+            const hits = p.occurrences.length;
+            return hits >= minHits && hits <= maxHits;
+          });
+        }
+        
+        // Filter by "not hit in" requirement
+        if (notHitIn > 0) {
+          filtered = filtered.filter(p => {
+            // Check if pattern hasn't appeared in recent rounds
+            const lastOccurrence = p.occurrences[p.occurrences.length - 1];
+            const lastOccurrenceIndex = history.findIndex(r => r.time === lastOccurrence.time);
+            const roundsSinceLastHit = history.length - lastOccurrenceIndex - 1;
+            return roundsSinceLastHit >= notHitIn;
+          });
+        }
+        
+        setResults(filtered.slice(0, 20)); // Show top 20
+        setLastUpdate(Date.now());
+        setIsComputing(false);
+      } catch (error) {
+        console.error('[LivePattern] Error computing patterns:', error);
+        setIsComputing(false);
+      }
+    }, 50);
   };
   
   const handleDragStart = () => {
@@ -122,6 +134,30 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
   const handleClose = () => {
     setIsRunning(false);
     onClose();
+  };
+
+  const handleMouseDownCapture = (e) => {
+    if (e.target.closest('button')) return;
+    
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    
+    handleDragStart();
+
+    const handleMouseMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      handleDrag(dx, dy);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
   
   if (!isOpen) return null;
@@ -255,14 +291,14 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         
         <div style={{ marginBottom: '10px' }}>
           <label style={{ color: '#888', fontSize: '11px', display: 'block', marginBottom: '4px' }}>
-            Sample Size
+            Sample Size (fewer = faster)
           </label>
           <input
             type="number"
             value={sampleSize}
-            onChange={(e) => setSampleSize(parseInt(e.target.value) || 100)}
-            min={1}
-            max={1000}
+            onChange={(e) => setSampleSize(parseInt(e.target.value) || 200)}
+            min={50}
+            max={5000}
             disabled={isRunning}
             style={{
               width: '100%',
@@ -349,7 +385,11 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
           color: '#888',
           fontSize: '11px'
         }}>
-          Running... Last update: {new Date(lastUpdate).toLocaleTimeString()} | {results.length} patterns found
+          {isComputing ? (
+            <span>⏳ Computing patterns...</span>
+          ) : (
+            <span>Running... Last update: {new Date(lastUpdate).toLocaleTimeString()} | {results.length} patterns found</span>
+          )}
         </div>
       )}
       
@@ -385,10 +425,10 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
               <div style={{ color: '#74b9ff', fontWeight: 'bold', fontSize: '14px' }}>
-                {pattern.pattern.join(', ')}
+                {pattern.numbers.join(', ')}
               </div>
               <div style={{ color: '#ffd700', fontSize: '12px' }}>
-                {pattern.occurrences.length} hits
+                {pattern.count} hits
               </div>
             </div>
             <div style={{ color: '#aaa', fontSize: '11px' }}>
@@ -399,28 +439,4 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
       </div>
     </div>
   );
-
-  function handleMouseDownCapture(e) {
-    if (e.target.closest('button')) return;
-    
-    e.preventDefault();
-    const startX = e.clientX;
-    const startY = e.clientY;
-    
-    handleDragStart();
-
-    const handleMouseMove = (moveEvent) => {
-      const dx = moveEvent.clientX - startX;
-      const dy = moveEvent.clientY - startY;
-      handleDrag(dx, dy);
-    };
-
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }
 }

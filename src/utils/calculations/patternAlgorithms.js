@@ -53,21 +53,26 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
   const effectiveSampleSize =
     sampleSize > 0 ? Math.min(sampleSize, historyLength) : historyLength;
 
+  // Get the sample of history to analyze
+  const historyToAnalyze =
+    effectiveSampleSize > 0
+      ? state.currentHistory.slice(-effectiveSampleSize)
+      : state.currentHistory;
+
+  // Use timestamp of latest round in sample as cache key
+  const latestTimestamp = historyToAnalyze.length > 0
+    ? historyToAnalyze[historyToAnalyze.length - 1].time
+    : 0;
+
   // Check cache first
   if (useCache) {
-    const cached = patternCache.get(patternSize, historyLength, effectiveSampleSize);
+    const cached = patternCache.get(patternSize, latestTimestamp, effectiveSampleSize);
     if (cached) {
       return cached.patterns.slice(0, topN);
     }
   }
 
   const patternCounts = {}; // Map of pattern key -> { numbers: [], count: number, occurrences: [] }
-
-  // Get the sample of history to analyze
-  const historyToAnalyze =
-    effectiveSampleSize > 0
-      ? state.currentHistory.slice(-effectiveSampleSize)
-      : state.currentHistory;
 
   const startIndex = historyLength - historyToAnalyze.length;
 
@@ -131,7 +136,7 @@ export function findCommonPatterns(patternSize, topN = 10, useCache = true, samp
           ).toFixed(1)
           : 0
     };
-    patternCache.set(patternSize, historyLength, effectiveSampleSize, sortedPatterns, stats);
+    patternCache.set(patternSize, latestTimestamp, effectiveSampleSize, sortedPatterns, stats);
   }
 
   return sortedPatterns.slice(0, topN);
@@ -150,8 +155,17 @@ export function getPatternStats(patternSize, sampleSize = 0) {
   const effectiveSampleSize =
     sampleSize > 0 ? Math.min(sampleSize, historyLength) : historyLength;
 
+  const historyToAnalyze =
+    effectiveSampleSize > 0
+      ? state.currentHistory.slice(-effectiveSampleSize)
+      : state.currentHistory;
+
+  const latestTimestamp = historyToAnalyze.length > 0
+    ? historyToAnalyze[historyToAnalyze.length - 1].time
+    : 0;
+
   // Check cache first
-  const cached = patternCache.get(patternSize, historyLength, effectiveSampleSize);
+  const cached = patternCache.get(patternSize, latestTimestamp, effectiveSampleSize);
   if (cached && cached.stats) {
     return cached.stats;
   }

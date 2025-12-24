@@ -6,18 +6,18 @@
  * @type {Object}
  */
 const patternCache = {
-  data: new Map(), // key: `${patternSize}-${historyLength}-${sampleSize}` -> { patterns, stats, timestamp }
+  data: new Map(), // key: `${patternSize}-${latestTimestamp}-${sampleSize}` -> { patterns, stats, timestamp }
   maxAge: 300000, // 5 minutes
 
   /**
    * Get cached pattern analysis results
    * @param {number} patternSize - Size of patterns
-   * @param {number} historyLength - Length of history analyzed
+   * @param {number} latestTimestamp - Timestamp of most recent round in sample
    * @param {number} sampleSize - Sample size used
    * @returns {Object|null} Cached data or null if expired/missing
    */
-  get(patternSize, historyLength, sampleSize) {
-    const key = `${patternSize}-${historyLength}-${sampleSize}`;
+  get(patternSize, latestTimestamp, sampleSize) {
+    const key = `${patternSize}-${latestTimestamp}-${sampleSize}`;
     const cached = this.data.get(key);
 
     if (cached && Date.now() - cached.timestamp < this.maxAge) {
@@ -29,13 +29,13 @@ const patternCache = {
   /**
    * Store pattern analysis results in cache
    * @param {number} patternSize - Size of patterns
-   * @param {number} historyLength - Length of history analyzed
+   * @param {number} latestTimestamp - Timestamp of most recent round in sample
    * @param {number} sampleSize - Sample size used
    * @param {Array} patterns - Pattern results
    * @param {Object} stats - Statistics
    */
-  set(patternSize, historyLength, sampleSize, patterns, stats) {
-    const key = `${patternSize}-${historyLength}-${sampleSize}`;
+  set(patternSize, latestTimestamp, sampleSize, patterns, stats) {
+    const key = `${patternSize}-${latestTimestamp}-${sampleSize}`;
     this.data.set(key, {
       patterns,
       stats,
