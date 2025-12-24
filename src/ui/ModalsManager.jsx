@@ -79,7 +79,8 @@ export function ModalsManager() {
           name,
           hits,
           riskMode: prefs.riskMode,
-          lookback: prefs.lookback
+          lookback: prefs.lookback,
+          graphType: prefs.graphType
         });
       });
     }
@@ -148,27 +149,29 @@ export function ModalsManager() {
   // Handlers for CombinationHitsModal
   const handleCombinationHitsRiskChange = (newMode) => {
     if (!combinationHitsData) return;
-    const { numbers, name, hits, lookback } = combinationHitsData;
-    saveGraphPreferences(newMode, lookback);
+    const { numbers, name, hits, lookback, graphType } = combinationHitsData;
+    saveGraphPreferences(newMode, lookback, graphType);
     setCombinationHitsData({
       numbers,
       name,
       hits,
       riskMode: newMode,
-      lookback
+      lookback,
+      graphType
     });
   };
 
   const handleCombinationHitsLookbackChange = (newLookback) => {
     if (!combinationHitsData) return;
-    const { numbers, name, hits, riskMode } = combinationHitsData;
-    saveGraphPreferences(riskMode, newLookback);
+    const { numbers, name, hits, riskMode, graphType } = combinationHitsData;
+    saveGraphPreferences(riskMode, newLookback, graphType);
     setCombinationHitsData({
       numbers,
       name,
       hits,
       riskMode,
-      lookback: newLookback
+      lookback: newLookback,
+      graphType
     });
   };
 
@@ -213,6 +216,7 @@ export function ModalsManager() {
           onLookbackChange={handleCombinationHitsLookbackChange}
           initialRiskMode={combinationHitsData.riskMode}
           initialLookback={combinationHitsData.lookback}
+          initialGraphType={combinationHitsData.graphType}
         />
       )}
 

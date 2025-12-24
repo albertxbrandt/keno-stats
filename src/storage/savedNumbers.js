@@ -112,12 +112,14 @@ export function getGraphPreferences() {
  * Save graph display preferences
  * @param {string} riskMode - Risk mode (classic, low, medium, high)
  * @param {number} lookback - Number of rounds to analyze
+ * @param {string} graphType - Graph type (distribution, profitloss)
  * @returns {Promise<void>}
  */
-export function saveGraphPreferences(riskMode, lookback) {
+export function saveGraphPreferences(riskMode, lookback, graphType) {
   return storageApi.storage.local.set({
     graphRiskMode: riskMode,
-    graphLookback: lookback
+    graphLookback: lookback,
+    graphType: graphType
   });
 }
 

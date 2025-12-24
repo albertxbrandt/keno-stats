@@ -4,6 +4,7 @@ import { Modal } from '../shared/Modal.jsx';
 import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '../../../core/state.js';
+import { saveGraphPreferences } from '../../../storage/savedNumbers.js';
 
 /**
  * Hit occurrence card component
@@ -54,11 +55,12 @@ export function CombinationHitsModal({
   onRiskModeChange,
   onLookbackChange,
   initialRiskMode = 'high',
-  initialLookback = 50
+  initialLookback = 50,
+  initialGraphType = 'distribution'
 }) {
   const [riskMode, setRiskMode] = useState(initialRiskMode);
   const [lookback, setLookback] = useState(initialLookback);
-  const [graphType, setGraphType] = useState('distribution'); // 'distribution' or 'profitloss'
+  const [graphType, setGraphType] = useState(initialGraphType);
 
   const totalBets = state.currentHistory.length;
   const hitRate = totalBets > 0 ? ((hits.length / totalBets) * 100).toFixed(1) : '0.0';
@@ -66,6 +68,7 @@ export function CombinationHitsModal({
   const handleRiskModeChange = (e) => {
     const newMode = e.target.value;
     setRiskMode(newMode);
+    saveGraphPreferences(newMode, lookback, graphType);
     if (onRiskModeChange) onRiskModeChange(newMode);
   };
 
@@ -75,11 +78,14 @@ export function CombinationHitsModal({
     const max = parseInt(e.target.max);
     const clampedValue = Math.min(Math.max(value, min), max);
     setLookback(clampedValue);
+    saveGraphPreferences(riskMode, clampedValue, graphType);
     if (onLookbackChange) onLookbackChange(clampedValue);
   };
 
   const handleGraphTypeChange = (e) => {
-    setGraphType(e.target.value);
+    const newType = e.target.value;
+    setGraphType(newType);
+    saveGraphPreferences(riskMode, lookback, newType);
   };
 
   return (
