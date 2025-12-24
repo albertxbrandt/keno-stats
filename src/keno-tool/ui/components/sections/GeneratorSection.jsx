@@ -131,22 +131,20 @@ export function GeneratorSection() {
         />
       </div>
 
-      {/* Sample size input (for frequency-based methods) */}
-      {usesFrequencyParams && (
-        <div style={{ marginBottom: SPACING.sm }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
-            Sample Size (last N games):
-          </span>
-          <NumberInput
-            value={sampleSize}
-            onChange={handleSampleSizeChange}
-            min={1}
-            max={maxSampleSize}
-            step={1}
-            width="100%"
-          />
-        </div>
-      )}
+      {/* Sample size input (universal - used by all generators) */}
+      <div style={{ marginBottom: SPACING.sm }}>
+        <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+          Sample Size (last N games):
+        </span>
+        <NumberInput
+          value={sampleSize}
+          onChange={handleSampleSizeChange}
+          min={1}
+          max={maxSampleSize}
+          step={1}
+          width="100%"
+        />
+      </div>
 
       {/* Method selector */}
       <MethodSelector onChange={handleMethodChange} />

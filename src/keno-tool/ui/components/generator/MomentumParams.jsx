@@ -33,17 +33,23 @@ export function MomentumParams() {
   const [currentNumbers, setCurrentNumbers] = useState('-');
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
   
+  // Get default values based on sample size
+  const sampleSize = state.generatorSampleSize || 20;
+  const defaultDetection = state.momentumDetectionWindow || sampleSize;
+  const defaultBaseline = state.momentumBaselineGames || (sampleSize * 4);
+  
   // Advanced parameters
-  const [detectionWindow, setDetectionWindow] = useState(state.momentumDetectionWindow || 20);
-  const [baselineWindow, setBaselineWindow] = useState(state.momentumBaselineGames || 80);
+  const [detectionWindow, setDetectionWindow] = useState(defaultDetection);
+  const [baselineWindow, setBaselineWindow] = useState(defaultBaseline);
   const [threshold, setThreshold] = useState(state.momentumThreshold || 1.5);
   const [poolSize, setPoolSize] = useState(state.momentumPoolSize || 15);
 
   // Sync with global state on mount and when generator updates
   useEffect(() => {
     const updateFromState = () => {
-      setDetectionWindow(state.momentumDetectionWindow || 20);
-      setBaselineWindow(state.momentumBaselineGames || 80);
+      const sampleSize = state.generatorSampleSize || 20;
+      setDetectionWindow(state.momentumDetectionWindow || sampleSize);
+      setBaselineWindow(state.momentumBaselineGames || (sampleSize * 4));
       setThreshold(state.momentumThreshold || 1.5);
       setPoolSize(state.momentumPoolSize || 15);
       updateCurrentNumbers();
@@ -96,9 +102,11 @@ export function MomentumParams() {
   };
 
   const handleReset = () => {
+    // Use global sample size as base
+    const sampleSize = state.generatorSampleSize || 20;
     const defaults = {
-      detection: 20,
-      baseline: 80,
+      detection: sampleSize,
+      baseline: sampleSize * 4,
       threshold: 1.5,
       pool: 15
     };
