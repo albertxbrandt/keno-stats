@@ -22,5 +22,7 @@ export {
   saveHeatmapSettings,
   loadHeatmapSettings,
   savePanelVisibility,
-  loadPanelVisibility
+  loadPanelVisibility,
+  savePanelOrder,
+  loadPanelOrder
 } from '@/shared/storage/settings.js';
