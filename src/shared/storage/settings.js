@@ -6,6 +6,28 @@ import { state } from '@/keno-tool/core/state.js';
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
 /**
+ * Save panel visibility settings to storage
+ * @returns {void}
+ */
+export function savePanelVisibility() {
+  storageApi.storage.local.set({ panelVisibility: state.panelVisibility });
+}
+
+/**
+ * Load panel visibility settings from storage
+ * @returns {Promise<Object|null>} Settings object or null if not found
+ */
+export function loadPanelVisibility() {
+  return storageApi.storage.local.get('panelVisibility').then(res => {
+    if (res.panelVisibility) {
+      state.panelVisibility = { ...state.panelVisibility, ...res.panelVisibility };
+      return res.panelVisibility;
+    }
+    return null;
+  });
+}
+
+/**
  * Save all generator settings to storage (auto-save system)
  * Persists 11 settings: method, count, interval, auto-refresh, sample size, shapes, momentum
  * Call this immediately after ANY generator setting changes in UI
