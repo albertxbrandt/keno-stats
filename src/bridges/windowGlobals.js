@@ -71,7 +71,7 @@ export function initWindowGlobals(modalsApi) {
   // ===== History Management =====
   window.__keno_clearHistory = clearHistory;
   window.__keno_openBetBook = () => {
-    window.open(chrome.runtime.getURL('betbook.html'), '_blank', 'width=1200,height=800');
+    window.open(chrome.runtime.getURL('dashboard.html'), '_blank', 'width=1200,height=800');
   };
 
   // ===== Profit/Loss =====

@@ -39,8 +39,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "betbook.html",
-        "betbook.js",
+        "dashboard.html",
+        "dist/dashboard.bundle.js",
         "disclaimer.html",
         "disclaimer.js",
         "config/bet-multis.json"

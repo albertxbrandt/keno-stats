@@ -50,7 +50,7 @@ export function HistorySection() {
   };
 
   const handleOpenBetBook = () => {
-    const url = storageApi.runtime.getURL('betbook.html');
+    const url = storageApi.runtime.getURL('dashboard.html');
     window.open(url, '_blank', 'width=1200,height=800');
   };
 
@@ -165,7 +165,7 @@ export function HistorySection() {
           onMouseEnter={(e) => e.target.style.opacity = '0.9'}
           onMouseLeave={(e) => e.target.style.opacity = '1'}
         >
-          📊 Open Stats Book
+          📊 Open Dashboard
         </button>
       </div>
     </CollapsibleSection>
