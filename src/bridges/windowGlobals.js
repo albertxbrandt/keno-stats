@@ -4,6 +4,13 @@
 
 import { state } from '../core/state.js';
 import { detectGameDifficulty, trackRoundComparison } from '../storage/comparison.js';
+import { 
+  recalculateTotalProfit, 
+  resetSessionProfit, 
+  changeCurrency, 
+  updateSessionProfit 
+} from '../storage/profitLoss.js';
+import { updateProfitLossUI } from '../utils/dom/profitLossUI.js';
 
 /**
  * Initialize all window globals
@@ -28,6 +35,15 @@ export function initWindowGlobals(modalsApi) {
   // ===== Comparison Window =====
   window.__keno_toggleComparison = modalsApi.toggleComparison;
   window.__keno_trackRound = trackRoundComparison;
+
+  // ===== Profit/Loss =====
+  window.__keno_updateProfitLossUI = updateProfitLossUI;
+  window.__keno_resetSessionProfit = resetSessionProfit;
+  window.__keno_recalculateTotalProfit = recalculateTotalProfit;
+  window.__keno_changeCurrency = changeCurrency;
+  window.__keno_updateProfit = (profit, currency) => {
+    updateSessionProfit(profit, currency);
+  };
 
   // Start difficulty detection for comparison
   detectGameDifficultyPeriodically();

@@ -18,7 +18,7 @@ import { analyzeCombinationHits } from '../utils/analysis/combinationAnalysis.js
 import {
   findCommonPatterns,
   getPatternStats
-} from '../features/patternsCore.js';
+} from '../utils/calculations/patternAlgorithms.js';
 import { waitForBetButtonReady } from '../utils/dom/utils.js';
 import { replaceSelection } from '../utils/dom/tileSelection.js';
 import { trackRoundComparison } from '../storage/comparison.js';

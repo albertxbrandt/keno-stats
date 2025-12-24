@@ -1,7 +1,7 @@
 // src/features/patternsCore.js - Core pattern analysis logic (UI-agnostic)
-import { state } from '../core/state.js';
-import { getDrawn } from '../core/storage.js';
-import { getPatternCache } from '../storage/patterns.js';
+import { state } from '../../core/state.js';
+import { getDrawn } from '../../core/storage.js';
+import { getPatternCache } from '../../storage/patterns.js';
 
 // Get pattern cache instance from storage
 const patternCache = getPatternCache();
@@ -9,7 +9,7 @@ const patternCache = getPatternCache();
 /**
  * Re-export clear function for external use
  */
-export { clearPatternCache } from '../storage/patterns.js';
+export { clearPatternCache } from '../../storage/patterns.js';
 
 /**
  * Generate all combinations of size k from an array

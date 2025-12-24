@@ -7,10 +7,11 @@ import { selectPredictedNumbers } from './ui/numberSelection.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 // import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { waitForBetButtonReady } from './utils/dom/utils.js';
-import { updateHeatmap } from './features/heatmap.js';
+import { updateHeatmap } from './utils/dom/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from './utils/stats.js';
 import { trackPlayedNumbers } from './storage/savedNumbers.js';
-import { loadProfitLoss, updateProfitLossUI } from './features/profitLoss.js';
+import { loadProfitLoss } from './storage/profitLoss.js';
+import { updateProfitLossUI } from './utils/dom/profitLossUI.js';
 import './ui/previewHighlight.js'; // Preview highlight module
 
 // eslint-disable-next-line no-console

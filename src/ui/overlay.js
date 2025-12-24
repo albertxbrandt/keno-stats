@@ -1,7 +1,7 @@
 // src/overlay.js
 import { state } from '../core/state.js';
 import { updateHistoryUI, clearHistory, saveGeneratorSettings, loadGeneratorSettings, saveHeatmapSettings, loadHeatmapSettings } from '../core/storage.js';
-import { updateHeatmap } from '../features/heatmap.js';
+import { updateHeatmap } from '../utils/dom/heatmap.js';
 import { calculatePrediction } from './numberSelection.js';
 import { initButtonPreviewHighlight, initPreviewBoxHighlight, refreshPreviewHighlight, isButtonHovering } from './previewHighlight.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE

@@ -3,7 +3,7 @@
 // Handles hover-based preview of next numbers on the game board
 
 import { state } from '../core/state.js';
-import { highlightPrediction, clearHighlight } from '../features/heatmap.js';
+import { highlightPrediction, clearHighlight } from '../utils/dom/heatmap.js';
 
 // ==================== STATE ====================
 
