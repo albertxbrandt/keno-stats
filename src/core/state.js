@@ -1,6 +1,7 @@
 // src/state.js
 export const state = {
     currentHistory: [],
+    recentPlays: [], // Last 5 unique selected number combinations
     // Tracker state (hits/misses from last round)
     trackerHits: '-',
     trackerMisses: '-',

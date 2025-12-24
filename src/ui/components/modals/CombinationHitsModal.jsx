@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Modal } from '../shared/Modal.jsx';
 import { PayoutGraph } from '../PayoutGraph.jsx';
+import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '../../../core/state.js';
 
 /**
@@ -57,6 +58,7 @@ export function CombinationHitsModal({
 }) {
   const [riskMode, setRiskMode] = useState(initialRiskMode);
   const [lookback, setLookback] = useState(initialLookback);
+  const [graphType, setGraphType] = useState('distribution'); // 'distribution' or 'profitloss'
 
   const totalBets = state.currentHistory.length;
   const hitRate = totalBets > 0 ? ((hits.length / totalBets) * 100).toFixed(1) : '0.0';
@@ -64,7 +66,7 @@ export function CombinationHitsModal({
   const handleRiskModeChange = (e) => {
     const newMode = e.target.value;
     setRiskMode(newMode);
-    onRiskModeChange(newMode);
+    if (onRiskModeChange) onRiskModeChange(newMode);
   };
 
   const handleLookbackChange = (e) => {
@@ -73,80 +75,18 @@ export function CombinationHitsModal({
     const max = parseInt(e.target.max);
     const clampedValue = Math.min(Math.max(value, min), max);
     setLookback(clampedValue);
-    onLookbackChange(clampedValue);
+    if (onLookbackChange) onLookbackChange(clampedValue);
   };
 
-  // Header extra content (graph controls)
-  const headerExtra = (
-    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-      <div>
-        <label
-          style={{
-            color: '#888',
-            fontSize: '10px',
-            display: 'block',
-            marginBottom: '4px'
-          }}
-        >
-          Risk
-        </label>
-        <select
-          value={riskMode}
-          onChange={handleRiskModeChange}
-          style={{
-            padding: '6px 8px',
-            background: '#0f212e',
-            color: '#fff',
-            border: '1px solid #333',
-            borderRadius: '4px',
-            fontSize: '11px',
-            cursor: 'pointer'
-          }}
-        >
-          <option value="classic">Classic</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
-      <div>
-        <label
-          style={{
-            color: '#888',
-            fontSize: '10px',
-            display: 'block',
-            marginBottom: '4px'
-          }}
-        >
-          Lookback
-        </label>
-        <input
-          type="number"
-          min="10"
-          max={totalBets}
-          value={lookback}
-          onChange={handleLookbackChange}
-          style={{
-            width: '60px',
-            padding: '6px 8px',
-            background: '#0f212e',
-            color: '#fff',
-            border: '1px solid #333',
-            borderRadius: '4px',
-            fontSize: '11px',
-            textAlign: 'center'
-          }}
-        />
-      </div>
-    </div>
-  );
+  const handleGraphTypeChange = (e) => {
+    setGraphType(e.target.value);
+  };
 
   return (
     <Modal
       title="Combination Stats"
       icon="📊"
       onClose={onClose}
-      headerExtra={headerExtra}
       defaultPosition={{ x: window.innerWidth / 2 - 250, y: 50 }}
       defaultSize={{ width: 500, height: 'auto' }}
       zIndex={1000001}
@@ -197,9 +137,121 @@ export function CombinationHitsModal({
         </div>
       </div>
 
+      {/* Graph controls */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '15px',
+        padding: '12px',
+        background: '#1a2c38',
+        borderRadius: '6px',
+        alignItems: 'flex-end'
+      }}>
+        <div style={{ flex: 1 }}>
+          <label
+            style={{
+              color: '#888',
+              fontSize: '10px',
+              display: 'block',
+              marginBottom: '4px'
+            }}
+          >
+            Graph Type
+          </label>
+          <select
+            value={graphType}
+            onChange={handleGraphTypeChange}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              background: '#0f212e',
+              color: '#fff',
+              border: '1px solid #333',
+              borderRadius: '4px',
+              fontSize: '11px',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="distribution">Distribution</option>
+            <option value="profitloss">Profit/Loss</option>
+          </select>
+        </div>
+        <div style={{ flex: 1 }}>
+          <label
+            style={{
+              color: '#888',
+              fontSize: '10px',
+              display: 'block',
+              marginBottom: '4px'
+            }}
+          >
+            Risk Mode
+          </label>
+          <select
+            value={riskMode}
+            onChange={handleRiskModeChange}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              background: '#0f212e',
+              color: '#fff',
+              border: '1px solid #333',
+              borderRadius: '4px',
+              fontSize: '11px',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="classic">Classic</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div>
+          <label
+            style={{
+              color: '#888',
+              fontSize: '10px',
+              display: 'block',
+              marginBottom: '4px'
+            }}
+          >
+            Lookback
+          </label>
+          <input
+            type="number"
+            min="10"
+            max={totalBets}
+            value={lookback}
+            onChange={handleLookbackChange}
+            style={{
+              width: '70px',
+              padding: '6px 8px',
+              background: '#0f212e',
+              color: '#fff',
+              border: '1px solid #333',
+              borderRadius: '4px',
+              fontSize: '11px',
+              textAlign: 'center'
+            }}
+          />
+        </div>
+      </div>
+
       {/* Payout graph */}
-      {betMultipliers && (
+      {betMultipliers && graphType === 'distribution' && (
         <PayoutGraph
+          numbers={numbers}
+          history={state.currentHistory}
+          betMultipliers={betMultipliers}
+          riskMode={riskMode}
+          lookback={lookback}
+        />
+      )}
+
+      {/* Profit/Loss graph */}
+      {betMultipliers && graphType === 'profitloss' && (
+        <ProfitLossGraph
           numbers={numbers}
           history={state.currentHistory}
           betMultipliers={betMultipliers}

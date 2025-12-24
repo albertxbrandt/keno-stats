@@ -130,6 +130,41 @@ export function getSelected(bet) {
 }
 
 /**
+ * Get last N unique selected number combinations from history
+ * @param {number} count - Number of recent plays to return (default 5)
+ * @returns {Array} Array of {numbers: [], timestamp: number} objects
+ */
+export function getRecentPlays(count = 5) {
+  const history = state.currentHistory;
+  if (!history || history.length === 0) return [];
+
+  const recentPlays = [];
+  const seen = new Set();
+
+  // Iterate from most recent backwards
+  for (let i = history.length - 1; i >= 0 && recentPlays.length < count; i--) {
+    const round = history[i];
+    // Handle both old and new data structures
+    const selected = round.kenoBet?.state?.selectedNumbers || round.selected;
+
+    if (selected && selected.length > 0) {
+      // Create a unique key for this combination
+      const key = selected.slice().sort((a, b) => a - b).join(',');
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        recentPlays.push({
+          numbers: selected.slice().sort((a, b) => a - b),
+          timestamp: round.time
+        });
+      }
+    }
+  }
+
+  return recentPlays;
+}
+
+/**
  * Save a new round to history
  * @param {Object} round - Round data
  * @returns {Promise<Array>} Updated history
@@ -138,6 +173,9 @@ export function saveRound(round) {
   // Append to in-memory state immediately (no lag)
   state.currentHistory.push(round);
   const totalCount = state.currentHistory.length;
+
+  // Update recent plays
+  state.recentPlays = getRecentPlays(5);
 
   // Queue the chunked write (only writes one chunk, not entire history)
   queueStorageWrite(round, totalCount);
@@ -216,12 +254,19 @@ export function loadHistory() {
           const chunk = chunks[`history_chunk_${i}`] || [];
           state.currentHistory.push(...chunk);
         }
+
+        // Initialize recent plays from loaded history
+        state.recentPlays = getRecentPlays(5);
+
         stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
         return state.currentHistory;
       });
     } else if (res.history) {
       // Old format: migrate to chunked storage
       state.currentHistory = res.history;
+
+      // Initialize recent plays from loaded history
+      state.recentPlays = getRecentPlays(5);
 
       // Migrate in background
       setTimeout(() => {
@@ -245,6 +290,7 @@ export function loadHistory() {
       return state.currentHistory;
     } else {
       state.currentHistory = [];
+      state.recentPlays = []; // Initialize empty recent plays
       return state.currentHistory;
     }
   });

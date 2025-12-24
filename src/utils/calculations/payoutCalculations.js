@@ -45,7 +45,11 @@ export function calculateHitDistribution(numbers, history, lookback) {
  */
 export function getPayoutMultipliers(betMultipliers, riskMode, numCount) {
   if (!betMultipliers) return {};
-  const riskData = betMultipliers.risk[riskMode];
+
+  // betMultipliers structure: { "high": {...}, "classic": {...}, "low": {...} }
+  const riskData = betMultipliers[riskMode];
+  if (!riskData) return {};
+
   return riskData[numCount] || {};
 }
 

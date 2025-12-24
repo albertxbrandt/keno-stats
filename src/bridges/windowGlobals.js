@@ -4,6 +4,7 @@
 
 import { state } from '../core/state.js';
 import { detectGameDifficulty, trackRoundComparison } from '../storage/comparison.js';
+import { getRecentPlays } from '../storage/history.js';
 import {
   recalculateTotalProfit,
   resetSessionProfit,
@@ -11,6 +12,8 @@ import {
   updateSessionProfit
 } from '../storage/profitLoss.js';
 import { updateProfitLossUI } from '../utils/dom/profitLossUI.js';
+import { replaceSelection } from '../utils/dom/tileSelection.js';
+import { waitForBetButtonReady } from '../utils/dom/utils.js';
 
 /**
  * Initialize all window globals
@@ -18,9 +21,22 @@ import { updateProfitLossUI } from '../utils/dom/profitLossUI.js';
  * @param {Object} modalsApi - Modal management API from useModals hook
  */
 export function initWindowGlobals(modalsApi) {
+  // ===== Recent Plays =====
+  window.__keno_getRecentPlays = () => getRecentPlays(5);
+  window.__keno_selectNumbers = async (numbers) => {
+    try {
+      await waitForBetButtonReady(3000);
+      await replaceSelection(numbers);
+    } catch (err) {
+      console.warn('[WindowGlobals] Failed to select numbers:', err);
+    }
+  };
+
   // ===== Saved Numbers Modals =====
   window.__keno_showSavedNumbers = modalsApi.showSavedNumbers;
-  window.__keno_analyzeCombination = modalsApi.showCombinationHits;
+  window.__keno_analyzeCombination = (numbers, name = 'Combination') => {
+    modalsApi.showCombinationHits(numbers, name);
+  };
 
   // updateRecentPlayed is now handled by the RecentPlays component automatically
   window.__keno_updateRecentPlayed = () => {
