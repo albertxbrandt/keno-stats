@@ -68,6 +68,10 @@ export function updateSessionProfit(profit, currency = 'btc') {
   }
 
   state.profitByCurrency[curr].session += profit;
+
+  // Update selectedCurrency to match the bet that just completed
+  state.selectedCurrency = curr;
+
   saveSessionProfit();
 
   // Emit event for listeners
@@ -87,28 +91,27 @@ export function updateSessionProfit(profit, currency = 'btc') {
  * Recalculate total profit from history
  */
 export function recalculateTotalProfit() {
-  storageApi.storage.local.get('history').then((res) => {
-    const history = res.history || [];
-    state.profitByCurrency = calculateProfitByCurrency(history, state.sessionStartTime);
+  // Use in-memory history (already up-to-date), not storage (may be stale during writes)
+  const history = state.currentHistory || [];
+  state.profitByCurrency = calculateProfitByCurrency(history, state.sessionStartTime);
 
-    // Update legacy state
-    const selectedCurr = state.selectedCurrency.toLowerCase();
-    if (state.profitByCurrency[selectedCurr]) {
-      state.totalProfit = state.profitByCurrency[selectedCurr].total;
-      state.sessionProfit = state.profitByCurrency[selectedCurr].session;
-    }
+  // Update legacy state
+  const selectedCurr = state.selectedCurrency.toLowerCase();
+  if (state.profitByCurrency[selectedCurr]) {
+    state.totalProfit = state.profitByCurrency[selectedCurr].total;
+    state.sessionProfit = state.profitByCurrency[selectedCurr].session;
+  }
 
-    // Emit event for listeners
-    stateEvents.emit(EVENTS.PROFIT_UPDATED, {
-      currency: selectedCurr,
-      sessionProfit: state.sessionProfit,
-      totalProfit: state.totalProfit
-    });
-
-    if (window.__keno_updateProfitLossUI) {
-      window.__keno_updateProfitLossUI();
-    }
+  // Emit event for listeners
+  stateEvents.emit(EVENTS.PROFIT_UPDATED, {
+    currency: selectedCurr,
+    sessionProfit: state.sessionProfit,
+    totalProfit: state.totalProfit
   });
+
+  if (window.__keno_updateProfitLossUI) {
+    window.__keno_updateProfitLossUI();
+  }
 }
 
 /**

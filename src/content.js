@@ -171,6 +171,7 @@ function addMessageListener() {
 			momentumPoolSize: state.momentumPoolSize
 		};
 
+		// data is already the kenoBet object from interceptor
 		const betData = {
 			id: data.id,
 			kenoBet: {

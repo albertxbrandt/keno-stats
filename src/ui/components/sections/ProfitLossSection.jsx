@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '../../../storage/profitLoss.js';
+import { state } from '../../../core/state.js';
 import { stateEvents, EVENTS } from '../../../core/stateEvents.js';
 import { COLORS } from '../../constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '../../constants/styles.js';
@@ -32,11 +33,16 @@ export function ProfitLossSection() {
     // Initial load
     setSessionProfit(getSessionProfit());
     setTotalProfit(getTotalProfit());
+    setCurrency(state.selectedCurrency?.toUpperCase() || 'BTC');
 
-    // Listen for profit updates
-    const unsubscribe = stateEvents.on(EVENTS.PROFIT_UPDATED, () => {
+    // Listen for profit updates - event includes currency from bet data
+    const unsubscribe = stateEvents.on(EVENTS.PROFIT_UPDATED, (eventData) => {
       setSessionProfit(getSessionProfit());
       setTotalProfit(getTotalProfit());
+      // Use currency from the bet that just completed
+      if (eventData?.currency) {
+        setCurrency(eventData.currency.toUpperCase());
+      }
     });
 
     return unsubscribe;

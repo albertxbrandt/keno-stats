@@ -61,7 +61,7 @@ export function HistorySection() {
   return (
     <CollapsibleSection
       icon="📋"
-      title={`History (Last ${history.length})`}
+      title={`History (${history.length} rounds)`}
       defaultExpanded={false}
       headerExtra={
         <button
