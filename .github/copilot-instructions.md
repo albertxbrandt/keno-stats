@@ -10,59 +10,41 @@ This is a Chrome/Firefox browser extension that tracks Keno game statistics on S
 
 ### Module Architecture (src/)
 
-Code split across specialized modules with clear separation of concerns:
+Code split across three main domains with clear separation of concerns:
+
+#### **src/keno-tool/** - Main extension features
 
 **Core:**
 
-- **`content.js`**: Entry point, message listener, initialization orchestration, round processing, Preact rendering
+- **`content.js`**: Entry point, message listener, initialization orchestration, round processing
 - **`core/state.js`**: Centralized reactive state (all `state.*` properties live here)
-- **`core/storage.js`**: Backward compatibility re-export wrapper for storage functions
+- **`core/stateEvents.js`**: Event system for reactive state updates
+- **`core/storage.js`**: Keno-tool-specific storage wrapper (re-exports from shared/)
 
 **UI (Preact Components):**
 
 - **`ui/App.jsx`**: Root Preact component, wraps Overlay and ModalsManager with ModalsProvider
-- **`ui/components/Overlay.jsx`**: Main draggable overlay container with tab switching (Tracker/Settings)
-- **`ui/components/shared/`**: Reusable UI primitives (DragHandle, ToggleSwitch, CollapsibleSection, etc.)
-- **`ui/components/sections/`**: Major overlay sections (Heatmap, Generator, HitsMiss, ProfitLoss, etc.)
-- **`ui/components/modals/`**: Modal dialogs (SavedNumbers, PatternAnalysis, Comparison, etc.)
-- **`ui/ModalsManager.jsx`**: Central modal coordination using useModals hook
+- **`ui/overlayInit.js`**: Overlay initialization and footer button injection
 - **`ui/numberSelection.js`**: Generator coordination, prediction caching, auto-select logic, preview system
+- **`ui/previewHighlight.js`**: Preview highlight module for predicted numbers
+- **`ui/ModalsManager.jsx`**: Central modal coordination using useModals hook
+- **`ui/components/Overlay.jsx`**: Main draggable overlay container with tab switching
+- **`ui/components/shared/`**: Reusable UI primitives (DragHandle, ToggleSwitch, CollapsibleSection, NumberInput, etc.)
+- **`ui/components/sections/`**: Major overlay sections (HeatmapSection, GeneratorSection, HitsMissSection, ProfitLossSection, PatternAnalysisSection, RecentPlaysSection, HistorySection)
+- **`ui/components/generator/`**: Generator sub-components (MethodSelector, AutoRefreshControl, GeneratorPreview, ShapesParams, MomentumParams)
+- **`ui/components/modals/`**: Modal dialogs (SavedNumbersModal, CombinationHitsModal, PatternAnalysisModal, PatternLoadingModal, ComparisonModal)
 
-**Storage Layer:**
+**Generators:**
 
-- **`storage/history.js`**: Game history CRUD with chunked storage (1000 rounds per chunk)
-- **`storage/settings.js`**: Generator and heatmap settings persistence
-- **`storage/savedNumbers.js`**: CRUD for saved number combinations
-- **`storage/patterns.js`**: Pattern cache management with TTL
-- **`storage/comparison.js`**: Comparison tracking data (in-memory)
-- **`storage/profitLoss.js`**: Profit/loss data persistence and state management
-
-**Generators:** (src/generators/)
-
-- **`cache.js`**: CacheManager class - universal refresh interval logic, prediction caching
-- **`base.js`**: BaseGenerator class - shared functionality (sample selection, frequency counting)
-- **`frequency.js`**: Hot numbers (most frequent)
-- **`cold.js`**: Cold numbers (least frequent)
-- **`mixed.js`**: Hot + Cold combined
-- **`average.js`**: Median frequency numbers
-- **`momentum.js`**: Trending numbers (momentum analysis)
-- **`shapes.js`**: Shape-based selection (wraps shapesCore)
-- **`shapesCore.js`**: Shape definitions, placement strategies (hot/trending/random)
-
-**Utils:**
-
-- **`utils/dom/`**: DOM operations
-  - `utils.js`: DOM helpers (simulatePointerClick, clearTable, waitForBetButtonReady)
-  - `tileSelection.js`: Tile selection/deselection, waitForTilesCleared, replaceSelection
-  - `domReader.js`: DOM state reading (getSelectedTileNumbers, getIntValue, etc.)
-  - `heatmap.js`: Heatmap visualization and tile highlighting
-  - `profitLossUI.js`: Profit/loss UI updates
-- **`utils/calculations/`**: Pure math/analysis functions
-  - `payoutCalculations.js`: Payout analysis and multiplier calculations
-  - `profitCalculations.js`: Profit/loss calculations, currency formatting
-  - `patternAlgorithms.js`: Pattern finding algorithms (combinatorial analysis)
-- **`utils/analysis/`**: Data analysis helpers
-  - `combinationAnalysis.js`: Combination hit rate analysis
+- **`generators/cache.js`**: CacheManager class - universal refresh interval logic, prediction caching
+- **`generators/base.js`**: BaseGenerator class - shared functionality (sample selection, frequency counting)
+- **`generators/frequency.js`**: Hot numbers (most frequent)
+- **`generators/cold.js`**: Cold numbers (least frequent)
+- **`generators/mixed.js`**: Hot + Cold combined
+- **`generators/average.js`**: Median frequency numbers
+- **`generators/momentum.js`**: Trending numbers (momentum analysis)
+- **`generators/shapes.js`**: Shape-based selection (wraps shapesCore)
+- **`generators/shapesCore.js`**: Shape definitions, placement strategies (hot/trending/random)
 
 **Bridges:**
 
@@ -71,6 +53,59 @@ Code split across specialized modules with clear separation of concerns:
 **Hooks:**
 
 - **`hooks/useModals.js`**: ModalsProvider context for managing modal state across components
+
+#### **src/dashboard/** - Separate bet history dashboard
+
+**Entry:**
+
+- **`dashboard-entry.js`**: Entry point for dashboard.html (separate from keno-tool)
+- **`Dashboard.jsx`**: Root dashboard component
+
+**Components:**
+
+- **`sections/BetHistory.jsx`**: Main bet history table with search/filter/pagination
+- **`components/BetTable.jsx`**: Table component for displaying bets
+- **`components/SearchBar.jsx`**: Search and filter controls
+- **`components/Pagination.jsx`**: Pagination controls
+- **`components/SettingsModal.jsx`**: Column visibility settings
+- **`components/BetDetailsModal.jsx`**: Detailed bet view with visual board
+
+**Utils:**
+
+- **`utils/storage.js`**: Dashboard-specific storage utilities (re-exports from shared/)
+
+#### **src/shared/** - Shared code used by both keno-tool and dashboard
+
+**Storage Layer:**
+
+- **`storage/history.js`**: Game history CRUD with chunked storage (1000 rounds per chunk), includes importHistory for bulk imports
+- **`storage/settings.js`**: Generator and heatmap settings persistence
+- **`storage/savedNumbers.js`**: CRUD for saved number combinations
+- **`storage/patterns.js`**: Pattern cache management with TTL
+- **`storage/comparison.js`**: Comparison tracking data (in-memory)
+- **`storage/profitLoss.js`**: Profit/loss data persistence and state management
+
+**Constants:**
+
+- **`constants/colors.js`**: Color palette and theme constants
+- **`constants/styles.js`**: Spacing, border radius, and layout constants
+- **`constants/defaults.js`**: Default values for generators and settings
+
+**Utils:**
+
+- **`utils/dom/`**: DOM operations
+  - `utils.js`: DOM helpers (simulatePointerClick, clearTable, waitForBetButtonReady)
+  - `tileSelection.js`: Tile selection/deselection, waitForTilesCleared, replaceSelection, clearHighlight
+  - `domReader.js`: DOM state reading (getSelectedTileNumbers, getIntValue, etc.)
+  - `heatmap.js`: Heatmap visualization, tile highlighting, clearHeatmap
+  - `profitLossUI.js`: Profit/loss UI updates
+- **`utils/calculations/`**: Pure math/analysis functions
+  - `payoutCalculations.js`: Payout analysis and multiplier calculations
+  - `profitCalculations.js`: Profit/loss calculations, currency formatting
+  - `patternAlgorithms.js`: Pattern finding algorithms (combinatorial analysis)
+- **`utils/analysis/`**: Data analysis helpers
+  - `combinationAnalysis.js`: Combination hit rate analysis
+- **`utils/stats.js`**: Statistics observer and multiplier bar updates
 
 ## Critical Implementation Patterns
 
