@@ -102,7 +102,7 @@ export function Dashboard() {
       <div style={{
         maxWidth: '1400px',
         margin: '0 auto',
-        padding: SPACING.xl
+        padding: `${SPACING.lg} ${SPACING.md}`
       }}>
         <ActiveComponent />
       </div>
