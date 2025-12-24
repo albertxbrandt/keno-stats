@@ -4,7 +4,7 @@
 import { render } from 'preact';
 import { App } from './App.jsx';
 import { state } from '@/keno-tool/core/state.js';
-import { loadGeneratorSettings, loadHeatmapSettings } from '@/keno-tool/core/storage.js';
+import { loadGeneratorSettings, loadHeatmapSettings, loadPanelVisibility } from '@/keno-tool/core/storage.js';
 import { initWindowGlobals } from '@/keno-tool/bridges/windowGlobals.js';
 
 // Store modals API reference
@@ -18,7 +18,7 @@ let modalsApiRef = null;
  */
 export async function initOverlay() {
   // Load all settings first
-  await Promise.all([loadGeneratorSettings(), loadHeatmapSettings()]);
+  await Promise.all([loadGeneratorSettings(), loadHeatmapSettings(), loadPanelVisibility()]);
 
   // Create container if it doesn't exist
   let container = document.getElementById('keno-tracker-root');
