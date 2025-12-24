@@ -431,7 +431,6 @@ function selectSmartShape(count, placement, historyData, sampleSize) {
       ([_key, shape]) => shape.offsets.length === count
     );
     if (matchingShapes.length > 0) {
-      // eslint-disable-next-line no-unused-vars
       const [_key, shape] = matchingShapes[Math.floor(Math.random() * matchingShapes.length)];
       return shape;
     }

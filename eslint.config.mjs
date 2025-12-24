@@ -30,7 +30,10 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
-      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      "no-unused-vars": ["warn", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }],
       "react/jsx-uses-react": "error",  // Prevent React/Preact being marked as unused
       "react/jsx-uses-vars": "error",   // Prevent variables used in JSX being marked as unused
       "no-console": ["warn", {

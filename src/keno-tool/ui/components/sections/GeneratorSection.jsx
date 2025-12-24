@@ -81,20 +81,10 @@ export function GeneratorSection() {
   };
 
   const handleSelectClick = async () => {
-    // eslint-disable-next-line no-console
-    console.log('[GeneratorSection] Select clicked, nextNumbers:', state.nextNumbers);
-    
     // Apply preview numbers and generate new ones
     if (state.nextNumbers && state.nextNumbers.length > 0) {
       state.generatedNumbers = state.nextNumbers;
-      
-      // eslint-disable-next-line no-console
-      console.log('[GeneratorSection] Calling selectPredictedNumbers');
       await selectPredictedNumbers();
-
-      // Generate new preview
-      // eslint-disable-next-line no-console
-      console.log('[GeneratorSection] Regenerating preview');
       await generateNumbers(true);
     } else {
       console.warn('[GeneratorSection] No nextNumbers to select');
