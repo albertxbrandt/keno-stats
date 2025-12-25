@@ -10,7 +10,7 @@ import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
 import { updateHeatmap } from '@/shared/utils/dom/heatmap.js';
 import { initStatsObserver, updateMultiplierBarStats } from '@/shared/utils/stats.js';
 import { trackPlayedNumbers } from '@/shared/storage/savedNumbers.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { loadProfitLoss } from '@/shared/storage/profitLoss.js';
 import { updateProfitLossUI } from '@/shared/utils/dom/profitLossUI.js';
 import '@/keno-tool/ui/previewHighlight.js'; // Preview highlight module

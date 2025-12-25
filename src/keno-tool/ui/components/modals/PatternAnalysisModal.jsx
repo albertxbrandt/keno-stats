@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Modal } from '../shared/Modal.jsx';
 import { state } from '@/keno-tool/core/state.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

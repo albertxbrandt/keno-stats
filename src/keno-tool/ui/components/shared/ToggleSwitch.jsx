@@ -2,7 +2,7 @@
 // Reusable toggle switch component with animated dot and track
 // Used throughout the overlay for on/off settings
 
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 
 /**
  * ToggleSwitch Component

@@ -8,7 +8,7 @@ import { generatorFactory, cacheManager } from '@/keno-tool/generators/index.js'
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';
 import { getIntValue } from '@/shared/utils/dom/domReader.js';
 import { getDrawn } from '@/shared/storage/history.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 
 // ============================================================================
 // GENERATOR WRAPPER FUNCTIONS (for backward compatibility)

@@ -6,7 +6,7 @@ import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

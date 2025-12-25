@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { Modal } from '../shared/Modal.jsx';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

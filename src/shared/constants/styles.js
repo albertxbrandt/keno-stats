@@ -1,7 +1,7 @@
 // src/ui/constants/styles.js
 // Reusable style objects for consistent UI
 
-import { COLORS } from './colors.js';
+import { COLORS } from './colors';
 
 // Common spacing values
 export const SPACING = {

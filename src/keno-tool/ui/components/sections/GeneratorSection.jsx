@@ -15,7 +15,7 @@ import { MomentumParams } from '../generator/MomentumParams.jsx';
 import { saveGeneratorSettings } from '@/keno-tool/core/storage.js';
 import { generateNumbers, selectPredictedNumbers } from '@/keno-tool/ui/numberSelection.js';
 import { useModals } from '@/keno-tool/hooks/useModals.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

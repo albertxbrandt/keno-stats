@@ -15,7 +15,7 @@ import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 import { HistorySection } from './sections/HistorySection.jsx';
 import { DragHandle } from './shared/DragHandle.jsx';
 import { SettingsPanel } from './SettingsPanel.jsx';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 
 // Component mapping for sections

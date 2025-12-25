@@ -7,7 +7,7 @@ import { state } from '@/keno-tool/core/state.js';
 import { useModals } from '@/keno-tool/hooks/useModals.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

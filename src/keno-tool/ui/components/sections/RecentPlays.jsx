@@ -4,7 +4,7 @@ import { getRecentlyPlayed } from '@/keno-tool/features/savedNumbersCore.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { waitForBetButtonReady } from '@/shared/utils/utils.js';
 import { replaceSelection } from '@/shared/utils/tileSelection.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

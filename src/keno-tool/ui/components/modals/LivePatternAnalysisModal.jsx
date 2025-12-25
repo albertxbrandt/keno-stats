@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { findCommonPatterns } from '@/shared/utils/calculations/patternAlgorithms.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { SPACING, BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '@/shared/constants/styles.js';
 
 /**

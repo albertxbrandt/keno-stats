@@ -4,7 +4,7 @@
 import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 import { calculateHitDistribution, getPayoutMultipliers, getBarColor } from '@/shared/utils/calculations/payoutCalculations.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 import { DEFAULTS } from '@/shared/constants/defaults.js';
 

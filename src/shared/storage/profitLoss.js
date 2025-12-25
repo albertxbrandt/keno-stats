@@ -1,7 +1,7 @@
 // src/storage/profitLoss.js
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
-import { calculateProfitByCurrency } from '../utils/calculations/profitCalculations.js';
+import { calculateProfitByCurrency } from '../utils/calculations/profitCalculations';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 

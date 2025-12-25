@@ -8,7 +8,7 @@ import { Pagination } from '../components/Pagination.jsx';
 import { SettingsModal } from '../components/SettingsModal.jsx';
 import { BetDetailsModal } from '../components/BetDetailsModal.jsx';
 import { loadBetHistory, exportBetHistory, deleteAllHistory, importHistory } from '../utils/storage.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
