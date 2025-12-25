@@ -34,14 +34,9 @@ import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
  * @architecture
  * The overlay is composed of several major sections:
  * - DragHandle: Top bar with title, status indicator, settings icon, close button
- * - Tracker Tab: Main view with all stats sections
- *   - HeatmapSection
- *   - GeneratorSection (largest, needs sub-components)
- *   - HitsMissSection
- *   - ProfitLossSection
- *   - PatternAnalysisSection
- *   - RecentPlaysSection
- *   - HistorySection
+ * - Tracker Tab: Main view with all stats sections, split into TWO COLUMNS
+ *   - Left Column: Heatmap, Generator, etc.
+ *   - Right Column: History, Recent Plays, etc.
  * - Settings Tab: Panel visibility and ordering
  * 
  * @migration-status
@@ -64,8 +59,11 @@ export function Overlay() {
   const [panelVisibility, setPanelVisibility] = useState(state.panelVisibility);
   const [panelOrder, setPanelOrder] = useState(state.panelOrder || defaultOrder);
 
-  // Default order fallback
-  const defaultOrder = ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'];
+  // Default order fallback (2-column layout)
+  const defaultOrder = {
+    left: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay'],
+    right: ['profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+  };
 
   // Dragging state
   const [position, setPosition] = useState({ top: 80, left: null, right: 20 });
@@ -82,7 +80,17 @@ export function Overlay() {
     };
 
     const handleOrderChange = (newOrder) => {
-      setPanelOrder([...newOrder]);
+      // Ensure we have a valid object structure
+      if (Array.isArray(newOrder)) {
+        // Fallback migration if event sends array (shouldn't happen with updated SettingsPanel)
+        const mid = Math.ceil(newOrder.length / 2);
+        setPanelOrder({
+          left: newOrder.slice(0, mid),
+          right: newOrder.slice(mid)
+        });
+      } else {
+        setPanelOrder({ ...newOrder });
+      }
     };
 
     window.addEventListener('keno-overlay-toggle', handleToggle);
@@ -154,6 +162,12 @@ export function Overlay() {
     return null;
   }
 
+  // Ensure panelOrder has left/right keys (fallback for safety)
+  const safeOrder = {
+    left: Array.isArray(panelOrder) ? panelOrder : (panelOrder.left || []),
+    right: Array.isArray(panelOrder) ? [] : (panelOrder.right || [])
+  };
+
   return (
     <div 
       id="keno-tracker-overlay"
@@ -161,7 +175,8 @@ export function Overlay() {
         position: 'fixed',
         ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
         top: `${position.top}px`,
-        width: '240px',
+        // Increased width for 2 columns (240px * 2 + gap)
+        width: '500px',
         backgroundColor: COLORS.bg.darker,
         color: '#fff',
         padding: '0',
@@ -194,10 +209,20 @@ export function Overlay() {
           background: COLORS.bg.lighter,
           borderBottomLeftRadius: BORDER_RADIUS.lg,
           borderBottomRightRadius: BORDER_RADIUS.lg,
-          display: currentView === 'tracker' ? 'block' : 'none'
+          display: currentView === 'tracker' ? 'flex' : 'none',
+          gap: SPACING.md,
+          alignItems: 'flex-start'
         }}
       >
-        {panelOrder.map(renderSection)}
+        {/* Left Column */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
+          {safeOrder.left.map(renderSection)}
+        </div>
+
+        {/* Right Column */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
+          {safeOrder.right.map(renderSection)}
+        </div>
       </div>
 
       {/* Settings Tab Content */}

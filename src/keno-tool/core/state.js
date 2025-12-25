@@ -56,7 +56,10 @@ export const state = {
         recentPlays: true,
         history: true
     },
-    panelOrder: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'],
+    panelOrder: {
+        left: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay'],
+        right: ['profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+    },
     // Method Comparison Window
     isComparisonWindowOpen: false,
     comparisonLookback: 50, // How many rounds to track

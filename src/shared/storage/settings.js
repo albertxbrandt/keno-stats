@@ -37,11 +37,28 @@ export function savePanelOrder() {
 
 /**
  * Load panel order settings from storage
- * @returns {Promise<Array|null>} Order array or null if not found
+ * @returns {Promise<Object|null>} Order object or null if not found
  */
 export function loadPanelOrder() {
   return storageApi.storage.local.get('panelOrder').then(res => {
     if (res.panelOrder) {
+      // Migration: Convert legacy array to object if necessary
+      if (Array.isArray(res.panelOrder)) {
+        console.log('[Settings] Migrating legacy panel order to 2-column layout');
+        const legacy = res.panelOrder;
+        const mid = Math.ceil(legacy.length / 2);
+
+        const newOrder = {
+          left: legacy.slice(0, mid),
+          right: legacy.slice(mid)
+        };
+
+        state.panelOrder = newOrder;
+        // Persist migration immediately
+        savePanelOrder();
+        return newOrder;
+      }
+
       state.panelOrder = res.panelOrder;
       return res.panelOrder;
     }

@@ -10,10 +10,18 @@ import { savePanelVisibility, savePanelOrder } from '@/keno-tool/core/storage.js
 
 export function SettingsPanel() {
   const [panelVisibility, setPanelVisibility] = useState({ ...state.panelVisibility });
-  const [panelOrder, setPanelOrder] = useState([...(state.panelOrder || defaultOrder)]);
+  const [panelOrder, setPanelOrder] = useState({
+    left: [],
+    right: []
+  });
+
+  // Track dragging state: { column: 'left'|'right', index: number }
   const [draggedItem, setDraggedItem] = useState(null);
 
-  const defaultOrder = ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'];
+  const defaultOrder = {
+    left: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay'],
+    right: ['profitLoss', 'patternAnalysis', 'recentPlays', 'history']
+  };
 
   // Map section IDs to display data
   const sectionData = {
@@ -29,11 +37,21 @@ export function SettingsPanel() {
 
   // Sync with global state on mount
   useEffect(() => {
-    // Filter out 'autoplay' if it's disabled in the codebase/TOS
-    // For now we keep it in the list if it's in the state order,
-    // but we should probably filter it out if not implemented.
-    // However, keeping state consistent is safer.
-    setPanelOrder([...(state.panelOrder || defaultOrder)]);
+    let currentOrder = state.panelOrder;
+
+    // Ensure we have the new object structure
+    if (!currentOrder || Array.isArray(currentOrder)) {
+      currentOrder = defaultOrder;
+    }
+
+    // Validate keys exist
+    if (!currentOrder.left) currentOrder.left = [];
+    if (!currentOrder.right) currentOrder.right = [];
+
+    setPanelOrder({
+      left: [...currentOrder.left],
+      right: [...currentOrder.right]
+    });
   }, []);
 
   const handleToggle = (section) => (e) => {
@@ -48,34 +66,63 @@ export function SettingsPanel() {
   };
 
   // Drag and Drop Handlers
-  const handleDragStart = (e, index) => {
-    setDraggedItem(index);
+  const handleDragStart = (e, column, index) => {
+    setDraggedItem({ column, index });
     e.dataTransfer.effectAllowed = 'move';
     // Transparent drag image
-    e.dataTransfer.setDragImage(e.target, 0, 0);
+    // e.dataTransfer.setDragImage(e.target, 0, 0); // Optional: customize drag image
   };
 
-  const handleDragOver = (e, index) => {
+  const handleDragOver = (e, targetColumn, targetIndex) => {
     e.preventDefault();
-    const draggedOverItem = index;
 
-    // if the item is dragged over itself, ignore
-    if (draggedItem === null || draggedItem === draggedOverItem) {
+    if (!draggedItem) return;
+
+    // Check if moving to a different position
+    if (draggedItem.column === targetColumn && draggedItem.index === targetIndex) {
       return;
     }
 
-    // Filter out the item being dragged
-    let newOrder = [...panelOrder];
-    const draggedSectionId = newOrder[draggedItem];
+    const newOrder = {
+      left: [...panelOrder.left],
+      right: [...panelOrder.right]
+    };
 
     // Remove from old position
-    newOrder.splice(draggedItem, 1);
+    const item = newOrder[draggedItem.column][draggedItem.index];
+    newOrder[draggedItem.column].splice(draggedItem.index, 1);
 
     // Insert at new position
-    newOrder.splice(draggedOverItem, 0, draggedSectionId);
+    // If dragging to empty list or end of list, push
+    if (targetIndex >= newOrder[targetColumn].length) {
+      newOrder[targetColumn].push(item);
+    } else {
+      newOrder[targetColumn].splice(targetIndex, 0, item);
+    }
 
-    setDraggedItem(draggedOverItem);
+    setDraggedItem({ column: targetColumn, index: targetIndex });
     setPanelOrder(newOrder);
+  };
+
+  // Handle dropping into an empty column
+  const handleDragOverContainer = (e, targetColumn) => {
+    e.preventDefault();
+    if (!draggedItem) return;
+
+    // Only relevant if column is empty, otherwise row handlers take over
+    if (panelOrder[targetColumn].length === 0) {
+      const newOrder = {
+        left: [...panelOrder.left],
+        right: [...panelOrder.right]
+      };
+
+      const item = newOrder[draggedItem.column][draggedItem.index];
+      newOrder[draggedItem.column].splice(draggedItem.index, 1);
+      newOrder[targetColumn].push(item);
+
+      setDraggedItem({ column: targetColumn, index: 0 });
+      setPanelOrder(newOrder);
+    }
   };
 
   const handleDragEnd = () => {
@@ -85,54 +132,68 @@ export function SettingsPanel() {
     state.panelOrder = panelOrder;
     savePanelOrder();
 
-    // Emit event to notify Overlay (reuse SETTINGS_CHANGED or add new one)
-    // We can emit SETTINGS_CHANGED with visibility, or a specific ORDER_CHANGED
-    // Overlay currently listens to SETTINGS_CHANGED for visibility.
-    // Let's add ORDER_CHANGED to stateEvents.
+    // Emit event to notify Overlay
     stateEvents.emit('order:changed', panelOrder);
   };
 
-  return (
-    <div style={{
-      background: COLORS.bg.dark,
-      padding: SPACING.md,
-      borderRadius: BORDER_RADIUS.lg
-    }}>
-      <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: SPACING.md }}>
-        Show/Hide & Reorder Panels
+  const renderColumn = (columnId, items) => (
+    <div
+      style={{ flex: 1, minWidth: 0 }}
+      onDragOver={(e) => handleDragOverContainer(e, columnId)}
+    >
+      <div style={{
+        color: COLORS.text.secondary,
+        fontSize: '10px',
+        marginBottom: SPACING.sm,
+        textTransform: 'uppercase',
+        fontWeight: 'bold',
+        textAlign: 'center'
+      }}>
+        {columnId === 'left' ? 'Left Column' : 'Right Column'}
       </div>
 
-      <div id="settings-list">
-        {panelOrder.map((sectionId, index) => {
+      <div style={{
+        background: COLORS.bg.darker,
+        borderRadius: BORDER_RADIUS.md,
+        padding: SPACING.xs,
+        minHeight: '100px'
+      }}>
+        {items.map((sectionId, index) => {
           const section = sectionData[sectionId];
-          if (!section) return null; // Skip unknown sections
+          if (!section) return null;
+
+          const isDragging = draggedItem && draggedItem.column === columnId && draggedItem.index === index;
 
           return (
             <div
               key={sectionId}
               class="settings-row"
               draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={(e) => handleDragOver(e, index)}
+              onDragStart={(e) => handleDragStart(e, columnId, index)}
+              onDragOver={(e) => handleDragOver(e, columnId, index)}
               onDragEnd={handleDragEnd}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '10px 0',
-                borderBottom: `1px solid ${COLORS.border.default}`,
+                padding: '8px',
+                marginBottom: '4px',
+                background: isDragging ? COLORS.bg.darkest : COLORS.bg.dark,
+                borderRadius: BORDER_RADIUS.sm,
+                border: `1px solid ${COLORS.border.default}`,
                 cursor: 'move',
-                opacity: draggedItem === index ? 0.5 : 1,
+                opacity: isDragging ? 0.5 : 1,
                 transition: 'transform 0.2s ease',
-                background: draggedItem === index ? COLORS.bg.darker : 'transparent'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: COLORS.text.tertiary, fontSize: '14px', cursor: 'grab' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: COLORS.text.tertiary, fontSize: '12px', cursor: 'grab' }}>
                   ☰
                 </span>
-                <span style={{ fontSize: '16px' }}>{section.icon}</span>
-                <span style={{ color: '#fff', fontSize: '12px' }}>{section.label}</span>
+                <span style={{ fontSize: '14px' }}>{section.icon}</span>
+                <span style={{ color: '#fff', fontSize: '11px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {section.label}
+                </span>
               </div>
               <ToggleSwitch
                 checked={panelVisibility[sectionId] !== false}
@@ -141,6 +202,28 @@ export function SettingsPanel() {
             </div>
           );
         })}
+        {items.length === 0 && (
+          <div style={{ padding: '20px', textAlign: 'center', color: COLORS.text.tertiary, fontSize: '10px' }}>
+            Drop here
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{
+      background: COLORS.bg.dark,
+      padding: SPACING.md,
+      borderRadius: BORDER_RADIUS.lg
+    }}>
+      <div style={{ color: COLORS.text.secondary, fontSize: '12px', marginBottom: SPACING.md }}>
+        Drag to Reorder & Move Between Columns
+      </div>
+
+      <div style={{ display: 'flex', gap: SPACING.md }}>
+        {renderColumn('left', panelOrder.left)}
+        {renderColumn('right', panelOrder.right)}
       </div>
     </div>
   );
