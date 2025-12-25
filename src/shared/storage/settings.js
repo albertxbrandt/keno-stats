@@ -3,6 +3,7 @@
 
 import { state } from '@/keno-tool/core/state.js';
 import { validatePanelVisibility } from '@/keno-tool/ui/constants/sections.js';
+import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -90,9 +91,7 @@ export function saveGeneratorSettings() {
 
   // Auto-update preview after any generator setting changes
   // This keeps the "Next Numbers" preview in sync with current configuration
-  if (window.__keno_updateGeneratorPreview) {
-    window.__keno_updateGeneratorPreview();
-  }
+  stateEvents.emit(EVENTS.SETTINGS_CHANGED, settings);
 }
 
 /**

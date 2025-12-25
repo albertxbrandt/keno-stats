@@ -3,7 +3,7 @@ import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { initOverlay, observeFooterForButton } from '@/keno-tool/ui/overlayInit.js';
 import { loadHistory, updateHistoryUI } from '@/keno-tool/core/storage.js';
-import { selectPredictedNumbers } from '@/keno-tool/ui/numberSelection.js';
+import { selectPredictedNumbers, updateGeneratorPreview, refreshGeneratorPreview } from '@/keno-tool/ui/numberSelection.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 // import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
@@ -95,6 +95,11 @@ function checkAndInitialize() {
 		});
 	});
 }
+
+// Listen for settings changes to update generator preview
+stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
+	updateGeneratorPreview();
+});
 
 // Initial check on load
 if (document.readyState === 'loading') {
@@ -248,8 +253,8 @@ function addMessageListener() {
 							}
 
 							// Update preview after generation
-							if (window.__keno_updateGeneratorPreview) {
-								window.__keno_updateGeneratorPreview();
+							if (updateGeneratorPreview) {
+								updateGeneratorPreview();
 							}
 						}).catch(async err => {
 							console.error('[Content] Bet button timeout, generating anyway:', err);
@@ -268,20 +273,20 @@ function addMessageListener() {
 							}
 
 							// Update preview even on timeout
-							if (window.__keno_updateGeneratorPreview) {
-								window.__keno_updateGeneratorPreview();
+							if (updateGeneratorPreview) {
+								updateGeneratorPreview();
 							}
 						});
 					} catch (e) {
 						console.error('[Generator] Generate numbers failed:', e);
 					}
-				} else if (window.__keno_updateGeneratorPreview) {
+				} else if (updateGeneratorPreview) {
 					// Not yet time to refresh, just update preview countdown
-					window.__keno_updateGeneratorPreview();
+					updateGeneratorPreview();
 				}
-			} else if (window.__keno_updateGeneratorPreview) {
+			} else if (updateGeneratorPreview) {
 				// Auto-refresh disabled, still update preview
-				window.__keno_updateGeneratorPreview();
+				updateGeneratorPreview();
 			}
 
 			// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
