@@ -2,9 +2,10 @@
 // Main generator section that composes all generator sub-components
 // Handles method-specific parameter visibility and number selection
 
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
+import { initButtonPreviewHighlight } from '@/keno-tool/ui/previewHighlight.js';
 import { NumberInput } from '../shared/NumberInput.jsx';
 import { GeneratorPreview } from '../generator/GeneratorPreview.jsx';
 import { MethodSelector } from '../generator/MethodSelector.jsx';
@@ -42,6 +43,7 @@ export function GeneratorSection() {
   const [sampleSize, setSampleSize] = useState(state.generatorSampleSize || 20);
   const [selectedMethod, setSelectedMethod] = useState(state.generatorMethod || 'frequency');
   const modals = useModals();
+  const selectButtonRef = useRef(null);
 
   // Determine which method uses which params
   const showShapesParams = selectedMethod === 'shapes';
@@ -52,6 +54,13 @@ export function GeneratorSection() {
     setCount(state.generatorCount || 3);
     setSampleSize(state.generatorSampleSize || 20);
     setSelectedMethod(state.generatorMethod || 'frequency');
+  }, []);
+
+  // Initialize preview highlight on Select button
+  useEffect(() => {
+    if (selectButtonRef.current) {
+      initButtonPreviewHighlight(selectButtonRef.current);
+    }
   }, []);
 
   // Update max sample size based on history length
@@ -157,6 +166,7 @@ export function GeneratorSection() {
 
       {/* Action buttons */}
       <button
+        ref={selectButtonRef}
         onClick={handleSelectClick}
         id="generate-numbers-btn"
         style={{

@@ -2,9 +2,10 @@
 // Preview component showing "next numbers" that will be generated
 // Displays method name, countdown, and predicted numbers with hit/miss styling
 
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
+import { initPreviewBoxHighlight } from '@/keno-tool/ui/previewHighlight.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -37,6 +38,7 @@ export function GeneratorPreview() {
   const [countdown, setCountdown] = useState('Manual');
   const [countdownColor, setCountdownColor] = useState('#666');
   const [previewNumbers, setPreviewNumbers] = useState([]);
+  const previewContainerRef = useRef(null);
 
   // Method name mappings
   const methodNames = {
@@ -110,15 +112,25 @@ export function GeneratorPreview() {
     };
   }, []);
 
+  // Initialize preview box highlight
+  useEffect(() => {
+    if (previewContainerRef.current) {
+      initPreviewBoxHighlight(previewContainerRef.current);
+    }
+  }, []);
+
   return (
-    <div style={{
-      marginTop: SPACING.sm,
-      marginBottom: SPACING.sm,
-      padding: SPACING.sm,
-      background: COLORS.bg.darkest,
-      borderRadius: BORDER_RADIUS.sm,
-      border: `1px solid ${COLORS.border.light}`
-    }}>
+    <div
+      ref={previewContainerRef}
+      style={{
+        marginTop: SPACING.sm,
+        marginBottom: SPACING.sm,
+        padding: SPACING.sm,
+        background: COLORS.bg.darkest,
+        borderRadius: BORDER_RADIUS.sm,
+        border: `1px solid ${COLORS.border.light}`,
+        cursor: 'pointer'
+      }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
