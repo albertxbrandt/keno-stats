@@ -167,6 +167,20 @@ export function Overlay() {
     right: Array.isArray(panelOrder) ? [] : (panelOrder.right || [])
   };
 
+  // Determine if columns have any visible items
+  const hasVisibleLeft = safeOrder.left.some(id => panelVisibility[id] !== false);
+  const hasVisibleRight = safeOrder.right.some(id => panelVisibility[id] !== false);
+
+  // Dynamic width calculation
+  let overlayWidth = '240px';
+  if (hasVisibleLeft && hasVisibleRight) {
+    overlayWidth = '500px';
+  } else if (!hasVisibleLeft && !hasVisibleRight) {
+    // If nothing visible (shouldn't happen often), keep small
+    overlayWidth = '240px';
+  }
+  // If only one column is visible, default to 240px (already set)
+
   return (
     <div 
       id="keno-tracker-overlay"
@@ -174,8 +188,7 @@ export function Overlay() {
         position: 'fixed',
         ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
         top: `${position.top}px`,
-        // Increased width for 2 columns (240px * 2 + gap)
-        width: '500px',
+        width: overlayWidth,
         backgroundColor: COLORS.bg.darker,
         color: '#fff',
         padding: '0',
@@ -214,14 +227,18 @@ export function Overlay() {
         }}
       >
         {/* Left Column */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
-          {safeOrder.left.map(renderSection)}
-        </div>
+        {hasVisibleLeft && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
+            {safeOrder.left.map(renderSection)}
+          </div>
+        )}
 
         {/* Right Column */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
-          {safeOrder.right.map(renderSection)}
-        </div>
+        {hasVisibleRight && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
+            {safeOrder.right.map(renderSection)}
+          </div>
+        )}
       </div>
 
       {/* Settings Tab Content */}

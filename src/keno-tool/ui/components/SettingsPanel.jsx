@@ -229,7 +229,16 @@ export function SettingsPanel() {
           );
         })}
         {items.length === 0 && (
-          <div style={{ padding: '20px', textAlign: 'center', color: COLORS.text.tertiary, fontSize: '10px' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '100px',
+            color: COLORS.text.secondary,
+            fontSize: '11px',
+            fontWeight: 'bold',
+            opacity: 0.7
+          }}>
             Drop here
           </div>
         )}
