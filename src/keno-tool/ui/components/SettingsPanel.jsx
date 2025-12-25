@@ -1,6 +1,6 @@
 // src/ui/components/SettingsPanel.jsx
 import { h } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { ToggleSwitch } from './shared/ToggleSwitch.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
@@ -14,6 +14,9 @@ export function SettingsPanel() {
     left: [],
     right: []
   });
+
+  // Use ref to track order synchronously for drag events
+  const panelOrderRef = useRef({ left: [], right: [] });
 
   // Track dragging state: { column: 'left'|'right', index: number }
   const [draggedItem, setDraggedItem] = useState(null);
@@ -34,6 +37,12 @@ export function SettingsPanel() {
     history: { label: 'History', icon: '📋' }
   };
 
+  // Update both state and ref
+  const updateOrder = (newOrder) => {
+    setPanelOrder(newOrder);
+    panelOrderRef.current = newOrder;
+  };
+
   // Sync with global state on mount
   useEffect(() => {
     let currentOrder = state.panelOrder;
@@ -47,7 +56,7 @@ export function SettingsPanel() {
     if (!currentOrder.left) currentOrder.left = [];
     if (!currentOrder.right) currentOrder.right = [];
 
-    setPanelOrder({
+    updateOrder({
       left: [...currentOrder.left],
       right: [...currentOrder.right]
     });
@@ -69,7 +78,7 @@ export function SettingsPanel() {
     setDraggedItem({ column, index });
     e.dataTransfer.effectAllowed = 'move';
     // Transparent drag image
-    // e.dataTransfer.setDragImage(e.target, 0, 0); // Optional: customize drag image
+    // e.dataTransfer.setDragImage(e.target, 0, 0);
   };
 
   const handleDragOver = (e, targetColumn, targetIndex) => {
@@ -82,9 +91,12 @@ export function SettingsPanel() {
       return;
     }
 
+    // Use REF for current state to avoid closure staleness during rapid drags
+    const currentRef = panelOrderRef.current;
+
     const newOrder = {
-      left: [...panelOrder.left],
-      right: [...panelOrder.right]
+      left: [...currentRef.left],
+      right: [...currentRef.right]
     };
 
     // Safety check: ensure dragged item exists
@@ -97,7 +109,6 @@ export function SettingsPanel() {
     newOrder[draggedItem.column].splice(draggedItem.index, 1);
 
     // Insert at new position
-    // If dragging to empty list or end of list, push
     if (targetIndex >= newOrder[targetColumn].length) {
       newOrder[targetColumn].push(item);
     } else {
@@ -105,7 +116,7 @@ export function SettingsPanel() {
     }
 
     setDraggedItem({ column: targetColumn, index: targetIndex });
-    setPanelOrder(newOrder);
+    updateOrder(newOrder);
   };
 
   // Handle drop on empty column or container background
@@ -113,55 +124,47 @@ export function SettingsPanel() {
     e.preventDefault();
     e.stopPropagation();
 
-    // If we dropped on the container itself (not a child item), and haven't already moved it there via dragOver
-    // handleDragEnd will fire next and save the state.
-    // If the list is empty, handleDragOverContainer likely handled it.
-
-    // Just ensure we call handleDragEnd logic effectively if needed,
-    // but handleDragEnd is bound to the dragged element's onDragEnd.
-  };
-
-  // Handle dragging over empty space in a column to append
-  const handleDragOverContainer = (e, targetColumn) => {
-    e.preventDefault();
     if (!draggedItem) return;
 
-    // If hovering over the container but not a specific item
-    // AND the column is empty OR we are below the last item
-    // For simplicity, if empty, move it in.
-    if (panelOrder[targetColumn].length === 0) {
-      const newOrder = {
-        left: [...panelOrder.left],
-        right: [...panelOrder.right]
-      };
+    const currentRef = panelOrderRef.current;
 
-      // Safety check
-      if (!newOrder[draggedItem.column][draggedItem.index]) return;
+    // Only if column is empty, logic to append is helpful
+    // If not empty, dragOver handles reordering.
+    if (currentRef[targetColumn].length === 0) {
+        const newOrder = {
+            left: [...currentRef.left],
+            right: [...currentRef.right]
+        };
 
-      const item = newOrder[draggedItem.column][draggedItem.index];
-      newOrder[draggedItem.column].splice(draggedItem.index, 1);
-      newOrder[targetColumn].push(item);
+        // Safety check
+        if (!newOrder[draggedItem.column][draggedItem.index]) return;
 
-      setDraggedItem({ column: targetColumn, index: 0 });
-      setPanelOrder(newOrder);
+        const item = newOrder[draggedItem.column][draggedItem.index];
+        newOrder[draggedItem.column].splice(draggedItem.index, 1);
+        newOrder[targetColumn].push(item);
+
+        setDraggedItem({ column: targetColumn, index: 0 });
+        updateOrder(newOrder);
     }
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
 
-    // Save new order to state and storage
-    state.panelOrder = panelOrder;
+    // Use ref to ensure we save the absolute latest state
+    // even if state update is pending
+    const finalOrder = panelOrderRef.current;
+
+    state.panelOrder = finalOrder;
     savePanelOrder();
 
-    // Emit event to notify Overlay
-    stateEvents.emit('order:changed', panelOrder);
+    stateEvents.emit('order:changed', finalOrder);
   };
 
   const renderColumn = (columnId, items) => (
     <div
       style={{ flex: 1, minWidth: 0 }}
-      onDragOver={(e) => handleDragOverContainer(e, columnId)}
+      onDragOver={(e) => e.preventDefault()} // Allow dropping
       onDrop={(e) => handleDropContainer(e, columnId)}
     >
       <div style={{

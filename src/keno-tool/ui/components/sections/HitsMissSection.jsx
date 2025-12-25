@@ -46,7 +46,6 @@ export function HitsMissSection() {
 
   return (
     <div style={{
-      marginBottom: SPACING.lg,
       background: COLORS.bg.dark,
       padding: SPACING.sm,
       borderRadius: BORDER_RADIUS.sm
