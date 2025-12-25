@@ -9,7 +9,7 @@ import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { NumberInput } from '../shared/NumberInput.jsx';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

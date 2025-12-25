@@ -4,7 +4,7 @@ import {
   getAvailableCurrencies,
   formatCurrency,
   getProfitColor
-} from '../calculations/profitCalculations.js';
+} from '../calculations/profitCalculations';
 import { changeCurrency } from '../../storage/profitLoss.js';
 
 /**

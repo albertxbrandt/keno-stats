@@ -1,5 +1,5 @@
 // src/utils/calculations/payoutCalculations.js
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 // Pure calculation functions for payout analysis
 
 import { getDrawn } from '@/keno-tool/core/storage.js';

@@ -5,7 +5,7 @@ import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '@/keno-tool/core/state.js';
 import { saveGraphPreferences } from '@/shared/storage/savedNumbers.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '@/shared/constants/styles.js';
 import { DEFAULTS } from '@/shared/constants/defaults.js';
 

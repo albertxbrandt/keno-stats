@@ -4,7 +4,7 @@
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { clearHighlight } from '@/shared/utils/dom/tileSelection.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 

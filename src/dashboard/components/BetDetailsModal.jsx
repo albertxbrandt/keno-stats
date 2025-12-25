@@ -1,6 +1,6 @@
 // src/dashboard/components/BetDetailsModal.jsx
 import { getHits, getMisses } from '@/shared/storage/history.js';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

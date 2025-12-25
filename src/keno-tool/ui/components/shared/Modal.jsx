@@ -2,7 +2,7 @@
 // Reusable modal/window component with dragging and optional resizing
 
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

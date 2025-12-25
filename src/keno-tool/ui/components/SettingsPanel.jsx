@@ -3,7 +3,7 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { ToggleSwitch } from './shared/ToggleSwitch.jsx';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { savePanelVisibility, savePanelOrder } from '@/keno-tool/core/storage.js';

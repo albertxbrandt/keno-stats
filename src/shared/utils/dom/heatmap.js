@@ -3,7 +3,7 @@ import { state } from '@/keno-tool/core/state.js';
 import { getHits, getMisses, getDrawn } from '@/keno-tool/core/storage.js';
 import { getTileElements, extractNumberFromTile } from './domReader.js';
 import { clearHighlight } from './tileSelection.js';
-import { COLORS as THEME_COLORS } from '@/shared/constants/colors.js';
+import { COLORS as THEME_COLORS } from '@/shared/constants/colors';
 
 // ==================== CONSTANTS ====================
 

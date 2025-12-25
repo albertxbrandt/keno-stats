@@ -7,7 +7,7 @@ import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/keno-tool/core/storage.js';
 import { NumberInput } from '../shared/NumberInput.jsx';
-import { COLORS } from '@/shared/constants/colors.js';
+import { COLORS } from '@/shared/constants/colors';
 import { BORDER_RADIUS } from '@/shared/constants/styles.js';
 
 /**
