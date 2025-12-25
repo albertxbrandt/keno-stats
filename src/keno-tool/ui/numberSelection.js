@@ -16,6 +16,40 @@ import { COLORS } from '@/shared/constants/colors.js';
 // ============================================================================
 
 /**
+ * Refreshes the generator preview data by calculating next numbers
+ * and emitting an event. Does NOT update legacy DOM.
+ * @returns {Array<number>} The predicted numbers
+ */
+export function refreshGeneratorPreview() {
+  let previewPredictions = [];
+  const method = state.generatorMethod || 'frequency';
+  const count = state.generatorCount || 3;
+  const history = state.currentHistory || [];
+
+  try {
+    const config = buildGeneratorConfig(method);
+
+    const generator = generatorFactory.get(method);
+    if (generator) {
+      // Generate fresh preview without updating cache
+      previewPredictions = generator.generate(count, history, config);
+
+      // Store in state for use by Refresh button
+      state.nextNumbers = previewPredictions;
+
+      // Emit event for listeners
+      stateEvents.emit(EVENTS.GENERATOR_PREVIEW_UPDATED, previewPredictions);
+    }
+  } catch (e) {
+    console.error('[Preview] Failed to generate preview:', e);
+    state.nextNumbers = [];
+    stateEvents.emit(EVENTS.GENERATOR_PREVIEW_UPDATED, []);
+  }
+
+  return previewPredictions;
+}
+
+/**
  * Update the preview UI to show next predicted numbers and refresh countdown
  * Generates fresh predictions WITHOUT updating cache or state (preview only)
  * Shows countdown to next auto-refresh if interval > 0
@@ -66,29 +100,9 @@ export function updateGeneratorPreview() {
 
   // Generate preview of what NEXT numbers will be (force fresh generation)
   // This shows what you'd get if you clicked Refresh now
-  let previewPredictions = [];
-  const count = state.generatorCount || 3;
+  // Delegate to the new function for logic
+  const previewPredictions = refreshGeneratorPreview();
   const history = state.currentHistory || [];
-
-  try {
-    const config = buildGeneratorConfig(method);
-
-    const generator = generatorFactory.get(method);
-    if (generator) {
-      // Generate fresh preview without updating cache
-      previewPredictions = generator.generate(count, history, config);
-
-      // Store in state for use by Refresh button
-      state.nextNumbers = previewPredictions;
-
-      // Emit event for listeners
-      stateEvents.emit(EVENTS.GENERATOR_PREVIEW_UPDATED, previewPredictions);
-    }
-  } catch (e) {
-    console.error('[Preview] Failed to generate preview:', e);
-    state.nextNumbers = [];
-    stateEvents.emit(EVENTS.GENERATOR_PREVIEW_UPDATED, []);
-  }
 
   // Update preview numbers with hit/miss styling (only if DOM container exists)
   if (previewContainer) {
@@ -312,8 +326,8 @@ window.__keno_generateNumbers = async function (forceRefresh = false, autoSelect
   }
 
   // Update preview to show new numbers
-  if (window.__keno_updateGeneratorPreview) {
-    window.__keno_updateGeneratorPreview();
+  if (updateGeneratorPreview) {
+    updateGeneratorPreview();
   }
 
   return result;
@@ -321,4 +335,3 @@ window.__keno_generateNumbers = async function (forceRefresh = false, autoSelect
 
 window.__keno_selectPredictedNumbers = selectPredictedNumbers;
 window.__keno_generateAllPredictions = generateAllPredictions;
-window.__keno_updateGeneratorPreview = updateGeneratorPreview;

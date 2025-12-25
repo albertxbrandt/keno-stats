@@ -26,12 +26,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
  * 
  * @note
  * Numbers that were hits in the last round appear with darker styling and inset shadow.
- * Preview updates automatically when settings change via window.__keno_updateGeneratorPreview.
- * 
- * @todo REFACTOR NEEDED:
- * - Remove dependency on window.__keno_updateGeneratorPreview hook
- * - Use proper event system or Preact context for updates
- * - Consider moving generator logic into hooks for better encapsulation
+ * Preview updates automatically when settings change (via stateEvents).
  */
 export function GeneratorPreview() {
   const [methodDisplay, setMethodDisplay] = useState('🔥 Hot');
