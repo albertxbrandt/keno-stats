@@ -19,7 +19,7 @@ export function SettingsPanel() {
   const [draggedItem, setDraggedItem] = useState(null);
 
   const defaultOrder = {
-    left: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay'],
+    left: ['heatmap', 'numberGenerator', 'hitsMiss'],
     right: ['profitLoss', 'patternAnalysis', 'recentPlays', 'history']
   };
 
@@ -28,7 +28,6 @@ export function SettingsPanel() {
     heatmap: { label: 'Heatmap', icon: '🗺️' },
     numberGenerator: { label: 'Number Generator', icon: '🎲' },
     hitsMiss: { label: 'Hits / Miss Display', icon: '✅' },
-    autoplay: { label: 'Auto-Play', icon: '▶️' },
     profitLoss: { label: 'Profit/Loss', icon: '💰' },
     patternAnalysis: { label: 'Pattern Analysis', icon: '🔍' },
     recentPlays: { label: 'Recent Plays', icon: '🎯' },
@@ -88,6 +87,11 @@ export function SettingsPanel() {
       right: [...panelOrder.right]
     };
 
+    // Safety check: ensure dragged item exists
+    if (!newOrder[draggedItem.column] || !newOrder[draggedItem.column][draggedItem.index]) {
+      return;
+    }
+
     // Remove from old position
     const item = newOrder[draggedItem.column][draggedItem.index];
     newOrder[draggedItem.column].splice(draggedItem.index, 1);
@@ -104,17 +108,35 @@ export function SettingsPanel() {
     setPanelOrder(newOrder);
   };
 
-  // Handle dropping into an empty column
+  // Handle drop on empty column or container background
+  const handleDropContainer = (e, targetColumn) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // If we dropped on the container itself (not a child item), and haven't already moved it there via dragOver
+    // handleDragEnd will fire next and save the state.
+    // If the list is empty, handleDragOverContainer likely handled it.
+
+    // Just ensure we call handleDragEnd logic effectively if needed,
+    // but handleDragEnd is bound to the dragged element's onDragEnd.
+  };
+
+  // Handle dragging over empty space in a column to append
   const handleDragOverContainer = (e, targetColumn) => {
     e.preventDefault();
     if (!draggedItem) return;
 
-    // Only relevant if column is empty, otherwise row handlers take over
+    // If hovering over the container but not a specific item
+    // AND the column is empty OR we are below the last item
+    // For simplicity, if empty, move it in.
     if (panelOrder[targetColumn].length === 0) {
       const newOrder = {
         left: [...panelOrder.left],
         right: [...panelOrder.right]
       };
+
+      // Safety check
+      if (!newOrder[draggedItem.column][draggedItem.index]) return;
 
       const item = newOrder[draggedItem.column][draggedItem.index];
       newOrder[draggedItem.column].splice(draggedItem.index, 1);
@@ -140,6 +162,7 @@ export function SettingsPanel() {
     <div
       style={{ flex: 1, minWidth: 0 }}
       onDragOver={(e) => handleDragOverContainer(e, columnId)}
+      onDrop={(e) => handleDropContainer(e, columnId)}
     >
       <div style={{
         color: COLORS.text.secondary,

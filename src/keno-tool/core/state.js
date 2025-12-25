@@ -50,14 +50,13 @@ export const state = {
         predict: true, // Legacy
         momentum: true, // Legacy
         hitsMiss: true,
-        autoplay: true,
         profitLoss: true,
         patternAnalysis: true,
         recentPlays: true,
         history: true
     },
     panelOrder: {
-        left: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay'],
+        left: ['heatmap', 'numberGenerator', 'hitsMiss'],
         right: ['profitLoss', 'patternAnalysis', 'recentPlays', 'history']
     },
     // Method Comparison Window

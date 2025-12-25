@@ -61,7 +61,7 @@ export function Overlay() {
 
   // Default order fallback (2-column layout)
   const defaultOrder = {
-    left: ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay'],
+    left: ['heatmap', 'numberGenerator', 'hitsMiss'],
     right: ['profitLoss', 'patternAnalysis', 'recentPlays', 'history']
   };
 
@@ -153,7 +153,6 @@ export function Overlay() {
       case 'patternAnalysis': return <PatternAnalysisSection key="patternAnalysis" />;
       case 'recentPlays': return <RecentPlaysSection key="recentPlays" />;
       case 'history': return <HistorySection key="history" />;
-      case 'autoplay': return null; // Disabled
       default: return null;
     }
   };

@@ -81,7 +81,6 @@ export function CollapsibleSection({
     <div 
       data-section={dataSection}
       style={{
-        marginBottom: SPACING.lg,
         background: COLORS.bg.dark,
         padding: SPACING.sm,
         borderRadius: BORDER_RADIUS.sm,
