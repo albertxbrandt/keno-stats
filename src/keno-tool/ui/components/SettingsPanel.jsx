@@ -163,7 +163,7 @@ export function SettingsPanel() {
 
   const renderColumn = (columnId, items) => (
     <div
-      style={{ flex: 1, minWidth: 0 }}
+      style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}
       onDragOver={(e) => e.preventDefault()} // Allow dropping
       onDrop={(e) => handleDropContainer(e, columnId)}
     >
@@ -182,7 +182,10 @@ export function SettingsPanel() {
         background: COLORS.bg.darker,
         borderRadius: BORDER_RADIUS.md,
         padding: SPACING.xs,
-        minHeight: '100px'
+        minHeight: '100px',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {items.map((sectionId, index) => {
           const section = sectionData[sectionId];
@@ -233,11 +236,15 @@ export function SettingsPanel() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            flex: 1,
             minHeight: '100px',
-            color: COLORS.text.secondary,
+            color: COLORS.accent.info,
             fontSize: '11px',
             fontWeight: 'bold',
-            opacity: 0.7
+            opacity: 0.8,
+            border: `2px dashed ${COLORS.border.light}`,
+            borderRadius: BORDER_RADIUS.sm,
+            margin: '4px'
           }}>
             Drop here
           </div>
