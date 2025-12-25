@@ -3,12 +3,21 @@
 // Handles hover-based preview of next numbers on the game board
 
 import { state } from '@/keno-tool/core/state.js';
+import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { highlightPrediction } from '@/shared/utils/dom/heatmap.js';
 import { clearHighlight } from '@/shared/utils/dom/tileSelection.js';
 
 // ==================== STATE ====================
 
 let isHoveringSelectButton = false;
+let isHoveringPreviewBox = false;
+
+// Listen for preview updates and refresh highlight if hovering
+stateEvents.on(EVENTS.GENERATOR_PREVIEW_UPDATED, () => {
+  if (isHoveringSelectButton || isHoveringPreviewBox) {
+    showPreview();
+  }
+});
 
 // ==================== PUBLIC API ====================
 
@@ -55,21 +64,23 @@ export function initPreviewBoxHighlight(previewElement) {
   if (!previewElement) return;
 
   previewElement.addEventListener('mouseenter', () => {
+    isHoveringPreviewBox = true;
     showPreview();
   });
 
   previewElement.addEventListener('mouseleave', () => {
+    isHoveringPreviewBox = false;
     hidePreview();
   });
 }
 
 /**
- * Check if user is currently hovering over the select button
+ * Check if user is currently hovering over the select button or preview box
  * Used to determine if we should re-highlight after preview updates
  * @returns {boolean}
  */
 export function isButtonHovering() {
-  return isHoveringSelectButton;
+  return isHoveringSelectButton || isHoveringPreviewBox;
 }
 
 /**
@@ -77,7 +88,7 @@ export function isButtonHovering() {
  * Useful after preview numbers change while hovering
  */
 export function refreshPreviewHighlight() {
-  if (isHoveringSelectButton) {
+  if (isHoveringSelectButton || isHoveringPreviewBox) {
     showPreview();
   }
 }
