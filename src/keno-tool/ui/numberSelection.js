@@ -335,3 +335,4 @@ window.__keno_generateNumbers = async function (forceRefresh = false, autoSelect
 
 window.__keno_selectPredictedNumbers = selectPredictedNumbers;
 window.__keno_generateAllPredictions = generateAllPredictions;
+window.__keno_updateGeneratorPreview = updateGeneratorPreview;

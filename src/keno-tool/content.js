@@ -3,7 +3,7 @@ import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { initOverlay, observeFooterForButton } from '@/keno-tool/ui/overlayInit.js';
 import { loadHistory, updateHistoryUI } from '@/keno-tool/core/storage.js';
-import { selectPredictedNumbers, updateGeneratorPreview } from '@/keno-tool/ui/numberSelection.js';
+import { selectPredictedNumbers, updateGeneratorPreview, refreshGeneratorPreview } from '@/keno-tool/ui/numberSelection.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 // import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
@@ -95,6 +95,11 @@ function checkAndInitialize() {
 		});
 	});
 }
+
+// Listen for settings changes to update generator preview
+stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
+	updateGeneratorPreview();
+});
 
 // Initial check on load
 if (document.readyState === 'loading') {
