@@ -215,7 +215,7 @@ export function generateNumbers(forceRefresh = false, methodOverride = null) {
  */
 function buildGeneratorConfig(method) {
   const config = {
-    sampleSize: state.sampleSize || 100
+    sampleSize: state.generatorSampleSize || 20
   };
 
   // Add method-specific settings
@@ -242,12 +242,12 @@ function buildGeneratorConfig(method) {
  */
 export function getTopPredictions(count) {
   const generator = generatorFactory.get('frequency');
-  return generator.generate(count, state.currentHistory, { sampleSize: state.sampleSize });
+  return generator.generate(count, state.currentHistory, { sampleSize: state.generatorSampleSize || 20 });
 }
 
 export function getColdPredictions(count) {
   const generator = generatorFactory.get('cold');
-  return generator.generate(count, state.currentHistory, { sampleSize: state.sampleSize });
+  return generator.generate(count, state.currentHistory, { sampleSize: state.generatorSampleSize || 20 });
 }
 
 // ============================================================================

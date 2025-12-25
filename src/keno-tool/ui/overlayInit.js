@@ -47,12 +47,14 @@ export async function initOverlay() {
     }
 
     // Trigger initial generator preview
-    if (window.__keno_generateNumbers) {
+    if (window.__keno_updateGeneratorPreview) {
       // eslint-disable-next-line no-console
       console.log('[Overlay] Triggering initial generator preview');
-      window.__keno_generateNumbers(false, false).catch(() => {
+      try {
+        window.__keno_updateGeneratorPreview();
+      } catch {
         // Ignore errors on initial generation (history might be empty)
-      });
+      }
     }
   }, 100);
 
@@ -141,7 +143,7 @@ export function injectFooterButton() {
   // Create toggle button
   const btn = document.createElement('div');
   btn.id = 'keno-tracker-toggle-btn';
-  
+
   Object.assign(btn.style, {
     display: 'flex',
     alignItems: 'center',
@@ -151,7 +153,7 @@ export function injectFooterButton() {
     opacity: '0.7',
     transition: 'opacity 0.2s'
   });
-  
+
   const statusText = state.isOverlayVisible ? 'Close Stats' : 'Open Stats';
   btn.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #fff;">
@@ -161,7 +163,7 @@ export function injectFooterButton() {
     </svg>
     <span style="margin-left:5px; font-size:12px; font-weight:bold; color:#fff;">${statusText}</span>
   `;
-  
+
   // Hover effect
   btn.addEventListener('mouseenter', () => btn.style.opacity = '1');
   btn.addEventListener('mouseleave', () => btn.style.opacity = '0.7');
