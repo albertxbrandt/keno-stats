@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { initPreviewBoxHighlight } from '@/keno-tool/ui/previewHighlight.js';
-import { saveGeneratorSettings } from '@/keno-tool/core/storage.js';
 import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
@@ -101,23 +100,36 @@ export function GeneratorPreview() {
     // Subscribe to state change events
     const unsubPreview = stateEvents.on(EVENTS.GENERATOR_PREVIEW_UPDATED, updatePreview);
     const unsubHistory = stateEvents.on(EVENTS.HISTORY_UPDATED, updatePreview);
-    const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
-      updatePreview();
-      setAlwaysShowPreview(state.generatorAlwaysShowPreview || false);
-    });
 
     return () => {
       unsubPreview();
       unsubHistory();
-      unsubSettings();
     };
   }, []);
 
   // Handle toggle change
-  const handleToggleChange = (checked) => {
+  const handleToggleChange = (e) => {
+    const checked = e.target.checked;
     setAlwaysShowPreview(checked);
     state.generatorAlwaysShowPreview = checked;
-    saveGeneratorSettings();
+    // Save directly to storage without emitting events that trigger preview refresh
+    const storageApi = typeof browser !== 'undefined' ? browser : chrome;
+    storageApi.storage.local.get('generatorSettings', (result) => {
+      const settings = result.generatorSettings || {};
+      settings.generatorAlwaysShowPreview = checked;
+      storageApi.storage.local.set({ generatorSettings: settings });
+    });
+    // Manually trigger highlight show/hide based on new state
+    // The previewHighlight module reads state.generatorAlwaysShowPreview directly
+    if (checked && state.nextNumbers && state.nextNumbers.length > 0) {
+      // Show preview immediately when toggled on
+      const highlightEvent = new CustomEvent('keno-show-preview');
+      window.dispatchEvent(highlightEvent);
+    } else if (!checked) {
+      // Hide preview when toggled off (unless hovering)
+      const clearEvent = new CustomEvent('keno-hide-preview');
+      window.dispatchEvent(clearEvent);
+    }
   };
 
   // Initialize preview box highlight

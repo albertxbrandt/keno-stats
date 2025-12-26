@@ -37,7 +37,7 @@ export function SettingsPanel() {
     setPanelVisibility(newVisibility);
 
     state.panelVisibility = newVisibility;
-    stateEvents.emit(EVENTS.SETTINGS_CHANGED, newVisibility);
+    stateEvents.emit(EVENTS.PANEL_VISIBILITY_CHANGED, newVisibility);
     savePanelVisibility();
   };
 
