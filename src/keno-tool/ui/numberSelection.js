@@ -270,9 +270,11 @@ export function getColdPredictions(count) {
 
 /**
  * Select generated numbers on game board
+ * Uses state.nextNumbers (preview) instead of state.generatedNumbers
+ * so the B hotkey selects what's shown in the "Next Numbers" preview
  */
 export async function selectPredictedNumbers() {
-  const predictions = state.generatedNumbers || [];
+  const predictions = state.nextNumbers || [];
   if (predictions.length === 0) {
     console.warn('[selectPredictedNumbers] No predictions available');
     return;

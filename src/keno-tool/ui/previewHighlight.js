@@ -19,14 +19,17 @@ stateEvents.on(EVENTS.GENERATOR_PREVIEW_UPDATED, () => {
   }
 });
 
-// Listen for settings changes to handle always-show toggle
-stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
-  if (state.generatorAlwaysShowPreview) {
-    showPreview();
-  } else if (!isHoveringSelectButton && !isHoveringPreviewBox) {
+// Listen for custom events from toggle to show/hide preview without refreshing numbers
+window.addEventListener('keno-show-preview', () => {
+  showPreview();
+});
+
+window.addEventListener('keno-hide-preview', () => {
+  if (!isHoveringSelectButton && !isHoveringPreviewBox) {
     hidePreview();
   }
 });
+
 
 // ==================== PUBLIC API ====================
 

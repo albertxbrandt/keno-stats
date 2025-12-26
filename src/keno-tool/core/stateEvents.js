@@ -68,5 +68,6 @@ export const EVENTS = {
   HEATMAP_UPDATED: 'heatmap:updated',
   ROUND_SAVED: 'round:saved',
   SETTINGS_CHANGED: 'settings:changed',
+  PANEL_VISIBILITY_CHANGED: 'panel:visibility:changed',
   PROFIT_UPDATED: 'profit:updated',
 };

@@ -97,7 +97,7 @@ export function Overlay() {
     };
 
     window.addEventListener('keno-overlay-toggle', handleToggle);
-    const unsubscribeSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, handleSettingsChange);
+    const unsubscribeSettings = stateEvents.on(EVENTS.PANEL_VISIBILITY_CHANGED, handleSettingsChange);
     const unsubscribeOrder = stateEvents.on('order:changed', handleOrderChange);
     
     return () => {
