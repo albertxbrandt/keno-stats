@@ -4,6 +4,7 @@ import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { initOverlay, observeFooterForButton } from '@/keno-tool/ui/overlayInit.js';
 import { loadHistory, updateHistoryUI } from '@/keno-tool/core/storage.js';
 import { selectPredictedNumbers, updateGeneratorPreview } from '@/keno-tool/ui/numberSelection.js';
+import { initHotkeys, registerHotkey } from '@/keno-tool/ui/hotkeys.js';
 // AUTO-PLAY DISABLED FOR TOS COMPLIANCE
 // import { autoPlayPlaceBet, updateAutoPlayUI } from './features/autoplay.js';
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
@@ -353,19 +354,16 @@ function initializeExtension() {
 			initStatsObserver();
 		}, 3000);
 
-		// Keyboard shortcuts
-		document.addEventListener('keydown', (e) => {
-			// Only trigger on Keno page
-			if (!window.location.href.includes('keno')) return;
-
-			// Ignore if typing in an input field
-			if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-			// 'b' key - select all predicted numbers
-			if (e.key === 'b' || e.key === 'B') {
-				e.preventDefault();
-				selectPredictedNumbers();
-			}
+		// Initialize keyboard shortcuts system
+		initHotkeys();
+		
+		// Register hotkeys
+		registerHotkey('b', () => {
+			selectPredictedNumbers();
+		}, {
+			description: 'Select predicted numbers on the board',
+			preventDefault: true,
+			requireKeno: true
 		});
 	});
 }

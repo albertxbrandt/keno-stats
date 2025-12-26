@@ -12,10 +12,19 @@ import { clearHighlight } from '@/shared/utils/dom/tileSelection.js';
 let isHoveringSelectButton = false;
 let isHoveringPreviewBox = false;
 
-// Listen for preview updates and refresh highlight if hovering
+// Listen for preview updates and refresh highlight if hovering OR always-show is enabled
 stateEvents.on(EVENTS.GENERATOR_PREVIEW_UPDATED, () => {
-  if (isHoveringSelectButton || isHoveringPreviewBox) {
+  if (isHoveringSelectButton || isHoveringPreviewBox || state.generatorAlwaysShowPreview) {
     showPreview();
+  }
+});
+
+// Listen for settings changes to handle always-show toggle
+stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
+  if (state.generatorAlwaysShowPreview) {
+    showPreview();
+  } else if (!isHoveringSelectButton && !isHoveringPreviewBox) {
+    hidePreview();
   }
 });
 
@@ -33,12 +42,16 @@ export function initButtonPreviewHighlight(buttonElement, onClickCallback = null
   // Hover to preview numbers on board
   buttonElement.addEventListener('mouseenter', () => {
     isHoveringSelectButton = true;
-    showPreview();
+    if (!state.generatorAlwaysShowPreview) {
+      showPreview();
+    }
   });
 
   buttonElement.addEventListener('mouseleave', () => {
     isHoveringSelectButton = false;
-    hidePreview();
+    if (!state.generatorAlwaysShowPreview) {
+      hidePreview();
+    }
   });
 
   // If callback provided, call it after click (for re-highlighting after selection)
@@ -65,12 +78,16 @@ export function initPreviewBoxHighlight(previewElement) {
 
   previewElement.addEventListener('mouseenter', () => {
     isHoveringPreviewBox = true;
-    showPreview();
+    if (!state.generatorAlwaysShowPreview) {
+      showPreview();
+    }
   });
 
   previewElement.addEventListener('mouseleave', () => {
     isHoveringPreviewBox = false;
-    hidePreview();
+    if (!state.generatorAlwaysShowPreview) {
+      hidePreview();
+    }
   });
 }
 
@@ -84,8 +101,10 @@ export function isButtonHovering() {
 }
 
 /**
- * Manually trigger preview highlight refresh
- * Useful after preview numbers change while hovering
+ * Manually trigger preview highlight refresh || state.generatorAlwaysShowPreview) {
+    showPreview();
+  } else {
+    hidel after preview numbers change while hovering
  */
 export function refreshPreviewHighlight() {
   if (isHoveringSelectButton || isHoveringPreviewBox) {
