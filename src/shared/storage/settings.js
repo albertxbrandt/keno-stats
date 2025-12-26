@@ -77,6 +77,7 @@ export function saveGeneratorSettings() {
     generatorInterval: state.generatorInterval,
     generatorAutoRefresh: state.generatorAutoRefresh,
     generatorSampleSize: state.generatorSampleSize,
+    generatorAlwaysShowPreview: state.generatorAlwaysShowPreview,
     // Shapes settings
     shapesPattern: state.shapesPattern,
     shapesPlacement: state.shapesPlacement,
@@ -109,6 +110,7 @@ export function loadGeneratorSettings() {
       if (settings.generatorInterval !== undefined) state.generatorInterval = settings.generatorInterval;
       if (settings.generatorAutoRefresh !== undefined) state.generatorAutoRefresh = settings.generatorAutoRefresh;
       if (settings.generatorSampleSize !== undefined) state.generatorSampleSize = settings.generatorSampleSize;
+      if (settings.generatorAlwaysShowPreview !== undefined) state.generatorAlwaysShowPreview = settings.generatorAlwaysShowPreview;
 
       // Shapes settings
       if (settings.shapesPattern !== undefined) state.shapesPattern = settings.shapesPattern;

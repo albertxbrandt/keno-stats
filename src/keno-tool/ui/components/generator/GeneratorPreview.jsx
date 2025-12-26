@@ -6,6 +6,8 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
 import { initPreviewBoxHighlight } from '@/keno-tool/ui/previewHighlight.js';
+import { saveGeneratorSettings } from '@/keno-tool/core/storage.js';
+import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -33,6 +35,7 @@ export function GeneratorPreview() {
   const [countdown, setCountdown] = useState('Manual');
   const [countdownColor, setCountdownColor] = useState('#666');
   const [previewNumbers, setPreviewNumbers] = useState([]);
+  const [alwaysShowPreview, setAlwaysShowPreview] = useState(state.generatorAlwaysShowPreview || false);
   const previewContainerRef = useRef(null);
 
   // Method name mappings
@@ -98,7 +101,10 @@ export function GeneratorPreview() {
     // Subscribe to state change events
     const unsubPreview = stateEvents.on(EVENTS.GENERATOR_PREVIEW_UPDATED, updatePreview);
     const unsubHistory = stateEvents.on(EVENTS.HISTORY_UPDATED, updatePreview);
-    const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updatePreview);
+    const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
+      updatePreview();
+      setAlwaysShowPreview(state.generatorAlwaysShowPreview || false);
+    });
 
     return () => {
       unsubPreview();
@@ -106,6 +112,13 @@ export function GeneratorPreview() {
       unsubSettings();
     };
   }, []);
+
+  // Handle toggle change
+  const handleToggleChange = (checked) => {
+    setAlwaysShowPreview(checked);
+    state.generatorAlwaysShowPreview = checked;
+    saveGeneratorSettings();
+  };
 
   // Initialize preview box highlight
   useEffect(() => {
@@ -132,13 +145,21 @@ export function GeneratorPreview() {
         alignItems: 'center',
         marginBottom: '4px'
       }}>
-        <span style={{
-          color: COLORS.accent.info,
-          fontSize: '9px',
-          fontWeight: '600'
-        }}>
-          Next Numbers:
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            color: COLORS.accent.info,
+            fontSize: '9px',
+            fontWeight: '600'
+          }}>
+            Next Numbers:
+          </span>
+          <ToggleSwitch
+            checked={alwaysShowPreview}
+            onChange={handleToggleChange}
+            label="Always Show"
+            labelSize="8px"
+          />
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             color: COLORS.text.tertiary,
