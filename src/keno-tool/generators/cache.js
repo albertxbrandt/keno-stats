@@ -41,6 +41,7 @@ export class CacheManager {
     const { predictions } = cached;
     const autoRefresh = state.generatorAutoRefresh;
     const interval = state.generatorInterval || 5;
+    const stayIfProfitable = state.generatorStayIfProfitable;
 
     // Manual refresh (autoRefresh off): always use cache until manually refreshed
     if (!autoRefresh) {
@@ -57,7 +58,29 @@ export class CacheManager {
       return predictions;
     }
 
-    // Interval exceeded, cache expired
+    // Interval exceeded - check profitability if enabled
+    if (stayIfProfitable) {
+      // Calculate total profit from last 'interval' rounds
+      const recentRounds = state.currentHistory.slice(-interval);
+      let totalProfit = 0;
+
+      for (const round of recentRounds) {
+        if (round.kenoBet?.amount !== undefined && round.kenoBet?.payout !== undefined) {
+          const amount = parseFloat(round.kenoBet.amount) || 0;
+          const payout = parseFloat(round.kenoBet.payout) || 0;
+          const profit = payout - amount;
+          totalProfit += profit;
+        }
+      }
+
+      // If profitable, keep current numbers and reset interval counter
+      if (totalProfit > 0) {
+        state.generatorLastRefresh = currentRound;
+        return predictions;
+      }
+    }
+
+    // Interval exceeded and not profitable, cache expired
     return null;
   }
 

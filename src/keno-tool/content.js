@@ -237,7 +237,30 @@ function addMessageListener() {
 
 				// Only auto-place if interval has been reached
 				if (roundsSinceRefresh >= interval) {
-					try {
+					let shouldRefresh = true;
+
+					// Check profitability if enabled
+					if (state.generatorStayIfProfitable) {
+						const recentRounds = state.currentHistory.slice(-interval);
+						let totalProfit = 0;
+
+						for (const round of recentRounds) {
+							if (round.kenoBet?.amount !== undefined && round.kenoBet?.payout !== undefined) {
+								const amount = parseFloat(round.kenoBet.amount) || 0;
+								const payout = parseFloat(round.kenoBet.payout) || 0;
+								const profit = payout - amount;
+								totalProfit += profit;
+							}
+						}
+
+						if (totalProfit > 0) {
+							shouldRefresh = false;
+							state.generatorLastRefresh = currentRound; // Reset counter
+						}
+					}
+
+					if (shouldRefresh) {
+						try {
 						waitForBetButtonReady(3000).then(async () => {
 							// Use previewed numbers if available
 							if (state.nextNumbers && state.nextNumbers.length > 0) {
@@ -278,8 +301,9 @@ function addMessageListener() {
 								updateGeneratorPreview();
 							}
 						});
-					} catch (e) {
-						console.error('[Generator] Generate numbers failed:', e);
+						} catch (e) {
+							console.error('[Generator] Generate numbers failed:', e);
+						}
 					}
 				} else if (updateGeneratorPreview) {
 					// Not yet time to refresh, just update preview countdown

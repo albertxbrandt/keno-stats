@@ -29,11 +29,13 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 export function AutoRefreshControl() {
   const [autoRefresh, setAutoRefresh] = useState(state.generatorAutoRefresh || false);
   const [interval, setInterval] = useState(state.generatorInterval || 5);
+  const [stayIfProfitable, setStayIfProfitable] = useState(state.generatorStayIfProfitable || false);
 
   // Sync with global state on mount
   useEffect(() => {
     setAutoRefresh(state.generatorAutoRefresh || false);
     setInterval(state.generatorInterval || 5);
+    setStayIfProfitable(state.generatorStayIfProfitable || false);
   }, []);
 
   const handleToggleChange = (checked) => {
@@ -46,6 +48,12 @@ export function AutoRefreshControl() {
     const clampedValue = Math.max(1, Math.min(20, value));
     setInterval(clampedValue);
     state.generatorInterval = clampedValue;
+    saveGeneratorSettings();
+  };
+
+  const handleStayIfProfitableChange = (checked) => {
+    setStayIfProfitable(checked);
+    state.generatorStayIfProfitable = checked;
     saveGeneratorSettings();
   };
 
@@ -102,6 +110,30 @@ export function AutoRefreshControl() {
         }}>
           rounds
         </span>
+      </div>
+
+      {/* Stay if Profitable toggle - disabled when auto-refresh off */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: '8px',
+        paddingTop: '8px',
+        borderTop: `1px solid ${COLORS.border.light}`
+      }}>
+        <span style={{
+          color: COLORS.text.secondary,
+          fontSize: '10px',
+          opacity: autoRefresh ? 1 : 0.5
+        }}>
+          Stay if Profitable:
+        </span>
+        <ToggleSwitch
+          checked={stayIfProfitable}
+          onChange={(e) => handleStayIfProfitableChange(e.target.checked)}
+          dotId="generator-stay-profitable-dot"
+          disabled={!autoRefresh}
+        />
       </div>
     </div>
   );

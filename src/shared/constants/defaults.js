@@ -22,6 +22,7 @@ export const DEFAULTS = {
   generatorCount: 10,
   generatorInterval: 0,
   generatorSampleSize: 20,
+  generatorStayIfProfitable: false,
 
   // Momentum
   momentumDetectionWindow: 5,
