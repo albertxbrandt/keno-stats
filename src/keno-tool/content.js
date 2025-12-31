@@ -228,18 +228,47 @@ function addMessageListener() {
 				}
 			}
 
-			// Auto-place numbers on board if Auto-Refresh is enabled and interval reached
+			// Auto-place numbers on board if Auto-Refresh is enabled
 			if (state.generatorAutoRefresh && window.__keno_generateNumbers) {
 				const interval = state.generatorInterval || 5;
 				const currentRound = state.currentHistory.length;
 				const lastRefresh = state.generatorLastRefresh || 0;
 				const roundsSinceRefresh = currentRound - lastRefresh;
 
-				// Only auto-place if interval has been reached
+				// Check advanced rules FIRST (on every round if enabled)
+				if (state.generatorAdvancedRules?.enabled) {
+					import('./generators/conditionEvaluator.js').then(mod => {
+						const action = mod.evaluateRules(
+							state.generatorAdvancedRules,
+							state.currentHistory,
+							lastRefresh  // Only count rounds since last switch
+						);
+
+						if (action === 'switch') {
+							// Condition met: switch numbers now (ignore interval)
+							proceedWithRefresh(true, currentRound);
+						} else if (action === 'stay') {
+							// Condition met: stay with current numbers
+							// DON'T update generatorLastRefresh - let rounds accumulate
+							if (updateGeneratorPreview) {
+								updateGeneratorPreview();
+							}
+						}
+					}).catch(err => {
+						console.error('[Auto-Refresh] Evaluator failed:', err);
+						// Fall back to interval-based refresh
+						if (roundsSinceRefresh >= interval) {
+							proceedWithRefresh(true, currentRound);
+						}
+					});
+					return; // Wait for async evaluation
+				}
+
+				// No advanced rules: use interval-based refresh
 				if (roundsSinceRefresh >= interval) {
 					let shouldRefresh = true;
 
-					// Check profitability if enabled
+					// Legacy profitability check
 					if (state.generatorStayIfProfitable) {
 						const recentRounds = state.currentHistory.slice(-interval);
 						let totalProfit = 0;
@@ -259,8 +288,20 @@ function addMessageListener() {
 						}
 					}
 
-					if (shouldRefresh) {
-						try {
+					proceedWithRefresh(shouldRefresh, currentRound);
+				} else if (updateGeneratorPreview) {
+					// Not yet time to refresh, just update preview countdown
+					updateGeneratorPreview();
+				}
+			} else if (updateGeneratorPreview) {
+				// Auto-refresh disabled, still update preview
+				updateGeneratorPreview();
+			}
+
+			// Helper function to execute refresh logic
+			function proceedWithRefresh(shouldRefresh, currentRound) {
+				if (shouldRefresh) {
+					try {
 						waitForBetButtonReady(3000).then(async () => {
 							// Use previewed numbers if available
 							if (state.nextNumbers && state.nextNumbers.length > 0) {
@@ -301,17 +342,10 @@ function addMessageListener() {
 								updateGeneratorPreview();
 							}
 						});
-						} catch (e) {
-							console.error('[Generator] Generate numbers failed:', e);
-						}
+					} catch (e) {
+						console.error('[Generator] Generate numbers failed:', e);
 					}
-				} else if (updateGeneratorPreview) {
-					// Not yet time to refresh, just update preview countdown
-					updateGeneratorPreview();
 				}
-			} else if (updateGeneratorPreview) {
-				// Auto-refresh disabled, still update preview
-				updateGeneratorPreview();
 			}
 
 			// AUTO-PLAY DISABLED FOR TOS COMPLIANCE
@@ -339,7 +373,8 @@ function addMessageListener() {
 				}
 			}
 			*/
-		});
+
+		}).catch(err => console.error('[Content] saveRound failed:', err));
 	});
 }
 
@@ -380,7 +415,7 @@ function initializeExtension() {
 
 		// Initialize keyboard shortcuts system
 		initHotkeys();
-		
+
 		// Register hotkeys
 		registerHotkey('b', () => {
 			selectPredictedNumbers();

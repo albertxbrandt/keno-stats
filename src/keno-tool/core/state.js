@@ -19,7 +19,13 @@ export const state = {
     generatorInterval: 5, // Auto-refresh interval in rounds (min 1)
     generatorLastRefresh: 0, // Universal last refresh round counter
     generatorActuallyRefreshed: false, // Track if generator was actually refreshed vs cached
-    generatorStayIfProfitable: false, // Keep current numbers if profitable in last interval
+    generatorStayIfProfitable: false, // Keep current numbers if profitable in last interval (legacy)
+    generatorAdvancedRules: { // Advanced refresh conditions (replaces stayIfProfitable)
+        enabled: false,
+        defaultAction: 'switch',
+        logic: 'AND',
+        conditions: []
+    },
     generatorAlwaysShowPreview: false, // Always display next numbers on board (not just on hover)
     lastGeneratedPredictions: null, // Store predictions for comparison tracking
     // Momentum-specific

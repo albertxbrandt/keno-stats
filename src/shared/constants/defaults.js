@@ -23,6 +23,12 @@ export const DEFAULTS = {
   generatorInterval: 0,
   generatorSampleSize: 20,
   generatorStayIfProfitable: false,
+  generatorAdvancedRules: {
+    enabled: false,
+    defaultAction: 'switch',
+    logic: 'AND',
+    conditions: []
+  },
 
   // Momentum
   momentumDetectionWindow: 5,
