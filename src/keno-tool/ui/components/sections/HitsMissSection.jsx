@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { state } from '@/keno-tool/core/state.js';
 import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
+import { useModals } from '@/keno-tool/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -27,6 +28,7 @@ export function HitsMissSection() {
   // Local state to trigger re-renders when global state changes
   const [hits, setHits] = useState('-');
   const [misses, setMisses] = useState('-');
+  const { showLiveStats } = useModals();
 
   // Subscribe to round updates
   useEffect(() => {
@@ -56,6 +58,39 @@ export function HitsMissSection() {
       </div>
       <div style={{ color: COLORS.accent.error, fontSize: '12px', marginTop: '4px' }}>
         Miss: <span id="tracker-misses">{misses}</span>
+      
+      {/* Live Stats Button */}
+      <button
+        onClick={showLiveStats}
+        style={{
+          marginTop: '8px',
+          width: '100%',
+          padding: '6px 10px',
+          background: COLORS.bg.darker,
+          color: COLORS.accent.info,
+          border: `1px solid ${COLORS.border.light}`,
+          borderRadius: BORDER_RADIUS.sm,
+          fontSize: '11px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.background = COLORS.bg.darkest;
+          e.target.style.borderColor = COLORS.accent.info;
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.background = COLORS.bg.darker;
+          e.target.style.borderColor = COLORS.border.light;
+        }}
+      >
+        <span>📡</span>
+        <span>Live Stats</span>
+      </button>
       </div>
     </div>
   );

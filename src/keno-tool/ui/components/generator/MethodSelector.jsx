@@ -75,6 +75,7 @@ export function MethodSelector({ onChange }) {
         <option value="momentum">⚡ Momentum (Trending)</option>
         <option value="auto">🤖 Auto (Best Performer)</option>
         <option value="shapes">🔷 Shapes (Board Patterns)</option>
+        <option value="random">🎲 Random (Pure Luck)</option>
       </select>
     </div>
   );

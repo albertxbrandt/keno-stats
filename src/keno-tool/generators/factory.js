@@ -5,6 +5,7 @@ import { AverageGenerator } from './average.js';
 import { AutoGenerator } from './auto.js';
 import { MomentumGenerator } from './momentum.js';
 import { ShapesGenerator } from './shapes.js';
+import { RandomGenerator } from './random.js';
 
 /**
  * Factory for creating generator instances
@@ -28,6 +29,7 @@ export class GeneratorFactory {
     this.register('auto', new AutoGenerator());
     this.register('momentum', new MomentumGenerator());
     this.register('shapes', new ShapesGenerator());
+    this.register('random', new RandomGenerator());
   }
 
   /**

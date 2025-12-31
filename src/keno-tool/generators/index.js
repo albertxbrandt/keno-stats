@@ -11,6 +11,7 @@ export { AverageGenerator } from './average.js';
 export { AutoGenerator } from './auto.js';
 export { MomentumGenerator } from './momentum.js';
 export { ShapesGenerator } from './shapes.js';
+export { RandomGenerator } from './random.js';
 export { GeneratorFactory, generatorFactory } from './factory.js';
 export { CacheManager, cacheManager } from './cache.js';
 

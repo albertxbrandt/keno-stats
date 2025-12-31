@@ -9,12 +9,14 @@ const ModalsContext = createContext(null);
 export function ModalsProvider({ children }) {
   const [activeModals, setActiveModals] = useState({
     savedNumbers: { open: false, data: null },
-    combinationHits: { open: false, data: null },
     patternAnalysis: { open: false, data: null },
     patternLoading: { open: false },
     livePatternAnalysis: { open: false },
     comparison: { open: false }
   });
+
+  // Stats modals can have multiple instances
+  const [statsModals, setStatsModals] = useState([]);
 
   const openModal = (modalName, data = null) => {
     setActiveModals((prev) => ({
@@ -33,23 +35,36 @@ export function ModalsProvider({ children }) {
   const closeAll = () => {
     setActiveModals({
       savedNumbers: { open: false, data: null },
-      combinationHits: { open: false, data: null },
       patternAnalysis: { open: false, data: null },
       patternLoading: { open: false },
       livePatternAnalysis: { open: false },
       comparison: { open: false }
     });
+    setStatsModals([]);
+  };
+
+  // Stats modal management
+  const openStatsModal = (numbers, name, trackLive = false) => {
+    const id = `stats-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    setStatsModals((prev) => [...prev, { id, numbers, name, trackLive }]);
+    return id;
+  };
+
+  const closeStatsModal = (id) => {
+    setStatsModals((prev) => prev.filter((modal) => modal.id !== id));
   };
 
   const value = {
     activeModals,
+    statsModals,
     openModal,
     closeModal,
     closeAll,
+    openStatsModal,
+    closeStatsModal,
     // Convenience methods
     showSavedNumbers: () => openModal('savedNumbers'),
-    showCombinationHits: (numbers, name) =>
-      openModal('combinationHits', { numbers, name }),
+    showCombinationHits: (numbers, name) => openStatsModal(numbers, name, false),
     showPatternAnalysis: (patternSize, sortBy, sampleSize) =>
       openModal('patternAnalysis', { patternSize, sortBy, sampleSize }),
     showPatternLoading: () => openModal('patternLoading'),
@@ -60,7 +75,8 @@ export function ModalsProvider({ children }) {
     toggleComparison: (show) => {
       if (show) openModal('comparison');
       else closeModal('comparison');
-    }
+    },
+    showLiveStats: () => openStatsModal([], 'Live Selection', true)
   };
 
   // Expose API globally for bridge files

@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { useModals } from '@/keno-tool/hooks/useModals.js';
 import { SavedNumbersModal } from './components/modals/SavedNumbersModal.jsx';
-import { CombinationHitsModal } from './components/modals/CombinationHitsModal.jsx';
+import { StatsModal } from './components/modals/StatsModal.jsx';
 import { PatternAnalysisModal } from './components/modals/PatternAnalysisModal.jsx';
 import { PatternLoadingModal } from './components/modals/PatternLoadingModal.jsx';
 import { LivePatternAnalysisModal } from './components/modals/LivePatternAnalysisModal.jsx';
@@ -10,12 +10,9 @@ import { ComparisonWindow } from './components/modals/ComparisonWindow.jsx';
 import {
   getSavedNumbers,
   deleteSavedNumber,
-  getGraphPreferences,
-  saveGraphPreferences,
   saveNumberCombination,
   loadBetMultipliers
 } from '@/shared/storage/savedNumbers.js';
-import { analyzeCombinationHits } from '@/shared/utils/analysis/combinationAnalysis.js';
 import {
   findCommonPatterns,
   getPatternStats
@@ -23,7 +20,6 @@ import {
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';
 import { trackRoundComparison } from '@/shared/storage/comparison.js';
-import { state } from '@/keno-tool/core/state.js';
 
 /**
  * Select numbers on the board
@@ -41,13 +37,10 @@ async function selectNumbers(numbers) {
  * Central manager for all modal windows
  */
 export function ModalsManager() {
-  const { activeModals, closeModal, openModal, hidePatternLoading } = useModals();
+  const { activeModals, statsModals, closeModal, closeStatsModal, openModal, openStatsModal, hidePatternLoading } = useModals();
 
   // Saved numbers modal state
   const [savedNumbers, setSavedNumbers] = useState([]);
-
-  // Combination hits modal state
-  const [combinationHitsData, setCombinationHitsData] = useState(null);
 
   // Pattern analysis modal state
   const [patternData, setPatternData] = useState(null);
@@ -66,25 +59,6 @@ export function ModalsManager() {
       getSavedNumbers().then(setSavedNumbers);
     }
   }, [activeModals.savedNumbers.open]);
-
-  // Load combination hits data when modal opens
-  useEffect(() => {
-    if (activeModals.combinationHits.open && activeModals.combinationHits.data) {
-      const { numbers, name } = activeModals.combinationHits.data;
-      const hits = analyzeCombinationHits(numbers, state.currentHistory);
-
-      getGraphPreferences().then((prefs) => {
-        setCombinationHitsData({
-          numbers,
-          name,
-          hits,
-          riskMode: prefs.riskMode,
-          lookback: prefs.lookback,
-          graphType: prefs.graphType
-        });
-      });
-    }
-  }, [activeModals.combinationHits.open, activeModals.combinationHits.data]);
 
   // Load pattern analysis data when modal opens
   useEffect(() => {
@@ -143,36 +117,7 @@ export function ModalsManager() {
 
   const handleSavedNumbersInfo = (numbers, name) => {
     closeModal('savedNumbers');
-    openModal('combinationHits', { numbers, name });
-  };
-
-  // Handlers for CombinationHitsModal
-  const handleCombinationHitsRiskChange = (newMode) => {
-    if (!combinationHitsData) return;
-    const { numbers, name, hits, lookback, graphType } = combinationHitsData;
-    saveGraphPreferences(newMode, lookback, graphType);
-    setCombinationHitsData({
-      numbers,
-      name,
-      hits,
-      riskMode: newMode,
-      lookback,
-      graphType
-    });
-  };
-
-  const handleCombinationHitsLookbackChange = (newLookback) => {
-    if (!combinationHitsData) return;
-    const { numbers, name, hits, riskMode, graphType } = combinationHitsData;
-    saveGraphPreferences(riskMode, newLookback, graphType);
-    setCombinationHitsData({
-      numbers,
-      name,
-      hits,
-      riskMode,
-      lookback: newLookback,
-      graphType
-    });
+    openStatsModal(numbers, name, false);
   };
 
   // Handlers for PatternAnalysisModal
@@ -201,22 +146,6 @@ export function ModalsManager() {
           onSelect={handleSavedNumbersSelect}
           onDelete={handleSavedNumbersDelete}
           onInfo={handleSavedNumbersInfo}
-        />
-      )}
-
-      {/* Combination Hits Modal */}
-      {activeModals.combinationHits.open && combinationHitsData && (
-        <CombinationHitsModal
-          numbers={combinationHitsData.numbers}
-          comboName={combinationHitsData.name}
-          hits={combinationHitsData.hits}
-          betMultipliers={betMultipliers}
-          onClose={() => closeModal('combinationHits')}
-          onRiskModeChange={handleCombinationHitsRiskChange}
-          onLookbackChange={handleCombinationHitsLookbackChange}
-          initialRiskMode={combinationHitsData.riskMode}
-          initialLookback={combinationHitsData.lookback}
-          initialGraphType={combinationHitsData.graphType}
         />
       )}
 
@@ -253,6 +182,18 @@ export function ModalsManager() {
           onRoundSaved={trackRoundComparison}
         />
       )}
+
+      {/* Stats Modals - Multiple instances supported */}
+      {statsModals.map((modal) => (
+        <StatsModal
+          key={modal.id}
+          initialNumbers={modal.numbers}
+          name={modal.name}
+          trackLive={modal.trackLive}
+          betMultipliers={betMultipliers}
+          onClose={() => closeStatsModal(modal.id)}
+        />
+      ))}
     </>
   );
 }
