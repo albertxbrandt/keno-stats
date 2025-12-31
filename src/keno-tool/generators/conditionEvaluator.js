@@ -149,37 +149,78 @@ export function evaluateRules(rules, history, lastRefreshRound = 0) {
     return 'switch'; // Default to switching
   }
 
-  const { conditions } = rules;
-
-  // Phase 1: Single condition only
-  const condition = conditions[0];
-
+  const { conditions, logic, defaultAction } = rules;
+  
   // Only look at rounds since last refresh (current number set)
   const roundsSinceRefresh = history.length - lastRefreshRound;
   const recentHistory = history.slice(lastRefreshRound);
 
-  console.warn(`[Advanced Rules] Evaluating: ${roundsSinceRefresh} rounds since refresh, need ${condition.rounds} rounds minimum`);
+  console.warn(`[Advanced Rules] Evaluating ${conditions.length} condition(s) with ${logic || 'OR'} logic, ${roundsSinceRefresh} rounds since refresh`);
 
-  // Not enough data since last refresh - stay with current numbers
-  if (roundsSinceRefresh < condition.rounds) {
-    console.warn(`[Advanced Rules] Not enough data yet, staying with current numbers`);
-    return 'stay';
+  // Phase 3: Multiple conditions with AND/OR logic
+  if (logic === 'AND' && conditions.length > 1) {
+    // All conditions must match AND have same action
+    let allMet = true;
+    const firstAction = conditions[0].action;
+    
+    for (const cond of conditions) {
+      // Skip condition if not enough data
+      const minRounds = cond.metric.includes('Streak') ? 1 : cond.rounds;
+      if (roundsSinceRefresh < minRounds) {
+        console.warn(`[Advanced Rules] Not enough data for condition (need ${minRounds}, have ${roundsSinceRefresh})`);
+        allMet = false;
+        break;
+      }
+      
+      const conditionMet = evaluateCondition(cond, recentHistory);
+      const metricValue = calculateMetric(cond.metric, recentHistory, cond.rounds);
+      
+      console.warn(`[Advanced Rules] ${cond.metric} = ${metricValue} ${cond.operator} ${cond.value}: ${conditionMet ? 'MET' : 'NOT MET'}`);
+      
+      if (!conditionMet) {
+        allMet = false;
+        break;
+      }
+      
+      // Check if all actions match
+      if (cond.action !== firstAction) {
+        console.warn(`[Advanced Rules] AND logic requires same action for all conditions`);
+        return defaultAction || 'switch';
+      }
+    }
+    
+    if (allMet) {
+      console.warn(`[Advanced Rules] All AND conditions met, action: ${firstAction}`);
+      return firstAction;
+    }
+    
+    console.warn(`[Advanced Rules] Not all AND conditions met, default: ${defaultAction || 'switch'}`);
+    return defaultAction || 'switch';
   }
-
-  // Evaluate condition using only rounds with current numbers
-  const conditionMet = evaluateCondition(condition, recentHistory);
-  const metricValue = calculateMetric(condition.metric, recentHistory, condition.rounds);
-
-  console.warn(`[Advanced Rules] ${condition.metric} = ${metricValue}, condition "${condition.action} if ${condition.metric} ${condition.operator} ${condition.value}" is ${conditionMet ? 'MET' : 'NOT MET'}`);
-
-  if (conditionMet) {
-    console.warn(`[Advanced Rules] Condition met, action: ${condition.action}`);
-    return condition.action;
+  
+  // OR logic (default): First matching condition wins
+  for (const cond of conditions) {
+    // Skip condition if not enough data
+    const minRounds = cond.metric.includes('Streak') ? 1 : cond.rounds;
+    if (roundsSinceRefresh < minRounds) {
+      console.warn(`[Advanced Rules] Skipping condition (need ${minRounds} rounds, have ${roundsSinceRefresh})`);
+      continue;
+    }
+    
+    const conditionMet = evaluateCondition(cond, recentHistory);
+    const metricValue = calculateMetric(cond.metric, recentHistory, cond.rounds);
+    
+    console.warn(`[Advanced Rules] ${cond.metric} = ${metricValue} ${cond.operator} ${cond.value}: ${conditionMet ? 'MET' : 'NOT MET'}`);
+    
+    if (conditionMet) {
+      console.warn(`[Advanced Rules] Condition met, action: ${cond.action}`);
+      return cond.action;
+    }
   }
-
-  // Condition not met: return opposite of condition action or default
-  const oppositeAction = condition.action === 'switch' ? 'stay' : 'switch';
-  console.warn(`[Advanced Rules] Condition not met, returning: ${oppositeAction}`);
+  
+  // No conditions met
+  const oppositeAction = conditions[0].action === 'switch' ? 'stay' : 'switch';
+  console.warn(`[Advanced Rules] No conditions met, returning: ${oppositeAction}`);
   return oppositeAction;
 }
 

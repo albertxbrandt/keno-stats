@@ -13,7 +13,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
  * AdvancedRulesModal Component
  * 
  * Modal for configuring advanced refresh rules
- * Phase 2: All metrics supported
+ * Phase 3: Multiple conditions with AND/OR logic
  * 
  * @component
  * @param {Object} props
@@ -25,15 +25,20 @@ export function AdvancedRulesModal({ onClose }) {
   const [defaultAction, setDefaultAction] = useState(
     state.generatorAdvancedRules?.defaultAction || 'switch'
   );
-  const [condition, setCondition] = useState(
-    state.generatorAdvancedRules?.conditions?.[0] || {
-      id: 1,
-      action: 'switch',
-      metric: 'betsLost',
-      operator: '>=',
-      value: 3,
-      rounds: 5
-    }
+  const [logic, setLogic] = useState(
+    state.generatorAdvancedRules?.logic || 'OR'
+  );
+  const [conditions, setConditions] = useState(
+    state.generatorAdvancedRules?.conditions?.length > 0
+      ? state.generatorAdvancedRules.conditions
+      : [{
+          id: 1,
+          action: 'switch',
+          metric: 'betsLost',
+          operator: '>=',
+          value: 3,
+          rounds: 5
+        }]
   );
 
   // Helper function to get human-readable condition text
@@ -83,9 +88,10 @@ export function AdvancedRulesModal({ onClose }) {
     if (state.generatorAdvancedRules) {
       setEnabled(state.generatorAdvancedRules.enabled || false);
       setDefaultAction(state.generatorAdvancedRules.defaultAction || 'switch');
+      setLogic(state.generatorAdvancedRules.logic || 'OR');
       
       if (state.generatorAdvancedRules.conditions?.length > 0) {
-        setCondition(state.generatorAdvancedRules.conditions[0]);
+        setConditions(state.generatorAdvancedRules.conditions);
       }
     }
   }, []);
@@ -101,12 +107,63 @@ export function AdvancedRulesModal({ onClose }) {
     saveGeneratorSettings();
   };
 
-  const handleConditionChange = (newCondition) => {
-    setCondition(newCondition);
+  const handleConditionChange = (id, newCondition) => {
+    const updatedConditions = conditions.map(c => 
+      c.id === id ? newCondition : c
+    );
+    setConditions(updatedConditions);
     
     state.generatorAdvancedRules = {
       ...state.generatorAdvancedRules,
-      conditions: [newCondition]
+      conditions: updatedConditions
+    };
+    
+    saveGeneratorSettings();
+  };
+
+  const handleAddCondition = () => {
+    const newId = Math.max(...conditions.map(c => c.id), 0) + 1;
+    const newCondition = {
+      id: newId,
+      action: 'switch',
+      metric: 'betsLost',
+      operator: '>=',
+      value: 3,
+      rounds: 5
+    };
+    
+    const updatedConditions = [...conditions, newCondition];
+    setConditions(updatedConditions);
+    
+    state.generatorAdvancedRules = {
+      ...state.generatorAdvancedRules,
+      conditions: updatedConditions
+    };
+    
+    saveGeneratorSettings();
+  };
+
+  const handleDeleteCondition = (id) => {
+    if (conditions.length === 1) return; // Keep at least one
+    
+    const updatedConditions = conditions.filter(c => c.id !== id);
+    setConditions(updatedConditions);
+    
+    state.generatorAdvancedRules = {
+      ...state.generatorAdvancedRules,
+      conditions: updatedConditions
+    };
+    
+    saveGeneratorSettings();
+  };
+
+  const handleLogicChange = (e) => {
+    const newLogic = e.target.value;
+    setLogic(newLogic);
+    
+    state.generatorAdvancedRules = {
+      ...state.generatorAdvancedRules,
+      logic: newLogic
     };
     
     saveGeneratorSettings();
@@ -242,20 +299,151 @@ export function AdvancedRulesModal({ onClose }) {
                 </span>
               </div>
 
-              {/* Condition builder */}
+              {/* Logic operator (only show if multiple conditions) */}
+              {conditions.length > 1 && (
+                <div style={{
+                  marginBottom: SPACING.md,
+                  padding: SPACING.sm,
+                  background: COLORS.bg.darker,
+                  borderRadius: BORDER_RADIUS.sm
+                }}>
+                  <div style={{
+                    fontSize: '11px',
+                    color: COLORS.text.secondary,
+                    marginBottom: '6px',
+                    fontWeight: '600'
+                  }}>
+                    Logic Operator:
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <select
+                      value={logic}
+                      onChange={handleLogicChange}
+                      style={{
+                        padding: '6px 10px',
+                        background: COLORS.bg.dark,
+                        color: COLORS.text.primary,
+                        border: `1px solid ${COLORS.border.light}`,
+                        borderRadius: BORDER_RADIUS.xs,
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        flex: 1
+                      }}
+                    >
+                      <option value="AND">AND (all must match)</option>
+                      <option value="OR">OR (any can match)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Conditions list */}
               <div style={{ marginBottom: SPACING.md }}>
                 <div style={{
                   fontSize: '11px',
                   color: COLORS.text.secondary,
                   marginBottom: '6px',
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
                 }}>
-                  Condition:
+                  <span>Conditions ({conditions.length}):</span>
                 </div>
-                <ConditionBuilder
-                  condition={condition}
-                  onChange={handleConditionChange}
-                />
+                
+                {conditions.map((cond, index) => (
+                  <div key={cond.id} style={{
+                    marginBottom: '8px',
+                    position: 'relative'
+                  }}>
+                    {conditions.length > 1 && index > 0 && (
+                      <div style={{
+                        fontSize: '9px',
+                        color: COLORS.text.muted,
+                        textAlign: 'center',
+                        padding: '4px 0',
+                        fontWeight: '600'
+                      }}>
+                        {logic}
+                      </div>
+                    )}
+                    
+                    <div style={{
+                      position: 'relative',
+                      paddingRight: conditions.length > 1 ? '30px' : '0'
+                    }}>
+                      <ConditionBuilder
+                        condition={cond}
+                        onChange={(newCond) => handleConditionChange(cond.id, newCond)}
+                      />
+                      
+                      {conditions.length > 1 && (
+                        <button
+                          onClick={() => handleDeleteCondition(cond.id)}
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            right: '4px',
+                            transform: 'translateY(-50%)',
+                            background: COLORS.error,
+                            color: COLORS.text.primary,
+                            border: 'none',
+                            borderRadius: BORDER_RADIUS.xs,
+                            width: '20px',
+                            height: '20px',
+                            fontSize: '12px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.background = COLORS.error + 'dd';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.background = COLORS.error;
+                          }}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Add condition button */}
+                <button
+                  onClick={handleAddCondition}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    marginTop: '8px',
+                    background: COLORS.bg.darker,
+                    color: COLORS.accent.blue,
+                    border: `1px dashed ${COLORS.accent.blue}`,
+                    borderRadius: BORDER_RADIUS.xs,
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = COLORS.accent.blue + '22';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = COLORS.bg.darker;
+                  }}
+                >
+                  <span style={{ fontSize: '12px' }}>+</span> Add Condition
+                </button>
               </div>
 
               {/* Default action */}
@@ -280,7 +468,7 @@ export function AdvancedRulesModal({ onClose }) {
                   fontSize: '10px'
                 }}>
                   <span style={{ color: COLORS.text.secondary }}>
-                    If condition not met:
+                    If {logic === 'AND' ? 'not all conditions match' : 'no conditions match'}:
                   </span>
                   <select
                     value={defaultAction}
@@ -302,25 +490,53 @@ export function AdvancedRulesModal({ onClose }) {
                 </div>
               </div>
 
-              {/* Example display */}
+              {/* Preview display */}
               <div style={{
                 fontSize: '10px',
                 color: COLORS.text.primary,
                 padding: SPACING.sm,
                 background: COLORS.bg.darker,
                 borderRadius: BORDER_RADIUS.sm,
-                borderLeft: `3px solid ${condition.action === 'stay' ? COLORS.success : COLORS.error}`
+                borderLeft: `3px solid ${COLORS.accent.blue}`
               }}>
                 <div style={{ 
                   color: COLORS.text.muted, 
                   fontSize: '9px',
-                  marginBottom: '4px'
+                  marginBottom: '4px',
+                  fontWeight: '600'
                 }}>
-                  Current Rule:
+                  Rule Summary:
                 </div>
-                <div style={{ fontWeight: '600' }}>
-                  {getConditionPreviewText(condition)}
-                </div>
+                {conditions.map((cond, index) => (
+                  <div key={cond.id} style={{ 
+                    marginBottom: index < conditions.length - 1 ? '4px' : '0',
+                    paddingLeft: '8px'
+                  }}>
+                    <div style={{
+                      fontWeight: '600',
+                      color: cond.action === 'stay' ? COLORS.success : COLORS.error
+                    }}>
+                      {index > 0 && (
+                        <span style={{ color: COLORS.text.muted, fontWeight: 'normal' }}>
+                          {logic}{' '}
+                        </span>
+                      )}
+                      {getConditionPreviewText(cond)}
+                    </div>
+                  </div>
+                ))}
+                {conditions.length > 1 && (
+                  <div style={{
+                    marginTop: '6px',
+                    paddingTop: '6px',
+                    borderTop: `1px solid ${COLORS.border.light}`,
+                    fontSize: '9px',
+                    color: COLORS.text.muted,
+                    fontStyle: 'italic'
+                  }}>
+                    Otherwise: {defaultAction === 'stay' ? 'Keep current numbers' : 'Switch to new numbers'}
+                  </div>
+                )}
               </div>
             </>
           )}
