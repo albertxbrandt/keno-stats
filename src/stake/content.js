@@ -20,23 +20,23 @@ const gameModules = {
 async function initSiteWide() {
   // eslint-disable-next-line no-console
   console.log('[Stake] Keno Stats Extension loaded');
-  
+
   // Load toolbar settings
   await loadToolbarSettings();
-  
+
   // Initialize toolbar
   initToolbar();
-  
+
   // Detect current game
   const currentGame = detectCurrentGame(window.location.href);
   state.currentGame = currentGame;
-  
+
   if (currentGame) {
     // eslint-disable-next-line no-console
     console.log(`[Stake] Detected game: ${currentGame}`);
     await loadGameModule(currentGame);
   }
-  
+
   // Listen for URL changes (SPA navigation)
   observeUrlChanges();
 }
@@ -48,16 +48,16 @@ function initToolbar() {
   if (!state.siteWideSettings.toolbarEnabled) {
     return;
   }
-  
+
   // Create toolbar container
   const toolbarContainer = document.createElement('div');
   toolbarContainer.id = 'stake-toolbar-root';
   document.body.appendChild(toolbarContainer);
-  
+
   // Render toolbar
   render(h(Toolbar, {}), toolbarContainer);
   state.toolbarVisible = true;
-  
+
   // eslint-disable-next-line no-console
   console.log('[Stake] Toolbar initialized');
 }
@@ -73,7 +73,7 @@ async function loadGameModule(gameName) {
       if (gameName === 'keno') {
         const kenoModule = await import('../games/keno/content.js');
         gameModules[gameName] = kenoModule;
-        
+
         // Initialize game module
         if (typeof kenoModule.init === 'function') {
           kenoModule.init();
@@ -90,7 +90,7 @@ async function loadGameModule(gameName) {
  */
 function observeUrlChanges() {
   let lastUrl = window.location.href;
-  
+
   const observer = new MutationObserver(() => {
     const currentUrl = window.location.href;
     if (currentUrl !== lastUrl) {
@@ -98,7 +98,7 @@ function observeUrlChanges() {
       handleUrlChange(currentUrl);
     }
   });
-  
+
   observer.observe(document.body, {
     childList: true,
     subtree: true,
@@ -111,12 +111,12 @@ function observeUrlChanges() {
  */
 function handleUrlChange(url) {
   const newGame = detectCurrentGame(url);
-  
+
   if (newGame !== state.currentGame) {
     // eslint-disable-next-line no-console
     console.log(`[Stake] Game changed: ${state.currentGame} → ${newGame}`);
     state.currentGame = newGame;
-    
+
     if (newGame) {
       loadGameModule(newGame);
     }

@@ -9,6 +9,7 @@ import { state } from '../core/state.js';
 import { saveToolbarSettings } from '../core/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
+import { CoinFlipper } from './CoinFlipper.jsx';
 
 /**
  * Main toolbar component
@@ -18,6 +19,7 @@ export function Toolbar() {
   const [collapsed, setCollapsed] = useState(state.toolbarCollapsed);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [activeUtility, setActiveUtility] = useState(null);
 
   // Save position when it changes
   useEffect(() => {
@@ -68,24 +70,27 @@ export function Toolbar() {
   };
 
   const handleUtilityClick = (utilityName) => {
-    // eslint-disable-next-line no-console
-    console.log(`[Toolbar] Opening utility: ${utilityName}`);
-    // Future: Open utility modals here
+    setActiveUtility(utilityName);
+  };
+
+  const closeUtility = () => {
+    setActiveUtility(null);
   };
 
   return (
-    <div
-      class="stake-toolbar"
-      style={{
-        position: 'fixed',
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        zIndex: 999999,
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
-      }}
-      onMouseDown={handleMouseDown}
-    >
+    <>
+      <div
+        class="stake-toolbar"
+        style={{
+          position: 'fixed',
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          zIndex: 999999,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none',
+        }}
+        onMouseDown={handleMouseDown}
+      >
       <div
         style={{
           background: COLORS.OVERLAY_BG,
@@ -145,7 +150,6 @@ export function Toolbar() {
               icon="🪙"
               label="Coin Flipper"
               onClick={() => handleUtilityClick('coinFlipper')}
-              subtitle="Coming soon"
             />
             <ToolbarButton
               icon="🔢"
@@ -169,6 +173,10 @@ export function Toolbar() {
         )}
       </div>
     </div>
+
+      {/* Utility Modals */}
+      {activeUtility === 'coinFlipper' && <CoinFlipper onClose={closeUtility} />}
+    </>
   );
 }
 
