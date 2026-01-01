@@ -20,14 +20,14 @@
         "https://stake.us/*"
       ],
       "js": [
-        "dist/content.bundle.js"
+        "dist/stake.bundle.js"
       ],
       "run_at": "document_idle"
     },
     {
       "matches": [
-        "https://stake.com/*",
-        "https://stake.us/*"
+        "https://stake.com/casino/games/keno*",
+        "https://stake.us/casino/games/keno*"
       ],
       "js": [
         "interceptor.js"

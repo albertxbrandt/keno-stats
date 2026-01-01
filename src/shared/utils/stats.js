@@ -1,9 +1,9 @@
 // src/stats.js - Calculate probability stats and last occurrence for multiplier bar
-import { state } from '@/keno-tool/core/state.js';
-import { getHits, getMisses, getDrawn } from '@/keno-tool/core/storage.js';
+import { state } from '@/games/keno/core/state.js';
+import { getHits, getMisses, getDrawn } from '@/games/keno/core/storage.js';
 import { getSelectedTileNumbers } from './dom/domReader.js';
 import { render } from 'preact';
-import { BetResultModal } from '@/keno-tool/ui/components/modals/BetResultModal.jsx';
+import { BetResultModal } from '@/games/keno/ui/components/modals/BetResultModal.jsx';
 
 /**
  * Calculate stats for selected tiles count

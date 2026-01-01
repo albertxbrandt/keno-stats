@@ -1,7 +1,7 @@
 // src/utils/analysis/combinationAnalysis.js
 // Helper functions for analyzing number combinations
 
-import { getDrawn } from '@/keno-tool/core/storage.js';
+import { getDrawn } from '@/games/keno/core/storage.js';
 
 /**
  * Analyze how often a combination has hit all numbers in history

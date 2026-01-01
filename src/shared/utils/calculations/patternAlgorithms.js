@@ -1,6 +1,6 @@
 // src/features/patternsCore.js - Core pattern analysis logic (UI-agnostic)
-import { state } from '@/keno-tool/core/state.js';
-import { getDrawn } from '@/keno-tool/core/storage.js';
+import { state } from '@/games/keno/core/state.js';
+import { getDrawn } from '@/games/keno/core/storage.js';
 import { getPatternCache } from '../../storage/patterns.js';
 
 // Get pattern cache instance from storage

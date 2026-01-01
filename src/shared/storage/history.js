@@ -1,8 +1,8 @@
 // src/storage/history.js
 // Game history CRUD operations with chunked storage
 
-import { state } from '@/keno-tool/core/state.js';
-import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
+import { state } from '@/games/keno/core/state.js';
+import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { clearHighlight } from '@/shared/utils/dom/tileSelection.js';
 import { COLORS } from '@/shared/constants/colors.js';
 

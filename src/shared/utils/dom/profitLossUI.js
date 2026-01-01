@@ -1,5 +1,5 @@
 // src/utils/dom/profitLossUI.js
-import { state } from '@/keno-tool/core/state.js';
+import { state } from '@/games/keno/core/state.js';
 import {
   getAvailableCurrencies,
   formatCurrency,

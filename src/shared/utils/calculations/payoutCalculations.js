@@ -2,7 +2,7 @@
 import { COLORS } from '@/shared/constants/colors.js';
 // Pure calculation functions for payout analysis
 
-import { getDrawn } from '@/keno-tool/core/storage.js';
+import { getDrawn } from '@/games/keno/core/storage.js';
 
 /**
  * Calculate hit distribution for a set of numbers across history

@@ -1,9 +1,9 @@
 // src/storage/settings.js
 // Generator and heatmap settings persistence
 
-import { state } from '@/keno-tool/core/state.js';
-import { validatePanelVisibility } from '@/keno-tool/ui/constants/sections.js';
-import { stateEvents, EVENTS } from '@/keno-tool/core/stateEvents.js';
+import { state } from '@/games/keno/core/state.js';
+import { validatePanelVisibility } from '@/games/keno/ui/constants/sections.js';
+import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 

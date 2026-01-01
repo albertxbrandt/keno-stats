@@ -1,7 +1,7 @@
 // src/storage/comparison.js
 // Comparison window data tracking (in-memory only, no persistence)
 
-import { state } from '@/keno-tool/core/state.js';
+import { state } from '@/games/keno/core/state.js';
 import betMultis from '@/../config/bet-multis.json';
 
 /**
