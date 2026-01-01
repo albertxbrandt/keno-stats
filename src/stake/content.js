@@ -3,8 +3,11 @@
  * Runs on all Stake.com pages and routes to appropriate game modules
  */
 
+import { render, h } from 'preact';
 import { detectCurrentGame } from './core/urlDetector.js';
 import { state } from './core/state.js';
+import { loadToolbarSettings } from './core/storage.js';
+import { Toolbar } from './ui/Toolbar.jsx';
 
 // Game module registry
 const gameModules = {
@@ -16,7 +19,13 @@ const gameModules = {
  */
 async function initSiteWide() {
   // eslint-disable-next-line no-console
-  console.log('[Site-wide] Keno Stats Extension loaded');
+  console.log('[Stake] Keno Stats Extension loaded');
+  
+  // Load toolbar settings
+  await loadToolbarSettings();
+  
+  // Initialize toolbar
+  initToolbar();
   
   // Detect current game
   const currentGame = detectCurrentGame(window.location.href);
@@ -24,15 +33,33 @@ async function initSiteWide() {
   
   if (currentGame) {
     // eslint-disable-next-line no-console
-    console.log(`[Site-wide] Detected game: ${currentGame}`);
+    console.log(`[Stake] Detected game: ${currentGame}`);
     await loadGameModule(currentGame);
   }
   
   // Listen for URL changes (SPA navigation)
   observeUrlChanges();
+}
+
+/**
+ * Initialize site-wide toolbar
+ */
+function initToolbar() {
+  if (!state.siteWideSettings.toolbarEnabled) {
+    return;
+  }
   
-  // Initialize site-wide toolbar (future sprint)
-  // initToolbar();
+  // Create toolbar container
+  const toolbarContainer = document.createElement('div');
+  toolbarContainer.id = 'stake-toolbar-root';
+  document.body.appendChild(toolbarContainer);
+  
+  // Render toolbar
+  render(h(Toolbar, {}), toolbarContainer);
+  state.toolbarVisible = true;
+  
+  // eslint-disable-next-line no-console
+  console.log('[Stake] Toolbar initialized');
 }
 
 /**
@@ -53,7 +80,7 @@ async function loadGameModule(gameName) {
         }
       }
     } catch (error) {
-      console.error(`[Site-wide] Failed to load ${gameName} module:`, error);
+      console.error(`[Stake] Failed to load ${gameName} module:`, error);
     }
   }
 }
@@ -87,7 +114,7 @@ function handleUrlChange(url) {
   
   if (newGame !== state.currentGame) {
     // eslint-disable-next-line no-console
-    console.log(`[Site-wide] Game changed: ${state.currentGame} → ${newGame}`);
+    console.log(`[Stake] Game changed: ${state.currentGame} → ${newGame}`);
     state.currentGame = newGame;
     
     if (newGame) {
