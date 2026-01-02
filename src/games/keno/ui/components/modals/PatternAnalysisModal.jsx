@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import { Modal } from '../shared/Modal.jsx';
+import { Modal } from '@/shared/components/Modal.jsx';
 import { state } from '@/games/keno/core/state.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';

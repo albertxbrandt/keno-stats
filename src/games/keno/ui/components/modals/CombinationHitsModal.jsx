@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import { Modal } from '../shared/Modal.jsx';
+import { Modal } from '@/shared/components/Modal.jsx';
 import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '@/games/keno/core/state.js';

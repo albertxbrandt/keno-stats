@@ -2,7 +2,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
-import { ToggleSwitch } from './shared/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';

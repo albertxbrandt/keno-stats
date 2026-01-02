@@ -6,7 +6,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { NumberInput } from '../shared/NumberInput.jsx';
+import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS } from '@/shared/constants/styles.js';
 
