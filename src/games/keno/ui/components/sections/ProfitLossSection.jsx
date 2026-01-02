@@ -2,7 +2,7 @@
 // Profit/Loss tracking section
 
 import { useState, useEffect } from 'preact/hooks';
-import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';

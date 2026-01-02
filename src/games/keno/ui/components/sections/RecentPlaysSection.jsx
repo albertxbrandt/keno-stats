@@ -2,7 +2,7 @@
 // Recent plays section - displays recently played number combinations
 
 import { useState, useEffect } from 'preact/hooks';
-import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { state } from '@/games/keno/core/state.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';

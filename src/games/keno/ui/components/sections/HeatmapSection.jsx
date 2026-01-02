@@ -6,9 +6,9 @@ import { state } from '@/games/keno/core/state.js';
 import { saveHeatmapSettings } from '@/games/keno/core/storage.js';
 import { updateHeatmap, clearHeatmap } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
-import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
-import { NumberInput } from '../shared/NumberInput.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 

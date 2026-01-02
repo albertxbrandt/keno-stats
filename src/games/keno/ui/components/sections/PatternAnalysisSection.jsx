@@ -2,8 +2,8 @@
 // Pattern analysis section - find recurring number combinations
 
 import { useState } from 'preact/hooks';
-import { CollapsibleSection } from '../shared/CollapsibleSection.jsx';
-import { NumberInput } from '../shared/NumberInput.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';

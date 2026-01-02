@@ -13,7 +13,7 @@ import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
 import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
 import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 import { HistorySection } from './sections/HistorySection.jsx';
-import { DragHandle } from './shared/DragHandle.jsx';
+import { DragHandle } from '@/shared/components/DragHandle.jsx';
 import { SettingsPanel } from './SettingsPanel.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';

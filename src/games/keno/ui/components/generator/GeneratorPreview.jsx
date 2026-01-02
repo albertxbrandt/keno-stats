@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { initPreviewBoxHighlight } from '@/games/keno/ui/previewHighlight.js';
-import { ToggleSwitch } from '../shared/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
