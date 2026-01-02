@@ -8,6 +8,8 @@ import { detectCurrentGame } from './core/urlDetector.js';
 import { state } from './core/state.js';
 import { loadToolbarSettings } from './core/storage.js';
 import { Toolbar } from './ui/Toolbar.jsx';
+import { UtilitiesProvider } from './hooks/useUtilities.js';
+import { UtilitiesManager } from './ui/UtilitiesManager.jsx';
 
 // Game module registry
 const gameModules = {
@@ -54,8 +56,14 @@ function initToolbar() {
   toolbarContainer.id = 'stake-toolbar-root';
   document.body.appendChild(toolbarContainer);
 
-  // Render toolbar
-  render(h(Toolbar, {}), toolbarContainer);
+  // Render toolbar wrapped in UtilitiesProvider
+  render(
+    h(UtilitiesProvider, {}, [
+      h(Toolbar, {}),
+      h(UtilitiesManager, {})
+    ]),
+    toolbarContainer
+  );
   state.toolbarVisible = true;
 
   // eslint-disable-next-line no-console
