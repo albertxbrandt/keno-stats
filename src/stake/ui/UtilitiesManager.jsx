@@ -9,6 +9,7 @@ import { useUtilities } from '../hooks/useUtilities.js';
 import { CoinFlipper } from './CoinFlipper.jsx';
 import { RandomNumberGen } from './RandomNumberGen.jsx';
 import { RandomGamePicker } from './RandomGamePicker.jsx';
+import { Magic8Ball } from './Magic8Ball.jsx';
 
 /**
  * Manages rendering of all utility windows
@@ -33,9 +34,9 @@ export function UtilitiesManager() {
         <RandomGamePicker onClose={() => closeUtility('randomGamePicker')} />
       )}
 
-      {/* Magic 8-Ball - Coming soon */}
+      {/* Magic 8-Ball */}
       {activeUtilities.magic8Ball && (
-        <div>Magic 8-Ball Coming Soon</div>
+        <Magic8Ball onClose={() => closeUtility('magic8Ball')} />
       )}
 
       {/* Win Links - Coming soon */}

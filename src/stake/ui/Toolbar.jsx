@@ -160,7 +160,6 @@ export function Toolbar() {
               icon="🔮"
               label="Magic 8-Ball"
               onClick={() => handleUtilityClick('magic8Ball')}
-              subtitle="Coming soon"
             />
             <ToolbarButton
               icon="🔗"
