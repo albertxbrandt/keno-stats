@@ -102,11 +102,15 @@ stateEvents.on(EVENTS.SETTINGS_CHANGED, () => {
 	updateGeneratorPreview();
 });
 
-// Initial check on load
-if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', checkAndInitialize);
-} else {
-	checkAndInitialize();
+// Export init function for lazy loading by stake coordinator
+export function init() {
+	// eslint-disable-next-line no-console
+	console.log('[Keno] init() called by coordinator');
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', checkAndInitialize);
+	} else {
+		checkAndInitialize();
+	}
 }
 
 // Watch for URL changes (for SPA navigation)
