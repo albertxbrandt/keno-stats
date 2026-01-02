@@ -94,20 +94,20 @@ export default [
   // Exemptions for specific files with legitimate uses
   {
     files: [
-      "src/keno-tool/content.js",                          // Message listener needs window.__keno_state
-      "src/keno-tool/bridges/windowGlobals.js",            // Intentional bridge for cross-context communication
-      "src/keno-tool/ui/previewHighlight.js",              // Bridge module
-      "src/keno-tool/ui/overlayInit.js",                   // Needs window globals for button handlers
-      "src/keno-tool/ui/numberSelection.js",               // Exports to window for content.js
+      "src/games/keno/content.js",                          // Message listener needs window.__keno_state
+      "src/games/keno/bridges/windowGlobals.js",            // Intentional bridge for cross-context communication
+      "src/games/keno/ui/previewHighlight.js",              // Bridge module
+      "src/games/keno/ui/overlayInit.js",                   // Needs window globals for button handlers
+      "src/games/keno/ui/numberSelection.js",               // Exports to window for content.js
       "src/shared/utils/dom/heatmap.js",                   // Exports to window for event handlers
       "src/shared/storage/patterns.js",                    // Cache clearing function
       "src/shared/storage/history.js",                     // Callback functions use window globals
       "src/shared/storage/profitLoss.js",                  // Updates use window globals temporarily
       "src/shared/storage/settings.js",                    // Settings updates use window globals
-      "src/keno-tool/generators/momentumCore.js",          // Debug function export
-      "src/keno-tool/generators/shapesCore.js",            // Debug function export
-      "src/keno-tool/hooks/useModals.js",                  // Modal manager uses window bridge
-      "src/keno-tool/ui/components/generator/AutoRefreshControl.jsx"  // Intentional setInterval for countdown
+      "src/games/keno/generators/momentumCore.js",          // Debug function export
+      "src/games/keno/generators/shapesCore.js",            // Debug function export
+      "src/games/keno/hooks/useModals.js",                  // Modal manager uses window bridge
+      "src/games/keno/ui/components/generator/AutoRefreshControl.jsx"  // Intentional setInterval for countdown
     ],
     rules: {
       "no-restricted-syntax": "off",             // Allow window globals in these files
