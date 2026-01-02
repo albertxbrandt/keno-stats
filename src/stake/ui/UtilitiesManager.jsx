@@ -7,6 +7,7 @@
 import { h } from 'preact';
 import { useUtilities } from '../hooks/useUtilities.js';
 import { CoinFlipper } from './CoinFlipper.jsx';
+import { RandomNumberGen } from './RandomNumberGen.jsx';
 
 /**
  * Manages rendering of all utility windows
@@ -21,9 +22,9 @@ export function UtilitiesManager() {
         <CoinFlipper onClose={() => closeUtility('coinFlipper')} />
       )}
 
-      {/* Random Number Generator - Coming soon */}
+      {/* Random Number Generator */}
       {activeUtilities.randomGen && (
-        <div>Random Gen Coming Soon</div>
+        <RandomNumberGen onClose={() => closeUtility('randomGen')} />
       )}
 
       {/* Magic 8-Ball - Coming soon */}

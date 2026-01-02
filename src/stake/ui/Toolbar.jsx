@@ -150,7 +150,6 @@ export function Toolbar() {
               icon="🔢"
               label="Random Numbers"
               onClick={() => handleUtilityClick('randomGen')}
-              subtitle="Coming soon"
             />
             <ToolbarButton
               icon="🔮"
