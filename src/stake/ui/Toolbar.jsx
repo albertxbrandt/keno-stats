@@ -152,6 +152,11 @@ export function Toolbar() {
               onClick={() => handleUtilityClick('randomGen')}
             />
             <ToolbarButton
+              icon="🎮"
+              label="Random Game"
+              onClick={() => handleUtilityClick('randomGamePicker')}
+            />
+            <ToolbarButton
               icon="🔮"
               label="Magic 8-Ball"
               onClick={() => handleUtilityClick('magic8Ball')}

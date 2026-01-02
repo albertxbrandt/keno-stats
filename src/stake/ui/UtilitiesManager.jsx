@@ -8,6 +8,7 @@ import { h } from 'preact';
 import { useUtilities } from '../hooks/useUtilities.js';
 import { CoinFlipper } from './CoinFlipper.jsx';
 import { RandomNumberGen } from './RandomNumberGen.jsx';
+import { RandomGamePicker } from './RandomGamePicker.jsx';
 
 /**
  * Manages rendering of all utility windows
@@ -25,6 +26,11 @@ export function UtilitiesManager() {
       {/* Random Number Generator */}
       {activeUtilities.randomGen && (
         <RandomNumberGen onClose={() => closeUtility('randomGen')} />
+      )}
+
+      {/* Random Game Picker */}
+      {activeUtilities.randomGamePicker && (
+        <RandomGamePicker onClose={() => closeUtility('randomGamePicker')} />
       )}
 
       {/* Magic 8-Ball - Coming soon */}
