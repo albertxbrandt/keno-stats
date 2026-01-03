@@ -11,6 +11,7 @@ import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
 import { useUtilities } from '../hooks/useUtilities.js';
 import { Dices, Coins, Hash, Gamepad2, Sparkles, Link } from 'lucide-preact';
+import { constrainToViewport } from '@/shared/utils/viewport.js';
 
 /**
  * Main toolbar component
@@ -45,10 +46,11 @@ export function Toolbar() {
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
-    setPosition({
-      x: e.clientX - dragOffset.x,
-      y: e.clientY - dragOffset.y,
-    });
+    const newX = e.clientX - dragOffset.x;
+    const newY = e.clientY - dragOffset.y;
+    const toolbarWidth = collapsed ? 40 : 200;
+    const constrained = constrainToViewport(newX, newY, toolbarWidth);
+    setPosition(constrained);
   };
 
   const handleMouseUp = () => {

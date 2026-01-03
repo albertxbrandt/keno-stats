@@ -6,6 +6,7 @@ import { render } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
+import { constrainToViewport } from '@/shared/utils/viewport.js';
 import { HitsMissSection } from './sections/HitsMissSection.jsx';
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
@@ -120,9 +121,12 @@ export function Overlay() {
   };
 
   const handleDrag = (dx, dy) => {
+    const newX = dragStartRef.current.left + dx;
+    const newY = dragStartRef.current.top + dy;
+    const constrained = constrainToViewport(newX, newY, 240); // 240px is overlay width
     setPosition({
-      top: dragStartRef.current.top + dy,
-      left: dragStartRef.current.left + dx,
+      top: constrained.y,
+      left: constrained.x,
       right: null
     });
   };

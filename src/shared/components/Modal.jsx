@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { constrainToViewport } from '@/shared/utils/viewport.js';
 
 /**
  * Modal Component
@@ -57,10 +58,10 @@ export function Modal({
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isDragging) return;
-      setPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
-      });
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      const constrained = constrainToViewport(newX, newY, defaultSize.width);
+      setPosition(constrained);
     };
 
     const handleMouseUp = () => {
