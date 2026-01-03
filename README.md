@@ -1,6 +1,14 @@
-# Keno Stats Extension
+# Stake Tools Browser Extension
 
-A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com.
+A Chrome/Firefox browser extension providing **Keno statistics tracking** and **site-wide utilities** for Stake.com.
+
+## 🎯 Two Main Features
+
+### 🎲 Keno Stats Tracker
+Advanced statistics and analysis for Keno games with heatmaps, generators, and profit tracking.
+
+### 🛠️ Stake Tools (Site-Wide)
+Utility toolkit available across all Stake pages - coin flipper, random numbers, game picker, and more.
 
 ## ⚠️ Disclaimer
 
@@ -12,6 +20,8 @@ A Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com
 - Gambling carries risk. Past performance and statistical patterns do not predict future outcomes.
 
 ## Features
+
+## 🎲 Keno Stats Tracker (Keno Pages Only)
 
 ### 🗺️ Heatmap Analysis
 
@@ -70,10 +80,94 @@ Find common N-number combinations (3-10) that appear together frequently:
 ### 💾 Saved Number Sets
 
 - Save and name your favorite number combinations
-- Quick-load saved sets with one click
-- Manage multiple saved strategies
-- Import/export saved sets
+- Quick-load saved sets wi
 
+## 🛠️ Stake Tools (All Pages)
+
+Site-wide toolbar with quick-access utilities available on any Stake page:
+
+### 🪙 Coin Flipper
+- Beautiful 3D coin flip animation
+- Heads/Tails tracking with statistics
+- History of last 20 flips
+- Persistent stats across sessions
+
+### 🔢 Random Number Generator
+- Configurable min/max range (default 1-100)
+- Generate 1-100 numbers at once
+- Allow/prevent duplicates toggle
+- Copy to clipboard
+- History of last 20 generations
+
+### 🎮 Random Game Picker
+- Scans current page for available games
+- Slot machine shuffle animation (20 cycles)
+- Click "Play Now" to navigate instantly
+- History of last 10 picks with thumbnails
+- Auto-detects game name, image, and category
+Multi-game architecture with separate modules for each feature:
+
+```
+src/
+├── games/
+│   └── keno/           # Keno-specific features
+│       ├── content.js  # Entry point
+│       ├── core/       # State, storage, events
+│       ├── generators/ # Number generation strategies
+│       ├── storage/    # Persistence (history, settings, patterns, etc.)
+│       ├── ui/         # Preact components
+│       │   ├── components/
+│       │   │   ├── sections/      # Overlay sections
+│       │   │   ├── modals/        # Modal dialogs
+│       │   │   ├── generator/     # Generator sub-components
+│       │   │   └── shared/        # Keno-specific shared components
+│       │   ├── App.jsx            # Root component
+│       │   ├── ModalsManager.jsx  # Modal coordination
+│       │   └── overlayInit.js     # Initialization
+│       ├── utils/      # Keno-specific utilities
+│       ├── bridges/    # Window globals
+│       └── hooks/      # Preact hooks
+│
+├── stake/              # Site-wide features
+│   ├── content.js      # Entry point
+│   ├── coordinator.js  # Game detection and routing
+│   ├── core/           # State, storage for toolbar
+│   ├── ui/             # Toolbar and utility components
+│   │   ├── Toolbar.jsx          # Main toolbar
+│   │   ├── UtilitiesManager.jsx # Utility renderer
+│   │   ├── CoinFlipper.jsx
+│   │   ├── RandomNumberGen.jsx
+│   │   ├── RandomGamePicker.jsx
+│   │   └── Magic8Ball.jsx
+│   └── hooks/          # useUtilities context
+│**Lucide Icons** for crisp vector graphics (1,400+ icons)
+- Draggable modals and overlays with mouse and touch support
+- Modal system with centralized state management (useModals hook)
+- Shared component library across all features
+- Consistent design system (colors, spacing, typography
+│   │   ├── Modal.jsx
+│   │   ├── ToggleSwitch.jsx
+│   │   ├── DragHandle.jsx
+│   │   ├── CollapsibleSection.jsx
+│   │   └── NumberInput.jsx
+│   ├── constants/      # Colors, styles, defaults
+│   ├── storage/        # Storage utilities
+│   └── utils/          # Shared helper functions
+│
+└── dashboard/          # Separate bet history dashboard
+    ├── dashboard-entry.js
+    ├── Dashboard.jsx
+    ├── sections/
+    ├── components/
+    └── utils/
+
+dist/
+├── stake.bundle.js      # Main extension (200.5kb)
+└── dashboard.bundle.js  # Bet history UI (39.0kb)
+
+interceptor.js           # Page-level data capture (MAIN world)
+eslint.config.mjs        # Code quality (ESLint v9)
+```
 ## Installation
 
 1. Clone or download this repository
@@ -133,7 +227,17 @@ The UI is built with **Preact** (3KB React alternative) for maintainability and 
 - Draggable overlay with mouse and touch support
 - Modal system with centralized state management
 - Reusable shared components (ToggleSwitch, CollapsibleSection, DragHandle, etc.)
+January 2026
 
+- 🏗️ **Major restructure**: Multi-game architecture with separate modules
+- 🛠️ **New**: Site-wide toolbar with 4 utilities (Coin Flipper, Random Numbers, Game Picker, Magic 8-Ball)
+- 🎨 **New**: Lucide Icons integration (replaced all emojis)
+- 🔧 **New**: Shared component library for consistent UI
+- 📦 **Improved**: Better code organization (src/games/, src/stake/, src/shared/)
+- 🎯 **Improved**: Toolbar styling matches Keno overlay design system
+- 📊 **Improved**: Coordinator system for game detection and routing
+
+### 
 ## How It Works
 
 The extension intercepts Keno game data from Stake.com and provides statistical analysis:
