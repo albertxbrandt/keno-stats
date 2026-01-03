@@ -1,25 +1,27 @@
-# Keno Tracker Browser Extension - AI Coding Instructions
+# Stake Tools Browser Extension - AI Coding Instructions
 
 ## Architecture Overview
 
-This is a Chrome/Firefox browser extension that tracks Keno game statistics on Stake.com. It operates across **two isolated security worlds** with distinct responsibilities:
+This is a Chrome/Firefox browser extension providing **Keno statistics tracking** and **site-wide utilities** for Stake.com. It operates across **two isolated security worlds** with distinct responsibilities:
 
-- **`interceptor.js` (MAIN world)**: Intercepts `fetch()` calls at page startup (`document_start`) to extract live game data from GraphQL responses
-- **`src/` modules (ISOLATED world)**: Modular ES6 codebase bundled via esbuild into `dist/content.bundle.js` for the extension sandbox
-- **Data Flow**: `interceptor.js` → `window.postMessage()` → `src/content.js` → Module functions → Chrome storage API
+- **`interceptor.js` (MAIN world)**: Intercepts `fetch()` calls at page startup (`document_start`) to extract live game data from GraphQL responses (Keno only)
+- **`src/` modules (ISOLATED world)**: Modular ES6 codebase bundled via esbuild into two separate bundles:
+  - `dist/stake.bundle.js` (200.5kb) - Main extension with Keno tracker + site-wide utilities
+  - `dist/dashboard.bundle.js` (39.0kb) - Separate bet history dashboard UI
+- **Data Flow**: `interceptor.js` → `window.postMessage()` → `content.js` → Module functions → Chrome storage API
 
-### Module Architecture (src/)
+### Multi-Game Architecture (src/)
 
-Code split across three main domains with clear separation of concerns:
+Code organized into **three main domains** with clear separation of concerns:
 
-#### **src/keno-tool/** - Main extension features
+#### **src/games/keno/** - Keno-specific features (only active on Keno pages)
 
 **Core:**
 
-- **`content.js`**: Entry point, message listener, initialization orchestration, round processing
+- **`content.js`**: Keno entry point, message listener, round processing, initialization
 - **`core/state.js`**: Centralized reactive state (all `state.*` properties live here)
 - **`core/stateEvents.js`**: Event system for reactive state updates
-- **`core/storage.js`**: Keno-tool-specific storage wrapper (re-exports from shared/)
+- **`core/storage.js`**: Keno-specific storage wrapper (re-exports from shared/)
 
 **UI (Preact Components):**
 
@@ -54,6 +56,29 @@ Code split across three main domains with clear separation of concerns:
 
 - **`hooks/useModals.js`**: ModalsProvider context for managing modal state across components
 
+#### **src/stake/** - Site-wide features (active on all Stake pages)
+
+**Core:**
+
+- **`content.js`**: Stake entry point, toolbar initialization, game detection coordination
+- **`coordinator.js`**: Game detection and routing (detects Keno URLs and initializes appropriate module)
+- **`core/state.js`**: Toolbar state (position, collapsed, active utilities)
+- **`core/storage.js`**: Toolbar settings persistence
+- **`core/urlDetector.js`**: URL pattern matching for game detection
+
+**UI (Preact Components):**
+
+- **`ui/Toolbar.jsx`**: Main draggable toolbar with utility buttons (Lucide icons)
+- **`ui/UtilitiesManager.jsx`**: Central manager for rendering active utility windows
+- **`ui/CoinFlipper.jsx`**: 3D coin flip animation with stats (heads/tails tracking, last 20 history)
+- **`ui/RandomNumberGen.jsx`**: Number generator with min/max range, duplicates toggle, copy button
+- **`ui/RandomGamePicker.jsx`**: Game picker with shuffle animation, DOM scanning, play now navigation
+- **`ui/Magic8Ball.jsx`**: Fortune teller with 20 responses, shake animation, question history
+
+**Hooks:**
+
+- **`hooks/useUtilities.js`**: UtilitiesProvider context for managing utility modal state
+
 #### **src/dashboard/** - Separate bet history dashboard
 
 **Entry:**
@@ -74,7 +99,15 @@ Code split across three main domains with clear separation of concerns:
 
 - **`utils/storage.js`**: Dashboard-specific storage utilities (re-exports from shared/)
 
-#### **src/shared/** - Shared code used by both keno-tool and dashboard
+#### **src/shared/** - Shared code used across all features (Keno, Stake utilities, Dashboard)
+
+**Components (Reusable UI):**
+
+- **`components/Modal.jsx`**: Draggable modal window with header, close button, resize (used by all utilities and Keno modals)
+- **`components/ToggleSwitch.jsx`**: iOS-style toggle switch (used in settings across all features)
+- **`components/DragHandle.jsx`**: Draggable handle with mouse + touch support (used by overlays and modals)
+- **`components/CollapsibleSection.jsx`**: Expandable section container (used in Keno overlay sections)
+- **`components/NumberInput.jsx`**: Styled number input field (used in generators and settings)
 
 **Storage Layer:**
 
@@ -142,9 +175,9 @@ Critical safety check: Functions verify `window.location.href.includes("keno")` 
 
 ### 3. Preact Component Architecture
 
-The UI is built with Preact (3KB React alternative) for maintainability and performance:
+The UI is built with Preact (3KB React alternative) + Lucide Icons for maintainability and performance:
 
-**Component Hierarchy:**
+**Keno Component Hierarchy:**
 
 ```
 App (ModalsProvider wrapper)
@@ -165,11 +198,29 @@ App (ModalsProvider wrapper)
     └── ComparisonModal
 ```
 
+**Stake Utilities Component Hierarchy:**
+
+```
+UtilitiesProvider (context)
+├── Toolbar (draggable, collapsible)
+│   ├── DragHandle
+│   └── ToolbarButton[] (Lucide icons)
+└── UtilitiesManager (renders active modals)
+    ├── CoinFlipper (Modal)
+    ├── RandomNumberGen (Modal)
+    ├── RandomGamePicker (Modal)
+    ├── Magic8Ball (Modal)
+    └── WinLinks (Modal) - Coming soon
+```
+
 **Key patterns:**
 
-- Shared components in `ui/components/shared/` (ToggleSwitch, CollapsibleSection, NumberInput, etc.)
+- Shared components in `shared/components/` used across Keno and Stake utilities
+- Lucide Icons for all UI icons (`lucide-preact` package) - NO EMOJIS
+  - Common icons: `Dices`, `Coins`, `Hash`, `Gamepad2`, `Sparkles`, `Link`, `X`, `Settings`, `RefreshCw`
+  - Usage: `<Coins size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />`
 - State managed via `state` object imported from `core/state.js`
-- Modals controlled via `useModals` hook context
+- Modals controlled via `useModals` hook context (Keno) or `useUtilities` hook (Stake)
 - JSX transpiled by esbuild with `--jsx=automatic --jsx-import-source=preact`
 
 ### 4. Number Transformation (Keno-Specific)
@@ -549,42 +600,67 @@ import { state } from './state.js'; // Only import what you use
 
 ### Module Loading & Initialization Order
 
-1. `interceptor.js` loads at `document_start` (MAIN world) - starts monitoring fetch requests
-2. `dist/content.bundle.js` loads at `document_idle` (ISOLATED world) - entry point is `src/content.js`
-3. `content.js` imports all modules and calls `loadHistory()` → `initOverlay()` → `initStatsObserver()`
-4. Message listener in `content.js` processes intercepted game data and coordinates module updates
+**Stake Entry Point** (All Pages):
+1. `interceptor.js` loads at `document_start` (MAIN world) - monitors fetch requests for Keno data
+2. `dist/stake.bundle.js` loads at `document_idle` (ISOLATED world) - entry point is `src/stake/content.js`
+3. `stake/content.js` initializes toolbar via `coordinator.js`
+4. `coordinator.js` detects current game URL:
+   - If Keno page: imports and initializes `src/games/keno/content.js`
+   - Otherwise: just shows toolbar
+
+**Keno Initialization** (Keno Pages Only):
+1. `keno/content.js` sets up message listener for intercepted game data
+2. Calls `loadHistory()` → `initPreactOverlay()` → mounts Preact component tree
+3. Message listener processes game results and updates UI via state/events
 
 ### Cross-Module Communication Patterns
 
-- **State sharing**: Import `state` object from `state.js` - mutate directly, no setters
+**Keno:**
+- **State sharing**: Import `state` object from `core/state.js` - mutate directly, no setters
 - **Function callbacks**: `storage.js` calls `updateHistoryUI()` and `window.__keno_updateHeatmap()` after saves
-- **Window hooks**: Modules expose functions via `window.__keno_*` for cross-module calls from event handlers in HTML strings
-  ```javascript
-  // In heatmap.js: window.__keno_highlightRound = highlightRound;
-  // In overlay.js: div.addEventListener('mouseenter', () => window.__keno_highlightRound(round));
-  ```
+- **Window hooks**: Modules expose functions via `window.__keno_*` for cross-module calls from event handlers
 - **Direct imports**: Most modules import functions from other modules via ES6 `import { fn } from './module.js'`
+
+**Stake Utilities:**
+- **State sharing**: Import `state` object from `stake/core/state.js` for toolbar state
+- **Context hooks**: `useUtilities()` hook manages active utilities state
+- **Modal rendering**: `UtilitiesManager` conditionally renders based on `activeUtilities` object
 
 ## Browser Extension Manifest (v3)
 
 - Permissions: `storage` only (no network access granted to content script)
-- Two content scripts run on Keno URLs: `https://stake.com/casino/games/keno*` and `https://stake.us/*`
-- Interceptor runs at `document_start` (MAIN world); content at `document_idle` (ISOLATED world)
-- Web accessible resources: `betbook.html`, `betbook.js` (for "Open Stats Book" button in overlay)
+- Content scripts run on all Stake URLs: `https://stake.com/*` and `https://stake.us/*`
+- Interceptor runs at `document_start` (MAIN world) on Keno pages only
+- Main content script runs at `document_idle` (ISOLATED world) on all pages
+- Two bundles: `stake.bundle.js` (main, 200.5kb) and `dashboard.bundle.js` (39.0kb)
+- Web accessible resources: `dashboard.html`, `dashboard.bundle.js` (for bet history viewer)
 
 ## Testing & Debugging Checklist
 
-1. **Interceptor validation**: Open DevTools (Inspect → "Page" context), reload, verify console logs "KENO TRACKER" in blue and "✅ BET DATA FOUND!" on bet
-2. **Message passing**: Add logs to message handler in `src/content.js`, verify hits/misses display after a round completes
-3. **Build verification**: Run `npm run build`, check `dist/content.bundle.js` exists and has recent timestamp
-4. **UI injection**: Button should appear in game footer; if missing, check if `.game-footer .stack` selector changed
-5. **Storage**: `chrome.storage.local.get("history")` should return array; test reset clears all data
-6. **Heatmap edge cases**: Empty history (no games), single game (avoid /0), switching modes mid-prediction
-7. **URL scope**: Navigate away from keno page, verify overlay hides and no console errors
-8. **Auto-play**: DISABLED for TOS compliance (feature removed from UI)
-9. **Stats observer**: Check console for `[STATS] initStatsObserver called` and multiplier bar updates on tile clicks
-10. **Module isolation**: Import errors show as "Cannot find module" - ensure all imports use relative paths (`./module.js`)
-11. **Pattern caching**: Check console for "[patterns] Using cached data" on repeated queries; verify `window.__keno_clearPatternCache()` exists
+**General:**
+1. **Build verification**: Run `npm run build`, check `dist/stake.bundle.js` and `dist/dashboard.bundle.js` exist
+2. **Linting**: Run `npm run lint` - should show 0 errors
+3. **Bundle sizes**: stake.bundle.js ~200kb, dashboard.bundle.js ~39kb
+
+**Keno-Specific:**
+1. **Interceptor validation**: Open DevTools (Inspect → "Page" context), reload Keno page, verify console logs "KENO TRACKER" and "✅ BET DATA FOUND!"
+2. **Message passing**: Add logs to message handler in `src/games/keno/content.js`, verify hits/misses display after rounds
+3. **UI injection**: Keno overlay should appear in bottom-right; if missing, check initialization
+4. **Storage**: `chrome.storage.local.get("history")` should return array with round data
+5. **Heatmap**: Verify color-coding updates after each round
+6. **Pattern caching**: Check console for "[patterns] Using cached data" on repeated queries
+
+**Stake Utilities:**
+1. **Toolbar visibility**: Should appear on all Stake pages (non-Keno too)
+2. **Icon rendering**: Lucide icons should render crisply, not pixelated
+3. **Utility modals**: Click each utility button, verify modal opens and closes
+4. **Persistent storage**: Utility settings/history should persist across page reloads
+5. **Game detection**: Navigate to Keno page, verify both toolbar and Keno overlay appear
+
+**Common Issues:**
+- **Module isolation**: Import errors show as "Cannot find module" - ensure relative paths (`./module.js`)
+- **URL scope**: Keno features should only run on Keno pages (coordinator handles this)
+- **Double initialization**: Keno overlay should only appear once (coordinator prevents duplicates)
 
 ## Common Pitfalls & Anti-Patterns
 
