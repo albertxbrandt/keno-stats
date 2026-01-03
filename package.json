@@ -26,6 +26,7 @@
     "web-ext": "^8.3.0"
   },
   "dependencies": {
+    "lucide-preact": "^0.562.0",
     "preact": "^10.28.0"
   }
 }

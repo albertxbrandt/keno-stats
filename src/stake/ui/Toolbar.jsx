@@ -10,6 +10,7 @@ import { saveToolbarSettings } from '../core/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
 import { useUtilities } from '../hooks/useUtilities.js';
+import { Dices, Coins, Hash, Gamepad2, Sparkles, Link } from 'lucide-preact';
 
 /**
  * Main toolbar component
@@ -88,11 +89,11 @@ export function Toolbar() {
     >
       <div
         style={{
-          background: COLORS.OVERLAY_BG,
-          border: `1px solid ${COLORS.BORDER}`,
+          background: COLORS.bg.darker,
+          border: '1px solid #1a2c38',
           borderRadius: '8px',
-          padding: SPACING.SM,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          padding: '0',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
           minWidth: collapsed ? '40px' : '200px',
           transition: 'all 0.2s ease',
         }}
@@ -103,9 +104,12 @@ export function Toolbar() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: collapsed ? '0' : SPACING.SM,
-            paddingBottom: collapsed ? '0' : SPACING.XS,
-            borderBottom: collapsed ? 'none' : `1px solid ${COLORS.BORDER}`,
+            padding: SPACING.sm,
+            background: COLORS.bg.darkest,
+            borderTopLeftRadius: '8px',
+            borderTopRightRadius: '8px',
+            borderBottom: collapsed ? 'none' : '1px solid #1a2c38',
+            marginBottom: collapsed ? '0' : '0',
           }}
         >
           {!collapsed && (
@@ -114,9 +118,13 @@ export function Toolbar() {
                 fontWeight: 'bold',
                 color: COLORS.TEXT_PRIMARY,
                 fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: SPACING.xs,
               }}
             >
-              🎲 Stake Tools
+              <Dices size={18} strokeWidth={2} style={{ opacity: 0.9 }} />
+              Stake Tools
             </div>
           )}
           <button
@@ -140,29 +148,29 @@ export function Toolbar() {
 
         {/* Menu */}
         {!collapsed && (
-          <div class="toolbar-menu">
+          <div class="toolbar-menu" style={{ padding: SPACING.sm }}>
             <ToolbarButton
-              icon="🪙"
+              icon={<Coins size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
               label="Coin Flipper"
               onClick={() => handleUtilityClick('coinFlipper')}
             />
             <ToolbarButton
-              icon="🔢"
+              icon={<Hash size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
               label="Random Numbers"
               onClick={() => handleUtilityClick('randomGen')}
             />
             <ToolbarButton
-              icon="🎮"
+              icon={<Gamepad2 size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
               label="Random Game"
               onClick={() => handleUtilityClick('randomGamePicker')}
             />
             <ToolbarButton
-              icon="🔮"
+              icon={<Sparkles size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
               label="Magic 8-Ball"
               onClick={() => handleUtilityClick('magic8Ball')}
             />
             <ToolbarButton
-              icon="🔗"
+              icon={<Link size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
               label="Win Links"
               onClick={() => handleUtilityClick('winLinks')}
               subtitle="Coming soon"
@@ -196,15 +204,15 @@ function ToolbarButton({ icon, label, subtitle, onClick }) {
         transition: 'background 0.15s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.HOVER_BG;
+        e.currentTarget.style.background = COLORS.bg.dark;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent';
       }}
     >
-      <span style={{ fontSize: '20px' }}>{icon}</span>
+      <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>{icon}</span>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '13px', fontWeight: '500' }}>{label}</div>
+        <div style={{ fontSize: '13px', fontWeight: '500', marginLeft: SPACING.SM }}>{label}</div>
         {subtitle && (
           <div
             style={{
