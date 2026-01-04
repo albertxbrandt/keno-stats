@@ -110,8 +110,7 @@ export function GeneratorSection() {
       title="Number Generator"
       icon={<Dices size={14} strokeWidth={2} />}
       dataSection="generator"
-      titleColor={COLORS.accent.info}
-      maxHeight={650}
+      maxHeight="none"
       defaultExpanded={true}
       pinnable={true}
     >
