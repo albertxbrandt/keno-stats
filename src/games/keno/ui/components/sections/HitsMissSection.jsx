@@ -8,6 +8,7 @@ import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { Radio } from 'lucide-preact';
 
 /**
  * HitsMissSection Component
@@ -88,7 +89,7 @@ export function HitsMissSection() {
           e.target.style.borderColor = COLORS.border.light;
         }}
       >
-        <span>📡</span>
+        <Radio size={12} strokeWidth={2} />
         <span>Live Stats</span>
       </button>
       </div>

@@ -8,11 +8,23 @@ import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { savePanelVisibility, savePanelOrder } from '@/games/keno/core/storage.js';
 import { PANEL_SECTIONS } from '@/games/keno/ui/constants/sections.js';
+import { Map, Dices, Check, DollarSign, Search, Clock, ScrollText, GripVertical } from 'lucide-preact';
 
 export function SettingsPanel() {
   const [panelVisibility, setPanelVisibility] = useState({ ...state.panelVisibility });
   const [panelOrder, setPanelOrder] = useState([...(state.panelOrder || getDefaultOrder())]);
   const [draggedItem, setDraggedItem] = useState(null);
+
+  // Icon mapping for Lucide components
+  const iconComponents = {
+    'Map': Map,
+    'Dices': Dices,
+    'Check': Check,
+    'DollarSign': DollarSign,
+    'Search': Search,
+    'Clock': Clock,
+    'ScrollText': ScrollText
+  };
 
   // Get default order from PANEL_SECTIONS
   function getDefaultOrder() {
@@ -118,11 +130,28 @@ export function SettingsPanel() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: COLORS.text.tertiary, fontSize: '14px', cursor: 'grab' }}>
-                  ☰
+                <span style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: COLORS.text.tertiary,
+                  cursor: 'grab',
+                  opacity: 0.5
+                }}>
+                  <GripVertical size={16} strokeWidth={2} />
                 </span>
-                <span style={{ fontSize: '16px' }}>{section.icon}</span>
-                <span style={{ color: '#fff', fontSize: '12px' }}>{section.label}</span>
+                <span style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: COLORS.text.secondary,
+                  opacity: 0.7,
+                  flexShrink: 0
+                }}>
+                  {(() => {
+                    const IconComponent = iconComponents[section.icon];
+                    return IconComponent ? <IconComponent size={16} strokeWidth={2} /> : null;
+                  })()}
+                </span>
+                <span style={{ color: COLORS.text.primary, fontSize: '12px', fontWeight: 500 }}>{section.label}</span>
               </div>
               <ToggleSwitch
                 checked={panelVisibility[sectionId] !== false}

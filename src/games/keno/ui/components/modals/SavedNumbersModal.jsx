@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { Modal } from '@/shared/components/Modal.jsx';
+import { Save } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -102,7 +103,7 @@ export function SavedNumbersModal({ savedNumbers, onClose, onSelect, onDelete, o
   return (
     <Modal
       title="Saved Number Combinations"
-      icon="💾"
+      icon={<Save size={16} strokeWidth={2} />}
       onClose={onClose}
       defaultPosition={{ x: window.innerWidth / 2 - 250, y: 100 }}
       defaultSize={{ width: 500, height: 'auto' }}

@@ -15,7 +15,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
  * 
  * Displays a preview of the next numbers that will be selected when clicking "Select".
  * Shows:
- * - Method name with emoji (e.g., "🔥 Hot")
+ * - Method name with icon (e.g., "Hot")
  * - Auto-refresh countdown (e.g., "2/5 rounds" or "Manual")
  * - Predicted numbers with visual feedback for hits from last round
  * 
@@ -30,7 +30,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
  * Preview updates automatically when settings change (via stateEvents).
  */
 export function GeneratorPreview() {
-  const [methodDisplay, setMethodDisplay] = useState('🔥 Hot');
+  const [methodDisplay, setMethodDisplay] = useState('Hot');
   const [countdown, setCountdown] = useState('Manual');
   const [countdownColor, setCountdownColor] = useState('#666');
   const [previewNumbers, setPreviewNumbers] = useState([]);

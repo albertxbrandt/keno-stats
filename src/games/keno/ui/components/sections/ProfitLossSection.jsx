@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { DollarSign } from 'lucide-preact';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
@@ -106,7 +107,7 @@ export function ProfitLossSection() {
 
   return (
     <CollapsibleSection
-      icon="💰"
+      icon={<DollarSign size={14} strokeWidth={2} />}
       title="Profit/Loss"
       defaultExpanded={false}
       headerActions={

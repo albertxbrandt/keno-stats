@@ -9,6 +9,7 @@ import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { Map } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -76,7 +77,7 @@ export function HeatmapSection() {
 
   return (
     <CollapsibleSection
-      icon="🗺️"
+      icon={<Map size={14} strokeWidth={2} />}
       title="Heatmap"
       status={isEnabled ? 'Active' : 'Inactive'}
       defaultExpanded={false}
@@ -109,8 +110,8 @@ export function HeatmapSection() {
               cursor: 'pointer'
             }}
           >
-            <option value="hot">🔥 Hot Numbers</option>
-            <option value="trending">📈 Trending</option>
+            <option value="hot">Hot Numbers</option>
+            <option value="trending">Trending</option>
           </select>
         </div>
 

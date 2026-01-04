@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { Clock } from 'lucide-preact';
 import { state } from '@/games/keno/core/state.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';
@@ -64,7 +65,7 @@ export function RecentPlaysSection() {
 
   return (
     <CollapsibleSection
-      icon="🎯"
+      icon={<Clock size={14} strokeWidth={2} />}
       title="Recent Plays"
       defaultExpanded={false}
       headerExtra={

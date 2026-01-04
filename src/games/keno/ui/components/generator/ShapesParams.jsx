@@ -90,21 +90,21 @@ export function ShapesParams() {
             marginTop: '4px'
           }}
         >
-          <option value="smart">🧠 Smart Shape (Auto-Select Best)</option>
-          <option value="random">🎲 Random (Weighted Variety)</option>
-          <option value="plus">➕ Plus</option>
-          <option value="cross">✖️ Cross</option>
-          <option value="jesus">✝️ Jesus Saves</option>
-          <option value="lShape">🔲 L-Shape</option>
-          <option value="tShape">🅣 T-Shape</option>
-          <option value="cShape">🌙 C-Shape</option>
-          <option value="square">⬛ Square</option>
-          <option value="lineHorizontal">➖ Horizontal Line</option>
+          <option value="smart">Smart Shape (Auto-Select Best)</option>
+          <option value="random">Random (Weighted Variety)</option>
+          <option value="plus">Plus</option>
+          <option value="cross">Cross</option>
+          <option value="jesus">Jesus Saves</option>
+          <option value="lShape">L-Shape</option>
+          <option value="tShape">T-Shape</option>
+          <option value="cShape">C-Shape</option>
+          <option value="square">Square</option>
+          <option value="lineHorizontal">Horizontal Line</option>
           <option value="lineVertical">| Vertical Line</option>
-          <option value="diagonalDown">↘️ Diagonal Down</option>
-          <option value="diagonalUp">↗️ Diagonal Up</option>
-          <option value="zigzag">⚡ Zigzag</option>
-          <option value="arrow">➡️ Arrow</option>
+          <option value="diagonalDown">Diagonal Down</option>
+          <option value="diagonalUp">Diagonal Up</option>
+          <option value="zigzag">Zigzag</option>
+          <option value="arrow">Arrow</option>
         </select>
       </div>
 
@@ -124,10 +124,10 @@ export function ShapesParams() {
             marginTop: '4px'
           }}
         >
-          <option value="random">🎲 Random Position</option>
-          <option value="hot">🔥 Hot Numbers Area</option>
-          <option value="cold">❄️ Cold Numbers Area</option>
-          <option value="trending">📈 Trending Position</option>
+          <option value="random">Random Position</option>
+          <option value="hot">Hot Numbers Area</option>
+          <option value="cold">Cold Numbers Area</option>
+          <option value="trending">Trending Position</option>
         </select>
       </div>
 

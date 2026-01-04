@@ -143,8 +143,9 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = D
         alignItems: 'center',
         marginBottom: '10px'
       }}>
-        <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: 0 }}>
-          📈 Cumulative Profit/Loss
+        <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <TrendingUp size={14} strokeWidth={2} />
+          Cumulative Profit/Loss
         </h3>
       </div>
 

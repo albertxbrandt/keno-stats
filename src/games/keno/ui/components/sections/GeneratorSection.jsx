@@ -17,6 +17,7 @@ import { generateNumbers, selectPredictedNumbers } from '@/games/keno/ui/numberS
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { Dices, BarChart3 } from 'lucide-preact';
 
 /**
  * GeneratorSection Component
@@ -106,8 +107,8 @@ export function GeneratorSection() {
 
   return (
     <CollapsibleSection
-      title="🎲 Number Generator"
-      icon={null}
+      title="Number Generator"
+      icon={<Dices size={14} strokeWidth={2} />}
       dataSection="generator"
       titleColor={COLORS.accent.info}
       maxHeight={650}
@@ -199,7 +200,8 @@ export function GeneratorSection() {
           marginTop: '4px'
         }}
       >
-        📊 Compare Methods
+        <BarChart3 size={12} strokeWidth={2} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+        Compare Methods
       </button>
     </CollapsibleSection>
   );

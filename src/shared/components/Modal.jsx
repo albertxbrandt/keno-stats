@@ -115,7 +115,16 @@ export function Modal({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {icon && <span style={{ fontSize: '18px' }}>{icon}</span>}
+          {icon && (
+            <span style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              opacity: 0.8,
+              flexShrink: 0
+            }}>
+              {icon}
+            </span>
+          )}
           <span style={{ color: COLORS.accent.info, fontWeight: 700, fontSize: '14px' }}>{title}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

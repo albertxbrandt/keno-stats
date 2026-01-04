@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { Modal } from '@/shared/components/Modal.jsx';
+import { BarChart3 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -55,13 +56,13 @@ export function ComparisonWindow({ onClose }) {
 
   // Calculate method stats
   const methods = [
-    { name: 'Frequency', key: 'frequency', color: '#e17055', emoji: '🔥' },
-    { name: 'Cold', key: 'cold', color: '#74b9ff', emoji: '❄️' },
-    { name: 'Mixed', key: 'mixed', color: '#a29bfe', emoji: '🔀' },
-    { name: 'Average', key: 'average', color: '#55efc4', emoji: '📊' },
-    { name: 'Momentum', key: 'momentum', color: '#fdcb6e', emoji: '⚡' },
-    { name: 'Auto', key: 'auto', color: '#00cec9', emoji: '🤖' },
-    { name: 'Shapes', key: 'shapes', color: '#fd79a8', emoji: '🔷' }
+    { name: 'Frequency', key: 'frequency', color: '#e17055' },
+    { name: 'Cold', key: 'cold', color: '#74b9ff' },
+    { name: 'Mixed', key: 'mixed', color: '#a29bfe' },
+    { name: 'Average', key: 'average', color: '#55efc4' },
+    { name: 'Momentum', key: 'momentum', color: '#fdcb6e' },
+    { name: 'Auto', key: 'auto', color: '#00cec9' },
+    { name: 'Shapes', key: 'shapes', color: '#fd79a8' }
   ];
 
   const methodStats = methods.map(method => {
@@ -80,7 +81,7 @@ export function ComparisonWindow({ onClose }) {
     };
   }).sort((a, b) => b.totalProfit - a.totalProfit);
 
-  const rankBadges = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+  const rankBadges = ['1st', '2nd', '3rd', '4th', '5th'];
 
   // Method card component
   const MethodCard = ({ method, rank }) => {
@@ -249,7 +250,7 @@ export function ComparisonWindow({ onClose }) {
   return (
     <Modal
       title="Method Comparison"
-      icon="📊"
+      icon={<BarChart3 size={16} strokeWidth={2} />}
       onClose={onClose}
       headerExtra={headerExtra}
       defaultPosition={{ x: window.innerWidth - 520, y: 100 }}
@@ -318,16 +319,16 @@ export function ComparisonWindow({ onClose }) {
                     Round {point.round} <span style={{ color: '#555' }}>({point.difficulty || 'classic'})</span>
                   </span>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
-                    <span style={{ color: '#e17055' }}>🔥 {point.frequency.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#74b9ff' }}>❄️ {point.cold.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#a29bfe' }}>🔀 {point.mixed.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#55efc4' }}>📊 {point.average.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#e17055' }}>{point.frequency.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#74b9ff' }}>{point.cold.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#a29bfe' }}>{point.mixed.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#55efc4' }}>{point.average.profit.toFixed(1)}x</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
-                  <span style={{ color: '#fdcb6e' }}>⚡ {point.momentum.profit.toFixed(1)}x</span>
-                  <span style={{ color: '#00cec9' }}>🤖 {point.auto.profit.toFixed(1)}x</span>
-                  <span style={{ color: '#fd79a8' }}>🔷 {point.shapes.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#fdcb6e' }}>{point.momentum.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#00cec9' }}>{point.auto.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#fd79a8' }}>{point.shapes.profit.toFixed(1)}x</span>
                 </div>
               </div>
             ))

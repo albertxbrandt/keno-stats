@@ -70,13 +70,13 @@ export function updateGeneratorPreview() {
 
   // Update method label (if DOM exists)
   const methodNames = {
-    'frequency': '🔥 Hot',
-    'cold': '❄️ Cold',
-    'mixed': '🔀 Mixed',
-    'average': '📊 Average',
-    'momentum': '⚡ Momentum',
-    'auto': '🤖 Auto',
-    'shapes': '🔷 Shapes'
+    'frequency': 'Hot',
+    'cold': 'Cold',
+    'mixed': 'Mixed',
+    'average': 'Average',
+    'momentum': 'Momentum',
+    'auto': 'Auto',
+    'shapes': 'Shapes'
   };
   if (methodLabel) {
     methodLabel.textContent = methodNames[method] || method;

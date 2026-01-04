@@ -101,9 +101,26 @@ export function CollapsibleSection({
           padding: '4px 0'
         }}
       >
-        <span style={{ color: titleColor, fontWeight: 'bold', fontSize: '12px' }}>
-          {icon && <>{icon} </>}{title}
-        </span>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: titleColor,
+          fontWeight: 'bold',
+          fontSize: '12px'
+        }}>
+          {icon && (
+            <span style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              opacity: 0.7,
+              flexShrink: 0
+            }}>
+              {icon}
+            </span>
+          )}
+          <span>{title}</span>
+        </div>
         {headerActions}
       </div>
       

@@ -2,6 +2,7 @@
 // Draggable header bar for the overlay
 
 import { useRef } from 'preact/hooks';
+import { Settings, X } from 'lucide-preact';
 
 /**
  * DragHandle Component
@@ -11,7 +12,7 @@ import { useRef } from 'preact/hooks';
  * 
  * Features:
  * - Draggable functionality ✅
- * - Status indicator (active/inactive)
+ * - Status indicator (green = tracking active)
  * - Settings icon
  * - Close button
  * 
@@ -94,33 +95,65 @@ export function DragHandle({ onClose, onSettingsClick, onDragStart, onDrag, onDr
         borderTopRightRadius: '8px'
       }}
     >
-      <h3 style={{ margin: 0, color: '#fff', fontWeight: 'bold', pointerEvents: 'none' }}>
-        Keno Stats Tracker
-      </h3>
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center',
+        gap: '8px',
+        pointerEvents: 'none'
+      }}>
+        <h3 style={{ 
+          margin: 0, 
+          color: '#fff', 
+          fontWeight: '600',
+          fontSize: '13px',
+          letterSpacing: '0.01em'
+        }}>
+          Keno Stats Tracker
+        </h3>
+        <span 
+          id="tracker-status"
+          title="Tracker Active"
+          style={{ 
+            display: 'inline-block',
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            backgroundColor: isActive ? '#22c55e' : '#ef4444',
+            boxShadow: isActive ? '0 0 6px rgba(34, 197, 94, 0.6)' : '0 0 6px rgba(239, 68, 68, 0.6)'
+          }}
+        />
+      </div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <span 
           id="settings-icon"
           onClick={onSettingsClick}
-          style={{ cursor: 'pointer', fontSize: '16px', color: '#fff' }}
+          style={{ 
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            opacity: 0.7,
+            transition: 'opacity 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
           title="Settings"
         >
-          ⚙️
-        </span>
-        <span 
-          id="tracker-status"
-          style={{ 
-            color: isActive ? '#4ade80' : '#f87171', 
-            fontSize: '16px', 
-            pointerEvents: 'none' 
-          }}
-        >
-          ●
+          <Settings size={14} strokeWidth={2} color="#fff" />
         </span>
         <span 
           onClick={onClose}
-          style={{ cursor: 'pointer', fontWeight: 'bold', color: '#fff', fontSize: '14px' }}
+          style={{ 
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            opacity: 0.7,
+            transition: 'opacity 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+          title="Close"
         >
-          ✕
+          <X size={14} strokeWidth={2} color="#fff" />
         </span>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { clearHistory } from '@/shared/storage/history.js';
 import { highlightRound } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { ScrollText, BarChart3 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -60,7 +61,7 @@ export function HistorySection() {
 
   return (
     <CollapsibleSection
-      icon="📋"
+      icon={<ScrollText size={14} strokeWidth={2} />}
       title={`History (${history.length} rounds)`}
       defaultExpanded={false}
       headerExtra={
@@ -165,7 +166,8 @@ export function HistorySection() {
           onMouseEnter={(e) => e.target.style.opacity = '0.9'}
           onMouseLeave={(e) => e.target.style.opacity = '1'}
         >
-          📊 Open Dashboard
+          <BarChart3 size={12} strokeWidth={2} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+          Open Dashboard
         </button>
       </div>
     </CollapsibleSection>

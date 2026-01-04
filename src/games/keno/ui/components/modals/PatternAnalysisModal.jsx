@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { Modal } from '@/shared/components/Modal.jsx';
+import { Search, Save } from 'lucide-preact';
 import { state } from '@/games/keno/core/state.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
@@ -80,7 +81,8 @@ function PatternCard({ pattern, index, onSelect, onSave }) {
           }}
           title="Save this pattern"
         >
-          💾 Save
+          <Save size={10} strokeWidth={2} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '3px' }} />
+          Save
         </button>
       </div>
 
@@ -265,7 +267,7 @@ export function PatternAnalysisModal({
   return (
     <Modal
       title={`Pattern Analysis: ${patternSize} Numbers`}
-      icon="🔍"
+      icon={<Search size={16} strokeWidth={2} />}
       onClose={onClose}
       headerExtra={headerExtra}
       defaultPosition={{ x: window.innerWidth / 2 - 300, y: 50 }}

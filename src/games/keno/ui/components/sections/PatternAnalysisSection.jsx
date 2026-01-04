@@ -3,6 +3,7 @@
 
 import { useState } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { Search } from 'lucide-preact';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
@@ -36,7 +37,7 @@ export function PatternAnalysisSection() {
 
   return (
     <CollapsibleSection
-      icon="🔍"
+      icon={<Search size={14} strokeWidth={2} />}
       title="Pattern Analysis"
       defaultExpanded={false}
     >
