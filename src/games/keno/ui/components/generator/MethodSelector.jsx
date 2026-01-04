@@ -68,14 +68,14 @@ export function MethodSelector({ onChange }) {
           fontSize: '11px'
         }}
       >
-        <option value="frequency">🔥 Frequency (Hot Numbers)</option>
-        <option value="cold">❄️ Cold (Least Frequent)</option>
-        <option value="mixed">🔀 Mixed (Hot + Cold)</option>
-        <option value="average">📊 Average (Median Frequency)</option>
-        <option value="momentum">⚡ Momentum (Trending)</option>
-        <option value="auto">🤖 Auto (Best Performer)</option>
-        <option value="shapes">🔷 Shapes (Board Patterns)</option>
-        <option value="random">🎲 Random (Pure Luck)</option>
+        <option value="frequency">Hot Numbers</option>
+        <option value="cold">Cold Numbers</option>
+        <option value="random">Random (Pure Luck)</option>
+        <option value="mixed">Mixed (Hot + Cold)</option>
+        <option value="average">Average (Median Frequency)</option>
+        <option value="momentum">Trending</option>
+        <option value="shapes">Shapes</option>
+        <option value="auto">Auto</option>
       </select>
     </div>
   );
