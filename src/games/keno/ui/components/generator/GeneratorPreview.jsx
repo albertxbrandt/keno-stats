@@ -39,13 +39,13 @@ export function GeneratorPreview() {
 
   // Method name mappings
   const methodNames = {
-    'frequency': '🔥 Hot',
-    'cold': '❄️ Cold',
-    'mixed': '🔀 Mixed',
-    'average': '📊 Average',
-    'momentum': '⚡ Momentum',
-    'auto': '🤖 Auto',
-    'shapes': '🔷 Shapes'
+    'frequency': 'Hot',
+    'cold': 'Cold',
+    'mixed': 'Mixed',
+    'average': 'Average',
+    'momentum': 'Trending',
+    'auto': 'Auto',
+    'shapes': 'Shapes'
   };
 
   // Update preview when state changes
