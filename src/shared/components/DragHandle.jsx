@@ -3,6 +3,7 @@
 
 import { useRef } from 'preact/hooks';
 import { Settings, X } from 'lucide-preact';
+import { COLORS } from '@/shared/constants/colors.js';
 
 /**
  * DragHandle Component
@@ -89,7 +90,7 @@ export function DragHandle({ onClose, onSettingsClick, onDragStart, onDrag, onDr
         alignItems: 'center',
         cursor: 'move',
         userSelect: 'none',
-        background: '#1a2c38',
+        background: COLORS.bg.darkest,
         padding: '8px 12px',
         borderTopLeftRadius: '8px',
         borderTopRightRadius: '8px'
@@ -101,15 +102,6 @@ export function DragHandle({ onClose, onSettingsClick, onDragStart, onDrag, onDr
         gap: '8px',
         pointerEvents: 'none'
       }}>
-        <h3 style={{ 
-          margin: 0, 
-          color: '#fff', 
-          fontWeight: '600',
-          fontSize: '13px',
-          letterSpacing: '0.01em'
-        }}>
-          Keno Stats Tracker
-        </h3>
         <span 
           id="tracker-status"
           title="Tracker Active"
@@ -122,6 +114,16 @@ export function DragHandle({ onClose, onSettingsClick, onDragStart, onDrag, onDr
             boxShadow: isActive ? '0 0 6px rgba(34, 197, 94, 0.6)' : '0 0 6px rgba(239, 68, 68, 0.6)'
           }}
         />
+        <h3 style={{ 
+          margin: 0, 
+          color: '#fff', 
+          fontWeight: '600',
+          fontSize: '13px',
+          letterSpacing: '0.01em',
+          lineHeight: '1'
+        }}>
+          Keno Stats Tracker
+        </h3>
       </div>
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <span 
