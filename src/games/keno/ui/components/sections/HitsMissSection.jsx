@@ -27,37 +27,33 @@ import { Button } from '@/shared/components/Button.jsx';
  * <HitsMissSection />
  */
 export function HitsMissSection() {
-  // Parse comma-separated strings into arrays
+  // State for hits and misses arrays
   const [hitsArray, setHitsArray] = useState([]);
   const [missesArray, setMissesArray] = useState([]);
   const [hitsCollapsed, setHitsCollapsed] = useState(false);
   const [missesCollapsed, setMissesCollapsed] = useState(true);
+  const [roundId, setRoundId] = useState(Date.now());
   const { showLiveStats } = useModals();
 
   // Subscribe to round updates
   useEffect(() => {
-    const updateFromState = () => {
-      const hitsStr = state.trackerHits || '';
-      const missesStr = state.trackerMisses || '';
-      
-      // Parse comma-separated strings into number arrays
-      const hits = hitsStr === '-' || hitsStr === '' 
-        ? [] 
-        : hitsStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
-      
-      const misses = missesStr === '-' || missesStr === '' 
-        ? [] 
-        : missesStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
-      
-      setHitsArray(hits);
-      setMissesArray(misses);
+    const updateFromEvent = (eventData) => {
+      // Use arrays directly from event payload
+      setHitsArray(eventData.hits || []);
+      setMissesArray(eventData.misses || []);
+      setRoundId(Date.now()); // Force re-render with new unique keys
     };
 
-    // Initial update
-    updateFromState();
+    // Initial update from state (if available)
+    if (state.trackerHits && Array.isArray(state.trackerHits)) {
+      setHitsArray(state.trackerHits);
+    }
+    if (state.trackerMisses && Array.isArray(state.trackerMisses)) {
+      setMissesArray(state.trackerMisses);
+    }
 
     // Subscribe to round saved event
-    const unsubscribe = stateEvents.on(EVENTS.ROUND_SAVED, updateFromState);
+    const unsubscribe = stateEvents.on(EVENTS.ROUND_SAVED, updateFromEvent);
 
     return () => unsubscribe();
   }, []);
@@ -107,9 +103,18 @@ export function HitsMissSection() {
             alignItems: 'flex-start',
             justifyContent: 'flex-start'
           }}>
-            {hitsArray.map(num => (
+            {hitsArray.length === 0 ? (
+              <span style={{ 
+                fontSize: '11px', 
+                color: COLORS.text.tertiary,
+                fontStyle: 'italic'
+              }}>
+                No hits this round
+              </span>
+            ) : (
+              hitsArray.map(num => (
                 <span
-                  key={num}
+                  key={`hit-${roundId}-${num}`}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -127,7 +132,8 @@ export function HitsMissSection() {
                 >
                   {num}
                 </span>
-              ))}
+              ))
+            )}
           </div>
         )}
       </div>
@@ -170,9 +176,18 @@ export function HitsMissSection() {
             alignItems: 'flex-start',
             justifyContent: 'flex-start'
           }}>
-            {missesArray.map(num => (
+            {missesArray.length === 0 ? (
+              <span style={{ 
+                fontSize: '11px', 
+                color: COLORS.text.tertiary,
+                fontStyle: 'italic'
+              }}>
+                No misses this round
+              </span>
+            ) : (
+              missesArray.map(num => (
                 <span
-                  key={num}
+                  key={`miss-${roundId}-${num}`}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -190,7 +205,8 @@ export function HitsMissSection() {
                 >
                   {num}
                 </span>
-              ))}
+              ))
+            )}
           </div>
         )}
       </div>
