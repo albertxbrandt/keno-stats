@@ -151,27 +151,20 @@ export function GeneratorPreview() {
         border: `1px solid ${COLORS.border.light}`,
         cursor: 'pointer'
       }}>
+      {/* Header Row */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '4px'
+        marginBottom: SPACING.xs
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{
-            color: COLORS.accent.info,
-            fontSize: '9px',
-            fontWeight: '600'
-          }}>
-            Next Numbers:
-          </span>
-          <ToggleSwitch
-            checked={alwaysShowPreview}
-            onChange={handleToggleChange}
-            label="Always Show"
-            labelSize="8px"
-          />
-        </div>
+        <span style={{
+          color: COLORS.accent.info,
+          fontSize: '9px',
+          fontWeight: '600'
+        }}>
+          Next Numbers
+        </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             color: COLORS.text.tertiary,
@@ -188,13 +181,15 @@ export function GeneratorPreview() {
           </span>
         </div>
       </div>
-      
+
+      {/* Numbers Display */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         gap: '4px',
         minHeight: '24px',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: SPACING.xs
       }}>
         {previewNumbers.length === 0 ? (
           <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>-</span>
@@ -242,6 +237,28 @@ export function GeneratorPreview() {
             }
           })
         )}
+      </div>
+
+      {/* Toggle Row */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        paddingTop: SPACING.xs,
+        borderTop: `1px solid ${COLORS.border.default}`
+      }}>
+        <ToggleSwitch
+          checked={alwaysShowPreview}
+          onChange={handleToggleChange}
+          label=""
+          labelSize="8px"
+        />
+        <span style={{
+          color: COLORS.text.secondary,
+          fontSize: '8px'
+        }}>
+          Highlight on board
+        </span>
       </div>
     </div>
   );
