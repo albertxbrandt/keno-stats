@@ -30,7 +30,6 @@ import { BORDER_RADIUS } from '@/shared/constants/styles.js';
  * <MomentumParams />
  */
 export function MomentumParams() {
-  const [currentNumbers, setCurrentNumbers] = useState('-');
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
   
   // Get default values based on sample size
@@ -52,30 +51,18 @@ export function MomentumParams() {
       setBaselineWindow(state.momentumBaselineGames || (sampleSize * 4));
       setThreshold(state.momentumThreshold || 1.5);
       setPoolSize(state.momentumPoolSize || 15);
-      updateCurrentNumbers();
     };
 
     // Initial update
     updateFromState();
 
     // Subscribe to state change events
-    const unsubGenerator = stateEvents.on(EVENTS.GENERATOR_UPDATED, updateCurrentNumbers);
     const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updateFromState);
 
     return () => {
-      unsubGenerator();
       unsubSettings();
     };
   }, []);
-
-  const updateCurrentNumbers = () => {
-    const nums = state.momentumCurrentNumbers;
-    if (nums && nums.length > 0) {
-      setCurrentNumbers(nums.join(', '));
-    } else {
-      setCurrentNumbers('-');
-    }
-  };
 
   const handleDetectionChange = (value) => {
     setDetectionWindow(value);
@@ -126,33 +113,6 @@ export function MomentumParams() {
 
   return (
     <div style={{ marginBottom: '8px' }}>
-      {/* Current numbers display */}
-      <div style={{
-        marginBottom: '6px',
-        padding: '6px',
-        background: COLORS.bg.darkest,
-        borderRadius: BORDER_RADIUS.sm
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2px'
-        }}>
-          <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>
-            Current Numbers:
-          </span>
-          <span style={{
-            color: COLORS.accent.info,
-            fontSize: '8px',
-            fontWeight: '500',
-            lineHeight: '1.3',
-            wordBreak: 'break-all'
-          }}>
-            {currentNumbers}
-          </span>
-        </div>
-      </div>
-
       {/* Advanced settings toggle */}
       <div
         onClick={() => setAdvancedExpanded(!advancedExpanded)}

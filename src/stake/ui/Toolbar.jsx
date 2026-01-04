@@ -106,27 +106,32 @@ export function Toolbar() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: SPACING.sm,
+            padding: SPACING.md,
             background: COLORS.bg.darkest,
             borderTopLeftRadius: '8px',
             borderTopRightRadius: '8px',
-            borderBottom: collapsed ? 'none' : '1px solid #1a2c38',
-            marginBottom: collapsed ? '0' : '0',
+            borderBottom: '1px solid #1a2c38',
           }}
         >
           {!collapsed && (
             <div
               style={{
-                fontWeight: 'bold',
+                fontWeight: '600',
                 color: COLORS.TEXT_PRIMARY,
-                fontSize: '14px',
+                fontSize: '16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: SPACING.xs,
+                gap: '10px',
+                letterSpacing: '0.01em'
               }}
             >
-              <Dices size={18} strokeWidth={2} style={{ opacity: 0.9 }} />
+              <Dices size={20} strokeWidth={2} style={{ opacity: 0.9 }} />
               Stake Tools
+            </div>
+          )}
+          {collapsed && (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Dices size={20} strokeWidth={2} style={{ opacity: 0.9, color: COLORS.TEXT_PRIMARY }} />
             </div>
           )}
           <button
@@ -151,6 +156,39 @@ export function Toolbar() {
         {/* Menu */}
         {!collapsed && (
           <div class="toolbar-menu" style={{ padding: SPACING.sm }}>
+            {/* Games Section */}
+            <div style={{ 
+              fontSize: '11px', 
+              fontWeight: '600', 
+              color: COLORS.text.tertiary, 
+              marginBottom: '6px',
+              marginTop: '4px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              Games
+            </div>
+            <ToolbarButton
+              icon={<Dices size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              label="Keno"
+              onClick={() => {
+                const currentOrigin = window.location.origin;
+                window.location.href = `${currentOrigin}/casino/games/keno`;
+              }}
+            />
+            
+            {/* Utilities Section */}
+            <div style={{ 
+              fontSize: '11px', 
+              fontWeight: '600', 
+              color: COLORS.text.tertiary, 
+              marginBottom: '6px',
+              marginTop: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              Utilities
+            </div>
             <ToolbarButton
               icon={<Coins size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
               label="Coin Flipper"
@@ -201,7 +239,7 @@ function ToolbarButton({ icon, label, subtitle, onClick }) {
         textAlign: 'left',
         display: 'flex',
         alignItems: 'center',
-        gap: SPACING.SM,
+        gap: '10px',
         borderRadius: '4px',
         transition: 'background 0.15s ease',
       }}
@@ -214,7 +252,7 @@ function ToolbarButton({ icon, label, subtitle, onClick }) {
     >
       <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>{icon}</span>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '13px', fontWeight: '500', marginLeft: SPACING.SM }}>{label}</div>
+        <div style={{ fontSize: '14px', fontWeight: '500' }}>{label}</div>
         {subtitle && (
           <div
             style={{
