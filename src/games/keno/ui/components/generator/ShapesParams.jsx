@@ -27,37 +27,25 @@ import { SPACING } from '@/shared/constants/styles.js';
 export function ShapesParams() {
   const [pattern, setPattern] = useState(state.shapesPattern || 'smart');
   const [placement, setPlacement] = useState(state.shapesPlacement || 'random');
-  const [currentShape, setCurrentShape] = useState('-');
 
   // Sync with global state on mount and when generator updates
   useEffect(() => {
     const updateFromState = () => {
       setPattern(state.shapesPattern || 'smart');
       setPlacement(state.shapesPlacement || 'random');
-      updateCurrentShapeDisplay();
     };
 
     // Initial update
     updateFromState();
     
     // Subscribe to state change events
-    const unsubGenerator = stateEvents.on(EVENTS.GENERATOR_UPDATED, updateCurrentShapeDisplay);
     const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updateFromState);
 
     return () => {
-      unsubGenerator();
       unsubSettings();
     };
   }, []);
 
-  const updateCurrentShapeDisplay = () => {
-    const lastShape = state.shapesLastShape;
-    if (lastShape && lastShape.emoji && lastShape.name && lastShape.numbers) {
-      setCurrentShape(`${lastShape.emoji} ${lastShape.name}\n${lastShape.numbers.join(', ')}`);
-    } else {
-      setCurrentShape('-');
-    }
-  };
 
   const handlePatternChange = (e) => {
     const newPattern = e.target.value;
@@ -130,29 +118,6 @@ export function ShapesParams() {
           <option value="cold">Cold Numbers Area</option>
           <option value="trending">Trending Position</option>
         </select>
-      </div>
-
-      <div style={{
-        padding: '6px',
-        background: '#14202b',
-        borderRadius: '4px',
-        border: '1px solid #fd79a830'
-      }}>
-        <div style={{
-          color: '#fd79a8',
-          fontSize: '9px',
-          marginBottom: '2px'
-        }}>
-          Current Shape:
-        </div>
-        <div style={{
-          color: '#aaa',
-          fontSize: '9px',
-          lineHeight: '1.4',
-          whiteSpace: 'pre-line'
-        }}>
-          {currentShape}
-        </div>
       </div>
     </div>
   );
