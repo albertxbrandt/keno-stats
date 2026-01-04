@@ -7,6 +7,7 @@ import { state } from '@/games/keno/core/state.js';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { initButtonPreviewHighlight } from '@/games/keno/ui/previewHighlight.js';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { Button } from '@/shared/components/Button.jsx';
 import { GeneratorPreview } from '../generator/GeneratorPreview.jsx';
 import { MethodSelector } from '../generator/MethodSelector.jsx';
 import { AutoRefreshControl } from '../generator/AutoRefreshControl.jsx';
@@ -16,7 +17,7 @@ import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 import { generateNumbers, selectPredictedNumbers } from '@/games/keno/ui/numberSelection.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { SPACING } from '@/shared/constants/styles.js';
 import { Dices, BarChart3 } from 'lucide-preact';
 
 /**
@@ -165,43 +166,29 @@ export function GeneratorSection() {
       <GeneratorPreview />
 
       {/* Action buttons */}
-      <button
-        ref={selectButtonRef}
-        onClick={handleSelectClick}
-        id="generate-numbers-btn"
-        style={{
-          width: '100%',
-          background: COLORS.accent.info,
-          color: COLORS.text.primary,
-          border: 'none',
-          padding: SPACING.sm,
-          borderRadius: BORDER_RADIUS.sm,
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          fontSize: '12px',
-          marginTop: '0px'
-        }}
-      >
-        Select
-      </button>
+      <div ref={selectButtonRef}>
+        <Button
+          variant="primary"
+          size="md"
+          fullWidth
+          onClick={handleSelectClick}
+          id="generate-numbers-btn"
+        >
+          Select
+        </Button>
+      </div>
 
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
+        fullWidth
         onClick={handleCompareClick}
-        style={{
-          width: '100%',
-          background: COLORS.bg.darker,
-          color: COLORS.accent.info,
-          border: `1px solid ${COLORS.border.light}`,
-          padding: '4px',
-          borderRadius: BORDER_RADIUS.sm,
-          cursor: 'pointer',
-          fontSize: '9px',
-          marginTop: '4px'
-        }}
+        icon={<BarChart3 size={12} strokeWidth={2} />}
+        iconPosition="left"
+        style={{ marginTop: '4px' }}
       >
-        <BarChart3 size={12} strokeWidth={2} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
         Compare Methods
-      </button>
+      </Button>
     </CollapsibleSection>
   );
 }

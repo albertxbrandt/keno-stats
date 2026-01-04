@@ -2,6 +2,7 @@
 // Button to open advanced refresh rules modal
 
 import { useState, useEffect } from 'preact/hooks';
+import { Button } from '@/shared/components/Button.jsx';
 import { state } from '@/games/keno/core/state.js';
 import { AdvancedRulesModal } from '../modals/AdvancedRulesModal.jsx';
 import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
@@ -58,35 +59,23 @@ export function AdvancedRulesSection({ onToggle }) {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setIsModalOpen(true)}
+          icon={<Settings size={13} strokeWidth={2} />}
+          iconPosition="left"
           style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
             padding: '0',
-            transition: 'all 0.2s'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.querySelector('span').style.textDecoration = 'underline';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.querySelector('span').style.textDecoration = 'none';
+            fontSize: '10px',
+            color: COLORS.text.secondary,
+            background: 'transparent',
+            border: 'none'
           }}
           title="Configure Advanced Rules"
         >
-          <Settings size={13} strokeWidth={2} color={COLORS.text.secondary} style={{ opacity: 0.8 }} />
-          <span style={{ 
-            color: COLORS.text.secondary, 
-            fontSize: '10px',
-            transition: 'text-decoration 0.2s'
-          }}>
-            Advanced Rules:
-          </span>
-        </button>
+          Advanced Rules:
+        </Button>
         <ToggleSwitch
           checked={isEnabled}
           onChange={(e) => handleToggle(e.target.checked)}

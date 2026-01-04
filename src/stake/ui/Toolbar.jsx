@@ -117,21 +117,21 @@ export function Toolbar() {
             <div
               style={{
                 fontWeight: '600',
-                color: COLORS.TEXT_PRIMARY,
-                fontSize: '16px',
+                color: '#fff',
+                fontSize: '14px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
                 letterSpacing: '0.01em'
               }}
             >
-              <Dices size={20} strokeWidth={2} style={{ opacity: 0.9 }} />
+              <Dices size={18} strokeWidth={2} style={{ opacity: 0.9 }} />
               Stake Tools
             </div>
           )}
           {collapsed && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Dices size={20} strokeWidth={2} style={{ opacity: 0.9, color: COLORS.TEXT_PRIMARY }} />
+              <Dices size={18} strokeWidth={2} style={{ opacity: 0.9, color: '#fff' }} />
             </div>
           )}
           <button
@@ -155,13 +155,16 @@ export function Toolbar() {
 
         {/* Menu */}
         {!collapsed && (
-          <div class="toolbar-menu" style={{ padding: SPACING.sm }}>
+          <div class="toolbar-menu" style={{ 
+            padding: SPACING.sm,
+            background: COLORS.bg.dark
+          }}>
             {/* Games Section */}
             <div style={{ 
-              fontSize: '11px', 
+              fontSize: '12px', 
               fontWeight: '600', 
               color: COLORS.text.tertiary, 
-              marginBottom: '6px',
+              marginBottom: '8px',
               marginTop: '4px',
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
@@ -169,7 +172,7 @@ export function Toolbar() {
               Games
             </div>
             <ToolbarButton
-              icon={<Dices size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              icon={<Dices size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Keno"
               onClick={() => {
                 const currentOrigin = window.location.origin;
@@ -179,38 +182,40 @@ export function Toolbar() {
             
             {/* Utilities Section */}
             <div style={{ 
-              fontSize: '11px', 
+              fontSize: '12px', 
               fontWeight: '600', 
               color: COLORS.text.tertiary, 
-              marginBottom: '6px',
+              marginBottom: '8px',
               marginTop: '12px',
+              paddingTop: '12px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
               Utilities
             </div>
             <ToolbarButton
-              icon={<Coins size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              icon={<Coins size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Coin Flipper"
               onClick={() => handleUtilityClick('coinFlipper')}
             />
             <ToolbarButton
-              icon={<Hash size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              icon={<Hash size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Random Numbers"
               onClick={() => handleUtilityClick('randomGen')}
             />
             <ToolbarButton
-              icon={<Gamepad2 size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              icon={<Gamepad2 size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Random Game"
               onClick={() => handleUtilityClick('randomGamePicker')}
             />
             <ToolbarButton
-              icon={<Sparkles size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              icon={<Sparkles size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Magic 8-Ball"
               onClick={() => handleUtilityClick('magic8Ball')}
             />
             <ToolbarButton
-              icon={<Link size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.8 }} />}
+              icon={<Link size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Win Links"
               onClick={() => handleUtilityClick('winLinks')}
               subtitle="Coming soon"
@@ -235,16 +240,16 @@ function ToolbarButton({ icon, label, subtitle, onClick }) {
         border: 'none',
         color: COLORS.TEXT_PRIMARY,
         cursor: 'pointer',
-        padding: SPACING.SM,
+        padding: '10px 12px',
         textAlign: 'left',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-        borderRadius: '4px',
+        gap: '12px',
+        borderRadius: '6px',
         transition: 'background 0.15s ease',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = COLORS.bg.dark;
+        e.currentTarget.style.background = COLORS.bg.darker;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = 'transparent';
@@ -252,11 +257,11 @@ function ToolbarButton({ icon, label, subtitle, onClick }) {
     >
       <span style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>{icon}</span>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '14px', fontWeight: '500' }}>{label}</div>
+        <div style={{ fontSize: '14px', fontWeight: '600', color: 'rgba(255, 255, 255, 0.92)' }}>{label}</div>
         {subtitle && (
           <div
             style={{
-              fontSize: '11px',
+              fontSize: '10px',
               color: COLORS.TEXT_SECONDARY,
               fontStyle: 'italic',
             }}

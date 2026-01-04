@@ -4,8 +4,10 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { findCommonPatterns } from '@/shared/utils/calculations/patternAlgorithms.js';
+import { Button } from '@/shared/components/Button.jsx';
+import { Play, Pause, X } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { SPACING, BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '@/shared/constants/styles.js';
 
 /**
  * LivePatternAnalysisModal Component
@@ -200,21 +202,13 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
         <h3 style={{ margin: 0, color: COLORS.accent.info, fontSize: '16px', pointerEvents: 'none' }}>
           🔴 Live Pattern Analysis
         </h3>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={handleClose}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: COLORS.text.primary,
-            fontSize: '20px',
-            cursor: 'pointer',
-            padding: 0,
-            width: '24px',
-            height: '24px'
-          }}
-        >
-          ✕
-        </button>
+          icon={<X size={14} strokeWidth={2} />}
+          style={{ padding: '4px' }}
+        />
       </div>
       
       {/* Settings */}
@@ -340,22 +334,16 @@ export function LivePatternAnalysisModal({ isOpen, onClose }) {
           </div>
         </div>
         
-        <button
+        <Button
+          variant={isRunning ? 'danger' : 'success'}
+          size="md"
+          fullWidth
           onClick={isRunning ? handleStop : handleStart}
-          style={{
-            width: '100%',
-            background: isRunning ? COLORS.accent.error : COLORS.accent.success,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.sm,
-            borderRadius: BORDER_RADIUS.sm,
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
+          icon={isRunning ? <Pause size={14} strokeWidth={2} /> : <Play size={14} strokeWidth={2} />}
+          iconPosition="left"
         >
-          {isRunning ? '⏸ Stop Live Analysis' : '▶ Start Live Analysis'}
-        </button>
+          {isRunning ? 'Stop Live Analysis' : 'Start Live Analysis'}
+        </Button>
       </div>
       
       {/* Status */}

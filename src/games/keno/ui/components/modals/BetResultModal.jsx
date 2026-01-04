@@ -2,6 +2,8 @@
 // Modal displaying detailed bet result breakdown
 
 import { h } from 'preact';
+import { Button } from '@/shared/components/Button.jsx';
+import { X } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS } from '@/shared/constants/styles.js';
 
@@ -177,38 +179,19 @@ export function BetResultModal({ round, betIndex, totalRounds, hits, misses, sel
       >
         {/* Header */}
         <div style={{ position: 'relative', marginBottom: '14px' }}>
-          <button
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: '-8px',
-              right: '-8px',
-              width: '24px',
-              height: '24px',
-              background: 'transparent',
-              border: 'none',
-              color: COLORS.accent.error,
-              fontSize: '24px',
-              fontWeight: '400',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              padding: 0,
-              lineHeight: 1
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.2)';
-              e.currentTarget.style.color = '#ff6b6b';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.color = COLORS.accent.error;
-            }}
-          >
-            ×
-          </button>
+          <div style={{
+            position: 'absolute',
+            top: '-8px',
+            right: '-8px'
+          }}>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={onClose}
+              icon={<X size={14} strokeWidth={2} />}
+              style={{ padding: '4px' }}
+            />
+          </div>
           <div>
             <h2 style={{ margin: '0 0 4px 0', color: COLORS.text.primary, fontSize: '18px', fontWeight: '600' }}>
               Bet Result

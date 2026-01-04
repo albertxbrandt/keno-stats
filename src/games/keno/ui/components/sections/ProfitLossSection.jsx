@@ -3,12 +3,13 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { Button } from '@/shared/components/Button.jsx';
 import { DollarSign } from 'lucide-preact';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS } from '@/shared/constants/styles.js';
 
 /**
  * ProfitLossSection Component
@@ -159,26 +160,15 @@ export function ProfitLossSection() {
         </div>
 
         {/* Reset Session Button */}
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
+          fullWidth
           onClick={handleResetSession}
-          style={{
-            width: '100%',
-            background: COLORS.bg.darker,
-            color: COLORS.accent.info,
-            border: 'none',
-            padding: SPACING.inputPadding,
-            borderRadius: BORDER_RADIUS.sm,
-            fontSize: '10px',
-            cursor: 'pointer',
-            marginTop: '2px',
-            fontWeight: '500',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#344e64'}
-          onMouseLeave={(e) => e.target.style.background = '#2a3b4a'}
+          style={{ marginTop: '2px' }}
         >
           Reset Session
-        </button>
+        </Button>
       </div>
     </CollapsibleSection>
   );

@@ -5,7 +5,8 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { Modal } from '@/shared/components/Modal.jsx';
-import { BarChart3 } from 'lucide-preact';
+import { Button } from '@/shared/components/Button.jsx';
+import { BarChart3, ChevronDown, ChevronUp } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -275,21 +276,16 @@ export function ComparisonWindow({ onClose }) {
               <MethodCard key={method.key} method={method} rank={index + 3} />
             ))}
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
+            fullWidth
             onClick={() => setShowOthers(!showOthers)}
-            style={{
-              width: '100%',
-              background: '#2a3f4f',
-              color: '#74b9ff',
-              border: '1px solid #3a5f6f',
-              padding: '6px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '10px'
-            }}
+            icon={showOthers ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            iconPosition="right"
           >
-            {showOthers ? 'Show Less ▲' : 'Show More Methods ▼'}
-          </button>
+            {showOthers ? 'Show Less' : 'Show More Methods'}
+          </Button>
         </>
       )}
 

@@ -9,6 +9,7 @@ import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 import { CheckCircle2, XCircle, Radio, ChevronDown, ChevronUp } from 'lucide-preact';
+import { Button } from '@/shared/components/Button.jsx';
 
 /**
  * HitsMissSection Component
@@ -195,37 +196,17 @@ export function HitsMissSection() {
       </div>
       
       {/* Live Stats Button */}
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
+        fullWidth
         onClick={showLiveStats}
-        style={{
-          marginTop: '4px',
-          width: '100%',
-          padding: '6px 10px',
-          background: COLORS.bg.darker,
-          color: COLORS.accent.info,
-          border: `1px solid ${COLORS.border.light}`,
-          borderRadius: BORDER_RADIUS.sm,
-          fontSize: '11px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          transition: 'all 0.2s',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '6px'
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.background = COLORS.bg.darkest;
-          e.target.style.borderColor = COLORS.accent.info;
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background = COLORS.bg.darker;
-          e.target.style.borderColor = COLORS.border.light;
-        }}
+        icon={<Radio size={12} strokeWidth={2} />}
+        iconPosition="left"
+        style={{ marginTop: '4px' }}
       >
-        <Radio size={12} strokeWidth={2} />
-        <span>Live Stats</span>
-      </button>
+        Live Stats
+      </Button>
     </div>
   );
 }

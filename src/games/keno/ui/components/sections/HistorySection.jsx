@@ -7,6 +7,7 @@ import { clearHistory } from '@/shared/storage/history.js';
 import { highlightRound } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { Button } from '@/shared/components/Button.jsx';
 import { ScrollText, BarChart3 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
@@ -149,26 +150,16 @@ export function HistorySection() {
         </div>
 
         {/* Open Bet Book Button */}
-        <button
+        <Button
+          variant="warning"
+          size="sm"
+          fullWidth
           onClick={handleOpenBetBook}
-          style={{
-            width: '100%',
-            background: '#ffd700',
-            color: '#222',
-            border: 'none',
-            padding: '8px 10px',
-            borderRadius: '4px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '11px',
-            transition: 'opacity 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-          onMouseLeave={(e) => e.target.style.opacity = '1'}
+          icon={<BarChart3 size={12} strokeWidth={2} />}
+          iconPosition="left"
         >
-          <BarChart3 size={12} strokeWidth={2} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
           Open Dashboard
-        </button>
+        </Button>
       </div>
     </CollapsibleSection>
   );

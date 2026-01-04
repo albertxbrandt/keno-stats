@@ -170,20 +170,15 @@ export function MomentumParams() {
             <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
               Uses Sample Size × 4 for baseline
             </span>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleReset}
-              style={{
-                background: COLORS.bg.darker,
-                color: COLORS.accent.info,
-                border: `1px solid ${COLORS.border.light}`,
-                padding: '2px 6px',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                fontSize: '8px'
-              }}
+              icon={<RotateCcw size={10} strokeWidth={2} />}
+              style={{ fontSize: '8px', padding: '2px 6px' }}
             >
               Reset
-            </button>
+            </Button>
           </div>
 
           <div style={{

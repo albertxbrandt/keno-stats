@@ -3,11 +3,12 @@
 
 import { useState } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
-import { Search } from 'lucide-preact';
+import { Search, Radio } from 'lucide-preact';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { Button } from '@/shared/components/Button.jsx';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS } from '@/shared/constants/styles.js';
 
 /**
  * PatternAnalysisSection Component
@@ -55,52 +56,29 @@ export function PatternAnalysisSection() {
             placeholder="3-10"
             style={{ flex: 1 }}
           />
-          <button
-            onClick={handleAnalyze}
-            style={{
-              flex: 1,
-              background: COLORS.accent.warning,
-              color: '#222',
-              border: 'none',
-              padding: SPACING.inputPadding,
-              borderRadius: BORDER_RADIUS.sm,
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              fontSize: '11px',
-              transition: 'opacity 0.2s'
-            }}
-            onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-            onMouseLeave={(e) => e.target.style.opacity = '1'}
-          >
-            Analyze
-          </button>
+          <div style={{ flex: 1 }}>
+            <Button
+              variant="warning"
+              size="sm"
+              fullWidth
+              onClick={handleAnalyze}
+            >
+              Analyze
+            </Button>
+          </div>
         </div>
 
         {/* Live Analysis Toggle Button */}
-        <button
+        <Button
+          variant="success"
+          size="sm"
+          fullWidth
           onClick={handleLiveToggle}
-          style={{
-            width: '100%',
-            background: COLORS.accent.success,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.sm,
-            borderRadius: BORDER_RADIUS.sm,
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '11px',
-            transition: 'background 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#059669'}
-          onMouseLeave={(e) => e.target.style.background = COLORS.accent.success}
+          icon={<Radio size={12} strokeWidth={2} />}
+          iconPosition="left"
         >
-          <span style={{ fontSize: '14px' }}>🔴</span>
           Start Live Analysis
-        </button>
+        </Button>
 
         {/* Info Text */}
         <div style={{
