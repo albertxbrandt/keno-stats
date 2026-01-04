@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { SPACING } from '@/shared/constants/styles.js';
+import { SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * MethodSelector Component
@@ -51,7 +51,7 @@ export function MethodSelector({ onChange }) {
 
   return (
     <div style={{ marginBottom: SPACING.sm }}>
-      <span style={{ color: '#aaa', fontSize: '10px' }}>
+      <span style={{ color: '#aaa', fontSize: FONT_SIZES.sm }}>
         Method:
       </span>
       <select
@@ -66,7 +66,7 @@ export function MethodSelector({ onChange }) {
           borderRadius: '4px',
           marginTop: '4px',
           cursor: 'pointer',
-          fontSize: '11px'
+          fontSize: FONT_SIZES.base
         }}
       >
         <option value="frequency">Hot Numbers</option>

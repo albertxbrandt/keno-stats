@@ -17,7 +17,7 @@ import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 import { generateNumbers, selectPredictedNumbers } from '@/games/keno/ui/numberSelection.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { SPACING } from '@/shared/constants/styles.js';
+import { SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 import { Dices, BarChart3 } from 'lucide-preact';
 
 /**
@@ -123,7 +123,7 @@ export function GeneratorSection() {
       }}>
         {/* Count input */}
         <div style={{ flex: 1 }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>
             Count:
           </span>
           <NumberInput
@@ -138,7 +138,7 @@ export function GeneratorSection() {
 
         {/* Sample size input (universal - used by all generators) */}
         <div style={{ flex: 1 }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>
             Sample Size:
           </span>
           <NumberInput

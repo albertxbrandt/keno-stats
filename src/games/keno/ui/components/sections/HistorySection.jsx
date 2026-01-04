@@ -10,7 +10,7 @@ import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { Button } from '@/shared/components/Button.jsx';
 import { ScrollText, BarChart3 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -73,7 +73,7 @@ export function HistorySection() {
             border: 'none',
             color: COLORS.accent.error,
             cursor: 'pointer',
-            fontSize: '11px',
+            fontSize: FONT_SIZES.sm,
             fontWeight: 'bold',
             padding: '0',
             transition: 'opacity 0.2s'
@@ -117,7 +117,7 @@ export function HistorySection() {
                   marginBottom: '3px',
                   background: COLORS.bg.dark,
                   borderRadius: BORDER_RADIUS.sm,
-                  fontSize: '10px',
+                  fontSize: FONT_SIZES.xs,
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',

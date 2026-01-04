@@ -17,7 +17,7 @@ import { HistorySection } from './sections/HistorySection.jsx';
 import { DragHandle } from '@/shared/components/DragHandle.jsx';
 import { SettingsPanel } from './SettingsPanel.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
-import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
+import { SPACING, BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';
 
 // Component mapping for sections
 const SECTION_COMPONENTS = {
@@ -160,7 +160,7 @@ export function Overlay() {
         position: 'fixed',
         ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
         top: `${position.top}px`,
-        width: '240px',
+        width: '280px',
         backgroundColor: COLORS.bg.darker,
         color: '#fff',
         padding: '0',
@@ -169,7 +169,7 @@ export function Overlay() {
         fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
         border: '1px solid #1a2c38',
         boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
-        fontSize: '11px',
+        fontSize: FONT_SIZES.base,
         display: isVisible ? 'block' : 'none',
         overflow: 'visible'
       }}

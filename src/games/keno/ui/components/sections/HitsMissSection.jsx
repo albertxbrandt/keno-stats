@@ -31,7 +31,7 @@ export function HitsMissSection() {
   const [hitsArray, setHitsArray] = useState([]);
   const [missesArray, setMissesArray] = useState([]);
   const [hitsCollapsed, setHitsCollapsed] = useState(false);
-  const [missesCollapsed, setMissesCollapsed] = useState(false);
+  const [missesCollapsed, setMissesCollapsed] = useState(true);
   const { showLiveStats } = useModals();
 
   // Subscribe to round updates
@@ -102,8 +102,8 @@ export function HitsMissSection() {
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: '7px',
-            minHeight: '34px',
+            gap: '3px',
+            minHeight: '26px',
             alignItems: 'flex-start',
             justifyContent: 'flex-start'
           }}>
@@ -114,10 +114,10 @@ export function HitsMissSection() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '34px',
-                    height: '34px',
+                    width: '26px',
+                    height: '26px',
                     borderRadius: '4px',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     fontWeight: '600',
                     lineHeight: '1',
                     background: 'rgba(39, 174, 96, 0.15)',
@@ -165,8 +165,8 @@ export function HitsMissSection() {
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: '7px',
-            minHeight: '34px',
+            gap: '3px',
+            minHeight: '21px',
             alignItems: 'flex-start',
             justifyContent: 'flex-start'
           }}>
@@ -177,10 +177,10 @@ export function HitsMissSection() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    width: '34px',
-                    height: '34px',
+                    width: '21px',
+                    height: '21px',
                     borderRadius: '4px',
-                    fontSize: '11px',
+                    fontSize: '10px',
                     fontWeight: '600',
                     lineHeight: '1',
                     background: 'rgba(235, 77, 75, 0.15)',

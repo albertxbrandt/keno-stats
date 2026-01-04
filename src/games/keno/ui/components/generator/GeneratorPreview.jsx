@@ -192,7 +192,7 @@ export function GeneratorPreview() {
         marginBottom: SPACING.xs
       }}>
         {previewNumbers.length === 0 ? (
-          <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>-</span>
+          <span style={{ color: COLORS.text.tertiary, fontSize: '11px' }}>-</span>
         ) : (
           previewNumbers.map(({ number, wasHit }) => {
             const baseStyle = {
