@@ -6,6 +6,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
+import { SPACING } from '@/shared/constants/styles.js';
 
 /**
  * ShapesParams Component
@@ -73,8 +74,8 @@ export function ShapesParams() {
   };
 
   return (
-    <div style={{ marginBottom: '8px' }}>
-      <div style={{ marginBottom: '8px' }}>
+    <div style={{ marginBottom: SPACING.sm }}>
+      <div style={{ marginBottom: SPACING.sm }}>
         <span style={{ color: '#aaa', fontSize: '10px' }}>Pattern:</span>
         <select
           value={pattern}
@@ -108,7 +109,7 @@ export function ShapesParams() {
         </select>
       </div>
 
-      <div style={{ marginBottom: '8px' }}>
+      <div style={{ marginBottom: SPACING.sm }}>
         <span style={{ color: '#aaa', fontSize: '10px' }}>Placement:</span>
         <select
           value={placement}

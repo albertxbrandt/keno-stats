@@ -4,8 +4,10 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { AdvancedRulesModal } from '../modals/AdvancedRulesModal.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { Settings } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS } from '@/shared/constants/styles.js';
+import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 
 /**
  * AdvancedRulesSection Component
@@ -38,46 +40,59 @@ export function AdvancedRulesSection({ onToggle }) {
     }
   };
 
+  const handleToggle = (checked) => {
+    state.generatorAdvancedRules = state.generatorAdvancedRules || {};
+    state.generatorAdvancedRules.enabled = checked;
+    setIsEnabled(checked);
+    if (onToggle) {
+      onToggle(checked);
+    }
+    // Save settings
+    saveGeneratorSettings();
+  };
+
   return (
     <>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          background: isEnabled ? COLORS.accent.blue + '33' : COLORS.bg.darker,
-          color: isEnabled ? COLORS.accent.blue : COLORS.text.secondary,
-          border: `1px solid ${isEnabled ? COLORS.accent.blue : COLORS.border.light}`,
-          borderRadius: BORDER_RADIUS.xs,
-          fontSize: '10px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          transition: 'all 0.2s'
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background = isEnabled ? COLORS.accent.blue + '44' : COLORS.bg.medium;
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background = isEnabled ? COLORS.accent.blue + '33' : COLORS.bg.darker;
-        }}
-      >
-        <span>⚙️ Advanced Rules</span>
-        {isEnabled && (
-          <span style={{
-            padding: '2px 6px',
-            background: COLORS.accent.blue,
-            borderRadius: BORDER_RADIUS.xs,
-            fontSize: '8px',
-            fontWeight: '700',
-            color: COLORS.text.primary
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '0',
+            transition: 'all 0.2s'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.querySelector('span').style.textDecoration = 'underline';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.querySelector('span').style.textDecoration = 'none';
+          }}
+          title="Configure Advanced Rules"
+        >
+          <Settings size={13} strokeWidth={2} color={COLORS.text.secondary} style={{ opacity: 0.8 }} />
+          <span style={{ 
+            color: COLORS.text.secondary, 
+            fontSize: '10px',
+            transition: 'text-decoration 0.2s'
           }}>
-            ON
+            Advanced Rules:
           </span>
-        )}
-      </button>
+        </button>
+        <ToggleSwitch
+          checked={isEnabled}
+          onChange={(e) => handleToggle(e.target.checked)}
+          dotId="generator-advanced-rules-dot"
+        />
+      </div>
 
       {isModalOpen && (
         <AdvancedRulesModal onClose={handleCloseModal} />

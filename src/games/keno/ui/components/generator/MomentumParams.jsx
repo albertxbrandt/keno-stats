@@ -8,7 +8,7 @@ import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**
  * MomentumParams Component
@@ -112,7 +112,7 @@ export function MomentumParams() {
   };
 
   return (
-    <div style={{ marginBottom: '8px' }}>
+    <div style={{ marginBottom: SPACING.sm }}>
       {/* Advanced settings toggle */}
       <div
         onClick={() => setAdvancedExpanded(!advancedExpanded)}

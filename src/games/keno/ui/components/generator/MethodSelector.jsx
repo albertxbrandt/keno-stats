@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
+import { SPACING } from '@/shared/constants/styles.js';
 
 /**
  * MethodSelector Component
@@ -49,7 +50,7 @@ export function MethodSelector({ onChange }) {
   };
 
   return (
-    <div style={{ marginBottom: '8px' }}>
+    <div style={{ marginBottom: SPACING.sm }}>
       <span style={{ color: '#aaa', fontSize: '10px' }}>
         Method:
       </span>
