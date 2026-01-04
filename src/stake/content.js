@@ -51,6 +51,14 @@ function initToolbar() {
     return;
   }
 
+  // Remove existing toolbar if present (prevents duplicates on extension reload)
+  const existingToolbar = document.getElementById('stake-toolbar-root');
+  if (existingToolbar) {
+    existingToolbar.remove();
+    // eslint-disable-next-line no-console
+    console.log('[Stake] Removed existing toolbar');
+  }
+
   // Create toolbar container
   const toolbarContainer = document.createElement('div');
   toolbarContainer.id = 'stake-toolbar-root';
