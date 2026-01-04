@@ -9,11 +9,11 @@ export const COLORS = {
     darkest: '#14202b'
   },
 
-  // Text colors
+  // Text colors (improved contrast for WCAG AA compliance)
   text: {
-    primary: '#fff',
-    secondary: '#888',
-    tertiary: '#666'
+    primary: '#ffffff',
+    secondary: '#b8c5d0',  // Improved from #888 (4.5:1 contrast ratio)
+    tertiary: '#8b9ba8'    // Improved from #666 (3.5:1 contrast ratio for large text)
   },
 
   // Accent colors
@@ -24,10 +24,10 @@ export const COLORS = {
     error: '#ff7675'
   },
 
-  // Border colors
+  // Border colors (improved visibility)
   border: {
-    default: '#333',
-    light: '#2a3b4a',
-    lighter: '#1a2c38'
+    default: '#3d4f5c',    // Improved from #333
+    light: '#344e64',      // Improved from #2a3b4a
+    lighter: '#2a3f4f'     // Improved from #1a2c38
   }
 };

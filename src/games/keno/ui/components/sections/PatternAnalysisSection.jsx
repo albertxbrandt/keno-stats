@@ -8,7 +8,7 @@ import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { Button } from '@/shared/components/Button.jsx';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * PatternAnalysisSection Component
@@ -45,7 +45,7 @@ export function PatternAnalysisSection() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {/* Pattern Size Input and Analyze Button */}
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '11px', whiteSpace: 'nowrap' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm, whiteSpace: 'nowrap' }}>
             Size:
           </span>
           <NumberInput
@@ -83,7 +83,7 @@ export function PatternAnalysisSection() {
         {/* Info Text */}
         <div style={{
           color: COLORS.text.tertiary,
-          fontSize: '9px',
+          fontSize: FONT_SIZES.xs,
           lineHeight: '1.3',
           padding: '4px',
           background: COLORS.bg.darkest,

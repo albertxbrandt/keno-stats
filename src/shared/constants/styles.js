@@ -19,14 +19,14 @@ export const BORDER_RADIUS = {
   lg: '8px'    // containers, modals
 };
 
-// Font sizes
+// Font sizes (improved for accessibility - WCAG AA compliance)
 export const FONT_SIZES = {
-  xs: '10px',    // small labels
-  sm: '11px',    // inputs
-  base: '12px',  // body text
-  md: '13px',
-  lg: '14px',    // headings
-  xl: '15px'     // modal titles
+  xs: '11px',    // small helper text (minimum readable)
+  sm: '12px',    // labels, inputs
+  base: '13px',  // body text, content
+  md: '14px',    // emphasized text
+  lg: '15px',    // section headings
+  xl: '16px'     // modal titles
 };
 
 // Reusable input/select styles

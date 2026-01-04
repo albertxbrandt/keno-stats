@@ -10,7 +10,7 @@ import { useModals } from '@/games/keno/hooks/useModals.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * RecentPlaysSection Component
@@ -77,7 +77,7 @@ export function RecentPlaysSection() {
             e.stopPropagation();
             handleViewSavedNumbers();
           }}
-          style={{ fontSize: '9px' }}
+          style={{ fontSize: FONT_SIZES.xs }}
         >
           Saved Combos
         </Button>
@@ -97,7 +97,7 @@ export function RecentPlaysSection() {
         {recentPlays.length === 0 ? (
           <div style={{
             color: COLORS.text.tertiary,
-            fontSize: '10px',
+            fontSize: FONT_SIZES.xs,
             padding: SPACING.sm,
             textAlign: 'center'
           }}>
@@ -124,7 +124,7 @@ export function RecentPlaysSection() {
                   flex: 1,
                   cursor: 'pointer',
                   color: COLORS.text.primary,
-                  fontSize: '11px',
+                  fontSize: FONT_SIZES.sm,
                   fontWeight: 'bold',
                   userSelect: 'none'
                 }}
