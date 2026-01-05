@@ -2,6 +2,8 @@
 // Bet history section (moved from betbook)
 
 import { useState, useEffect } from 'preact/hooks';
+import { Download, Trash2, Settings } from 'lucide-preact';
+import { Button } from '@/shared/components/Button.jsx';
 import { BetTable } from '../components/BetTable.jsx';
 import { SearchBar } from '../components/SearchBar.jsx';
 import { Pagination } from '../components/Pagination.jsx';
