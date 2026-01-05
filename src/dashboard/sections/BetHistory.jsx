@@ -2,7 +2,7 @@
 // Bet history section (moved from betbook)
 
 import { useState, useEffect } from 'preact/hooks';
-import { Download, Trash2, Settings } from 'lucide-preact';
+import { Download, Trash2, Settings, Upload } from 'lucide-preact';
 import { Button } from '@/shared/components/Button.jsx';
 import { BetTable } from '../components/BetTable.jsx';
 import { SearchBar } from '../components/SearchBar.jsx';
@@ -224,6 +224,10 @@ export function BetHistory() {
     }
   };
 
+  const handleUpload = () => {
+    document.getElementById('fileInput').click();
+  };
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -265,20 +269,15 @@ export function BetHistory() {
         marginBottom: SPACING.lg,
         flexWrap: 'wrap'
       }}>
-        <button
-          onClick={() => document.getElementById('fileInput').click()}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
+        <Button
+          variant="secondary"
+          size="md"
+          icon={<Upload size={16} />}
+          iconPosition="left"
+          onClick={handleUpload}
         >
-          📂 Upload History
-        </button>
+          Upload History
+        </Button>
         
         <Button
           variant="secondary"

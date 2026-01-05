@@ -279,9 +279,13 @@ export function BetDetailsModal({ bet, onClose }) {
           <h3 style={{
             color: COLORS.text.primary,
             fontSize: '1.1em',
-            marginBottom: SPACING.sm
+            marginBottom: SPACING.sm,
+            display: 'flex',
+            alignItems: 'center',
+            gap: SPACING.xs
           }}>
-            🎯 Number Board
+            <Target size={18} color={COLORS.accent.info} />
+            Number Board
           </h3>
           {renderBoard()}
           
@@ -292,10 +296,22 @@ export function BetDetailsModal({ bet, onClose }) {
             display: 'grid',
             gap: '4px'
           }}>
-            <div>🟢 <span style={{ color: COLORS.accent.success, fontWeight: 'bold' }}>Green</span> = Hit (Selected & Drawn)</div>
-            <div>🟣 <span style={{ color: '#7b2cbf', fontWeight: 'bold' }}>Purple</span> = Selected (Not Drawn)</div>
-            <div>🔴 <span style={{ color: COLORS.accent.error, fontWeight: 'bold' }}>Red</span> = Drawn (Not Selected)</div>
-            <div>⬜ <span style={{ color: COLORS.text.secondary }}>Gray</span> = Not selected or drawn</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+              <Circle size={12} fill={COLORS.accent.success} color={COLORS.accent.success} />
+              <span style={{ color: COLORS.accent.success, fontWeight: 'bold' }}>Green</span> = Hit (Selected & Drawn)
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+              <Circle size={12} fill="#7b2cbf" color="#7b2cbf" />
+              <span style={{ color: '#7b2cbf', fontWeight: 'bold' }}>Purple</span> = Selected (Not Drawn)
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+              <Circle size={12} fill={COLORS.accent.error} color={COLORS.accent.error} />
+              <span style={{ color: COLORS.accent.error, fontWeight: 'bold' }}>Red</span> = Drawn (Not Selected)
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+              <Circle size={12} fill={COLORS.text.tertiary} color={COLORS.text.tertiary} />
+              <span style={{ color: COLORS.text.secondary }}>Gray</span> = Not selected or drawn
+            </div>
           </div>
         </div>
 
