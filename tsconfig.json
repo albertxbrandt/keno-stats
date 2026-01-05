@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    // Target modern browsers
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    
+    // Module resolution
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    
+    // JSX configuration for Preact
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    
+    // Path aliases (matches esbuild --alias:@=./src)
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    
+    // Type checking
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    
+    // Allow JS files during migration
+    "allowJs": true,
+    "checkJs": false,
+    
+    // Skip lib checking for faster builds
+    "skipLibCheck": true,
+    
+    // Output
+    "noEmit": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "data",
+    "archived"
+  ]
+}

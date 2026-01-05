@@ -5,12 +5,13 @@
   "description": "Keno Stats extension - bundled build with esbuild",
   "scripts": {
     "build": "npm run build:stake && npm run build:dashboard",
-    "build:stake": "esbuild src/stake/content.js --bundle --minify --sourcemap --outfile=dist/stake.bundle.js --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
-    "build:dashboard": "esbuild src/dashboard/dashboard-entry.js --bundle --minify --sourcemap --outfile=dist/dashboard.bundle.js --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
-    "watch": "esbuild src/stake/content.js --bundle --outfile=dist/stake.bundle.js --watch --platform=browser --loader:.js=jsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
+    "build:stake": "esbuild src/stake/content.js --bundle --minify --sourcemap --outfile=dist/stake.bundle.js --platform=browser --loader:.js=jsx --loader:.ts=ts --loader:.tsx=tsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
+    "build:dashboard": "esbuild src/dashboard/dashboard-entry.js --bundle --minify --sourcemap --outfile=dist/dashboard.bundle.js --platform=browser --loader:.js=jsx --loader:.ts=ts --loader:.tsx=tsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
+    "watch": "esbuild src/stake/content.js --bundle --outfile=dist/stake.bundle.js --watch --platform=browser --loader:.js=jsx --loader:.ts=ts --loader:.tsx=tsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
     "dev": "web-ext run --source-dir . --url https://stake.com/casino/games/keno --watch-file dist/content.bundle.js",
-    "lint": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\"",
-    "lint:fix": "eslint \"**/*.{js,jsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\" --fix"
+    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\"",
+    "lint:fix": "eslint \"**/*.{js,jsx,ts,tsx}\" --ignore-pattern \"node_modules/**\" --ignore-pattern \"dist/**\" --ignore-pattern \"data/**\" --fix",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@eslint/css": "^0.14.1",
@@ -18,11 +19,14 @@
     "@eslint/json": "^0.14.0",
     "@eslint/markdown": "^7.5.1",
     "@playwright/test": "^1.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
     "esbuild": "^0.18.17",
     "eslint": "^9.39.2",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^14.0.0",
     "playwright": "^1.57.0",
+    "typescript": "^5.9.3",
     "web-ext": "^8.3.0"
   },
   "dependencies": {
