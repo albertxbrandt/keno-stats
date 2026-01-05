@@ -166,7 +166,7 @@ export function GeneratorPreview() {
       }}>
         <span style={{
           color: COLORS.accent.info,
-          fontSize: '9px',
+          fontSize: FONT_SIZES.xs,
           fontWeight: '600'
         }}>
           Next Numbers
@@ -174,13 +174,13 @@ export function GeneratorPreview() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             color: COLORS.text.tertiary,
-            fontSize: '8px'
+            fontSize: FONT_SIZES.xs
           }}>
             {methodDisplay}
           </span>
           <span style={{
             color: countdownColor,
-            fontSize: '8px',
+            fontSize: FONT_SIZES.xs,
             fontWeight: '600'
           }}>
             {countdown}
@@ -205,7 +205,7 @@ export function GeneratorPreview() {
               display: 'inline-block',
               padding: '4px 8px',
               borderRadius: '4px',
-              fontSize: '10px',
+              fontSize: FONT_SIZES.xs,
               fontWeight: '600',
               transition: 'all 0.2s'
             };
@@ -264,7 +264,7 @@ export function GeneratorPreview() {
           color: COLORS.text.secondary,
           fontSize: FONT_SIZES.xs
         }}>
-          Highlight
+          Highlight on board
         </span>
       </div>
     </div>

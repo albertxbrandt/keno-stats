@@ -10,7 +10,7 @@ import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { Button } from '@/shared/components/Button.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { RotateCcw } from 'lucide-preact';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * MomentumParams Component
@@ -134,14 +134,14 @@ export function MomentumParams() {
         }}>
           <span style={{
             color: COLORS.accent.info,
-            fontSize: '9px',
+            fontSize: FONT_SIZES.xs,
             fontWeight: '600'
           }}>
             ⚙️ Advanced Settings
           </span>
           <span style={{
             color: COLORS.accent.info,
-            fontSize: '10px',
+            fontSize: FONT_SIZES.xs,
             transform: advancedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 0.3s ease'
           }}>
@@ -169,7 +169,7 @@ export function MomentumParams() {
             alignItems: 'center',
             marginBottom: '6px'
           }}>
-            <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
+            <span style={{ color: COLORS.text.tertiary, fontSize: FONT_SIZES.xs }}>
               Uses Sample Size × 4 for baseline
             </span>
             <Button
@@ -177,7 +177,7 @@ export function MomentumParams() {
               size="sm"
               onClick={handleReset}
               icon={<RotateCcw size={10} strokeWidth={2} />}
-              style={{ fontSize: '8px', padding: '2px 6px' }}
+              style={{ fontSize: FONT_SIZES.xs, padding: '2px 6px' }}
             >
               Reset
             </Button>
@@ -190,7 +190,7 @@ export function MomentumParams() {
             marginBottom: '6px'
           }}>
             <div>
-              <span style={{ color: COLORS.text.secondary, fontSize: '9px' }}>
+              <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.xs }}>
                 Detection:
               </span>
               <NumberInput
@@ -203,7 +203,7 @@ export function MomentumParams() {
               />
             </div>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: '#aaa', fontSize: FONT_SIZES.xs }}>
                 Baseline:
               </span>
               <NumberInput
@@ -216,7 +216,7 @@ export function MomentumParams() {
               />
             </div>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: '#aaa', fontSize: FONT_SIZES.xs }}>
                 Threshold:
               </span>
               <NumberInput
@@ -229,7 +229,7 @@ export function MomentumParams() {
               />
             </div>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: '#aaa', fontSize: FONT_SIZES.xs }}>
                 Pool:
               </span>
               <NumberInput
