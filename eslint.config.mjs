@@ -34,6 +34,7 @@ export default [
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_"
       }],
+      "no-undef": "error",  // Catch undefined variables including missing JSX imports
       "react/jsx-uses-react": "error",  // Prevent React/Preact being marked as unused
       "react/jsx-uses-vars": "error",   // Prevent variables used in JSX being marked as unused
       "no-console": ["warn", {

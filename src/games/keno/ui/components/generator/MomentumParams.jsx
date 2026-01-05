@@ -8,6 +8,7 @@ import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
+import { RotateCcw } from 'lucide-preact';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
 /**

@@ -7,6 +7,7 @@ import { getDrawn } from '@/games/keno/core/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 import { DEFAULTS } from '@/shared/constants/defaults.js';
+import { TrendingUp, TrendingDown } from 'lucide-preact';
 
 /**
  * ProfitLossGraph - Displays cumulative profit/loss line graph
