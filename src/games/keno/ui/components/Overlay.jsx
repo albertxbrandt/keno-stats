@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { constrainToViewport } from '@/shared/utils/viewport.js';
-import { HitsMissSection } from './sections/HitsMissSection.jsx';
+import { HitsMissSection } from './sections/HitsMissSection.tsx';
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
 import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
