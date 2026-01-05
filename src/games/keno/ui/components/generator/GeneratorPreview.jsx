@@ -63,7 +63,13 @@ export function GeneratorPreview() {
       if (!autoRefresh) {
         setCountdown('Manual');
         setCountdownColor(COLORS.text.tertiary);
+      } else if (state.generatorAdvancedRules?.enabled) {
+        // Advanced rules: condition-based, not interval-based
+        const roundsSinceRefresh = currentRound - lastRefresh;
+        setCountdown(`${roundsSinceRefresh} rounds (rules)`);
+        setCountdownColor(COLORS.accent.warning);
       } else {
+        // Standard interval-based refresh
         const roundsSinceRefresh = currentRound - lastRefresh;
         const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
         setCountdown(`${roundsUntilRefresh}/${interval} rounds`);
@@ -257,7 +263,7 @@ export function GeneratorPreview() {
           color: COLORS.text.secondary,
           fontSize: '8px'
         }}>
-          Highlight on board
+          Highlight
         </span>
       </div>
     </div>

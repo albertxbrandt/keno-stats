@@ -87,7 +87,13 @@ export function updateGeneratorPreview() {
     if (!autoRefresh) {
       roundsLabel.textContent = 'Manual';
       roundsLabel.style.color = COLORS.text.tertiary;
+    } else if (state.generatorAdvancedRules?.enabled) {
+      // Advanced rules: condition-based, not interval-based
+      const roundsSinceRefresh = currentRound - lastRefresh;
+      roundsLabel.textContent = `${roundsSinceRefresh} rounds (rules)`;
+      roundsLabel.style.color = COLORS.accent.warning;
     } else {
+      // Standard interval-based refresh
       const roundsSinceRefresh = currentRound - lastRefresh;
       const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
       roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;
