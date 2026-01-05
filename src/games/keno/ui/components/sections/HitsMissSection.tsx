@@ -16,13 +16,7 @@ import {
   ChevronUp,
 } from "lucide-preact";
 import { Button } from "@/shared/components/Button.jsx";
-
-interface RoundSavedEvent {
-  hits: number[];
-  misses: number[];
-  drawn: number[];
-  selected: number[];
-}
+import type { RoundSavedEvent } from "@/shared/types/api.js";
 
 /**
  * HitsMissSection Component
