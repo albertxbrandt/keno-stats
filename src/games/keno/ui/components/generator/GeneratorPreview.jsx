@@ -8,7 +8,7 @@ import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { initPreviewBoxHighlight } from '@/games/keno/ui/previewHighlight.js';
 import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * GeneratorPreview Component
@@ -249,7 +249,8 @@ export function GeneratorPreview() {
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '6px',
+        gap: SPACING.xs,
+        marginTop: SPACING.sm,
         paddingTop: SPACING.xs,
         borderTop: `1px solid ${COLORS.border.default}`
       }}>
@@ -257,11 +258,11 @@ export function GeneratorPreview() {
           checked={alwaysShowPreview}
           onChange={handleToggleChange}
           label=""
-          labelSize="8px"
+          labelSize={FONT_SIZES.xs}
         />
         <span style={{
           color: COLORS.text.secondary,
-          fontSize: '8px'
+          fontSize: FONT_SIZES.xs
         }}>
           Highlight
         </span>
