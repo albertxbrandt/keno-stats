@@ -278,51 +278,36 @@ export function BetHistory() {
           📂 Upload History
         </button>
         
-        <button
+        <Button
+          variant="secondary"
+          size="md"
+          icon={<Download size={16} />}
+          iconPosition="left"
           onClick={handleExport}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
         >
-          💾 Export
-        </button>
+          Export
+        </Button>
 
-        <button
+        <Button
+          variant="danger"
+          size="md"
+          icon={<Trash2 size={16} />}
+          iconPosition="left"
           onClick={handleDeleteAll}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.accent.error,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
         >
-          🗑️ Delete All
-        </button>
+          Delete All
+        </Button>
 
-        <button
+        <Button
+          variant="secondary"
+          size="md"
+          icon={<Settings size={16} />}
+          iconPosition="left"
           onClick={() => setIsSettingsOpen(true)}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px',
-            marginLeft: 'auto'
-          }}
+          style={{ marginLeft: 'auto' }}
         >
-          ⚙️ Columns
-        </button>
+          Columns
+        </Button>
 
         <input
           id="fileInput"

@@ -2,6 +2,7 @@
 // Main dashboard application component
 
 import { useState } from 'preact/hooks';
+import { BarChart3, TrendingUp, Search } from 'lucide-preact';
 import { Sidebar } from './components/Sidebar.jsx';
 import { BetHistory } from './sections/BetHistory.jsx';
 import { Statistics } from './sections/Statistics.jsx';
@@ -23,9 +24,9 @@ export function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const tabs = [
-    { id: 'history', label: '📊 Bet History', component: BetHistory },
-    { id: 'stats', label: '📈 Statistics', component: Statistics },
-    { id: 'analytics', label: '🔍 Analytics', component: Analytics }
+    { id: 'history', label: 'Bet History', icon: <BarChart3 size={16} />, component: BetHistory },
+    { id: 'stats', label: 'Statistics', icon: <TrendingUp size={16} />, component: Statistics },
+    { id: 'analytics', label: 'Analytics', icon: <Search size={16} />, component: Analytics }
   ];
 
   const ActiveComponent = tabs.find(t => t.id === activeTab)?.component || BetHistory;
@@ -77,9 +78,13 @@ export function Dashboard() {
             <h1 style={{
               margin: 0,
               fontSize: '1.5em',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: SPACING.sm
             }}>
-              📊 {activeGame.charAt(0).toUpperCase() + activeGame.slice(1)} Stats
+              <BarChart3 size={24} color={COLORS.accent.info} />
+              {activeGame.charAt(0).toUpperCase() + activeGame.slice(1)} Stats
             </h1>
 
             {/* Tab Navigation */}
@@ -100,7 +105,10 @@ export function Dashboard() {
                     cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: activeTab === tab.id ? 'bold' : 'normal',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: SPACING.xs
                   }}
                   onMouseEnter={(e) => {
                     if (activeTab !== tab.id) {
@@ -115,6 +123,7 @@ export function Dashboard() {
                     }
                   }}
                 >
+                  {tab.icon}
                   {tab.label}
                 </button>
               ))}

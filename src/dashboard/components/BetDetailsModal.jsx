@@ -100,13 +100,22 @@ export function BetDetailsModal({ bet, onClose }) {
     if (!bet.generator) return null;
 
     const gen = bet.generator;
+    const methodIcons = {
+      frequency: <Flame size={14} color={COLORS.accent.warning} />,
+      cold: <Snowflake size={14} color={COLORS.accent.info} />,
+      mixed: <Shuffle size={14} color={COLORS.text.secondary} />,
+      average: <BarChart3 size={14} color={COLORS.accent.success} />,
+      momentum: <Rocket size={14} color={COLORS.accent.error} />,
+      shapes: <Shapes size={14} color={COLORS.accent.info} />
+    };
+    
     const methodNames = {
-      frequency: '🔥 Frequency (Hot)',
-      cold: '❄️ Cold',
-      mixed: '🔀 Mixed',
-      average: '📊 Average',
-      momentum: '🚀 Momentum',
-      shapes: '🔷 Shapes'
+      frequency: 'Frequency (Hot)',
+      cold: 'Cold',
+      mixed: 'Mixed',
+      average: 'Average',
+      momentum: 'Momentum',
+      shapes: 'Shapes'
     };
 
     return (
@@ -120,12 +129,24 @@ export function BetDetailsModal({ bet, onClose }) {
         <h3 style={{
           color: COLORS.text.primary,
           fontSize: '1.1em',
-          marginBottom: SPACING.sm
+          marginBottom: SPACING.sm,
+          display: 'flex',
+          alignItems: 'center',
+          gap: SPACING.xs
         }}>
-          🎲 Number Generator Used
+          <Dices size={18} color={COLORS.accent.info} />
+          Number Generator Used
         </h3>
         <div style={{ display: 'grid', gap: SPACING.xs, fontSize: '13px' }}>
-          <DetailRow label="Method" value={methodNames[gen.method] || gen.method} />
+          <DetailRow 
+            label="Method" 
+            value={
+              <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                {methodIcons[gen.method]}
+                {methodNames[gen.method] || gen.method}
+              </div>
+            } 
+          />
           <DetailRow label="Count" value={gen.count} />
           <DetailRow label="Refresh" value={gen.interval === 0 ? 'Manual' : `${gen.interval} rounds`} />
           <DetailRow label="Auto-select" value={gen.autoSelect ? 'Yes' : 'No'} />
@@ -191,9 +212,13 @@ export function BetDetailsModal({ bet, onClose }) {
           <h2 style={{
             margin: 0,
             color: COLORS.text.primary,
-            fontSize: '1.5em'
+            fontSize: '1.5em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: SPACING.sm
           }}>
-            📊 Bet Details
+            <BarChart3 size={24} color={COLORS.accent.info} />
+            Bet Details
           </h2>
           <button
             onClick={onClose}
@@ -201,12 +226,13 @@ export function BetDetailsModal({ bet, onClose }) {
               background: 'transparent',
               border: 'none',
               color: COLORS.text.secondary,
-              fontSize: '24px',
               cursor: 'pointer',
-              padding: '0 8px'
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center'
             }}
           >
-            ✕
+            <X size={24} />
           </button>
         </div>
 
@@ -215,9 +241,13 @@ export function BetDetailsModal({ bet, onClose }) {
           <h3 style={{
             color: COLORS.text.primary,
             fontSize: '1.1em',
-            marginBottom: SPACING.sm
+            marginBottom: SPACING.sm,
+            display: 'flex',
+            alignItems: 'center',
+            gap: SPACING.xs
           }}>
-            📊 Bet Information
+            <BarChart3 size={18} color={COLORS.accent.info} />
+            Bet Information
           </h3>
           <DetailRow label="Date" value={formatDate(bet.time)} />
           {bet.id && <DetailRow label="Bet ID" value={bet.id} />}

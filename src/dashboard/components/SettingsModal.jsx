@@ -1,4 +1,6 @@
 // src/dashboard/components/SettingsModal.jsx
+import { X } from 'lucide-preact';
+import { Button } from '@/shared/components/Button.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -36,7 +38,7 @@ export function SettingsModal({ columnVisibility, onColumnVisibilityChange, onCl
     >
       <div
         style={{
-          background: COLORS.background.secondary,
+          background: COLORS.bg.darker,
           padding: SPACING.xl,
           borderRadius: BORDER_RADIUS.lg,
           maxWidth: '400px',
@@ -76,22 +78,15 @@ export function SettingsModal({ columnVisibility, onColumnVisibilityChange, onCl
           ))}
         </div>
 
-        <button
+        <Button
+          variant="secondary"
+          size="md"
+          fullWidth
           onClick={onClose}
-          style={{
-            width: '100%',
-            marginTop: SPACING.lg,
-            padding: SPACING.md,
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
+          style={{ marginTop: SPACING.lg }}
         >
           Close
-        </button>
+        </Button>
       </div>
     </div>
   );
