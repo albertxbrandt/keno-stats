@@ -41,7 +41,8 @@
     "isolatedModules": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "interceptor.ts"
   ],
   "exclude": [
     "node_modules",

@@ -4,7 +4,8 @@
   "private": true,
   "description": "Keno Stats extension - bundled build with esbuild",
   "scripts": {
-    "build": "npm run build:stake && npm run build:dashboard",
+    "build": "npm run build:interceptor && npm run build:stake && npm run build:dashboard",
+    "build:interceptor": "esbuild interceptor.ts --bundle --minify --sourcemap --outfile=dist/interceptor.js --platform=browser --loader:.ts=ts --alias:@=./src",
     "build:stake": "esbuild src/stake/content.js --bundle --minify --sourcemap --outfile=dist/stake.bundle.js --platform=browser --loader:.js=jsx --loader:.ts=ts --loader:.tsx=tsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
     "build:dashboard": "esbuild src/dashboard/dashboard-entry.js --bundle --minify --sourcemap --outfile=dist/dashboard.bundle.js --platform=browser --loader:.js=jsx --loader:.ts=ts --loader:.tsx=tsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
     "watch": "esbuild src/stake/content.js --bundle --outfile=dist/stake.bundle.js --watch --platform=browser --loader:.js=jsx --loader:.ts=ts --loader:.tsx=tsx --jsx=automatic --jsx-import-source=preact --alias:@=./src --loader:.json=json",
