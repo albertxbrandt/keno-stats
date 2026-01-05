@@ -8,7 +8,7 @@ import { Modal } from '@/shared/components/Modal.jsx';
 import { Button } from '@/shared/components/Button.jsx';
 import { BarChart3, ChevronDown, ChevronUp } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * ComparisonWindow Component
@@ -106,13 +106,13 @@ export function ComparisonWindow({ onClose }) {
         <div style={{ fontSize: '22px', fontWeight: 700, color: profitColor, marginBottom: '4px' }}>
           {method.totalProfit.toFixed(2)}x
         </div>
-        <div style={{ fontSize: '9px', color: COLORS.text.secondary }}>
+        <div style={{ fontSize: FONT_SIZES.xs, color: COLORS.text.secondary }}>
           Total Profit ({method.roundsTracked} rounds)
         </div>
-        <div style={{ fontSize: '10px', color: COLORS.text.secondary, marginTop: '6px' }}>
+        <div style={{ fontSize: FONT_SIZES.xs, color: COLORS.text.secondary, marginTop: '6px' }}>
           Avg: {method.avgProfit.toFixed(2)}x/round
         </div>
-        <div style={{ fontSize: '9px', color: COLORS.text.tertiary, marginTop: '2px' }}>
+        <div style={{ fontSize: FONT_SIZES.xs, color: COLORS.text.tertiary, marginTop: '2px' }}>
           Hits: {method.avgHits.toFixed(2)}/round
         </div>
       </div>
@@ -227,7 +227,7 @@ export function ComparisonWindow({ onClose }) {
   // Header extra content (lookback input)
   const headerExtra = (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Lookback:</span>
+      <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.xs }}>Lookback:</span>
       <input
         type="number"
         min="10"
@@ -242,7 +242,7 @@ export function ComparisonWindow({ onClose }) {
           padding: SPACING.inputPadding,
           borderRadius: BORDER_RADIUS.sm,
           textAlign: 'center',
-          fontSize: '10px'
+          fontSize: FONT_SIZES.xs
         }}
       />
     </div>
@@ -303,25 +303,25 @@ export function ComparisonWindow({ onClose }) {
 
       {/* Recent performance */}
       <div style={{ padding: '10px', background: '#14202b', borderRadius: '6px' }}>
-        <div style={{ color: '#888', fontSize: '10px', marginBottom: '6px' }}>Recent Performance:</div>
-        <div style={{ fontSize: '10px', color: '#aaa', maxHeight: '120px', overflowY: 'auto' }}>
+        <div style={{ color: '#888', fontSize: FONT_SIZES.xs, marginBottom: '6px' }}>Recent Performance:</div>
+        <div style={{ fontSize: FONT_SIZES.xs, color: '#aaa', maxHeight: '120px', overflowY: 'auto' }}>
           {recent.length === 0 ? (
             <div>No data yet. Play some rounds to see comparisons.</div>
           ) : (
             recent.map((point, idx) => (
               <div key={idx} style={{ padding: '4px 0', borderBottom: '1px solid #2a3f4f' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                  <span style={{ color: '#666', fontSize: '10px' }}>
+                  <span style={{ color: '#666', fontSize: FONT_SIZES.xs }}>
                     Round {point.round} <span style={{ color: '#555' }}>({point.difficulty || 'classic'})</span>
                   </span>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: FONT_SIZES.xs }}>
                     <span style={{ color: '#e17055' }}>{point.frequency.profit.toFixed(1)}x</span>
                     <span style={{ color: '#74b9ff' }}>{point.cold.profit.toFixed(1)}x</span>
                     <span style={{ color: '#a29bfe' }}>{point.mixed.profit.toFixed(1)}x</span>
                     <span style={{ color: '#55efc4' }}>{point.average.profit.toFixed(1)}x</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: FONT_SIZES.xs }}>
                   <span style={{ color: '#fdcb6e' }}>{point.momentum.profit.toFixed(1)}x</span>
                   <span style={{ color: '#00cec9' }}>{point.auto.profit.toFixed(1)}x</span>
                   <span style={{ color: '#fd79a8' }}>{point.shapes.profit.toFixed(1)}x</span>

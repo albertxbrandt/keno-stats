@@ -101,7 +101,7 @@ export function HistorySection() {
           {history.length === 0 ? (
             <div style={{
               color: COLORS.text.tertiary,
-              fontSize: '10px',
+              fontSize: FONT_SIZES.xs,
               padding: SPACING.sm,
               textAlign: 'center'
             }}>
@@ -140,7 +140,7 @@ export function HistorySection() {
                   </span>
                 </span>
                 {round.time && (
-                  <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
+                  <span style={{ color: COLORS.text.tertiary, fontSize: FONT_SIZES.xs }}>
                     {new Date(round.time).toLocaleTimeString()}
                   </span>
                 )}

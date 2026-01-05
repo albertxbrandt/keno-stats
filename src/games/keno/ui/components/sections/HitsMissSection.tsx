@@ -7,7 +7,7 @@ import { state } from "@/games/keno/core/state.js";
 import { stateEvents, EVENTS } from "@/games/keno/core/stateEvents.js";
 import { useModals } from "@/games/keno/hooks/useModals.js";
 import { COLORS } from "@/shared/constants/colors.js";
-import { BORDER_RADIUS, SPACING } from "@/shared/constants/styles.js";
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from "@/shared/constants/styles.js";
 import {
   CheckCircle2,
   XCircle,
@@ -101,7 +101,7 @@ export function HitsMissSection() {
           <span
             style={{
               color: COLORS.accent.success,
-              fontSize: "10px",
+              fontSize: FONT_SIZES.xs,
               fontWeight: "600",
             }}
           >
@@ -193,7 +193,7 @@ export function HitsMissSection() {
           <span
             style={{
               color: COLORS.accent.error,
-              fontSize: "10px",
+              fontSize: FONT_SIZES.xs,
               fontWeight: "600",
             }}
           >
@@ -246,7 +246,7 @@ export function HitsMissSection() {
                     width: "21px",
                     height: "21px",
                     borderRadius: "4px",
-                    fontSize: "10px",
+                    fontSize: FONT_SIZES.xs,
                     fontWeight: "600",
                     lineHeight: "1",
                     background: "rgba(235, 77, 75, 0.15)",
