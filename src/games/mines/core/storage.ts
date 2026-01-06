@@ -1,7 +1,7 @@
 // src/games/mines/core/storage.ts
 // Mines history storage management
 
-import type { MinesRoundData, MinesCashoutResponse } from "@/shared/types/api";
+import type { MinesRoundData, MinesResponse } from "@/shared/types/api";
 
 // Global declarations for browser extension APIs
 declare const browser: typeof chrome | undefined;
@@ -28,26 +28,58 @@ export async function getMinesHistory(): Promise<MinesRoundData[]> {
 
 /**
  * Save a Mines round to history
- * @param cashoutData - Raw cashout data from API
+ * Only saves completed rounds (active: false)
+ * @param responseData - Raw response data from API (minesCashout, minesNext, or minesBet)
  */
 export async function saveMinesRound(
-  cashoutData: MinesCashoutResponse
+  responseData: MinesResponse
 ): Promise<void> {
+  // Only save completed rounds (active: false means round ended)
+  if (responseData.active) {
+    // eslint-disable-next-line no-console
+    console.log('[Mines Storage] Skipping active round (not complete)');
+    return;
+  }
+
+  // Must have mine positions revealed (only available when round ends)
+  if (!responseData.state.mines || responseData.state.mines.length === 0) {
+    // eslint-disable-next-line no-console
+    console.log('[Mines Storage] Skipping round without revealed mines');
+    return;
+  }
+
   const history = await getMinesHistory();
 
   // Calculate derived values
-  const revealedCount = cashoutData.state.rounds.length;
-  const finalMultiplier = cashoutData.payoutMultiplier;
-  const won = cashoutData.payout > 0; // If they got a payout, they cashed out successfully
+  const revealedCount = responseData.state.rounds.length;
+  const finalMultiplier = responseData.payoutMultiplier;
+  
+  // Win detection: Player cashed out successfully (payout > 0)
+  // Loss detection: Hit a mine (last round has payoutMultiplier: 0)
+  const lastRound = responseData.state.rounds[responseData.state.rounds.length - 1];
+  const hitMine = lastRound && lastRound.payoutMultiplier === 0;
+  const won = responseData.payout > 0 && !hitMine;
 
   const roundData: MinesRoundData = {
-    id: cashoutData.id,
-    minesCashout: cashoutData,
+    id: responseData.id,
+    minesResponse: responseData,
     time: Date.now(),
     revealedCount,
     finalMultiplier,
     won,
+    minesCount: responseData.state.minesCount,
+    minePositions: responseData.state.mines,
   };
+
+  // eslint-disable-next-line no-console
+  console.log("[Mines Storage] Saving round:", {
+    id: roundData.id,
+    revealed: revealedCount,
+    multiplier: finalMultiplier,
+    won,
+    hitMine,
+    minesCount: responseData.state.minesCount,
+  });
 
   // Add to history (most recent first)
   history.unshift(roundData);

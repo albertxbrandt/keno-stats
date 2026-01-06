@@ -185,11 +185,54 @@ export interface MinesCashoutResponse {
 }
 
 /**
+ * Mines next move response from API
+ * Sent after each tile click (safe or mine)
+ */
+export interface MinesNextResponse {
+  id: string;
+  active: boolean; // false if game ended (hit mine or cashed out)
+  currency: CurrencyCode;
+  amountMultiplier: number;
+  payoutMultiplier: number;
+  amount: number;
+  payout: number;
+  updatedAt: string; // ISO date string
+  game: "mines";
+  user: MinesUser;
+  state: MinesGameState;
+}
+
+/**
+ * Mines bet start response from API
+ * Sent when player clicks "Bet" button to start round
+ */
+export interface MinesBetResponse {
+  id: string;
+  active: boolean; // true when round starts
+  currency: CurrencyCode;
+  amountMultiplier: number;
+  payoutMultiplier: number;
+  amount: number;
+  payout: number;
+  updatedAt: string; // ISO date string
+  game: "mines";
+  user: MinesUser;
+  state: MinesGameState;
+}
+
+/**
+ * Union type for all Mines responses
+ */
+export type MinesResponse = MinesCashoutResponse | MinesNextResponse | MinesBetResponse;
+
+/**
  * Wrapper for GraphQL response (Path 1)
  */
 export interface MinesGraphQLResponse {
   data: {
-    minesCashout: MinesCashoutResponse;
+    minesCashout?: MinesCashoutResponse;
+    minesNext?: MinesNextResponse;
+    minesBet?: MinesBetResponse;
   };
 }
 
@@ -197,7 +240,9 @@ export interface MinesGraphQLResponse {
  * Direct response (Path 2)
  */
 export interface MinesDirectResponse {
-  minesCashout: MinesCashoutResponse;
+  minesCashout?: MinesCashoutResponse;
+  minesNext?: MinesNextResponse;
+  minesBet?: MinesBetResponse;
 }
 
 /**
@@ -205,7 +250,7 @@ export interface MinesDirectResponse {
  */
 export interface MinesDataMessage {
   type: "MINES_DATA_FROM_PAGE";
-  payload: MinesCashoutResponse;
+  payload: MinesResponse;
 }
 
 /**
@@ -214,10 +259,12 @@ export interface MinesDataMessage {
  */
 export interface MinesRoundData {
   id: string;
-  minesCashout: MinesCashoutResponse;
+  minesResponse: MinesResponse; // Store the full response
   time: number; // Unix timestamp
   // Calculated values for easy access
   revealedCount: number; // Number of tiles revealed
   finalMultiplier: number; // Final payout multiplier
   won: boolean; // Did player cash out (true) or hit mine (false)
+  minesCount: number; // Number of mines in the game
+  minePositions: number[]; // Where the mines were (0-indexed)
 }

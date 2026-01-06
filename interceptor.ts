@@ -1,7 +1,7 @@
 // Keno Stats Tracker - interceptor.ts
 // Intercepts fetch requests to extract Keno and Mines game data
 
-import type { KenoBetResponse, MinesCashoutResponse } from "./src/shared/types/api.js";
+import type { KenoBetResponse, MinesCashoutResponse, MinesNextResponse, MinesBetResponse } from "./src/shared/types/api.js";
 
 // Extend window interface for interceptor flags
 declare global {
@@ -23,8 +23,12 @@ interface KenoGraphQLResponse {
 interface MinesGraphQLResponse {
   data?: {
     minesCashout?: MinesCashoutResponse;
+    minesNext?: MinesNextResponse;
+    minesBet?: MinesBetResponse;
   };
   minesCashout?: MinesCashoutResponse;
+  minesNext?: MinesNextResponse;
+  minesBet?: MinesBetResponse;
 }
 
 // Safeguard to prevent multiple injections
@@ -61,12 +65,13 @@ if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
     else if (resource instanceof Request) url = resource.url;
 
     // Check for game data in response
-    if (url.includes("graphql") || url.includes("bet")) {
+    // Match Keno (graphql) and all Mines endpoints (/mines/bet, /mines/next, /mines/cashout)
+    if (url.includes("graphql") || url.includes("bet") || url.includes("mines")) {
       clone
         .json()
         .then((jsonBody: unknown) => {
           let kenoData: KenoBetResponse | null = null;
-          let minesData: MinesCashoutResponse | null = null;
+          let minesData: MinesCashoutResponse | MinesNextResponse | MinesBetResponse | null = null;
 
           // Type guard for response structure
           const kenoBody = jsonBody as KenoGraphQLResponse;
@@ -82,14 +87,24 @@ if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
             kenoData = kenoBody.kenoBet;
           }
 
-          // Check for Mines data
-          // Path 1: { data: { minesCashout: ... } }
-          if (minesBody.data && minesBody.data.minesCashout) {
-            minesData = minesBody.data.minesCashout;
+          // Check for Mines data (all 3 types)
+          // Path 1: { data: { minesCashout/minesNext/minesBet: ... } }
+          if (minesBody.data) {
+            if (minesBody.data.minesCashout) {
+              minesData = minesBody.data.minesCashout;
+            } else if (minesBody.data.minesNext) {
+              minesData = minesBody.data.minesNext;
+            } else if (minesBody.data.minesBet) {
+              minesData = minesBody.data.minesBet;
+            }
           }
-          // Path 2: { minesCashout: ... }
+          // Path 2: { minesCashout/minesNext/minesBet: ... }
           else if (minesBody.minesCashout) {
             minesData = minesBody.minesCashout;
+          } else if (minesBody.minesNext) {
+            minesData = minesBody.minesNext;
+          } else if (minesBody.minesBet) {
+            minesData = minesBody.minesBet;
           }
 
           // If valid Keno data found
@@ -114,7 +129,8 @@ if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
             // eslint-disable-next-line no-console
             console.log(
               "%c ✅ MINES DATA FOUND! ",
-              "background: #ff7675; color: white; font-size: 14px;"
+              "background: #ff7675; color: white; font-size: 14px;",
+              minesData
             );
 
             window.postMessage(
