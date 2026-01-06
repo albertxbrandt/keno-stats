@@ -1,5 +1,37 @@
 # Stake Tools Browser Extension - AI Coding Instructions
 
+## ⚠️ CRITICAL: TypeScript-First Development Policy
+
+**ALL new features and components MUST be written in TypeScript (.tsx/.ts)**
+
+### TypeScript Requirements:
+- ✅ **New components**: Use `.tsx` for Preact components, `.ts` for utilities
+- ✅ **Major refactors**: Convert existing `.jsx`/`.js` files to TypeScript when doing significant work
+- ✅ **Type safety**: Always define proper interfaces for props, state, and function parameters
+- ✅ **No `any` types**: Use proper types or `unknown` with type guards if necessary
+- ✅ **Run type checks**: Always run `npm run typecheck` before committing
+
+### TypeScript Patterns:
+```typescript
+// Component props interface
+interface MyComponentProps {
+  title: string;
+  onClose: () => void;
+  isActive?: boolean;  // Optional props with ?
+}
+
+// Component with typed props
+export function MyComponent({ title, onClose, isActive = true }: MyComponentProps) {
+  const [count, setCount] = useState<number>(0);  // Explicit types for complex state
+  // ...
+}
+```
+
+### Legacy JavaScript:
+- Existing `.js` files can remain until major refactoring
+- When touching legacy files for significant work, convert to TypeScript
+- Prioritize TypeScript for all new game modules, overlays, and utilities
+
 ## Architecture Overview
 
 This is a Chrome/Firefox browser extension providing **Keno statistics tracking** and **site-wide utilities** for Stake.com. It operates across **two isolated security worlds** with distinct responsibilities:
