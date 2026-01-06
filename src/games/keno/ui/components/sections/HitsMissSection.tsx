@@ -15,7 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-preact";
-import { Button } from "@/shared/components/Button.jsx";
+import { Button } from "@/shared/components/Button";
 import type { RoundSavedEvent } from "@/shared/types/api.js";
 
 /**
@@ -246,7 +246,7 @@ export function HitsMissSection() {
                     width: "21px",
                     height: "21px",
                     borderRadius: "4px",
-                    fontSize: FONT_SIZES.xs,
+                    fontSize: "10px",
                     fontWeight: "600",
                     lineHeight: "1",
                     background: "rgba(235, 77, 75, 0.15)",

@@ -11,7 +11,7 @@ import {
   Edit2,
   X,
 } from "lucide-preact";
-import { Button } from "@/shared/components/Button.jsx";
+import { Button } from "@/shared/components/Button";
 import {
   loadWinLinks,
   deleteWinLink,
