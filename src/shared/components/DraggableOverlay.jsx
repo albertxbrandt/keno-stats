@@ -13,6 +13,7 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { DragHandle } from './DragHandle.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
+import { FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * @param {Object} props
@@ -74,6 +75,9 @@ export function DraggableOverlay({
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         zIndex,
         cursor: isDragging ? 'grabbing' : 'default',
+        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
+        fontSize: FONT_SIZES.base,
+        color: '#fff',
       }}
     >
       {/* Header with Drag Handle */}

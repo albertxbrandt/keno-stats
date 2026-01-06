@@ -16,7 +16,7 @@ import { HistorySection } from './sections/HistorySection.jsx';
 import { DraggableOverlay } from '@/shared/components/DraggableOverlay.jsx';
 import { SettingsPanel } from './SettingsPanel.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
-import { SPACING, BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';
+import { SPACING, BORDER_RADIUS } from '@/shared/constants/styles.js';
 
 // Component mapping for sections
 const SECTION_COMPONENTS = {
