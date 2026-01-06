@@ -5,7 +5,7 @@
  */
 
 import { h } from 'preact';
-import { useUtilities } from '../hooks/useUtilities.js';
+import { useUtilities } from '../hooks/useUtilities';
 import { CoinFlipper } from './CoinFlipper.jsx';
 import { RandomNumberGen } from './RandomNumberGen.jsx';
 import { RandomGamePicker } from './RandomGamePicker.jsx';

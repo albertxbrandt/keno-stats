@@ -8,7 +8,7 @@ import { state } from "../../core/state.js";
 import { saveToolbarSettings } from "../../core/storage.js";
 import { COLORS } from "@/shared/constants/colors.js";
 import { SPACING, BORDER_RADIUS } from "@/shared/constants/styles.js";
-import { useUtilities } from "../../hooks/useUtilities.js";
+import { useUtilities } from "../../hooks/useUtilities";
 import {
   Dices,
   Coins,
@@ -28,10 +28,7 @@ import { ToolbarSection } from "./ToolbarSection";
  * Main toolbar component
  */
 export function Toolbar() {
-  // Type assertion needed for JS hook until migrated to TS
-  const { openUtility } = useUtilities() as {
-    openUtility: (name: string) => void;
-  };
+  const { openUtility } = useUtilities();
   const [position, setPosition] = useState(state.toolbarPosition);
   const [collapsed, setCollapsed] = useState(state.toolbarCollapsed);
   const [isDragging, setIsDragging] = useState(false);
