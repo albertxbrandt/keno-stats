@@ -3,7 +3,7 @@
  * Simple draggable overlay for Mines game tracking
  */
 
-import { h } from 'preact';
+import { h, render } from 'preact';
 import { Bomb} from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
@@ -37,4 +37,28 @@ export function MinesOverlay({ onClose }) {
       </div>
     </DraggableOverlay>
   );
+}
+
+/**
+ * Initialize and render the Preact overlay
+ * Call this function to mount the overlay to the DOM
+ * 
+ * @param {HTMLElement} [container] - DOM element to render into (creates if not provided)
+ * @param {Function} onClose - Callback when overlay is closed
+ * @returns {void}
+ * 
+ * @example
+ * import { initMinesOverlay } from './MinesOverlay.jsx';
+ * initMinesOverlay(null, handleClose);
+ */
+export function initMinesOverlay(container, onClose) {
+  // Create container if not provided
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'mines-tracker-preact-root';
+    document.body.appendChild(container);
+  }
+
+  // Render the Preact tree
+  render(<MinesOverlay onClose={onClose} />, container);
 }

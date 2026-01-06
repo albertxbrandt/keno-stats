@@ -3,9 +3,8 @@
  * Entry point for Mines game tracking
  */
 
-import { render, h } from 'preact';
 import { state } from './core/state.js';
-import { MinesOverlay } from './ui/MinesOverlay.jsx';
+import { initMinesOverlay } from './ui/MinesOverlay.jsx';
 
 let overlayContainer = null;
 
@@ -69,30 +68,16 @@ function initOverlay() {
   overlayContainer.id = 'mines-overlay-root';
   document.body.appendChild(overlayContainer);
 
-  // Render overlay
-  renderOverlay();
+  // Render overlay using component's init function
+  initMinesOverlay(overlayContainer, () => {
+    state.overlayVisible = false;
+    if (overlayContainer) {
+      overlayContainer.remove();
+      overlayContainer = null;
+    }
+  });
 
   state.overlayVisible = true;
-}
-
-/**
- * Render overlay component
- */
-function renderOverlay() {
-  if (!overlayContainer) return;
-
-  render(
-    h(MinesOverlay, {
-      onClose: () => {
-        state.overlayVisible = false;
-        if (overlayContainer) {
-          overlayContainer.remove();
-          overlayContainer = null;
-        }
-      }
-    }),
-    overlayContainer
-  );
 }
 
 /**

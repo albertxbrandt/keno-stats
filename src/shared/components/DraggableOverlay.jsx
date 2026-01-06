@@ -68,7 +68,7 @@ export function DraggableOverlay({
         top: `${position.y}px`,
         left: `${position.x}px`,
         width,
-        background: COLORS.bg.dark,
+        background: COLORS.bg.darker,
         border: `1px solid ${COLORS.border.default}`,
         borderRadius: '8px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
