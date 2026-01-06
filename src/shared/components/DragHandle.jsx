@@ -20,6 +20,7 @@ import { COLORS } from '@/shared/constants/colors.js';
  * @component
  * @param {Object} props
  * @param {string} props.title - Title text to display
+ * @param {preact.VNode} props.icon - Optional icon to display before title
  * @param {Function} props.onClose - Called when close button clicked
  * @param {Function} props.onSettingsClick - Called when settings icon clicked
  * @param {Function} props.onDragStart - Called when drag starts
@@ -28,7 +29,7 @@ import { COLORS } from '@/shared/constants/colors.js';
  * @param {boolean} props.isActive - Status indicator color
  * @returns {preact.VNode} The rendered drag handle
  */
-export function DragHandle({ title = 'Stats Tracker', onClose, onSettingsClick, onDragStart, onDrag, onDragEnd, isActive = false }) {
+export function DragHandle({ title = 'Stats Tracker', icon, onClose, onSettingsClick, onDragStart, onDrag, onDragEnd, isActive = false }) {
   const startPosRef = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e) => {
@@ -40,6 +41,7 @@ export function DragHandle({ title = 'Stats Tracker', onClose, onSettingsClick, 
     const handleMouseMove = (moveEvent) => {
       const dx = moveEvent.clientX - startPosRef.current.x;
       const dy = moveEvent.clientY - startPosRef.current.y;
+      startPosRef.current = { x: moveEvent.clientX, y: moveEvent.clientY };
       if (onDrag) onDrag(dx, dy);
     };
 
@@ -66,6 +68,7 @@ export function DragHandle({ title = 'Stats Tracker', onClose, onSettingsClick, 
       if (!touch) return;
       const dx = touch.clientX - startPosRef.current.x;
       const dy = touch.clientY - startPosRef.current.y;
+      startPosRef.current = { x: touch.clientX, y: touch.clientY };
       if (onDrag) onDrag(dx, dy);
       moveEvent.preventDefault();
     };
@@ -115,6 +118,11 @@ export function DragHandle({ title = 'Stats Tracker', onClose, onSettingsClick, 
             boxShadow: isActive ? '0 0 6px rgba(34, 197, 94, 0.6)' : '0 0 6px rgba(239, 68, 68, 0.6)'
           }}
         />
+        {icon && (
+          <span style={{ display: 'flex', alignItems: 'center', opacity: 0.9 }}>
+            {icon}
+          </span>
+        )}
         <h3 style={{ 
           margin: 0, 
           color: '#fff', 
