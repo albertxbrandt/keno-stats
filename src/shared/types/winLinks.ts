@@ -40,20 +40,20 @@ export interface ThirdPartyGame {
 }
 
 /**
- * Keno bet data structure
+ * Stake Casino/Original bet data structure (Keno, Plinko, etc.)
  */
-export interface KenoBet {
+export interface CasinoBet {
   id: string;
   active: boolean;
   payoutMultiplier: number;
-  amountMultiplier: number;
+  amountMultiplier?: number;
   amount: number;
   payout: number;
-  updatedAt: string;
+  updatedAt?: string;
   currency: string;
   game: string;
-  user: User;
-  state: KenoGameState;
+  user?: User;
+  state?: KenoGameState; // Only present for Keno
   __typename?: string;
 }
 
@@ -88,10 +88,10 @@ export interface GameInfo {
 export interface BetWrapper {
   id: string;
   iid: string;
-  type?: "thirdparty";
+  type?: "casino" | "thirdparty";
   scope?: string;
   game?: GameInfo;
-  bet: KenoBet | ThirdPartyBet;
+  bet: CasinoBet | ThirdPartyBet;
   __typename?: string;
 }
 
@@ -113,24 +113,31 @@ export interface SavedWinLink {
   note?: string;
   tags?: string[];
   betData: BetWrapper;
-  gameType: "keno" | "thirdparty";
+  gameType: "casino" | "thirdparty";
   gameName: string;
   profit: number;
   multiplier: number;
 }
 
 /**
- * Type guard to check if bet is a Keno bet
+ * Type guard to check if bet is a Stake Casino/Original game bet
  */
-export function isKenoBet(bet: KenoBet | ThirdPartyBet): bet is KenoBet {
-  return "state" in bet && "selectedNumbers" in (bet as KenoBet).state;
+export function isCasinoBet(bet: CasinoBet | ThirdPartyBet): bet is CasinoBet {
+  return "game" in bet && typeof (bet as CasinoBet).game === "string";
 }
 
 /**
  * Type guard to check if bet is a third-party game bet
  */
 export function isThirdPartyBet(
-  bet: KenoBet | ThirdPartyBet
+  bet: CasinoBet | ThirdPartyBet
 ): bet is ThirdPartyBet {
   return "thirdPartyGame" in bet;
+}
+
+/**
+ * Type guard to check if a casino bet is specifically a Keno bet
+ */
+export function isKenoBet(bet: CasinoBet): boolean {
+  return bet.game === "keno" && "state" in bet && !!bet.state;
 }

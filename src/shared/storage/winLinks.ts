@@ -6,7 +6,7 @@ import type {
   BetWrapper,
   BetApiResponse,
 } from "@/shared/types/winLinks";
-import { isKenoBet, isThirdPartyBet } from "@/shared/types/winLinks";
+import { isCasinoBet, isThirdPartyBet } from "@/shared/types/winLinks";
 
 // Global declarations for browser extension APIs
 declare const browser: typeof chrome | undefined;
@@ -62,15 +62,16 @@ export async function saveWinLink(
     const bet = betData.bet;
 
     // Determine game type and name
-    let gameType: "keno" | "thirdparty";
+    let gameType: "casino" | "thirdparty";
     let gameName: string;
 
-    if (isKenoBet(bet)) {
-      gameType = "keno";
-      gameName = "Keno";
-    } else if (isThirdPartyBet(bet)) {
+    if (isThirdPartyBet(bet)) {
       gameType = "thirdparty";
       gameName = bet.thirdPartyGame.name;
+    } else if (isCasinoBet(bet)) {
+      gameType = "casino";
+      // Capitalize first letter of game name
+      gameName = bet.game.charAt(0).toUpperCase() + bet.game.slice(1);
     } else {
       throw new Error("Unknown bet type");
     }

@@ -15,8 +15,7 @@ import {
 } from "@/shared/constants/styles.js";
 import { fetchBetData, parseBetId } from "@/shared/utils/stakeBetApi";
 import { saveWinLink } from "@/shared/storage/winLinks";
-import { BetWrapper, KenoBet, ThirdPartyBet } from "@/shared/types/winLinks";
-import { isKenoBet } from "@/shared/types/winLinks";
+import { BetWrapper, CasinoBet, ThirdPartyBet, isCasinoBet } from "@/shared/types/winLinks";
 
 interface AddWinLinkProps {
   onClose: () => void;
@@ -214,8 +213,8 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
                       marginLeft: SPACING.xs,
                     }}
                   >
-                    {isKenoBet(fetchedBet.bet)
-                      ? (fetchedBet.bet as KenoBet).game
+                    {isCasinoBet(fetchedBet.bet)
+                      ? (fetchedBet.bet as CasinoBet).game.charAt(0).toUpperCase() + (fetchedBet.bet as CasinoBet).game.slice(1)
                       : (fetchedBet.bet as ThirdPartyBet).thirdPartyGame
                           ?.name || "Unknown"}
                   </span>
