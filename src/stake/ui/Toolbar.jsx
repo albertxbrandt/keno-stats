@@ -10,7 +10,7 @@ import { saveToolbarSettings } from '../core/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
 import { useUtilities } from '../hooks/useUtilities.js';
-import { Dices, Coins, Hash, Gamepad2, Sparkles, Link } from 'lucide-preact';
+import { Dices, Coins, Hash, Gamepad2, Sparkles, Link, BarChart3 } from 'lucide-preact';
 import { constrainToViewport } from '@/shared/utils/viewport.js';
 
 /**
@@ -218,6 +218,38 @@ export function Toolbar() {
               icon={<Link size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Win Links"
               onClick={() => handleUtilityClick('winLinks')}
+            />
+            
+            {/* Dashboard Section */}
+            <div style={{ 
+              fontSize: '12px', 
+              fontWeight: '600', 
+              color: COLORS.text.tertiary, 
+              marginBottom: '8px',
+              marginTop: '12px',
+              paddingTop: '12px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              Dashboard
+            </div>
+            <ToolbarButton
+              icon={<BarChart3 size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
+              label="View Dashboard"
+              onClick={() => {
+                const chromeApi = globalThis.chrome;
+                if (chromeApi?.runtime) {
+                  const fullUrl = chromeApi.runtime.getURL('dashboard.html');
+                  if (chromeApi.tabs) {
+                    chromeApi.tabs.create({ url: fullUrl });
+                  } else {
+                    window.open(fullUrl, '_blank');
+                  }
+                } else {
+                  window.open('dashboard.html', '_blank');
+                }
+              }}
             />
           </div>
         )}
