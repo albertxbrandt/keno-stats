@@ -123,7 +123,7 @@ export const Button: FunctionComponent<ButtonProps> = ({
     ghost: {
       background: "transparent",
       color: COLORS.text.secondary,
-      border: "none",
+      border: `1px solid ${COLORS.border.default}`,
       hoverBackground: COLORS.bg.darkest,
     },
   };
