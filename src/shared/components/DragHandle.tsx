@@ -1,0 +1,207 @@
+// src/ui/components/shared/DragHandle.tsx
+// Draggable header bar for the overlay
+
+import { useRef } from "preact/hooks";
+import { VNode } from "preact";
+import { Settings, X } from "lucide-preact";
+import { COLORS } from "@/shared/constants/colors.js";
+
+interface DragHandleProps {
+  /** Title text to display */
+  title?: string;
+  /** Optional icon to display before title */
+  icon?: VNode;
+  /** Called when close button clicked */
+  onClose: () => void;
+  /** Called when settings icon clicked */
+  onSettingsClick?: () => void;
+  /** Called when drag starts */
+  onDragStart?: () => void;
+  /** Called during drag with (dx, dy) */
+  onDrag?: (dx: number, dy: number) => void;
+  /** Called when drag ends */
+  onDragEnd?: () => void;
+  /** Status indicator color */
+  isActive?: boolean;
+}
+
+/**
+ * DragHandle Component
+ *
+ * Top bar with title, status indicator, settings icon, and close button
+ * Provides drag functionality for the parent overlay
+ *
+ * Features:
+ * - Draggable functionality ✅
+ * - Status indicator (green = tracking active)
+ * - Settings icon
+ * - Close button
+ *
+ * @component
+ */
+export function DragHandle({
+  title = "Stats Tracker",
+  icon,
+  onClose,
+  onSettingsClick,
+  onDragStart,
+  onDrag,
+  onDragEnd,
+  isActive = false,
+}: DragHandleProps) {
+  const startPosRef = useRef({ x: 0, y: 0 });
+
+  const handleMouseDown = (e: MouseEvent) => {
+    e.preventDefault();
+    startPosRef.current = { x: e.clientX, y: e.clientY };
+
+    if (onDragStart) onDragStart();
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const dx = moveEvent.clientX - startPosRef.current.x;
+      const dy = moveEvent.clientY - startPosRef.current.y;
+      startPosRef.current = { x: moveEvent.clientX, y: moveEvent.clientY };
+      if (onDrag) onDrag(dx, dy);
+    };
+
+    const handleMouseUp = () => {
+      if (onDragEnd) onDragEnd();
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleTouchStart = (e: TouchEvent) => {
+    const touch = e.touches?.[0];
+    if (!touch) return;
+
+    startPosRef.current = { x: touch.clientX, y: touch.clientY };
+
+    if (onDragStart) onDragStart();
+
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      const touch = moveEvent.touches?.[0];
+      if (!touch) return;
+      const dx = touch.clientX - startPosRef.current.x;
+      const dy = touch.clientY - startPosRef.current.y;
+      startPosRef.current = { x: touch.clientX, y: touch.clientY };
+      if (onDrag) onDrag(dx, dy);
+      moveEvent.preventDefault();
+    };
+
+    const handleTouchEnd = () => {
+      if (onDragEnd) onDragEnd();
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    document.addEventListener("touchend", handleTouchEnd);
+  };
+
+  return (
+    <div
+      id="drag-handle"
+      onMouseDown={handleMouseDown as any}
+      onTouchStart={handleTouchStart as any}
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        cursor: "move",
+        userSelect: "none",
+        background: COLORS.bg.darkest,
+        padding: "8px 12px",
+        borderTopLeftRadius: "8px",
+        borderTopRightRadius: "8px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          pointerEvents: "none",
+        }}
+      >
+        <span
+          id="tracker-status"
+          title="Tracker Active"
+          style={{
+            display: "inline-block",
+            width: "6px",
+            height: "6px",
+            borderRadius: "50%",
+            backgroundColor: isActive ? "#22c55e" : "#ef4444",
+            boxShadow: isActive
+              ? "0 0 6px rgba(34, 197, 94, 0.6)"
+              : "0 0 6px rgba(239, 68, 68, 0.6)",
+          }}
+        />
+        {icon && (
+          <span style={{ display: "flex", alignItems: "center", opacity: 0.9 }}>
+            {icon}
+          </span>
+        )}
+        <h3
+          style={{
+            margin: 0,
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: "13px",
+            letterSpacing: "0.01em",
+            lineHeight: "1",
+          }}
+        >
+          {title}
+        </h3>
+      </div>
+      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        {onSettingsClick && (
+          <span
+            id="settings-icon"
+            onClick={onSettingsClick}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              opacity: 0.7,
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.opacity = "1")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.opacity = "0.7")
+            }
+            title="Settings"
+          >
+            <Settings size={14} strokeWidth={2} color="#fff" />
+          </span>
+        )}
+        <span
+          onClick={onClose}
+          style={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            opacity: 0.7,
+            transition: "opacity 0.2s",
+          }}
+          onMouseEnter={(e) =>
+            ((e.currentTarget as HTMLElement).style.opacity = "1")
+          }
+          onMouseLeave={(e) =>
+            ((e.currentTarget as HTMLElement).style.opacity = "0.7")
+          }
+          title="Close"
+        >
+          <X size={14} strokeWidth={2} color="#fff" />
+        </span>
+      </div>
+    </div>
+  );
+}

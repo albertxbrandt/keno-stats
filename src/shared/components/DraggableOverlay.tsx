@@ -11,7 +11,7 @@
 
 import { ComponentChildren, VNode } from "preact";
 import { useState } from "preact/hooks";
-import { DragHandle } from "./DragHandle.jsx";
+import { DragHandle } from "./DragHandle";
 import { COLORS } from "@/shared/constants/colors.js";
 import { FONT_SIZES } from "@/shared/constants/styles.js";
 
