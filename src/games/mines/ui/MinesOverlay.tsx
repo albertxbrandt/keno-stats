@@ -10,6 +10,7 @@ import { COLORS } from "@/shared/constants/colors.js";
 import { SPACING, FONT_SIZES } from "@/shared/constants/styles.js";
 import { DraggableOverlay } from "@/shared/components/DraggableOverlay";
 import { getMinesHistory } from "../core/storage";
+import { stateEvents, EVENTS } from "../core/stateEvents.js";
 import { applyMinesHeatmap, clearMinesHeatmap } from "../utils/heatmap";
 import { StatsSection } from "./components/StatsSection";
 import { HeatmapControl } from "./components/HeatmapControl";
@@ -27,6 +28,20 @@ export function MinesOverlay({ onClose }: MinesOverlayProps) {
   // Load history on mount
   useEffect(() => {
     getMinesHistory().then(setHistory);
+  }, []);
+
+  // Listen for history updates (new rounds saved)
+  useEffect(() => {
+    const handleHistoryUpdate = () => {
+      getMinesHistory().then(setHistory);
+    };
+
+    const unsubscribe = stateEvents.on(
+      EVENTS.HISTORY_UPDATED,
+      handleHistoryUpdate
+    );
+
+    return () => unsubscribe();
   }, []);
 
   // Update heatmap when settings change

@@ -4,6 +4,7 @@
  */
 
 import { state } from './core/state.js';
+import { stateEvents, EVENTS } from './core/stateEvents.js';
 import { initMinesOverlay } from './ui/MinesOverlay';
 import { saveMinesRound } from './core/storage';
 
@@ -59,10 +60,9 @@ function setupMessageListener() {
           minesCount: payload.state.minesCount,
         };
 
-        // Trigger UI update if needed
-        if (window.__mines_onRoundSaved) {
-          window.__mines_onRoundSaved(state.lastRound);
-        }
+        // Emit event for UI updates
+        stateEvents.emit(EVENTS.ROUND_SAVED, state.lastRound);
+        stateEvents.emit(EVENTS.HISTORY_UPDATED, {});
       } catch (error) {
         console.error('[Mines Content] Error saving round:', error);
       }

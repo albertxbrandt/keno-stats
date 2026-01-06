@@ -3,7 +3,12 @@
  * Displays Mines game statistics
  */
 
-import { SPACING, FONT_SIZES } from "@/shared/constants/styles.js";
+import { COLORS } from "@/shared/constants/colors.js";
+import {
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from "@/shared/constants/styles.js";
 import type { MinesRoundData } from "@/shared/types/api";
 
 interface StatsSectionProps {
@@ -20,10 +25,10 @@ export function StatsSection({ history }: StatsSectionProps) {
   return (
     <div
       style={{
-        marginBottom: SPACING.md,
+        marginBottom: SPACING.lg,
         padding: SPACING.sm,
-        background: "rgba(255, 255, 255, 0.05)",
-        borderRadius: "6px",
+        background: COLORS.bg.dark,
+        borderRadius: BORDER_RADIUS.sm,
       }}
     >
       <div style={{ fontSize: FONT_SIZES.sm, marginBottom: SPACING.xs }}>

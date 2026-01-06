@@ -3,7 +3,8 @@
  * Toggle and sample size control for mine heatmap
  */
 
-import { SPACING, FONT_SIZES } from "@/shared/constants/styles.js";
+import { COLORS } from "@/shared/constants/colors.js";
+import { SPACING, FONT_SIZES, BORDER_RADIUS } from "@/shared/constants/styles.js";
 import { ToggleSwitch } from "@/shared/components/ToggleSwitch";
 import { NumberInput } from "@/shared/components/NumberInput";
 
@@ -23,9 +24,10 @@ export function HeatmapControl({
   return (
     <div
       style={{
+        marginBottom: SPACING.lg,
         padding: SPACING.sm,
-        background: "rgba(255, 255, 255, 0.05)",
-        borderRadius: "6px",
+        background: COLORS.bg.dark,
+        borderRadius: BORDER_RADIUS.sm,
       }}
     >
       {/* Toggle */}
@@ -49,7 +51,7 @@ export function HeatmapControl({
             alignItems: "center",
             justifyContent: "space-between",
             paddingTop: SPACING.sm,
-            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            borderTop: `1px solid ${COLORS.border.default}`,
           }}
         >
           <span style={{ fontSize: FONT_SIZES.sm }}>Sample Size</span>
