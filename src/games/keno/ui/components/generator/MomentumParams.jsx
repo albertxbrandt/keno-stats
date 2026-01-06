@@ -6,7 +6,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { NumberInput } from '@/shared/components/NumberInput';
 import { Button } from '@/shared/components/Button';
 import { COLORS } from '@/shared/constants/colors.js';
 import { RotateCcw } from 'lucide-preact';

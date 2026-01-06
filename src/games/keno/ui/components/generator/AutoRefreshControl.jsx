@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { AdvancedRulesSection } from './AdvancedRulesSection.jsx';
 import { COLORS } from '@/shared/constants/colors.js';

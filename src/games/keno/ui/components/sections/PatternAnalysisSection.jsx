@@ -2,9 +2,9 @@
 // Pattern analysis section - find recurring number combinations
 
 import { useState } from 'preact/hooks';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
 import { Search, Radio } from 'lucide-preact';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { NumberInput } from '@/shared/components/NumberInput';
 import { Button } from '@/shared/components/Button';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';

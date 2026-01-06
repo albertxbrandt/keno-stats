@@ -2,7 +2,7 @@
 // Recent plays section - displays recently played number combinations
 
 import { useState, useEffect } from 'preact/hooks';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
 import { Clock, Info } from 'lucide-preact';
 import { Button } from '@/shared/components/Button';
 import { state } from '@/games/keno/core/state.js';

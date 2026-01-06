@@ -2,7 +2,7 @@
 // Profit/Loss tracking section
 
 import { useState, useEffect } from 'preact/hooks';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
 import { Button } from '@/shared/components/Button';
 import { DollarSign } from 'lucide-preact';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';

@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/Button';
 import { X, Plus, Trash2 } from 'lucide-preact';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
 import { ConditionBuilder } from '../generator/ConditionBuilder.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';

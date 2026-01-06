@@ -6,7 +6,7 @@ import { state } from '@/games/keno/core/state.js';
 import { clearHistory } from '@/shared/storage/history.js';
 import { highlightRound } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
 import { Button } from '@/shared/components/Button';
 import { ScrollText, BarChart3 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
