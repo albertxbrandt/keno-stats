@@ -4,7 +4,7 @@
  */
 
 import { state } from './core/state.js';
-import { initMinesOverlay } from './ui/MinesOverlay.jsx';
+import { initMinesOverlay } from './ui/MinesOverlay';
 
 let overlayContainer = null;
 

@@ -6,7 +6,8 @@ export const COLORS = {
   bg: {
     dark: '#0f212e',
     darker: '#1a2c38',
-    darkest: '#14202b'
+    darkest: '#14202b',
+    lighter: '#2a3b4a'
   },
 
   // Text colors (improved contrast for WCAG AA compliance)
