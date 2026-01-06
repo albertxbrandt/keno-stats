@@ -69,9 +69,9 @@ export function injectVIPProgress() {
     margin-bottom: ${SPACING.md};
     font-weight: 600;
   `;
-  title.textContent = `Progress to ${
+  title.textContent = `${
     progress.nextLevel ? progress.nextLevel.displayName : "Max Level"
-  }`;
+  } Progress`;
 
   const wageredRow = document.createElement("div");
   wageredRow.style.cssText = `

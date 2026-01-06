@@ -18,6 +18,7 @@ import {
   Link,
   BarChart3,
   Bomb,
+  Crown,
 } from "lucide-preact";
 import { constrainToViewport } from "@/shared/utils/viewport.js";
 import { ToolbarHeader } from "./ToolbarHeader";
@@ -91,6 +92,17 @@ export function Toolbar() {
   const navigateToGame = (gameName: string) => {
     const currentOrigin = window.location.origin;
     window.location.href = `${currentOrigin}/casino/games/${gameName}`;
+  };
+
+  const openVIPModal = () => {
+    // Use SPA navigation by updating URL params
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("tab", "progress");
+    currentUrl.searchParams.set("modal", "vip");
+    window.history.pushState({}, "", currentUrl.toString());
+
+    // Trigger popstate event to let Stake's SPA router handle it
+    window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
   const openDashboard = () => {
@@ -224,6 +236,18 @@ export function Toolbar() {
                 }
                 label="Magic 8-Ball"
                 onClick={() => openUtility("magic8Ball")}
+              />
+              <ToolbarButton
+                icon={
+                  <Crown
+                    size={18}
+                    strokeWidth={2}
+                    color={COLORS.text.primary}
+                    style={{ opacity: 0.9 }}
+                  />
+                }
+                label="VIP Calculator"
+                onClick={openVIPModal}
               />
               <ToolbarButton
                 icon={
