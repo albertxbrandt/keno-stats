@@ -1,5 +1,4 @@
 // src/dashboard/components/SettingsModal.jsx
-import { X } from 'lucide-preact';
 import { Button } from '@/shared/components/Button.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';

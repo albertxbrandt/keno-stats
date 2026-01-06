@@ -11,7 +11,7 @@ import { SettingsModal } from '../components/SettingsModal.jsx';
 import { BetDetailsModal } from '../components/BetDetailsModal.jsx';
 import { loadBetHistory, exportBetHistory, deleteAllHistory, importHistory } from '../utils/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { SPACING } from '@/shared/constants/styles.js';
 
 /**
  * BetHistory Section
