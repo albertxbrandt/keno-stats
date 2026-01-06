@@ -7,6 +7,7 @@ import { Sidebar } from './components/Sidebar.jsx';
 import { BetHistory } from './sections/BetHistory.jsx';
 import { Statistics } from './sections/Statistics.jsx';
 import { Analytics } from './sections/Analytics.jsx';
+import { WinLinks } from './sections/WinLinks.tsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -21,6 +22,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState('history');
   const [activeGame, setActiveGame] = useState('keno');
+  const [activeFeature, setActiveFeature] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const tabs = [
@@ -29,12 +31,30 @@ export function Dashboard() {
     { id: 'analytics', label: 'Analytics', icon: <Search size={16} />, component: Analytics }
   ];
 
-  const ActiveComponent = tabs.find(t => t.id === activeTab)?.component || BetHistory;
+  const features = {
+    'saved-links': WinLinks
+  };
+
+  // Determine what to display
+  let ActiveComponent;
+  let displayTitle;
+  
+  if (activeFeature && features[activeFeature]) {
+    ActiveComponent = features[activeFeature];
+    displayTitle = activeFeature === 'saved-links' ? 'Saved Win Links' : 'Feature';
+  } else {
+    ActiveComponent = tabs.find(t => t.id === activeTab)?.component || BetHistory;
+    displayTitle = `${activeGame.charAt(0).toUpperCase() + activeGame.slice(1)} Stats`;
+  }
 
   const handleGameChange = (gameId) => {
     setActiveGame(gameId);
-    // Reset to history tab when switching games
+    setActiveFeature(null);
     setActiveTab('history');
+  };
+
+  const handleFeatureChange = (featureId) => {
+    setActiveFeature(featureId);
   };
 
   return (
@@ -50,6 +70,8 @@ export function Dashboard() {
       <Sidebar 
         activeGame={activeGame}
         onGameChange={handleGameChange}
+        activeFeature={activeFeature}
+        onFeatureChange={handleFeatureChange}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
@@ -84,14 +106,15 @@ export function Dashboard() {
               gap: SPACING.sm
             }}>
               <BarChart3 size={24} color={COLORS.accent.info} />
-              {activeGame.charAt(0).toUpperCase() + activeGame.slice(1)} Stats
+              {displayTitle}
             </h1>
 
-            {/* Tab Navigation */}
-            <nav style={{
-              display: 'flex',
-              gap: SPACING.sm
-            }}>
+            {/* Tab Navigation - Only show for games, not features */}
+            {!activeFeature && (
+              <nav style={{
+                display: 'flex',
+                gap: SPACING.sm
+              }}>
               {tabs.map(tab => (
                 <button
                   key={tab.id}
@@ -127,7 +150,8 @@ export function Dashboard() {
                   {tab.label}
                 </button>
               ))}
-            </nav>
+              </nav>
+            )}
           </div>
         </header>
 

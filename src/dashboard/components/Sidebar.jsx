@@ -21,6 +21,8 @@ import { Dices, TrendingUp, Link, Settings, ChevronLeft, ChevronRight } from 'lu
 export function Sidebar({ 
   activeGame = 'keno', 
   onGameChange,
+  activeFeature = null,
+  onFeatureChange,
   collapsed = false,
   onToggleCollapse
 }) {
@@ -48,35 +50,17 @@ export function Sidebar({
   ];
 
   const features = [
-    {
-      id: 'saved-links',
-      label: 'Saved Win Links',
-      icon: <Link size={18} strokeWidth={2} />,
-      available: false,
-      comingSoon: true
-    },
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: <Settings size={18} strokeWidth={2} />,
-      available: false,
-      comingSoon: true
-    }
+    { id: 'saved-links', label: 'Saved Win Links', icon: <Link />, available: true },
+    { id: 'settings', label: 'Settings', icon: <Settings />, available: false, comingSoon: true }
   ];
 
-  const handleItemClick = (item) => {
-    if (item.available && onGameChange) {
-      onGameChange(item.id);
-    }
-  };
-
-  const renderMenuItem = (item) => {
-    const isActive = activeGame === item.id;
+  const renderGameItem = (item) => {
+    const isActive = activeGame === item.id && !activeFeature;
     
     return (
       <div
         key={item.id}
-        onClick={() => handleItemClick(item)}
+        onClick={() => item.available && onGameChange?.(item.id)}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -84,7 +68,72 @@ export function Sidebar({
           justifyContent: collapsed ? 'center' : 'flex-start',
           padding: collapsed ? SPACING.sm : `${SPACING.sm} ${SPACING.md}`,
           marginBottom: SPACING.xs,
-          background: isActive ? COLORS.bg.darker : 'transparent',
+          background: isActive ? COLORS.bg.darkest : 'transparent',
+          color: isActive ? COLORS.accent.info : COLORS.text.secondary,
+          borderRadius: BORDER_RADIUS.sm,
+          cursor: item.available ? 'pointer' : 'not-allowed',
+          opacity: item.available ? 1 : 0.5,
+          transition: 'all 0.2s',
+          position: 'relative',
+          border: `1px solid ${isActive ? COLORS.border.default : 'transparent'}`
+        }}
+        onMouseEnter={(e) => {
+          if (item.available && !isActive) {
+            e.currentTarget.style.background = COLORS.bg.darkest;
+            e.currentTarget.style.color = COLORS.text.primary;
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isActive) {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = COLORS.text.secondary;
+          }
+        }}
+        title={collapsed ? item.label : ''}
+      >
+        {item.icon}
+        {!collapsed && (
+          <>
+            <span style={{ 
+              fontSize: FONT_SIZES.sm,
+              fontWeight: isActive ? '600' : '400',
+              flex: 1
+            }}>
+              {item.label}
+            </span>
+            {item.comingSoon && (
+              <span style={{
+                fontSize: FONT_SIZES.xs,
+                color: COLORS.accent.warning,
+                background: 'rgba(241, 196, 15, 0.1)',
+                padding: '2px 6px',
+                borderRadius: '3px',
+                fontWeight: '600'
+              }}>
+                Soon
+              </span>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const renderFeatureItem = (item) => {
+    const isActive = activeFeature === item.id;
+    
+    return (
+      <div
+        key={item.id}
+        onClick={() => item.available && onFeatureChange?.(item.id)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: collapsed ? '0' : SPACING.sm,
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          padding: collapsed ? SPACING.sm : `${SPACING.sm} ${SPACING.md}`,
+          marginBottom: SPACING.xs,
+          background: isActive ? COLORS.bg.darkest : 'transparent',
           color: isActive ? COLORS.accent.info : COLORS.text.secondary,
           borderRadius: BORDER_RADIUS.sm,
           cursor: item.available ? 'pointer' : 'not-allowed',
@@ -218,7 +267,7 @@ export function Sidebar({
           </div>
         )}
         <div style={{ marginBottom: SPACING.md }}>
-          {games.map(renderMenuItem)}
+          {games.map(renderGameItem)}
         </div>
 
         {/* Features Section */}
@@ -235,7 +284,7 @@ export function Sidebar({
           </div>
         )}
         <div>
-          {features.map(renderMenuItem)}
+          {features.map(renderFeatureItem)}
         </div>
       </div>
 

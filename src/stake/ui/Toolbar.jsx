@@ -218,7 +218,6 @@ export function Toolbar() {
               icon={<Link size={18} strokeWidth={2} color={COLORS.text.primary} style={{ opacity: 0.9 }} />}
               label="Win Links"
               onClick={() => handleUtilityClick('winLinks')}
-              subtitle="Coming soon"
             />
           </div>
         )}
