@@ -10,6 +10,7 @@ import { loadToolbarSettings } from './core/storage.js';
 import { Toolbar } from './ui/Toolbar/index.tsx';
 import { UtilitiesProvider } from './hooks/useUtilities';
 import { UtilitiesManager } from './ui/UtilitiesManager.jsx';
+import { initVIPProgress } from './features/vip/ui';
 
 // Game module registry
 const gameModules = {
@@ -29,6 +30,9 @@ async function initSiteWide() {
 
   // Initialize toolbar
   initToolbar();
+
+  // Initialize VIP progress tracking
+  initVIPProgress();
 
   // Detect current game
   const currentGame = detectCurrentGame(window.location.href);

@@ -1,13 +1,19 @@
 // Keno Stats Tracker - interceptor.ts
 // Intercepts fetch requests to extract Keno and Mines game data
 
-import type { KenoBetResponse, MinesCashoutResponse, MinesNextResponse, MinesBetResponse } from "./src/shared/types/api.js";
+import type {
+  KenoBetResponse,
+  MinesCashoutResponse,
+  MinesNextResponse,
+  MinesBetResponse,
+} from "./src/shared/types/api.js";
 
 // Extend window interface for interceptor flags
 declare global {
   interface Window {
     kenoInterceptorActive?: boolean;
     minesInterceptorActive?: boolean;
+    vipInterceptorActive?: boolean;
   }
 }
 
@@ -31,10 +37,36 @@ interface MinesGraphQLResponse {
   minesBet?: MinesBetResponse;
 }
 
+// VIP data structures
+interface VIPFlag {
+  flag: string;
+}
+
+interface VIPFlagProgress {
+  flag: string;
+  progress: number;
+}
+
+interface VIPUserResponse {
+  user?: {
+    id: string;
+    flags?: VIPFlag[];
+    flagProgress?: VIPFlagProgress;
+  };
+  data?: {
+    user?: {
+      id: string;
+      flags?: VIPFlag[];
+      flagProgress?: VIPFlagProgress;
+    };
+  };
+}
+
 // Safeguard to prevent multiple injections
 if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
   window.kenoInterceptorActive = true;
   window.minesInterceptorActive = true;
+  window.vipInterceptorActive = true;
   // eslint-disable-next-line no-console
   console.log(
     "%c STAKE TOOLS TRACKER",
@@ -45,6 +77,7 @@ if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
   setTimeout(() => {
     window.postMessage({ type: "KENO_CONNECTION_TEST" }, "*");
     window.postMessage({ type: "MINES_CONNECTION_TEST" }, "*");
+    window.postMessage({ type: "VIP_CONNECTION_TEST" }, "*");
   }, 500);
 
   const originalFetch = window.fetch;
@@ -66,16 +99,32 @@ if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
 
     // Check for game data in response
     // Match Keno (graphql) and all Mines endpoints (/mines/bet, /mines/next, /mines/cashout)
-    if (url.includes("graphql") || url.includes("bet") || url.includes("mines")) {
+    if (
+      url.includes("graphql") ||
+      url.includes("bet") ||
+      url.includes("mines")
+    ) {
       clone
         .json()
         .then((jsonBody: unknown) => {
+          // Log all GraphQL responses for debugging
+          if (url.includes("graphql")) {
+            // eslint-disable-next-line no-console
+            console.log("[Interceptor] GraphQL response:", jsonBody);
+          }
+
           let kenoData: KenoBetResponse | null = null;
-          let minesData: MinesCashoutResponse | MinesNextResponse | MinesBetResponse | null = null;
+          let minesData:
+            | MinesCashoutResponse
+            | MinesNextResponse
+            | MinesBetResponse
+            | null = null;
+          let vipData: VIPUserResponse | null = null;
 
           // Type guard for response structure
           const kenoBody = jsonBody as KenoGraphQLResponse;
           const minesBody = jsonBody as MinesGraphQLResponse;
+          const vipBody = jsonBody as VIPUserResponse;
 
           // Check for Keno data
           // Path 1: { data: { kenoBet: ... } }
@@ -137,6 +186,41 @@ if (!window.kenoInterceptorActive && !window.minesInterceptorActive) {
               {
                 type: "MINES_DATA_FROM_PAGE",
                 payload: minesData,
+              },
+              "*"
+            );
+          }
+
+          // Check for VIP data
+          // Path 1: { user: { flags: [...], flagProgress: {...} } }
+          if (
+            vipBody.user &&
+            (vipBody.user.flags || vipBody.user.flagProgress)
+          ) {
+            vipData = vipBody;
+          }
+          // Path 2: { data: { user: { flagProgress: {...} } } }
+          else if (vipBody.data?.user?.flagProgress) {
+            vipData = vipBody;
+          }
+          // Path 3: { data: { user: { flags: [...] } } }
+          else if (vipBody.data?.user?.flags) {
+            vipData = vipBody;
+          }
+
+          // If valid VIP data found
+          if (vipData) {
+            // eslint-disable-next-line no-console
+            console.log(
+              "%c ✅ VIP DATA FOUND! ",
+              "background: #fdcb6e; color: black; font-size: 14px;",
+              vipData
+            );
+
+            window.postMessage(
+              {
+                type: "VIP_DATA_FROM_PAGE",
+                payload: vipData,
               },
               "*"
             );

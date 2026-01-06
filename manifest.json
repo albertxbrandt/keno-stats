@@ -26,10 +26,8 @@
     },
     {
       "matches": [
-        "https://stake.com/casino/games/keno*",
-        "https://stake.us/casino/games/keno*",
-        "https://stake.com/casino/games/mines*",
-        "https://stake.us/casino/games/mines*"
+        "https://stake.com/*",
+        "https://stake.us/*"
       ],
       "js": [
         "dist/interceptor.js"
