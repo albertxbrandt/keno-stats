@@ -14,6 +14,7 @@ import { UtilitiesManager } from './ui/UtilitiesManager.jsx';
 // Game module registry
 const gameModules = {
   keno: null, // Lazy loaded when needed
+  mines: null, // Lazy loaded when needed
 };
 
 /**
@@ -93,6 +94,14 @@ async function loadGameModule(gameName) {
         // Initialize game module
         if (typeof kenoModule.init === 'function') {
           kenoModule.init();
+        }
+      } else if (gameName === 'mines') {
+        const minesModule = await import('../games/mines/content.js');
+        gameModules[gameName] = minesModule;
+
+        // Initialize game module
+        if (typeof minesModule.init === 'function') {
+          minesModule.init();
         }
       }
     } catch (error) {

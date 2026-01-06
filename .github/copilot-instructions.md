@@ -735,6 +735,41 @@ import { state } from './state.js'; // Only import what you use
 
 ## Code Quality Standards
 
+### UI Component Standards (Jan 2025)
+
+**CRITICAL: Always follow these standards when creating new UI components or features:**
+
+1. **NO EMOJIS** - Use Lucide icons only (`lucide-preact` package)
+   - ❌ Bad: `💣 Mines Tracker`, `✕`, `🎲`, `👑`
+   - ✅ Good: `<Bomb size={18} />`, `<X size={18} />`, `<Dices size={18} />`, `<Crown size={18} />`
+   - All icon usage should include `size`, `strokeWidth`, and appropriate styling
+
+2. **USE SHARED CONSTANTS** - Never hardcode values that exist in constants
+   - ✅ Font sizes: Use `'14px'`, `'13px'`, `'12px'` (standard sizes)
+   - ✅ Colors: Import from `@/shared/constants/colors.js` (COLORS.text.primary, COLORS.bg.dark, etc.)
+   - ✅ Spacing: Import from `@/shared/constants/styles.js` (SPACING.md, SPACING.lg, etc.)
+   - ❌ Bad: `color: '#fff'`, `padding: '12px'`, `fontSize: '16px'`
+   - ✅ Good: `color: COLORS.text.primary`, `padding: SPACING.md`, `fontSize: '14px'`
+
+3. **USE SHARED COMPONENTS** - Never use raw HTML elements when shared components exist
+   - ❌ Bad: `<button onClick={...}>Click</button>`
+   - ✅ Good: `<Button variant="primary" onClick={...}>Click</Button>`
+   - Available shared components:
+     - `Button` - All buttons (variants: primary, secondary, success, warning, danger, ghost)
+     - `Modal` - All modal dialogs (draggable, consistent header)
+     - `DragHandle` - Draggable areas (mouse + touch support)
+     - `ToggleSwitch` - All toggles (iOS-style)
+     - `CollapsibleSection` - Expandable sections
+     - `NumberInput` - Styled number inputs
+
+**Before committing new UI code, verify:**
+- [ ] No emoji characters in code
+- [ ] All colors from COLORS constants
+- [ ] All spacing from SPACING constants
+- [ ] Using Button component instead of raw buttons
+- [ ] Using Modal component for dialogs
+- [ ] Lucide icons for all visual indicators
+
 ### Console Logging Policy (Dec 2024)
 
 **CRITICAL: console.warn is for WARNINGS, NOT for debugging!**
