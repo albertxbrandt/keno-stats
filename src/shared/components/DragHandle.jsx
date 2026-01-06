@@ -19,6 +19,7 @@ import { COLORS } from '@/shared/constants/colors.js';
  * 
  * @component
  * @param {Object} props
+ * @param {string} props.title - Title text to display
  * @param {Function} props.onClose - Called when close button clicked
  * @param {Function} props.onSettingsClick - Called when settings icon clicked
  * @param {Function} props.onDragStart - Called when drag starts
@@ -27,7 +28,7 @@ import { COLORS } from '@/shared/constants/colors.js';
  * @param {boolean} props.isActive - Status indicator color
  * @returns {preact.VNode} The rendered drag handle
  */
-export function DragHandle({ onClose, onSettingsClick, onDragStart, onDrag, onDragEnd, isActive = false }) {
+export function DragHandle({ title = 'Stats Tracker', onClose, onSettingsClick, onDragStart, onDrag, onDragEnd, isActive = false }) {
   const startPosRef = useRef({ x: 0, y: 0 });
 
   const handleMouseDown = (e) => {
@@ -122,7 +123,7 @@ export function DragHandle({ onClose, onSettingsClick, onDragStart, onDrag, onDr
           letterSpacing: '0.01em',
           lineHeight: '1'
         }}>
-          Keno Stats Tracker
+          {title}
         </h3>
       </div>
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

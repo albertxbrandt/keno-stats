@@ -176,6 +176,7 @@ export function Overlay() {
     >
       {/* Drag Handle */}
       <DragHandle 
+        title="Keno Stats Tracker"
         onClose={handleClose}
         onSettingsClick={() => setCurrentView(currentView === 'tracker' ? 'settings' : 'tracker')}
         onDragStart={handleDragStart}

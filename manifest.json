@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Keno Stats",
+  "name": "Stake Tools",
   "version": "1.0",
-  "description": "Tracks Keno history and provides number stats on Stake.",
+  "description": "Game tracking and utilities for Stake casino games (Keno, Mines, and more).",
   "permissions": [
     "storage",
     "management"
