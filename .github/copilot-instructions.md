@@ -777,11 +777,18 @@ import { state } from './state.js'; // Only import what you use
    - All icon usage should include `size`, `strokeWidth`, and appropriate styling
 
 2. **USE SHARED CONSTANTS** - Never hardcode values that exist in constants
-   - ✅ Font sizes: Use `'14px'`, `'13px'`, `'12px'` (standard sizes)
+   - ✅ **Font sizes**: Import from `@/shared/constants/styles.js` (FONT_SIZES.xs, FONT_SIZES.sm, FONT_SIZES.base, FONT_SIZES.md, FONT_SIZES.lg, FONT_SIZES.xl)
+     - FONT_SIZES.xs: '11px' - Small helper text
+     - FONT_SIZES.sm: '12px' - Labels, inputs
+     - FONT_SIZES.base: '13px' - Body text, content
+     - FONT_SIZES.md: '14px' - Emphasized text
+     - FONT_SIZES.lg: '15px' - Section headings
+     - FONT_SIZES.xl: '16px' - Modal titles
    - ✅ Colors: Import from `@/shared/constants/colors.js` (COLORS.text.primary, COLORS.bg.dark, etc.)
-   - ✅ Spacing: Import from `@/shared/constants/styles.js` (SPACING.md, SPACING.lg, etc.)
-   - ❌ Bad: `color: '#fff'`, `padding: '12px'`, `fontSize: '16px'`
-   - ✅ Good: `color: COLORS.text.primary`, `padding: SPACING.md`, `fontSize: '14px'`
+   - ✅ Spacing: Import from `@/shared/constants/styles.js` (SPACING.xs, SPACING.sm, SPACING.md, SPACING.lg)
+   - ✅ Border radius: Import from `@/shared/constants/styles.js` (BORDER_RADIUS.sm, BORDER_RADIUS.md, BORDER_RADIUS.lg)
+   - ❌ Bad: `color: '#fff'`, `padding: '12px'`, `fontSize: '16px'`, `borderRadius: '6px'`
+   - ✅ Good: `color: COLORS.text.primary`, `padding: SPACING.md`, `fontSize: FONT_SIZES.md`, `borderRadius: BORDER_RADIUS.md`
 
 3. **USE SHARED COMPONENTS** - Never use raw HTML elements when shared components exist
    - ❌ Bad: `<button onClick={...}>Click</button>`
@@ -798,6 +805,8 @@ import { state } from './state.js'; // Only import what you use
 - [ ] No emoji characters in code
 - [ ] All colors from COLORS constants
 - [ ] All spacing from SPACING constants
+- [ ] All font sizes from FONT_SIZES constants (NO hardcoded '12px', '13px', etc.)
+- [ ] All border radius from BORDER_RADIUS constants
 - [ ] Using Button component instead of raw buttons
 - [ ] Using Modal component for dialogs
 - [ ] Lucide icons for all visual indicators
