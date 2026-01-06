@@ -88,9 +88,8 @@ export function formatTimeSince(selectedNumbers, targetHitCount) {
         const hitCount = matchingNumbers.length;
 
         if (hitCount === targetHitCount) {
-            const betNumber = i + 1;
             const betsAgo = state.currentHistory.length - i;
-            return `Bet #${betNumber}<br>${betsAgo} Bets Ago`;
+            return `${betsAgo} Bet${betsAgo !== 1 ? 's' : ''} Ago`;
         }
     }
 
@@ -135,30 +134,36 @@ export function updateMultiplierBarStats() {
                     right: '4px',
                     fontSize: '10px',
                     color: '#fff',
-                    fontWeight: 'bold',
+                    fontWeight: '600',
                     textAlign: 'center',
                     pointerEvents: 'auto',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    borderRadius: '4px',
-                    padding: '2px 4px',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                    background: 'linear-gradient(135deg, rgba(15, 33, 46, 0.95), rgba(26, 44, 56, 0.95))',
+                    borderRadius: '6px',
+                    padding: '4px 6px',
+                    border: '1px solid rgba(116, 185, 255, 0.3)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     userSelect: 'none',
-                    lineHeight: '1.3'
+                    lineHeight: '1.3',
+                    backdropFilter: 'blur(8px)'
                 });
 
                 statsOverlay.addEventListener('mouseenter', () => {
                     Object.assign(statsOverlay.style, {
-                        backgroundColor: 'rgba(0,150,255,0.9)',
-                        transform: 'scale(1.05)'
+                        background: 'linear-gradient(135deg, rgba(116, 185, 255, 0.25), rgba(74, 184, 255, 0.25))',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(116, 185, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                        borderColor: 'rgba(116, 185, 255, 0.6)'
                     });
                 });
 
                 statsOverlay.addEventListener('mouseleave', () => {
                     Object.assign(statsOverlay.style, {
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        transform: 'scale(1)'
+                        background: 'linear-gradient(135deg, rgba(15, 33, 46, 0.95), rgba(26, 44, 56, 0.95))',
+                        transform: 'translateY(0)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                        borderColor: 'rgba(116, 185, 255, 0.3)'
                     });
                 });
 
