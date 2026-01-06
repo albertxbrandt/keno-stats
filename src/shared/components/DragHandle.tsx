@@ -105,8 +105,8 @@ export function DragHandle({
   return (
     <div
       id="drag-handle"
-      onMouseDown={handleMouseDown as any}
-      onTouchStart={handleTouchStart as any}
+      onMouseDown={handleMouseDown as unknown as (e: MouseEvent) => void}
+      onTouchStart={handleTouchStart as unknown as (e: TouchEvent) => void}
       style={{
         display: "flex",
         justifyContent: "space-between",

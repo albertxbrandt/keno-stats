@@ -108,7 +108,7 @@ export function CollapsibleSection({
       onMouseLeave={handleMouseLeave}
     >
       <div
-        onClick={handleHeaderClick as any}
+        onClick={handleHeaderClick as unknown as (e: MouseEvent) => void}
         style={{
           display: "flex",
           justifyContent: "space-between",

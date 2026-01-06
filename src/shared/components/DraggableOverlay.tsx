@@ -98,9 +98,9 @@ export function DraggableOverlay({
       {/* Header with Drag Handle */}
       <DragHandle
         title={title}
-        icon={icon as any}
+        icon={icon as unknown as VNode}
         onClose={onClose}
-        onSettingsClick={onSettingsClick as any}
+        onSettingsClick={onSettingsClick as unknown as () => void}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
