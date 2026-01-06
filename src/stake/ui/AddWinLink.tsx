@@ -3,8 +3,8 @@
  * Allows users to save bet replays by pasting bet IDs or URLs
  */
 
-import { useState } from "preact/hooks";
-import { Loader2, Link as LinkIcon } from "lucide-preact";
+import { useState, useEffect } from "preact/hooks";
+import { Loader2, Link as LinkIcon, ExternalLink } from "lucide-preact";
 import { Modal } from "@/shared/components/Modal";
 import { Button } from "@/shared/components/Button";
 import { COLORS } from "@/shared/constants/colors.js";
@@ -14,8 +14,8 @@ import {
   BORDER_RADIUS,
 } from "@/shared/constants/styles.js";
 import { fetchBetData, parseBetId } from "@/shared/utils/stakeBetApi";
-import { saveWinLink } from "@/shared/storage/winLinks";
-import { BetWrapper, CasinoBet, ThirdPartyBet, isCasinoBet } from "@/shared/types/winLinks";
+import { saveWinLink, loadWinLinks } from "@/shared/storage/winLinks";
+import { BetWrapper, CasinoBet, ThirdPartyBet, isCasinoBet, SavedWinLink } from "@/shared/types/winLinks";
 
 interface AddWinLinkProps {
   onClose: () => void;
@@ -27,6 +27,18 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [recentLinks, setRecentLinks] = useState<SavedWinLink[]>([]);
+
+  // Load recent win links on mount
+  useEffect(() => {
+    loadRecentLinks();
+  }, []);
+
+  const loadRecentLinks = async () => {
+    const links = await loadWinLinks();
+    // Get last 5 most recent
+    setRecentLinks(links.slice(0, 5));
+  };
 
   const handleFetchBet = async () => {
     setFetchError(null);
@@ -60,6 +72,9 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
       await saveWinLink(fetchedBet);
       setSaveSuccess(true);
       setFetchError(null);
+      
+      // Reload recent links
+      await loadRecentLinks();
 
       // Close after a brief delay to show success message
       setTimeout(() => {
@@ -379,6 +394,86 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
             >
               Win link saved successfully!
             </p>
+          </div>
+        )}
+
+        {/* Recent Win Links Section */}
+        {!fetchedBet && !saveSuccess && recentLinks.length > 0 && (
+          <div
+            style={{
+              marginTop: SPACING.lg,
+              paddingTop: SPACING.md,
+              borderTop: `1px solid ${COLORS.border.default}`,
+            }}
+          >
+            <h4
+              style={{
+                margin: `0 0 ${SPACING.sm} 0`,
+                fontSize: FONT_SIZES.sm,
+                color: COLORS.text.secondary,
+                fontWeight: "600",
+              }}
+            >
+              Recent Win Links
+            </h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: SPACING.xs }}>
+              {recentLinks.map((link) => (
+                <div
+                  key={link.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: SPACING.sm,
+                    background: COLORS.bg.darkest,
+                    borderRadius: BORDER_RADIUS.sm,
+                    fontSize: FONT_SIZES.xs,
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: COLORS.text.primary, fontWeight: "600" }}>
+                      {link.gameName}
+                    </div>
+                    <div
+                      style={{
+                        color: link.profit >= 0 ? COLORS.accent.success : COLORS.accent.error,
+                        fontSize: FONT_SIZES.xs,
+                      }}
+                    >
+                      {link.profit >= 0 ? "+" : ""}
+                      {link.profit.toFixed(2)} • {link.multiplier.toFixed(2)}x
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              fullWidth
+              onClick={() => {
+                // Open dashboard in new tab (works in both Chrome and Firefox)
+                const dashboardUrl = "dashboard.html#winlinks";
+                // Use globalThis to access chrome API without type errors
+                const chromeApi = (globalThis as any).chrome;
+                if (chromeApi?.runtime) {
+                  const fullUrl = chromeApi.runtime.getURL(dashboardUrl);
+                  if (chromeApi.tabs) {
+                    chromeApi.tabs.create({ url: fullUrl });
+                  } else {
+                    window.open(fullUrl, '_blank');
+                  }
+                } else {
+                  window.open(dashboardUrl, '_blank');
+                }
+              }}
+              icon={<ExternalLink size={14} />}
+              iconPosition="right"
+              style={{ marginTop: SPACING.sm }}
+            >
+              View All Win Links
+            </Button>
           </div>
         )}
       </div>
