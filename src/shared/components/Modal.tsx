@@ -109,7 +109,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
         height: `${defaultSize.height}px`,
         minHeight: "400px",
         background: `linear-gradient(135deg, ${COLORS.bg.dark} 0%, ${COLORS.bg.darker} 100%)`,
-        border: `2px solid ${COLORS.border.default}`,
+        border: "1px solid #1a2c38",
         borderRadius: BORDER_RADIUS.lg,
         boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
         zIndex: zIndex,
@@ -123,10 +123,10 @@ export const Modal: FunctionComponent<ModalProps> = ({
         ref={headerRef}
         onMouseDown={handleMouseDown}
         style={{
-          background: `linear-gradient(90deg, ${COLORS.bg.darker} 0%, ${COLORS.border.default} 100%)`,
+          background: COLORS.bg.darkest,
           padding: SPACING.md,
           cursor: isDragging ? "grabbing" : "move",
-          borderBottom: `2px solid ${COLORS.border.light}`,
+          borderBottom: "1px solid #1a2c38",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -139,7 +139,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
               style={{
                 display: "flex",
                 alignItems: "center",
-                opacity: 0.8,
+                opacity: 0.9,
                 flexShrink: 0,
               }}
             >
@@ -148,9 +148,10 @@ export const Modal: FunctionComponent<ModalProps> = ({
           )}
           <span
             style={{
-              color: COLORS.accent.info,
-              fontWeight: 700,
+              color: "#fff",
+              fontWeight: 600,
               fontSize: "14px",
+              letterSpacing: "0.01em",
             }}
           >
             {title}
