@@ -16,6 +16,7 @@ export function UtilitiesProvider({ children }) {
   const [activeUtilities, setActiveUtilities] = useState({
     coinFlipper: false,
     randomGen: false,
+    randomGamePicker: false,
     magic8Ball: false,
     winLinks: false,
   });

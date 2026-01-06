@@ -7,7 +7,7 @@ import { render, h } from 'preact';
 import { detectCurrentGame } from './core/urlDetector.js';
 import { state } from './core/state.js';
 import { loadToolbarSettings } from './core/storage.js';
-import { Toolbar } from './ui/Toolbar.jsx';
+import { Toolbar } from './ui/Toolbar/index.tsx';
 import { UtilitiesProvider } from './hooks/useUtilities.js';
 import { UtilitiesManager } from './ui/UtilitiesManager.jsx';
 
