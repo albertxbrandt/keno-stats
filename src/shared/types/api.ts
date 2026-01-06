@@ -135,3 +135,89 @@ export interface RoundSavedEvent {
   drawn: number[]; // All drawn numbers (1-40)
   selected: number[]; // All selected numbers (1-40)
 }
+
+// ============================================================================
+// Mines Types
+// ============================================================================
+
+/**
+ * User information from Mines API response
+ */
+export interface MinesUser {
+  id: string;
+  name: string;
+}
+
+/**
+ * Single round in Mines game (one revealed tile)
+ */
+export interface MinesRound {
+  field: number; // 0-indexed position (0-24 for 5x5 grid)
+  payoutMultiplier: number;
+}
+
+/**
+ * Mines game state containing revealed tiles and mine positions
+ * NOTE: All positions are 0-indexed (0-24 for 5x5 grid)
+ */
+export interface MinesGameState {
+  rounds: MinesRound[]; // All revealed safe tiles in order
+  minesCount: number; // Number of mines on the board
+  mines: number[]; // Mine positions (0-indexed: 0-24)
+}
+
+/**
+ * Complete Mines cashout response from API
+ * This is the structure we receive from the interceptor
+ */
+export interface MinesCashoutResponse {
+  id: string;
+  active: boolean;
+  currency: CurrencyCode;
+  amountMultiplier: number;
+  payoutMultiplier: number;
+  amount: number;
+  payout: number;
+  updatedAt: string; // ISO date string
+  game: "mines";
+  user: MinesUser;
+  state: MinesGameState;
+}
+
+/**
+ * Wrapper for GraphQL response (Path 1)
+ */
+export interface MinesGraphQLResponse {
+  data: {
+    minesCashout: MinesCashoutResponse;
+  };
+}
+
+/**
+ * Direct response (Path 2)
+ */
+export interface MinesDirectResponse {
+  minesCashout: MinesCashoutResponse;
+}
+
+/**
+ * Message payload sent from interceptor to content script
+ */
+export interface MinesDataMessage {
+  type: "MINES_DATA_FROM_PAGE";
+  payload: MinesCashoutResponse;
+}
+
+/**
+ * Mines round data stored in history
+ * Combines API response with calculated data
+ */
+export interface MinesRoundData {
+  id: string;
+  minesCashout: MinesCashoutResponse;
+  time: number; // Unix timestamp
+  // Calculated values for easy access
+  revealedCount: number; // Number of tiles revealed
+  finalMultiplier: number; // Final payout multiplier
+  won: boolean; // Did player cash out (true) or hit mine (false)
+}

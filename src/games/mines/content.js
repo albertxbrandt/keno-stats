@@ -5,6 +5,7 @@
 
 import { state } from './core/state.js';
 import { initMinesOverlay } from './ui/MinesOverlay';
+import { saveMinesRound } from './core/storage';
 
 let overlayContainer = null;
 
@@ -20,11 +21,57 @@ export function init() {
     return;
   }
 
+  // Set up message listener for intercepted data
+  setupMessageListener();
+
   // Wait for game elements to load
   waitForMinesElements(() => {
     // eslint-disable-next-line no-console
     console.log('[Mines] Game elements found, initializing overlay');
     initOverlay();
+  });
+}
+
+/**
+ * Set up message listener for data from interceptor
+ */
+function setupMessageListener() {
+  window.addEventListener('message', async (event) => {
+    // Validate message source
+    if (event.source !== window) return;
+
+    const { type, payload } = event.data;
+
+    // Handle Mines data from interceptor
+    if (type === 'MINES_DATA_FROM_PAGE') {
+      // Data received from interceptor
+
+      try {
+        // Save round to storage
+        await saveMinesRound(payload);
+
+        // Update UI state
+        state.lastRound = {
+          id: payload.id,
+          revealed: payload.state.rounds.length,
+          multiplier: payload.payoutMultiplier,
+          won: payload.payout > 0,
+          minesCount: payload.state.minesCount,
+        };
+
+        // Trigger UI update if needed
+        if (window.__mines_onRoundSaved) {
+          window.__mines_onRoundSaved(state.lastRound);
+        }
+      } catch (error) {
+        console.error('[Mines Content] Error saving round:', error);
+      }
+    }
+
+    // Handle connection test
+    if (type === 'MINES_CONNECTION_TEST') {
+      state.interceptorActive = true;
+    }
   });
 }
 

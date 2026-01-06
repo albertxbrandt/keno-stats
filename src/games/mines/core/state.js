@@ -11,6 +11,10 @@ export const state = {
   // Game state
   currentGame: null,
   gameHistory: [],
+  lastRound: null, // Last cashout data
+  
+  // Interceptor state
+  interceptorActive: false,
   
   // Settings
   settings: {
