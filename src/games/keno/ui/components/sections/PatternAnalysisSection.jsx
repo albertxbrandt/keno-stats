@@ -5,7 +5,7 @@ import { useState } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { Search, Radio } from 'lucide-preact';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';

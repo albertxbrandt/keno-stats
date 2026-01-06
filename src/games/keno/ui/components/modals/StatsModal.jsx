@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
 import { Target, Radio, BarChart3 } from 'lucide-preact';
 import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';

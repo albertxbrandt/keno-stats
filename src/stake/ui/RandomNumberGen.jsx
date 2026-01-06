@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
 import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
 import { useUtilities } from '../hooks/useUtilities.js';
 import { COLORS } from '@/shared/constants/colors.js';

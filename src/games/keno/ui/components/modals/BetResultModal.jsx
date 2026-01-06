@@ -2,7 +2,7 @@
 // Modal displaying detailed bet result breakdown
 
 import { h } from 'preact';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { X } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS } from '@/shared/constants/styles.js';

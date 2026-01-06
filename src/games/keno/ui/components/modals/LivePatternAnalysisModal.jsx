@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { findCommonPatterns } from '@/shared/utils/calculations/patternAlgorithms.js';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { Play, Pause, X } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, INPUT_STYLES, LABEL_STYLES } from '@/shared/constants/styles.js';

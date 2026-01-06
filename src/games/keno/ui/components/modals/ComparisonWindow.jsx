@@ -4,8 +4,8 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { Modal } from '@/shared/components/Modal.jsx';
-import { Button } from '@/shared/components/Button.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { Button } from '@/shared/components/Button';
 import { BarChart3, ChevronDown, ChevronUp } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';

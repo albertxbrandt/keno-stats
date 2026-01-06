@@ -2,7 +2,7 @@
 // Modal for configuring advanced refresh rules
 
 import { useState, useEffect } from 'preact/hooks';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { X, Plus, Trash2 } from 'lucide-preact';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';

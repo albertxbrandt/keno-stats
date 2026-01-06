@@ -1,5 +1,5 @@
 // src/dashboard/components/SettingsModal.jsx
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 

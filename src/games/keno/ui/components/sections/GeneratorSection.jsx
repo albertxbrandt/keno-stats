@@ -7,7 +7,7 @@ import { state } from '@/games/keno/core/state.js';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { initButtonPreviewHighlight } from '@/games/keno/ui/previewHighlight.js';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { GeneratorPreview } from '../generator/GeneratorPreview.jsx';
 import { MethodSelector } from '../generator/MethodSelector.jsx';
 import { AutoRefreshControl } from '../generator/AutoRefreshControl.jsx';

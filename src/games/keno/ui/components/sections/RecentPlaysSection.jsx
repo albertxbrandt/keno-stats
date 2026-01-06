@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
 import { Clock, Info } from 'lucide-preact';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { state } from '@/games/keno/core/state.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';

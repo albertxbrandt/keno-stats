@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
-import { Button } from '@/shared/components/Button.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { Button } from '@/shared/components/Button';
 import { Save, Info, Trash2 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';

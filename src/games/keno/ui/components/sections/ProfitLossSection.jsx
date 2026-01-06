@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { DollarSign } from 'lucide-preact';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';
 import { state } from '@/games/keno/core/state.js';

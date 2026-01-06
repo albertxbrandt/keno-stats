@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
 import { Search, Save } from 'lucide-preact';
 import { state } from '@/games/keno/core/state.js';
 import { COLORS } from '@/shared/constants/colors.js';

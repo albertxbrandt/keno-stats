@@ -2,7 +2,7 @@
 // Button to open advanced refresh rules modal
 
 import { useState, useEffect } from 'preact/hooks';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { state } from '@/games/keno/core/state.js';
 import { AdvancedRulesModal } from '../modals/AdvancedRulesModal.jsx';
 import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';

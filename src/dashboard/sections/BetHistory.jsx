@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { Download, Trash2, Settings, Upload } from 'lucide-preact';
-import { Button } from '@/shared/components/Button.jsx';
+import { Button } from '@/shared/components/Button';
 import { BetTable } from '../components/BetTable.jsx';
 import { SearchBar } from '../components/SearchBar.jsx';
 import { Pagination } from '../components/Pagination.jsx';
