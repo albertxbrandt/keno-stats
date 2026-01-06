@@ -3,10 +3,9 @@
 // Root of the Preact component tree for the Keno Stats Tracker UI
 
 import { render } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { constrainToViewport } from '@/shared/utils/viewport.js';
 import { HitsMissSection } from './sections/HitsMissSection.tsx';
 import { GeneratorSection } from './sections/GeneratorSection.jsx';
 import { HeatmapSection } from './sections/HeatmapSection.jsx';
@@ -14,7 +13,7 @@ import { ProfitLossSection } from './sections/ProfitLossSection.jsx';
 import { PatternAnalysisSection } from './sections/PatternAnalysisSection.jsx';
 import { RecentPlaysSection } from './sections/RecentPlaysSection.jsx';
 import { HistorySection } from './sections/HistorySection.jsx';
-import { DragHandle } from '@/shared/components/DragHandle.jsx';
+import { DraggableOverlay } from '@/shared/components/DraggableOverlay.jsx';
 import { SettingsPanel } from './SettingsPanel.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING, BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';
@@ -79,10 +78,6 @@ export function Overlay() {
   // Default order fallback
   const defaultOrder = ['heatmap', 'numberGenerator', 'hitsMiss', 'autoplay', 'profitLoss', 'patternAnalysis', 'recentPlays', 'history'];
 
-  // Dragging state
-  const [position, setPosition] = useState({ top: 80, left: null, right: 20 });
-  const dragStartRef = useRef({ top: 0, left: 0 });
-
   // Listen for toggle events from footer button and settings changes
   useEffect(() => {
     const handleToggle = () => {
@@ -108,33 +103,6 @@ export function Overlay() {
     };
   }, []);
 
-  const handleDragStart = () => {
-    // Store the current position when drag starts
-    const overlay = document.getElementById('keno-tracker-overlay');
-    if (!overlay) return;
-    
-    const rect = overlay.getBoundingClientRect();
-    dragStartRef.current = { top: rect.top, left: rect.left };
-    
-    // Convert right-based positioning to left-based for dragging
-    setPosition({ top: rect.top, left: rect.left, right: null });
-  };
-
-  const handleDrag = (dx, dy) => {
-    const newX = dragStartRef.current.left + dx;
-    const newY = dragStartRef.current.top + dy;
-    const constrained = constrainToViewport(newX, newY, 240); // 240px is overlay width
-    setPosition({
-      top: constrained.y,
-      left: constrained.x,
-      right: null
-    });
-  };
-
-  const handleDragEnd = () => {
-    // Position is already updated in state, nothing more needed
-  };
-
   const handleClose = () => {
     setIsVisible(false);
     state.isOverlayVisible = false;
@@ -154,37 +122,14 @@ export function Overlay() {
   }
 
   return (
-    <div 
-      id="keno-tracker-overlay"
-      style={{
-        position: 'fixed',
-        ...(position.left !== null ? { left: `${position.left}px` } : { right: `${position.right}px` }),
-        top: `${position.top}px`,
-        width: '280px',
-        backgroundColor: COLORS.bg.darker,
-        color: '#fff',
-        padding: '0',
-        borderRadius: '8px',
-        zIndex: '999999',
-        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
-        border: '1px solid #1a2c38',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.5)',
-        fontSize: FONT_SIZES.base,
-        display: isVisible ? 'block' : 'none',
-        overflow: 'visible'
-      }}
+    <DraggableOverlay
+      title="Keno Stats Tracker"
+      onClose={handleClose}
+      onSettingsClick={() => setCurrentView(currentView === 'tracker' ? 'settings' : 'tracker')}
+      isActive={true}
+      defaultPosition={{ x: window.innerWidth - 320, y: 80 }}
+      width="280px"
     >
-      {/* Drag Handle */}
-      <DragHandle 
-        title="Keno Stats Tracker"
-        onClose={handleClose}
-        onSettingsClick={() => setCurrentView(currentView === 'tracker' ? 'settings' : 'tracker')}
-        onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-        isActive={true}
-      />
-
       {/* Tracker Tab Content */}
       <div 
         id="keno-overlay-content"
@@ -218,7 +163,7 @@ export function Overlay() {
       >
         <SettingsPanel />
       </div>
-    </div>
+    </DraggableOverlay>
   );
 }
 
