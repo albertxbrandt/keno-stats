@@ -15,7 +15,13 @@ import {
 } from "@/shared/constants/styles.js";
 import { fetchBetData, parseBetId } from "@/shared/utils/stakeBetApi";
 import { saveWinLink, loadWinLinks } from "@/shared/storage/winLinks";
-import { BetWrapper, CasinoBet, ThirdPartyBet, isCasinoBet, SavedWinLink } from "@/shared/types/winLinks";
+import {
+  BetWrapper,
+  CasinoBet,
+  ThirdPartyBet,
+  isCasinoBet,
+  SavedWinLink,
+} from "@/shared/types/winLinks";
 
 interface AddWinLinkProps {
   onClose: () => void;
@@ -46,7 +52,9 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
 
     const betId = parseBetId(betIdInput);
     if (!betId) {
-      setFetchError("Invalid bet ID format. Use format like: house:123456789 or casino:123456789");
+      setFetchError(
+        "Invalid bet ID format. Use format like: house:123456789 or casino:123456789"
+      );
       return;
     }
 
@@ -72,7 +80,7 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
       await saveWinLink(fetchedBet);
       setSaveSuccess(true);
       setFetchError(null);
-      
+
       // Reload recent links
       await loadRecentLinks();
 
@@ -229,7 +237,10 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
                     }}
                   >
                     {isCasinoBet(fetchedBet.bet)
-                      ? (fetchedBet.bet as CasinoBet).game.charAt(0).toUpperCase() + (fetchedBet.bet as CasinoBet).game.slice(1)
+                      ? (fetchedBet.bet as CasinoBet).game
+                          .charAt(0)
+                          .toUpperCase() +
+                        (fetchedBet.bet as CasinoBet).game.slice(1)
                       : (fetchedBet.bet as ThirdPartyBet).thirdPartyGame
                           ?.name || "Unknown"}
                   </span>
@@ -416,7 +427,13 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
             >
               Recent Win Links
             </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: SPACING.xs }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: SPACING.xs,
+              }}
+            >
               {recentLinks.map((link) => (
                 <div
                   key={link.id}
@@ -431,12 +448,17 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
                   }}
                 >
                   <div style={{ flex: 1 }}>
-                    <div style={{ color: COLORS.text.primary, fontWeight: "600" }}>
+                    <div
+                      style={{ color: COLORS.text.primary, fontWeight: "600" }}
+                    >
                       {link.gameName}
                     </div>
                     <div
                       style={{
-                        color: link.profit >= 0 ? COLORS.accent.success : COLORS.accent.error,
+                        color:
+                          link.profit >= 0
+                            ? COLORS.accent.success
+                            : COLORS.accent.error,
                         fontSize: FONT_SIZES.xs,
                       }}
                     >
@@ -447,7 +469,7 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
                 </div>
               ))}
             </div>
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -456,16 +478,23 @@ export function AddWinLink({ onClose }: AddWinLinkProps) {
                 // Open dashboard in new tab (works in both Chrome and Firefox)
                 const dashboardUrl = "dashboard.html#winlinks";
                 // Use globalThis to access chrome API without type errors
-                const chromeApi = (globalThis as any).chrome;
+                const chromeApi = (
+                  globalThis as {
+                    chrome?: {
+                      runtime?: { getURL: (path: string) => string };
+                      tabs?: { create: (options: { url: string }) => void };
+                    };
+                  }
+                ).chrome;
                 if (chromeApi?.runtime) {
                   const fullUrl = chromeApi.runtime.getURL(dashboardUrl);
                   if (chromeApi.tabs) {
                     chromeApi.tabs.create({ url: fullUrl });
                   } else {
-                    window.open(fullUrl, '_blank');
+                    window.open(fullUrl, "_blank");
                   }
                 } else {
-                  window.open(dashboardUrl, '_blank');
+                  window.open(dashboardUrl, "_blank");
                 }
               }}
               icon={<ExternalLink size={14} />}
