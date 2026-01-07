@@ -131,6 +131,7 @@ export function recalculateTotalProfit() {
   state.profitByCurrency = calculateProfitByCurrency(history, state.sessionStartTime);
 
   // Update legacy state
+  if (!state.selectedCurrency) return;
   const selectedCurr = state.selectedCurrency.toLowerCase();
   if (state.profitByCurrency[selectedCurr]) {
     state.totalProfit = state.profitByCurrency[selectedCurr].total;
@@ -153,6 +154,7 @@ export function recalculateTotalProfit() {
  * Reset session profit to zero for selected currency
  */
 export function resetSessionProfit() {
+  if (!state.selectedCurrency) return;
   const selectedCurr = state.selectedCurrency.toLowerCase();
 
   if (state.profitByCurrency[selectedCurr]) {
@@ -212,6 +214,7 @@ export function changeCurrency(currency) {
  * @returns {number} Session profit
  */
 export function getSessionProfit() {
+  if (!state.selectedCurrency) return 0;
   const selectedCurr = state.selectedCurrency.toLowerCase();
   return state.profitByCurrency[selectedCurr]?.session || 0;
 }
@@ -221,6 +224,7 @@ export function getSessionProfit() {
  * @returns {number} Total profit
  */
 export function getTotalProfit() {
+  if (!state.selectedCurrency) return 0;
   const selectedCurr = state.selectedCurrency.toLowerCase();
   return state.profitByCurrency[selectedCurr]?.total || 0;
 }

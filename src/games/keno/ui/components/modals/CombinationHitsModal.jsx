@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { BarChart3 } from 'lucide-preact';
 import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '@/games/keno/core/state.js';
@@ -94,7 +95,7 @@ export function CombinationHitsModal({
   return (
     <Modal
       title="Combination Stats"
-      icon="📊"
+      icon={<BarChart3 size={16} strokeWidth={2} />}
       onClose={onClose}
       defaultPosition={{ x: window.innerWidth / 2 - 250, y: 50 }}
       defaultSize={{ width: 500, height: 'auto' }}

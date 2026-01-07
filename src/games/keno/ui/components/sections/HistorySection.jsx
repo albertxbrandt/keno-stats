@@ -6,9 +6,11 @@ import { state } from '@/games/keno/core/state.js';
 import { clearHistory } from '@/shared/storage/history.js';
 import { highlightRound } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
+import { Button } from '@/shared/components/Button';
+import { ScrollText, BarChart3 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 const storageApi = (typeof browser !== 'undefined') ? browser : chrome;
 
@@ -60,7 +62,7 @@ export function HistorySection() {
 
   return (
     <CollapsibleSection
-      icon="📋"
+      icon={<ScrollText size={14} strokeWidth={2} />}
       title={`History (${history.length} rounds)`}
       defaultExpanded={false}
       headerExtra={
@@ -71,7 +73,7 @@ export function HistorySection() {
             border: 'none',
             color: COLORS.accent.error,
             cursor: 'pointer',
-            fontSize: '11px',
+            fontSize: FONT_SIZES.sm,
             fontWeight: 'bold',
             padding: '0',
             transition: 'opacity 0.2s'
@@ -99,7 +101,7 @@ export function HistorySection() {
           {history.length === 0 ? (
             <div style={{
               color: COLORS.text.tertiary,
-              fontSize: '10px',
+              fontSize: FONT_SIZES.xs,
               padding: SPACING.sm,
               textAlign: 'center'
             }}>
@@ -115,7 +117,7 @@ export function HistorySection() {
                   marginBottom: '3px',
                   background: COLORS.bg.dark,
                   borderRadius: BORDER_RADIUS.sm,
-                  fontSize: '10px',
+                  fontSize: FONT_SIZES.xs,
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
@@ -138,7 +140,7 @@ export function HistorySection() {
                   </span>
                 </span>
                 {round.time && (
-                  <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
+                  <span style={{ color: COLORS.text.tertiary, fontSize: FONT_SIZES.xs }}>
                     {new Date(round.time).toLocaleTimeString()}
                   </span>
                 )}
@@ -148,25 +150,16 @@ export function HistorySection() {
         </div>
 
         {/* Open Bet Book Button */}
-        <button
+        <Button
+          variant="warning"
+          size="sm"
+          fullWidth
           onClick={handleOpenBetBook}
-          style={{
-            width: '100%',
-            background: '#ffd700',
-            color: '#222',
-            border: 'none',
-            padding: '8px 10px',
-            borderRadius: '4px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '11px',
-            transition: 'opacity 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-          onMouseLeave={(e) => e.target.style.opacity = '1'}
+          icon={<BarChart3 size={12} strokeWidth={2} />}
+          iconPosition="left"
         >
-          📊 Open Dashboard
-        </button>
+          Open Dashboard
+        </Button>
       </div>
     </CollapsibleSection>
   );

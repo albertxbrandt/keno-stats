@@ -182,8 +182,7 @@ export function saveRound(round) {
   // Queue the chunked write (only writes one chunk, not entire history)
   queueStorageWrite(round, totalCount);
 
-  // Emit event for listeners
-  stateEvents.emit(EVENTS.ROUND_SAVED, { round, totalCount });
+  // Emit history updated event for listeners (round data already emitted by content.js)
   stateEvents.emit(EVENTS.HISTORY_UPDATED, state.currentHistory);
 
   // Update profit/loss if data is available

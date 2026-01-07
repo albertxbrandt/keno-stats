@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { Target, Radio, BarChart3 } from 'lucide-preact';
 import { PayoutGraph } from '../PayoutGraph.jsx';
 import { ProfitLossGraph } from '../ProfitLossGraph.jsx';
 import { state } from '@/games/keno/core/state.js';
@@ -232,7 +233,7 @@ export function StatsModal({
     return (
       <Modal
         title={name}
-        icon="📡"
+        icon={<Radio size={16} strokeWidth={2} />}
         onClose={onClose}
         defaultPosition={{ x: window.innerWidth / 2 - 250, y: 50 }}
         defaultSize={{ width: 500, height: 'auto' }}
@@ -245,7 +246,9 @@ export function StatsModal({
             color: COLORS.text.tertiary
           }}
         >
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎯</div>
+          <div style={{ fontSize: '48px', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
+            <Target size={48} strokeWidth={2} color={COLORS.text.tertiary} />
+          </div>
           <div style={{ fontSize: '14px', marginBottom: '8px' }}>No Numbers Selected</div>
           <div style={{ fontSize: '11px' }}>
             Select 3 or more numbers on the board to track live statistics
@@ -255,7 +258,7 @@ export function StatsModal({
     );
   }
 
-  const icon = trackLive ? '📡' : '📊';
+  const icon = trackLive ? <Radio size={16} strokeWidth={2} /> : <BarChart3 size={16} strokeWidth={2} />;
   const borderColor = trackLive ? COLORS.accent.info : COLORS.accent.success;
 
   return (

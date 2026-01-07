@@ -1,9 +1,10 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
-import { useUtilities } from '../hooks/useUtilities.js';
+import { Modal } from '@/shared/components/Modal';
+import { useUtilities } from '../hooks/useUtilities';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { Gamepad2, RefreshCw, Dices, Play } from 'lucide-preact';
 
 const storageApi = typeof browser !== 'undefined' ? browser : chrome;
 const STORAGE_KEY = 'randomGamePicker';
@@ -111,7 +112,10 @@ export function RandomGamePicker() {
   const displayGame = isPicking ? shuffleGame : pickedGame;
 
   return h(Modal, {
-    title: '🎮 Random Game Picker',
+    title: h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
+      h(Gamepad2, { size: 18, strokeWidth: 2, color: COLORS.text.primary }),
+      'Random Game Picker'
+    ]),
     onClose: () => closeUtility('randomGamePicker'),
     defaultWidth: 340,
     defaultHeight: 600,
@@ -157,9 +161,15 @@ export function RandomGamePicker() {
           borderRadius: BORDER_RADIUS.sm,
           fontSize: '11px',
           cursor: 'pointer',
-          transition: 'all 0.2s'
+          transition: 'all 0.2s',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
         }
-      }, '🔄 Rescan')
+      }, [
+        h(RefreshCw, { size: 12, strokeWidth: 2, color: COLORS.accent.info }),
+        'Rescan'
+      ])
     ]),
 
     // Pick button
@@ -177,9 +187,16 @@ export function RandomGamePicker() {
         cursor: isPicking || games.length === 0 ? 'not-allowed' : 'pointer',
         transition: 'all 0.3s',
         opacity: isPicking || games.length === 0 ? 0.6 : 1,
-        transform: isPicking ? 'scale(0.98)' : 'scale(1)'
+        transform: isPicking ? 'scale(0.98)' : 'scale(1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px'
       }
-    }, isPicking ? '🎰 Picking...' : '🎮 Pick Random Game'),
+    }, [
+      h(Dices, { size: 18, strokeWidth: 2, color: COLORS.text.primary }),
+      isPicking ? 'Picking...' : 'Pick Random Game'
+    ]),
 
     // Picked/Shuffling game display
     displayGame && h('div', {
@@ -257,9 +274,16 @@ export function RandomGamePicker() {
           fontWeight: '600',
           cursor: 'pointer',
           transition: 'all 0.2s',
-          marginTop: SPACING.sm
+          marginTop: SPACING.sm,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px'
         }
-      }, '▶️ Play Now')
+      }, [
+        h(Play, { size: 14, strokeWidth: 2, color: COLORS.text.primary }),
+        'Play Now'
+      ])
     ]),
 
     // History section

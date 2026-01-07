@@ -2,6 +2,8 @@
 // Bet history section (moved from betbook)
 
 import { useState, useEffect } from 'preact/hooks';
+import { Download, Trash2, Settings, Upload } from 'lucide-preact';
+import { Button } from '@/shared/components/Button';
 import { BetTable } from '../components/BetTable.jsx';
 import { SearchBar } from '../components/SearchBar.jsx';
 import { Pagination } from '../components/Pagination.jsx';
@@ -9,7 +11,7 @@ import { SettingsModal } from '../components/SettingsModal.jsx';
 import { BetDetailsModal } from '../components/BetDetailsModal.jsx';
 import { loadBetHistory, exportBetHistory, deleteAllHistory, importHistory } from '../utils/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { SPACING } from '@/shared/constants/styles.js';
 
 /**
  * BetHistory Section
@@ -222,6 +224,10 @@ export function BetHistory() {
     }
   };
 
+  const handleUpload = () => {
+    document.getElementById('fileInput').click();
+  };
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -263,66 +269,46 @@ export function BetHistory() {
         marginBottom: SPACING.lg,
         flexWrap: 'wrap'
       }}>
-        <button
-          onClick={() => document.getElementById('fileInput').click()}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
+        <Button
+          variant="secondary"
+          size="md"
+          icon={<Upload size={16} />}
+          iconPosition="left"
+          onClick={handleUpload}
         >
-          📂 Upload History
-        </button>
+          Upload History
+        </Button>
         
-        <button
+        <Button
+          variant="secondary"
+          size="md"
+          icon={<Download size={16} />}
+          iconPosition="left"
           onClick={handleExport}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
         >
-          💾 Export
-        </button>
+          Export
+        </Button>
 
-        <button
+        <Button
+          variant="danger"
+          size="md"
+          icon={<Trash2 size={16} />}
+          iconPosition="left"
           onClick={handleDeleteAll}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.accent.error,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}
         >
-          🗑️ Delete All
-        </button>
+          Delete All
+        </Button>
 
-        <button
+        <Button
+          variant="secondary"
+          size="md"
+          icon={<Settings size={16} />}
+          iconPosition="left"
           onClick={() => setIsSettingsOpen(true)}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.md,
-            borderRadius: BORDER_RADIUS.md,
-            cursor: 'pointer',
-            fontSize: '14px',
-            marginLeft: 'auto'
-          }}
+          style={{ marginLeft: 'auto' }}
         >
-          ⚙️ Columns
-        </button>
+          Columns
+        </Button>
 
         <input
           id="fileInput"

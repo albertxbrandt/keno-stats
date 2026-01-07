@@ -2,10 +2,13 @@
 // Button to open advanced refresh rules modal
 
 import { useState, useEffect } from 'preact/hooks';
+import { Button } from '@/shared/components/Button';
 import { state } from '@/games/keno/core/state.js';
 import { AdvancedRulesModal } from '../modals/AdvancedRulesModal.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { Settings } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS } from '@/shared/constants/styles.js';
+import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 
 /**
  * AdvancedRulesSection Component
@@ -38,46 +41,47 @@ export function AdvancedRulesSection({ onToggle }) {
     }
   };
 
+  const handleToggle = (checked) => {
+    state.generatorAdvancedRules = state.generatorAdvancedRules || {};
+    state.generatorAdvancedRules.enabled = checked;
+    setIsEnabled(checked);
+    if (onToggle) {
+      onToggle(checked);
+    }
+    // Save settings
+    saveGeneratorSettings();
+  };
+
   return (
     <>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          background: isEnabled ? COLORS.accent.blue + '33' : COLORS.bg.darker,
-          color: isEnabled ? COLORS.accent.blue : COLORS.text.secondary,
-          border: `1px solid ${isEnabled ? COLORS.accent.blue : COLORS.border.light}`,
-          borderRadius: BORDER_RADIUS.xs,
-          fontSize: '10px',
-          fontWeight: '600',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          transition: 'all 0.2s'
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background = isEnabled ? COLORS.accent.blue + '44' : COLORS.bg.medium;
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background = isEnabled ? COLORS.accent.blue + '33' : COLORS.bg.darker;
-        }}
-      >
-        <span>⚙️ Advanced Rules</span>
-        {isEnabled && (
-          <span style={{
-            padding: '2px 6px',
-            background: COLORS.accent.blue,
-            borderRadius: BORDER_RADIUS.xs,
-            fontSize: '8px',
-            fontWeight: '700',
-            color: COLORS.text.primary
-          }}>
-            ON
-          </span>
-        )}
-      </button>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsModalOpen(true)}
+          icon={<Settings size={13} strokeWidth={2} />}
+          iconPosition="left"
+          style={{
+            padding: '0',
+            fontSize: '10px',
+            color: COLORS.text.secondary,
+            background: 'transparent',
+            border: 'none'
+          }}
+          title="Configure Advanced Rules"
+        >
+          Advanced Rules:
+        </Button>
+        <ToggleSwitch
+          checked={isEnabled}
+          onChange={(e) => handleToggle(e.target.checked)}
+          dotId="generator-advanced-rules-dot"
+        />
+      </div>
 
       {isModalOpen && (
         <AdvancedRulesModal onClose={handleCloseModal} />

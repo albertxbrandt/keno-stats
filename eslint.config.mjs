@@ -1,6 +1,8 @@
 import js from "@eslint/js";
 import globals from "globals";
 import react from "eslint-plugin-react";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsparser from "@typescript-eslint/parser";
 
 export default [
   // JavaScript and JSX files
@@ -34,6 +36,7 @@ export default [
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^_"
       }],
+      "no-undef": "error",  // Catch undefined variables including missing JSX imports
       "react/jsx-uses-react": "error",  // Prevent React/Preact being marked as unused
       "react/jsx-uses-vars": "error",   // Prevent variables used in JSX being marked as unused
       "no-console": ["warn", {
@@ -75,6 +78,63 @@ export default [
       "no-warning-comments": ["warn", {
         "terms": ["TODO", "FIXME", "XXX", "HACK", "REFACTOR"],
         "location": "start"
+      }]
+    }
+  },
+
+  // TypeScript and TSX files
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true
+        },
+        project: "./tsconfig.json"
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.webextensions
+      }
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+      react
+    },
+    settings: {
+      react: {
+        pragma: "h",
+        version: "detect"
+      }
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
+
+      // React/JSX rules
+      "react/jsx-uses-react": "error",
+      "react/jsx-uses-vars": "error",
+
+      // TypeScript-specific
+      "@typescript-eslint/no-unused-vars": ["warn", {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+
+      // Console rules
+      "no-console": ["warn", {
+        "allow": ["warn", "error"]
+      }],
+
+      // Same anti-patterns as JS
+      "no-restricted-globals": ["error", {
+        "name": "setInterval",
+        "message": "Avoid setInterval - use MutationObserver, event listeners, or reactive patterns instead."
       }]
     }
   },

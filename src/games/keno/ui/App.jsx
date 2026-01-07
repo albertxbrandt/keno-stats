@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { ModalsProvider } from '@/games/keno/hooks/useModals.js';
 import { ModalsManager } from './ModalsManager.jsx';
-import { Overlay } from './components/Overlay.jsx';
+import { Overlay } from './components/Overlay';
 
 /**
  * Main application component

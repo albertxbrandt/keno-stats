@@ -6,16 +6,16 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { initPreviewBoxHighlight } from '@/games/keno/ui/previewHighlight.js';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * GeneratorPreview Component
  * 
  * Displays a preview of the next numbers that will be selected when clicking "Select".
  * Shows:
- * - Method name with emoji (e.g., "🔥 Hot")
+ * - Method name with icon (e.g., "Hot")
  * - Auto-refresh countdown (e.g., "2/5 rounds" or "Manual")
  * - Predicted numbers with visual feedback for hits from last round
  * 
@@ -30,7 +30,7 @@ import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
  * Preview updates automatically when settings change (via stateEvents).
  */
 export function GeneratorPreview() {
-  const [methodDisplay, setMethodDisplay] = useState('🔥 Hot');
+  const [methodDisplay, setMethodDisplay] = useState('Hot');
   const [countdown, setCountdown] = useState('Manual');
   const [countdownColor, setCountdownColor] = useState('#666');
   const [previewNumbers, setPreviewNumbers] = useState([]);
@@ -39,13 +39,13 @@ export function GeneratorPreview() {
 
   // Method name mappings
   const methodNames = {
-    'frequency': '🔥 Hot',
-    'cold': '❄️ Cold',
-    'mixed': '🔀 Mixed',
-    'average': '📊 Average',
-    'momentum': '⚡ Momentum',
-    'auto': '🤖 Auto',
-    'shapes': '🔷 Shapes'
+    'frequency': 'Hot',
+    'cold': 'Cold',
+    'mixed': 'Mixed',
+    'average': 'Average',
+    'momentum': 'Trending',
+    'auto': 'Auto',
+    'shapes': 'Shapes'
   };
 
   // Update preview when state changes
@@ -63,7 +63,13 @@ export function GeneratorPreview() {
       if (!autoRefresh) {
         setCountdown('Manual');
         setCountdownColor(COLORS.text.tertiary);
+      } else if (state.generatorAdvancedRules?.enabled) {
+        // Advanced rules: condition-based, not interval-based
+        const roundsSinceRefresh = currentRound - lastRefresh;
+        setCountdown(`${roundsSinceRefresh} rounds (rules)`);
+        setCountdownColor(COLORS.accent.warning);
       } else {
+        // Standard interval-based refresh
         const roundsSinceRefresh = currentRound - lastRefresh;
         const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
         setCountdown(`${roundsUntilRefresh}/${interval} rounds`);
@@ -151,60 +157,55 @@ export function GeneratorPreview() {
         border: `1px solid ${COLORS.border.light}`,
         cursor: 'pointer'
       }}>
+      {/* Header Row */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '4px'
+        marginBottom: SPACING.xs
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{
-            color: COLORS.accent.info,
-            fontSize: '9px',
-            fontWeight: '600'
-          }}>
-            Next Numbers:
-          </span>
-          <ToggleSwitch
-            checked={alwaysShowPreview}
-            onChange={handleToggleChange}
-            label="Always Show"
-            labelSize="8px"
-          />
-        </div>
+        <span style={{
+          color: COLORS.accent.info,
+          fontSize: FONT_SIZES.xs,
+          fontWeight: '600'
+        }}>
+          Next Numbers
+        </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             color: COLORS.text.tertiary,
-            fontSize: '8px'
+            fontSize: FONT_SIZES.xs
           }}>
             {methodDisplay}
           </span>
           <span style={{
             color: countdownColor,
-            fontSize: '8px',
+            fontSize: FONT_SIZES.xs,
             fontWeight: '600'
           }}>
             {countdown}
           </span>
         </div>
       </div>
-      
+
+      {/* Numbers Display */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
         gap: '4px',
         minHeight: '24px',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: SPACING.xs
       }}>
         {previewNumbers.length === 0 ? (
-          <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>-</span>
+          <span style={{ color: COLORS.text.tertiary, fontSize: '11px' }}>-</span>
         ) : (
           previewNumbers.map(({ number, wasHit }) => {
             const baseStyle = {
               display: 'inline-block',
               padding: '4px 8px',
               borderRadius: '4px',
-              fontSize: '10px',
+              fontSize: FONT_SIZES.xs,
               fontWeight: '600',
               transition: 'all 0.2s'
             };
@@ -242,6 +243,29 @@ export function GeneratorPreview() {
             }
           })
         )}
+      </div>
+
+      {/* Toggle Row */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: SPACING.xs,
+        marginTop: SPACING.sm,
+        paddingTop: SPACING.xs,
+        borderTop: `1px solid ${COLORS.border.default}`
+      }}>
+        <ToggleSwitch
+          checked={alwaysShowPreview}
+          onChange={handleToggleChange}
+          label=""
+          labelSize={FONT_SIZES.xs}
+        />
+        <span style={{
+          color: COLORS.text.secondary,
+          fontSize: FONT_SIZES.xs
+        }}>
+          Highlight
+        </span>
       </div>
     </div>
   );

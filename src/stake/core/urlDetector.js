@@ -6,6 +6,7 @@ const GAME_PATTERNS = {
   keno: /\/casino\/games\/keno/i,
   dice: /\/casino\/games\/dice/i,
   plinko: /\/casino\/games\/plinko/i,
+  mines: /\/casino\/games\/mines/i,
   // Add more games as needed
 };
 

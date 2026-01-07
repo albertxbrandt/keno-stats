@@ -6,11 +6,12 @@ import { state } from '@/games/keno/core/state.js';
 import { saveHeatmapSettings } from '@/games/keno/core/storage.js';
 import { updateHeatmap, clearHeatmap } from '@/shared/utils/dom/heatmap.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
+import { NumberInput } from '@/shared/components/NumberInput';
+import { Map } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * HeatmapSection Component
@@ -76,7 +77,7 @@ export function HeatmapSection() {
 
   return (
     <CollapsibleSection
-      icon="🗺️"
+      icon={<Map size={14} strokeWidth={2} />}
       title="Heatmap"
       status={isEnabled ? 'Active' : 'Inactive'}
       defaultExpanded={false}
@@ -84,7 +85,7 @@ export function HeatmapSection() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.sm }}>
         {/* Enable/Disable Toggle */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Enable Heatmap:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>Enable Heatmap:</span>
           <ToggleSwitch
             checked={isEnabled}
             onChange={handleToggle}
@@ -94,7 +95,7 @@ export function HeatmapSection() {
 
         {/* Mode Selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.sm }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Mode:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>Mode:</span>
           <select
             value={mode}
             onChange={handleModeChange}
@@ -105,18 +106,18 @@ export function HeatmapSection() {
               color: COLORS.text.primary,
               padding: '4px',
               borderRadius: BORDER_RADIUS.sm,
-              fontSize: '11px',
+              fontSize: FONT_SIZES.base,
               cursor: 'pointer'
             }}
           >
-            <option value="hot">🔥 Hot Numbers</option>
-            <option value="trending">📈 Trending</option>
+            <option value="hot">Hot Numbers</option>
+            <option value="trending">Trending</option>
           </select>
         </div>
 
         {/* Sample Size Input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.sm }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Sample Size:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>Sample Size:</span>
           <NumberInput
             value={sampleSize}
             onChange={handleSampleSizeChange}
@@ -133,7 +134,7 @@ export function HeatmapSection() {
             padding: SPACING.inputPadding, 
             background: COLORS.bg.darkest, 
             borderRadius: BORDER_RADIUS.sm,
-            fontSize: '9px',
+            fontSize: FONT_SIZES.xs,
             color: COLORS.text.secondary
           }}>
             {mode === 'hot' 

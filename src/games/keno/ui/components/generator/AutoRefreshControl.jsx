@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
 import { NumberInput } from '@/shared/components/NumberInput.jsx';
 import { AdvancedRulesSection } from './AdvancedRulesSection.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
@@ -84,7 +84,7 @@ export function AutoRefreshControl() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '6px'
+        marginBottom: SPACING.sm
       }}>
         <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
           Auto-Refresh:
@@ -98,25 +98,6 @@ export function AutoRefreshControl() {
 
       {autoRefresh && (
         <>
-          {/* Mode Indicator */}
-          <div style={{
-            padding: '6px 8px',
-            marginBottom: '8px',
-            background: advancedEnabled ? COLORS.accent.blue + '22' : COLORS.bg.darker,
-            borderRadius: BORDER_RADIUS.xs,
-            border: `1px solid ${advancedEnabled ? COLORS.accent.blue : COLORS.border.light}`
-          }}>
-            <div style={{
-              color: advancedEnabled ? COLORS.accent.blue : COLORS.text.secondary,
-              fontSize: '9px',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              {advancedEnabled ? '⚙️ Advanced Mode Active' : '✓ Simple Mode'}
-            </div>
-          </div>
-
           {/* Simple Mode Controls */}
           <div style={{
             opacity: simpleDisabled ? 0.4 : 1,
@@ -126,8 +107,8 @@ export function AutoRefreshControl() {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              marginBottom: '8px'
+              gap: SPACING.sm,
+              marginBottom: SPACING.sm
             }}>
               <span style={{
                 color: COLORS.text.secondary,
@@ -157,8 +138,7 @@ export function AutoRefreshControl() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              paddingTop: '6px',
-              borderTop: `1px solid ${COLORS.border.light}`
+              marginTop: SPACING.sm
             }}>
               <span style={{
                 color: COLORS.text.secondary,
@@ -174,10 +154,10 @@ export function AutoRefreshControl() {
             </div>
           </div>
 
-          {/* Advanced Mode Button */}
+          {/* Advanced Mode Toggle */}
           <div style={{
-            marginTop: '8px',
-            paddingTop: '8px',
+            marginTop: SPACING.sm,
+            paddingTop: SPACING.sm,
             borderTop: `1px solid ${COLORS.border.light}`
           }}>
             <AdvancedRulesSection onToggle={setAdvancedEnabled} />

@@ -5,14 +5,16 @@
  * Panel section definitions
  * Used by both SettingsPanel (for toggles) and Overlay (for rendering)
  */
+// Note: Icons are now rendered as Lucide components in actual UI
+// These icon strings are kept for backwards compatibility but not actively used
 export const PANEL_SECTIONS = [
-  { id: 'heatmap', label: 'Heatmap', icon: '🗺️' },
-  { id: 'numberGenerator', label: 'Number Generator', icon: '🎲' },
-  { id: 'hitsMiss', label: 'Hits / Miss Display', icon: '✅' },
-  { id: 'profitLoss', label: 'Profit/Loss', icon: '💰' },
-  { id: 'patternAnalysis', label: 'Pattern Analysis', icon: '🔍' },
-  { id: 'recentPlays', label: 'Recent Plays', icon: '🎲' },
-  { id: 'history', label: 'History', icon: '📜' }
+  { id: 'heatmap', label: 'Heatmap', icon: 'Map' },
+  { id: 'numberGenerator', label: 'Number Generator', icon: 'Dices' },
+  { id: 'hitsMiss', label: 'Hits / Miss Display', icon: 'Check' },
+  { id: 'profitLoss', label: 'Profit/Loss', icon: 'DollarSign' },
+  { id: 'patternAnalysis', label: 'Pattern Analysis', icon: 'Search' },
+  { id: 'recentPlays', label: 'Recent Plays', icon: 'Clock' },
+  { id: 'history', label: 'History', icon: 'ScrollText' }
 ];
 
 /**

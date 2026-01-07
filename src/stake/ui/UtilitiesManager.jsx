@@ -5,11 +5,12 @@
  */
 
 import { h } from 'preact';
-import { useUtilities } from '../hooks/useUtilities.js';
+import { useUtilities } from '../hooks/useUtilities';
 import { CoinFlipper } from './CoinFlipper.jsx';
 import { RandomNumberGen } from './RandomNumberGen.jsx';
 import { RandomGamePicker } from './RandomGamePicker.jsx';
 import { Magic8Ball } from './Magic8Ball.jsx';
+import { AddWinLink } from './AddWinLink.tsx';
 
 /**
  * Manages rendering of all utility windows
@@ -39,9 +40,9 @@ export function UtilitiesManager() {
         <Magic8Ball onClose={() => closeUtility('magic8Ball')} />
       )}
 
-      {/* Win Links - Coming soon */}
+      {/* Add Win Link */}
       {activeUtilities.winLinks && (
-        <div>Win Links Coming Soon</div>
+        <AddWinLink onClose={() => closeUtility('winLinks')} />
       )}
     </>
   );

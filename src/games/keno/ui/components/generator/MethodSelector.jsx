@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
+import { SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * MethodSelector Component
@@ -49,8 +50,8 @@ export function MethodSelector({ onChange }) {
   };
 
   return (
-    <div style={{ marginBottom: '8px' }}>
-      <span style={{ color: '#aaa', fontSize: '10px' }}>
+    <div style={{ marginBottom: SPACING.sm }}>
+      <span style={{ color: '#aaa', fontSize: FONT_SIZES.sm }}>
         Method:
       </span>
       <select
@@ -65,17 +66,17 @@ export function MethodSelector({ onChange }) {
           borderRadius: '4px',
           marginTop: '4px',
           cursor: 'pointer',
-          fontSize: '11px'
+          fontSize: FONT_SIZES.base
         }}
       >
-        <option value="frequency">🔥 Frequency (Hot Numbers)</option>
-        <option value="cold">❄️ Cold (Least Frequent)</option>
-        <option value="mixed">🔀 Mixed (Hot + Cold)</option>
-        <option value="average">📊 Average (Median Frequency)</option>
-        <option value="momentum">⚡ Momentum (Trending)</option>
-        <option value="auto">🤖 Auto (Best Performer)</option>
-        <option value="shapes">🔷 Shapes (Board Patterns)</option>
-        <option value="random">🎲 Random (Pure Luck)</option>
+        <option value="frequency">Hot Numbers</option>
+        <option value="cold">Cold Numbers</option>
+        <option value="random">Random (Pure Luck)</option>
+        <option value="mixed">Mixed (Hot + Cold)</option>
+        <option value="average">Average (Median Frequency)</option>
+        <option value="momentum">Trending</option>
+        <option value="shapes">Shapes</option>
+        <option value="auto">Auto</option>
       </select>
     </div>
   );

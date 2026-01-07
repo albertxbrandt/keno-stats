@@ -6,6 +6,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
+import { SPACING } from '@/shared/constants/styles.js';
 
 /**
  * ShapesParams Component
@@ -26,37 +27,25 @@ import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 export function ShapesParams() {
   const [pattern, setPattern] = useState(state.shapesPattern || 'smart');
   const [placement, setPlacement] = useState(state.shapesPlacement || 'random');
-  const [currentShape, setCurrentShape] = useState('-');
 
   // Sync with global state on mount and when generator updates
   useEffect(() => {
     const updateFromState = () => {
       setPattern(state.shapesPattern || 'smart');
       setPlacement(state.shapesPlacement || 'random');
-      updateCurrentShapeDisplay();
     };
 
     // Initial update
     updateFromState();
     
     // Subscribe to state change events
-    const unsubGenerator = stateEvents.on(EVENTS.GENERATOR_UPDATED, updateCurrentShapeDisplay);
     const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updateFromState);
 
     return () => {
-      unsubGenerator();
       unsubSettings();
     };
   }, []);
 
-  const updateCurrentShapeDisplay = () => {
-    const lastShape = state.shapesLastShape;
-    if (lastShape && lastShape.emoji && lastShape.name && lastShape.numbers) {
-      setCurrentShape(`${lastShape.emoji} ${lastShape.name}\n${lastShape.numbers.join(', ')}`);
-    } else {
-      setCurrentShape('-');
-    }
-  };
 
   const handlePatternChange = (e) => {
     const newPattern = e.target.value;
@@ -73,8 +62,8 @@ export function ShapesParams() {
   };
 
   return (
-    <div style={{ marginBottom: '8px' }}>
-      <div style={{ marginBottom: '8px' }}>
+    <div style={{ marginBottom: SPACING.sm }}>
+      <div style={{ marginBottom: SPACING.sm }}>
         <span style={{ color: '#aaa', fontSize: '10px' }}>Pattern:</span>
         <select
           value={pattern}
@@ -90,25 +79,25 @@ export function ShapesParams() {
             marginTop: '4px'
           }}
         >
-          <option value="smart">🧠 Smart Shape (Auto-Select Best)</option>
-          <option value="random">🎲 Random (Weighted Variety)</option>
-          <option value="plus">➕ Plus</option>
-          <option value="cross">✖️ Cross</option>
-          <option value="jesus">✝️ Jesus Saves</option>
-          <option value="lShape">🔲 L-Shape</option>
-          <option value="tShape">🅣 T-Shape</option>
-          <option value="cShape">🌙 C-Shape</option>
-          <option value="square">⬛ Square</option>
-          <option value="lineHorizontal">➖ Horizontal Line</option>
+          <option value="smart">Smart Shape (Auto-Select Best)</option>
+          <option value="random">Random (Weighted Variety)</option>
+          <option value="plus">Plus</option>
+          <option value="cross">Cross</option>
+          <option value="jesus">Jesus Saves</option>
+          <option value="lShape">L-Shape</option>
+          <option value="tShape">T-Shape</option>
+          <option value="cShape">C-Shape</option>
+          <option value="square">Square</option>
+          <option value="lineHorizontal">Horizontal Line</option>
           <option value="lineVertical">| Vertical Line</option>
-          <option value="diagonalDown">↘️ Diagonal Down</option>
-          <option value="diagonalUp">↗️ Diagonal Up</option>
-          <option value="zigzag">⚡ Zigzag</option>
-          <option value="arrow">➡️ Arrow</option>
+          <option value="diagonalDown">Diagonal Down</option>
+          <option value="diagonalUp">Diagonal Up</option>
+          <option value="zigzag">Zigzag</option>
+          <option value="arrow">Arrow</option>
         </select>
       </div>
 
-      <div style={{ marginBottom: '8px' }}>
+      <div style={{ marginBottom: SPACING.sm }}>
         <span style={{ color: '#aaa', fontSize: '10px' }}>Placement:</span>
         <select
           value={placement}
@@ -124,34 +113,11 @@ export function ShapesParams() {
             marginTop: '4px'
           }}
         >
-          <option value="random">🎲 Random Position</option>
-          <option value="hot">🔥 Hot Numbers Area</option>
-          <option value="cold">❄️ Cold Numbers Area</option>
-          <option value="trending">📈 Trending Position</option>
+          <option value="random">Random Position</option>
+          <option value="hot">Hot Numbers Area</option>
+          <option value="cold">Cold Numbers Area</option>
+          <option value="trending">Trending Position</option>
         </select>
-      </div>
-
-      <div style={{
-        padding: '6px',
-        background: '#14202b',
-        borderRadius: '4px',
-        border: '1px solid #fd79a830'
-      }}>
-        <div style={{
-          color: '#fd79a8',
-          fontSize: '9px',
-          marginBottom: '2px'
-        }}>
-          Current Shape:
-        </div>
-        <div style={{
-          color: '#aaa',
-          fontSize: '9px',
-          lineHeight: '1.4',
-          whiteSpace: 'pre-line'
-        }}>
-          {currentShape}
-        </div>
       </div>
     </div>
   );

@@ -6,9 +6,11 @@ import { useState, useEffect } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { NumberInput } from '@/shared/components/NumberInput';
+import { Button } from '@/shared/components/Button';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS } from '@/shared/constants/styles.js';
+import { RotateCcw } from 'lucide-preact';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * MomentumParams Component
@@ -30,7 +32,6 @@ import { BORDER_RADIUS } from '@/shared/constants/styles.js';
  * <MomentumParams />
  */
 export function MomentumParams() {
-  const [currentNumbers, setCurrentNumbers] = useState('-');
   const [advancedExpanded, setAdvancedExpanded] = useState(false);
   
   // Get default values based on sample size
@@ -52,30 +53,18 @@ export function MomentumParams() {
       setBaselineWindow(state.momentumBaselineGames || (sampleSize * 4));
       setThreshold(state.momentumThreshold || 1.5);
       setPoolSize(state.momentumPoolSize || 15);
-      updateCurrentNumbers();
     };
 
     // Initial update
     updateFromState();
 
     // Subscribe to state change events
-    const unsubGenerator = stateEvents.on(EVENTS.GENERATOR_UPDATED, updateCurrentNumbers);
     const unsubSettings = stateEvents.on(EVENTS.SETTINGS_CHANGED, updateFromState);
 
     return () => {
-      unsubGenerator();
       unsubSettings();
     };
   }, []);
-
-  const updateCurrentNumbers = () => {
-    const nums = state.momentumCurrentNumbers;
-    if (nums && nums.length > 0) {
-      setCurrentNumbers(nums.join(', '));
-    } else {
-      setCurrentNumbers('-');
-    }
-  };
 
   const handleDetectionChange = (value) => {
     setDetectionWindow(value);
@@ -125,34 +114,7 @@ export function MomentumParams() {
   };
 
   return (
-    <div style={{ marginBottom: '8px' }}>
-      {/* Current numbers display */}
-      <div style={{
-        marginBottom: '6px',
-        padding: '6px',
-        background: COLORS.bg.darkest,
-        borderRadius: BORDER_RADIUS.sm
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2px'
-        }}>
-          <span style={{ color: COLORS.text.tertiary, fontSize: '9px' }}>
-            Current Numbers:
-          </span>
-          <span style={{
-            color: COLORS.accent.info,
-            fontSize: '8px',
-            fontWeight: '500',
-            lineHeight: '1.3',
-            wordBreak: 'break-all'
-          }}>
-            {currentNumbers}
-          </span>
-        </div>
-      </div>
-
+    <div style={{ marginBottom: SPACING.sm }}>
       {/* Advanced settings toggle */}
       <div
         onClick={() => setAdvancedExpanded(!advancedExpanded)}
@@ -172,14 +134,14 @@ export function MomentumParams() {
         }}>
           <span style={{
             color: COLORS.accent.info,
-            fontSize: '9px',
+            fontSize: FONT_SIZES.xs,
             fontWeight: '600'
           }}>
             ⚙️ Advanced Settings
           </span>
           <span style={{
             color: COLORS.accent.info,
-            fontSize: '10px',
+            fontSize: FONT_SIZES.xs,
             transform: advancedExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform 0.3s ease'
           }}>
@@ -207,23 +169,18 @@ export function MomentumParams() {
             alignItems: 'center',
             marginBottom: '6px'
           }}>
-            <span style={{ color: COLORS.text.tertiary, fontSize: '8px' }}>
+            <span style={{ color: COLORS.text.tertiary, fontSize: FONT_SIZES.xs }}>
               Uses Sample Size × 4 for baseline
             </span>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleReset}
-              style={{
-                background: COLORS.bg.darker,
-                color: COLORS.accent.info,
-                border: `1px solid ${COLORS.border.light}`,
-                padding: '2px 6px',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                fontSize: '8px'
-              }}
+              icon={<RotateCcw size={10} strokeWidth={2} />}
+              style={{ fontSize: FONT_SIZES.xs, padding: '2px 6px' }}
             >
               Reset
-            </button>
+            </Button>
           </div>
 
           <div style={{
@@ -233,7 +190,7 @@ export function MomentumParams() {
             marginBottom: '6px'
           }}>
             <div>
-              <span style={{ color: COLORS.text.secondary, fontSize: '9px' }}>
+              <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.xs }}>
                 Detection:
               </span>
               <NumberInput
@@ -246,7 +203,7 @@ export function MomentumParams() {
               />
             </div>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: '#aaa', fontSize: FONT_SIZES.xs }}>
                 Baseline:
               </span>
               <NumberInput
@@ -259,7 +216,7 @@ export function MomentumParams() {
               />
             </div>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: '#aaa', fontSize: FONT_SIZES.xs }}>
                 Threshold:
               </span>
               <NumberInput
@@ -272,7 +229,7 @@ export function MomentumParams() {
               />
             </div>
             <div>
-              <span style={{ color: '#aaa', fontSize: '9px' }}>
+              <span style={{ color: '#aaa', fontSize: FONT_SIZES.xs }}>
                 Pool:
               </span>
               <NumberInput

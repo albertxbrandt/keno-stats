@@ -7,6 +7,7 @@ import { getDrawn } from '@/games/keno/core/storage.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 import { DEFAULTS } from '@/shared/constants/defaults.js';
+import { TrendingUp } from 'lucide-preact';
 
 /**
  * ProfitLossGraph - Displays cumulative profit/loss line graph
@@ -143,8 +144,9 @@ export function ProfitLossGraph({ numbers, history, betMultipliers, riskMode = D
         alignItems: 'center',
         marginBottom: '10px'
       }}>
-        <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: 0 }}>
-          📈 Cumulative Profit/Loss
+        <h3 style={{ color: COLORS.accent.info, fontSize: '14px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <TrendingUp size={14} strokeWidth={2} />
+          Cumulative Profit/Loss
         </h3>
       </div>
 

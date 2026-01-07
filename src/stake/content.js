@@ -7,13 +7,15 @@ import { render, h } from 'preact';
 import { detectCurrentGame } from './core/urlDetector.js';
 import { state } from './core/state.js';
 import { loadToolbarSettings } from './core/storage.js';
-import { Toolbar } from './ui/Toolbar.jsx';
-import { UtilitiesProvider } from './hooks/useUtilities.js';
+import { Toolbar } from './ui/Toolbar/index.tsx';
+import { UtilitiesProvider } from './hooks/useUtilities';
 import { UtilitiesManager } from './ui/UtilitiesManager.jsx';
+import { initVIPProgress } from './features/vip/ui';
 
 // Game module registry
 const gameModules = {
   keno: null, // Lazy loaded when needed
+  mines: null, // Lazy loaded when needed
 };
 
 /**
@@ -28,6 +30,9 @@ async function initSiteWide() {
 
   // Initialize toolbar
   initToolbar();
+
+  // Initialize VIP progress tracking
+  initVIPProgress();
 
   // Detect current game
   const currentGame = detectCurrentGame(window.location.href);
@@ -49,6 +54,14 @@ async function initSiteWide() {
 function initToolbar() {
   if (!state.siteWideSettings.toolbarEnabled) {
     return;
+  }
+
+  // Remove existing toolbar if present (prevents duplicates on extension reload)
+  const existingToolbar = document.getElementById('stake-toolbar-root');
+  if (existingToolbar) {
+    existingToolbar.remove();
+    // eslint-disable-next-line no-console
+    console.log('[Stake] Removed existing toolbar');
   }
 
   // Create toolbar container
@@ -85,6 +98,14 @@ async function loadGameModule(gameName) {
         // Initialize game module
         if (typeof kenoModule.init === 'function') {
           kenoModule.init();
+        }
+      } else if (gameName === 'mines') {
+        const minesModule = await import('../games/mines/content.js');
+        gameModules[gameName] = minesModule;
+
+        // Initialize game module
+        if (typeof minesModule.init === 'function') {
+          minesModule.init();
         }
       }
     } catch (error) {

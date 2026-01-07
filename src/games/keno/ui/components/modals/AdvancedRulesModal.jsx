@@ -2,9 +2,11 @@
 // Modal for configuring advanced refresh rules
 
 import { useState, useEffect } from 'preact/hooks';
+import { Button } from '@/shared/components/Button';
+import { X, Plus, Trash2 } from 'lucide-preact';
 import { state } from '@/games/keno/core/state.js';
 import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
 import { ConditionBuilder } from '../generator/ConditionBuilder.jsx';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
@@ -227,20 +229,13 @@ export function AdvancedRulesModal({ onClose }) {
           }}>
             Advanced Refresh Rules
           </h3>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: COLORS.text.muted,
-              cursor: 'pointer',
-              fontSize: '20px',
-              padding: '0 8px',
-              lineHeight: 1
-            }}
-          >
-            ×
-          </button>
+            icon={<X size={14} strokeWidth={2} />}
+            style={{ padding: '4px' }}
+          />
         </div>
 
         {/* Content */}
@@ -382,68 +377,37 @@ export function AdvancedRulesModal({ onClose }) {
                       />
                       
                       {conditions.length > 1 && (
-                        <button
-                          onClick={() => handleDeleteCondition(cond.id)}
-                          style={{
-                            position: 'absolute',
-                            top: '50%',
-                            right: '4px',
-                            transform: 'translateY(-50%)',
-                            background: COLORS.error,
-                            color: COLORS.text.primary,
-                            border: 'none',
-                            borderRadius: BORDER_RADIUS.xs,
-                            width: '20px',
-                            height: '20px',
-                            fontSize: '12px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: 0
-                          }}
-                          onMouseOver={(e) => {
-                            e.currentTarget.style.background = COLORS.error + 'dd';
-                          }}
-                          onMouseOut={(e) => {
-                            e.currentTarget.style.background = COLORS.error;
-                          }}
-                        >
-                          ✕
-                        </button>
+                        <div style={{
+                          position: 'absolute',
+                          top: '50%',
+                          right: '4px',
+                          transform: 'translateY(-50%)'
+                        }}>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleDeleteCondition(cond.id)}
+                            icon={<Trash2 size={10} strokeWidth={2} />}
+                            style={{ padding: '2px' }}
+                          />
+                        </div>
                       )}
                     </div>
                   </div>
                 ))}
                 
                 {/* Add condition button */}
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  fullWidth
                   onClick={handleAddCondition}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    marginTop: '8px',
-                    background: COLORS.bg.darker,
-                    color: COLORS.accent.blue,
-                    border: `1px dashed ${COLORS.accent.blue}`,
-                    borderRadius: BORDER_RADIUS.xs,
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '4px'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = COLORS.accent.blue + '22';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = COLORS.bg.darker;
-                  }}
+                  icon={<Plus size={12} strokeWidth={2} />}
+                  iconPosition="left"
+                  style={{ marginTop: '8px', border: `1px dashed ${COLORS.accent.blue}` }}
                 >
-                  <span style={{ fontSize: '12px' }}>+</span> Add Condition
-                </button>
+                  Add Condition
+                </Button>
               </div>
 
               {/* Default action */}
@@ -563,21 +527,13 @@ export function AdvancedRulesModal({ onClose }) {
           display: 'flex',
           justifyContent: 'flex-end'
         }}>
-          <button
+          <Button
+            variant="primary"
+            size="md"
             onClick={onClose}
-            style={{
-              padding: '6px 16px',
-              background: COLORS.primary,
-              color: COLORS.text.primary,
-              border: 'none',
-              borderRadius: BORDER_RADIUS.sm,
-              fontSize: '11px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
           >
             Done
-          </button>
+          </Button>
         </div>
       </div>
     </div>

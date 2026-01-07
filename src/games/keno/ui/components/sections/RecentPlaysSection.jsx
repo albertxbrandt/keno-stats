@@ -2,13 +2,15 @@
 // Recent plays section - displays recently played number combinations
 
 import { useState, useEffect } from 'preact/hooks';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
+import { Clock, Info } from 'lucide-preact';
+import { Button } from '@/shared/components/Button';
 import { state } from '@/games/keno/core/state.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { replaceSelection } from '@/shared/utils/dom/tileSelection.js';
 import { waitForBetButtonReady } from '@/shared/utils/dom/utils.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * RecentPlaysSection Component
@@ -64,31 +66,21 @@ export function RecentPlaysSection() {
 
   return (
     <CollapsibleSection
-      icon="🎯"
+      icon={<Clock size={14} strokeWidth={2} />}
       title="Recent Plays"
       defaultExpanded={false}
       headerExtra={
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             handleViewSavedNumbers();
           }}
-          style={{
-            background: COLORS.bg.darker,
-            color: COLORS.accent.info,
-            border: 'none',
-            padding: SPACING.inputPadding,
-            borderRadius: BORDER_RADIUS.sm,
-            fontSize: '9px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#344e64'}
-          onMouseLeave={(e) => e.target.style.background = '#2a3b4a'}
+          style={{ fontSize: FONT_SIZES.xs }}
         >
           Saved Combos
-        </button>
+        </Button>
       }
     >
       <div
@@ -105,7 +97,7 @@ export function RecentPlaysSection() {
         {recentPlays.length === 0 ? (
           <div style={{
             color: COLORS.text.tertiary,
-            fontSize: '10px',
+            fontSize: FONT_SIZES.xs,
             padding: SPACING.sm,
             textAlign: 'center'
           }}>
@@ -132,7 +124,7 @@ export function RecentPlaysSection() {
                   flex: 1,
                   cursor: 'pointer',
                   color: COLORS.text.primary,
-                  fontSize: '11px',
+                  fontSize: FONT_SIZES.sm,
                   fontWeight: 'bold',
                   userSelect: 'none'
                 }}
@@ -141,24 +133,13 @@ export function RecentPlaysSection() {
               >
                 {play.numbers.join(', ')}
               </div>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handleShowInfo(play.numbers)}
-                style={{
-                  padding: SPACING.inputPadding,
-                  background: COLORS.bg.darker,
-                  color: COLORS.accent.info,
-                  border: 'none',
-                  borderRadius: BORDER_RADIUS.sm,
-                  fontSize: '9px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#344e64'}
-                onMouseLeave={(e) => e.target.style.background = '#2a3b4a'}
-              >
-                ℹ️
-              </button>
+                icon={<Info size={10} strokeWidth={2} />}
+                style={{ fontSize: '9px', padding: SPACING.inputPadding }}
+              />
             </div>
           ))
         )}

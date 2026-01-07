@@ -1,6 +1,7 @@
 // src/dashboard/sections/Analytics.jsx
 // Analytics section - placeholder for future advanced analytics
 
+import { Search } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -27,8 +28,16 @@ export function Analytics() {
         textAlign: 'center',
         color: COLORS.text.secondary
       }}>
-        <h3 style={{ color: COLORS.text.primary, marginBottom: SPACING.md }}>
-          🔍 Coming Soon
+        <h3 style={{ 
+          color: COLORS.text.primary, 
+          marginBottom: SPACING.md,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: SPACING.sm
+        }}>
+          <Search size={24} color={COLORS.accent.info} />
+          Coming Soon
         </h3>
         <p>Advanced analytics features will be added here:</p>
         <ul style={{ 

@@ -5,7 +5,9 @@
 
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { Button } from '@/shared/components/Button';
+import { Coins, Club, Spade } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
 
@@ -77,7 +79,7 @@ export function CoinFlipper({ onClose }) {
   return (
     <Modal
       title="Coin Flipper"
-      icon="🪙"
+      icon={<Coins size={18} />}
       onClose={onClose}
       defaultPosition={{ x: 100, y: 100 }}
       defaultSize={{ width: 400, height: 580 }}
@@ -90,114 +92,249 @@ export function CoinFlipper({ onClose }) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: SPACING.MD,
-          marginBottom: SPACING.LG,
+          justifyContent: 'center',
+          gap: SPACING.lg,
+          marginBottom: SPACING.xl,
+          padding: `${SPACING.xl} ${SPACING.xl}`,
+          minHeight: '280px',
+          background: COLORS.bg.darker,
+          borderRadius: '12px',
+          border: `1px solid ${COLORS.border.default}`,
         }}
       >
         <div
           style={{
-            width: '150px',
-            height: '150px',
+            width: '180px',
+            height: '180px',
             borderRadius: '50%',
             background: isFlipping
-              ? 'linear-gradient(45deg, #FFD700, #FFA500)'
+              ? 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
               : result === 'heads'
-              ? 'linear-gradient(135deg, #FFD700, #FFA500)'
+              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
               : result === 'tails'
-              ? 'linear-gradient(135deg, #C0C0C0, #808080)'
-              : 'linear-gradient(135deg, #444, #666)',
+              ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+              : 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '48px',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
-            animation: isFlipping ? 'spin 1s linear' : 'none',
+            boxShadow: isFlipping
+              ? '0 10px 40px rgba(255, 215, 0, 0.4)'
+              : result === 'heads'
+              ? '0 10px 40px rgba(16, 185, 129, 0.5)'
+              : result === 'tails'
+              ? '0 10px 40px rgba(59, 130, 246, 0.5)'
+              : '0 4px 16px rgba(0, 0, 0, 0.2)',
+            animation: isFlipping ? 'spin 1s ease-in-out' : 'none',
+            border: `4px solid ${
+              isFlipping
+                ? '#FFED4E'
+                : result === 'heads'
+                ? '#34d399'
+                : result === 'tails'
+                ? '#60a5fa'
+                : '#FFED4E'
+            }`,
+            transition: 'all 0.3s ease',
+            position: 'relative',
           }}
         >
-          {isFlipping ? '🪙' : result === 'heads' ? '👑' : result === 'tails' ? '🦅' : '🪙'}
+          {/* Coin Face Design */}
+          {isFlipping ? (
+            // Neutral spinning state
+            <Coins size={72} strokeWidth={2.5} color="#ffffff" />
+          ) : result === 'heads' ? (
+            // Heads side - Club (Green for luck)
+            <Club size={80} strokeWidth={2.5} color="#ffffff" fill="#ffffff" />
+          ) : result === 'tails' ? (
+            // Tails side - Spade (Blue)
+            <Spade size={80} strokeWidth={2.5} color="#ffffff" fill="#ffffff" />
+          ) : (
+            // Default neutral state
+            <Coins size={72} strokeWidth={2.5} color="#ffffff" />
+          )}
         </div>
 
-        {result && !isFlipping && (
-          <div
-            style={{
-              fontSize: '24px',
-              fontWeight: 'bold',
-              color: result === 'heads' ? '#FFD700' : '#C0C0C0',
-              textTransform: 'uppercase',
-              letterSpacing: '2px',
-            }}
-          >
-            {result}!
-          </div>
-        )}
+        {/* Always show text to prevent layout shift */}
+        <div
+          style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            color: isFlipping 
+              ? '#FFD700' 
+              : result === 'heads' 
+              ? '#10b981' 
+              : result === 'tails'
+              ? '#3b82f6'
+              : COLORS.text.secondary,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            minHeight: '24px',
+          }}
+        >
+          {isFlipping ? 'Flipping...' : result || '\u00A0'}
+        </div>
       </div>
 
       {/* Flip Button */}
-      <button
-        onClick={flipCoin}
+      <Button
+        variant="primary"
+        size="lg"
+        fullWidth
         disabled={isFlipping}
-        style={{
-          width: '100%',
-          padding: SPACING.MD,
-          background: isFlipping ? '#444' : COLORS.PRIMARY,
-          color: COLORS.TEXT_PRIMARY,
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          cursor: isFlipping ? 'not-allowed' : 'pointer',
-          marginBottom: SPACING.MD,
-          opacity: isFlipping ? 0.6 : 1,
-        }}
+        onClick={flipCoin}
+        style={{ marginBottom: SPACING.lg }}
       >
         {isFlipping ? 'Flipping...' : 'Flip Coin'}
-      </button>
+      </Button>
 
       {/* Stats */}
       {totalFlips > 0 && (
         <div
           style={{
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: COLORS.bg.darker,
             borderRadius: '8px',
-            padding: SPACING.MD,
-            marginBottom: SPACING.MD,
+            padding: SPACING.md,
+            marginBottom: SPACING.md,
+            border: `1px solid ${COLORS.border.default}`,
           }}
         >
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              marginBottom: SPACING.SM,
-              color: COLORS.TEXT_PRIMARY,
+              marginBottom: SPACING.md,
+              paddingBottom: SPACING.sm,
+              borderBottom: `1px solid ${COLORS.border.light}`,
             }}
           >
-            <span style={{ fontWeight: 'bold' }}>Total Flips:</span>
-            <span>{totalFlips}</span>
+            <span
+              style={{
+                fontWeight: '600',
+                color: COLORS.text.primary,
+                fontSize: '13px',
+                letterSpacing: '0.01em',
+              }}
+            >
+              Total Flips
+            </span>
+            <span
+              style={{
+                fontWeight: '700',
+                color: COLORS.text.primary,
+                fontSize: '14px',
+              }}
+            >
+              {totalFlips}
+            </span>
           </div>
+
+          {/* Heads Stats */}
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              marginBottom: SPACING.XS,
-              color: COLORS.TEXT_PRIMARY,
+              alignItems: 'center',
+              marginBottom: SPACING.sm,
+              padding: SPACING.sm,
+              background: 'rgba(251, 191, 36, 0.05)',
+              borderRadius: '6px',
+              border: '1px solid rgba(251, 191, 36, 0.1)',
             }}
           >
-            <span>👑 Heads:</span>
-            <span>
-              {stats.heads} ({headsPercent}%)
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.sm }}>
+              <div
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#fbbf24',
+                  boxShadow: '0 0 8px rgba(251, 191, 36, 0.5)',
+                }}
+              />
+              <span
+                style={{
+                  color: COLORS.text.primary,
+                  fontSize: '13px',
+                  fontWeight: '500',
+                }}
+              >
+                Heads
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: SPACING.xs }}>
+              <span
+                style={{
+                  color: '#fbbf24',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                }}
+              >
+                {stats.heads}
+              </span>
+              <span
+                style={{
+                  color: COLORS.text.secondary,
+                  fontSize: '12px',
+                  fontWeight: '500',
+                }}
+              >
+                ({headsPercent}%)
+              </span>
+            </div>
           </div>
+
+          {/* Tails Stats */}
           <div
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              color: COLORS.TEXT_PRIMARY,
+              alignItems: 'center',
+              padding: SPACING.sm,
+              background: 'rgba(148, 163, 184, 0.05)',
+              borderRadius: '6px',
+              border: '1px solid rgba(148, 163, 184, 0.1)',
             }}
           >
-            <span>🦅 Tails:</span>
-            <span>
-              {stats.tails} ({tailsPercent}%)
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: SPACING.sm }}>
+              <div
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#94a3b8',
+                  boxShadow: '0 0 8px rgba(148, 163, 184, 0.5)',
+                }}
+              />
+              <span
+                style={{
+                  color: COLORS.text.primary,
+                  fontSize: '13px',
+                  fontWeight: '500',
+                }}
+              >
+                Tails
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: SPACING.xs }}>
+              <span
+                style={{
+                  color: '#94a3b8',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                }}
+              >
+                {stats.tails}
+              </span>
+              <span
+                style={{
+                  color: COLORS.text.secondary,
+                  fontSize: '12px',
+                  fontWeight: '500',
+                }}
+              >
+                ({tailsPercent}%)
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -210,15 +347,16 @@ export function CoinFlipper({ onClose }) {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: SPACING.SM,
+              marginBottom: SPACING.sm,
             }}
           >
             <span
               style={{
-                color: COLORS.TEXT_SECONDARY,
-                fontSize: '12px',
-                fontWeight: 'bold',
+                color: COLORS.text.secondary,
+                fontSize: '11px',
+                fontWeight: '600',
                 textTransform: 'uppercase',
+                letterSpacing: '0.05em',
               }}
             >
               Recent Flips (Last 10)
@@ -227,12 +365,22 @@ export function CoinFlipper({ onClose }) {
               onClick={clearHistory}
               style={{
                 background: 'transparent',
-                border: `1px solid ${COLORS.BORDER}`,
-                color: COLORS.TEXT_SECONDARY,
+                border: `1px solid ${COLORS.border.default}`,
+                color: COLORS.text.secondary,
                 borderRadius: '4px',
-                padding: '4px 8px',
+                padding: '4px 10px',
                 fontSize: '11px',
                 cursor: 'pointer',
+                fontWeight: '500',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseOver={(e) => {
+                e.target.style.borderColor = COLORS.text.secondary;
+                e.target.style.color = COLORS.text.primary;
+              }}
+              onMouseOut={(e) => {
+                e.target.style.borderColor = COLORS.border.default;
+                e.target.style.color = COLORS.text.secondary;
               }}
             >
               Clear
@@ -241,30 +389,45 @@ export function CoinFlipper({ onClose }) {
           <div
             style={{
               display: 'flex',
-              gap: SPACING.XS,
+              gap: SPACING.xs,
               flexWrap: 'wrap',
+              padding: SPACING.sm,
+              background: COLORS.bg.darker,
+              borderRadius: '6px',
+              border: `1px solid ${COLORS.border.default}`,
             }}
           >
             {history.slice(0, 10).map((flip, i) => (
               <div
                 key={i}
                 style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '28px',
+                  height: '28px',
                   borderRadius: '50%',
                   background:
                     flip.result === 'heads'
-                      ? 'linear-gradient(135deg, #FFD700, #FFA500)'
-                      : 'linear-gradient(135deg, #C0C0C0, #808080)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '16px',
+                      ? 'radial-gradient(circle at 30% 30%, #fbbf24, #d97706)'
+                      : 'radial-gradient(circle at 30% 30%, #94a3b8, #64748b)',
+                  border: `2px solid ${
+                    flip.result === 'heads'
+                      ? 'rgba(251, 191, 36, 0.3)'
+                      : 'rgba(148, 163, 184, 0.3)'
+                  }`,
+                  boxShadow:
+                    flip.result === 'heads'
+                      ? '0 2px 8px rgba(251, 191, 36, 0.3)'
+                      : '0 2px 8px rgba(148, 163, 184, 0.3)',
+                  transition: 'transform 0.2s ease',
+                  cursor: 'default',
                 }}
                 title={flip.result}
-              >
-                {flip.result === 'heads' ? '👑' : '🦅'}
-              </div>
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'scale(1.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'scale(1)';
+                }}
+              />
             ))}
           </div>
         </div>

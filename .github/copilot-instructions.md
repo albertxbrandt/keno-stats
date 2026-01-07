@@ -1,5 +1,37 @@
 # Stake Tools Browser Extension - AI Coding Instructions
 
+## ⚠️ CRITICAL: TypeScript-First Development Policy
+
+**ALL new features and components MUST be written in TypeScript (.tsx/.ts)**
+
+### TypeScript Requirements:
+- ✅ **New components**: Use `.tsx` for Preact components, `.ts` for utilities
+- ✅ **Major refactors**: Convert existing `.jsx`/`.js` files to TypeScript when doing significant work
+- ✅ **Type safety**: Always define proper interfaces for props, state, and function parameters
+- ✅ **No `any` types**: Use proper types or `unknown` with type guards if necessary
+- ✅ **Run type checks**: Always run `npm run typecheck` before committing
+
+### TypeScript Patterns:
+```typescript
+// Component props interface
+interface MyComponentProps {
+  title: string;
+  onClose: () => void;
+  isActive?: boolean;  // Optional props with ?
+}
+
+// Component with typed props
+export function MyComponent({ title, onClose, isActive = true }: MyComponentProps) {
+  const [count, setCount] = useState<number>(0);  // Explicit types for complex state
+  // ...
+}
+```
+
+### Legacy JavaScript:
+- Existing `.js` files can remain until major refactoring
+- When touching legacy files for significant work, convert to TypeScript
+- Prioritize TypeScript for all new game modules, overlays, and utilities
+
 ## Architecture Overview
 
 This is a Chrome/Firefox browser extension providing **Keno statistics tracking** and **site-wide utilities** for Stake.com. It operates across **two isolated security worlds** with distinct responsibilities:
@@ -734,6 +766,50 @@ import { state } from './state.js'; // Only import what you use
 - Default values → `src/ui/constants/defaults.js`
 
 ## Code Quality Standards
+
+### UI Component Standards (Jan 2025)
+
+**CRITICAL: Always follow these standards when creating new UI components or features:**
+
+1. **NO EMOJIS** - Use Lucide icons only (`lucide-preact` package)
+   - ❌ Bad: `💣 Mines Tracker`, `✕`, `🎲`, `👑`
+   - ✅ Good: `<Bomb size={18} />`, `<X size={18} />`, `<Dices size={18} />`, `<Crown size={18} />`
+   - All icon usage should include `size`, `strokeWidth`, and appropriate styling
+
+2. **USE SHARED CONSTANTS** - Never hardcode values that exist in constants
+   - ✅ **Font sizes**: Import from `@/shared/constants/styles.js` (FONT_SIZES.xs, FONT_SIZES.sm, FONT_SIZES.base, FONT_SIZES.md, FONT_SIZES.lg, FONT_SIZES.xl)
+     - FONT_SIZES.xs: '11px' - Small helper text
+     - FONT_SIZES.sm: '12px' - Labels, inputs
+     - FONT_SIZES.base: '13px' - Body text, content
+     - FONT_SIZES.md: '14px' - Emphasized text
+     - FONT_SIZES.lg: '15px' - Section headings
+     - FONT_SIZES.xl: '16px' - Modal titles
+   - ✅ Colors: Import from `@/shared/constants/colors.js` (COLORS.text.primary, COLORS.bg.dark, etc.)
+   - ✅ Spacing: Import from `@/shared/constants/styles.js` (SPACING.xs, SPACING.sm, SPACING.md, SPACING.lg)
+   - ✅ Border radius: Import from `@/shared/constants/styles.js` (BORDER_RADIUS.sm, BORDER_RADIUS.md, BORDER_RADIUS.lg)
+   - ❌ Bad: `color: '#fff'`, `padding: '12px'`, `fontSize: '16px'`, `borderRadius: '6px'`
+   - ✅ Good: `color: COLORS.text.primary`, `padding: SPACING.md`, `fontSize: FONT_SIZES.md`, `borderRadius: BORDER_RADIUS.md`
+
+3. **USE SHARED COMPONENTS** - Never use raw HTML elements when shared components exist
+   - ❌ Bad: `<button onClick={...}>Click</button>`
+   - ✅ Good: `<Button variant="primary" onClick={...}>Click</Button>`
+   - Available shared components:
+     - `Button` - All buttons (variants: primary, secondary, success, warning, danger, ghost)
+     - `Modal` - All modal dialogs (draggable, consistent header)
+     - `DragHandle` - Draggable areas (mouse + touch support)
+     - `ToggleSwitch` - All toggles (iOS-style)
+     - `CollapsibleSection` - Expandable sections
+     - `NumberInput` - Styled number inputs
+
+**Before committing new UI code, verify:**
+- [ ] No emoji characters in code
+- [ ] All colors from COLORS constants
+- [ ] All spacing from SPACING constants
+- [ ] All font sizes from FONT_SIZES constants (NO hardcoded '12px', '13px', etc.)
+- [ ] All border radius from BORDER_RADIUS constants
+- [ ] Using Button component instead of raw buttons
+- [ ] Using Modal component for dialogs
+- [ ] Lucide icons for all visual indicators
 
 ### Console Logging Policy (Dec 2024)
 

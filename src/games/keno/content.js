@@ -154,13 +154,9 @@ function addMessageListener() {
 		drawn.forEach(num => { if (!selected.includes(num)) misses.push(num); });
 		hits.sort((a, b) => a - b); misses.sort((a, b) => a - b);
 
-		// Update state for components to consume
-		state.trackerHits = hits.join(', ') || 'None';
-		state.trackerMisses = misses.join(', ') || 'None';
-
-		// Update DOM elements (legacy support)
-		const hEl = document.getElementById('tracker-hits'); const mEl = document.getElementById('tracker-misses');
-		if (hEl) hEl.innerText = state.trackerHits; if (mEl) mEl.innerText = state.trackerMisses;
+		// Store arrays directly in state for components to consume
+		state.trackerHits = hits;
+		state.trackerMisses = misses;
 
 		// Emit event for components
 		stateEvents.emit(EVENTS.ROUND_SAVED, { hits, misses, drawn, selected });

@@ -2,12 +2,14 @@
 // Profit/Loss tracking section
 
 import { useState, useEffect } from 'preact/hooks';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
+import { Button } from '@/shared/components/Button';
+import { DollarSign } from 'lucide-preact';
 import { getSessionProfit, getTotalProfit, changeCurrency, resetSessionProfit } from '@/shared/storage/profitLoss.js';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * ProfitLossSection Component
@@ -87,7 +89,7 @@ export function ProfitLossSection() {
   const formatProfit = (value) => {
     if (!currency) {
       return (
-        <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>
+        <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>
           No data
         </span>
       );
@@ -98,7 +100,7 @@ export function ProfitLossSection() {
     const sign = isPositive ? '+' : '';
     
     return (
-      <span style={{ color, fontWeight: 'bold', fontSize: '11px' }}>
+      <span style={{ color, fontWeight: 'bold', fontSize: FONT_SIZES.sm }}>
         {sign}{value.toFixed(8)} {currency}
       </span>
     );
@@ -106,7 +108,7 @@ export function ProfitLossSection() {
 
   return (
     <CollapsibleSection
-      icon="💰"
+      icon={<DollarSign size={14} strokeWidth={2} />}
       title="Profit/Loss"
       defaultExpanded={false}
       headerActions={
@@ -121,7 +123,7 @@ export function ProfitLossSection() {
             color: COLORS.text.primary,
             padding: '2px 4px',
             borderRadius: BORDER_RADIUS.sm,
-            fontSize: '10px',
+            fontSize: FONT_SIZES.xs,
             cursor: availableCurrencies.length === 0 ? 'not-allowed' : 'pointer',
             opacity: availableCurrencies.length === 0 ? 0.5 : 1
           }}
@@ -143,7 +145,7 @@ export function ProfitLossSection() {
           justifyContent: 'space-between', 
           alignItems: 'center' 
         }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>Session:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>Session:</span>
           {formatProfit(sessionProfit)}
         </div>
 
@@ -153,31 +155,20 @@ export function ProfitLossSection() {
           justifyContent: 'space-between', 
           alignItems: 'center' 
         }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '11px' }}>Total:</span>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>Total:</span>
           {formatProfit(totalProfit)}
         </div>
 
         {/* Reset Session Button */}
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
+          fullWidth
           onClick={handleResetSession}
-          style={{
-            width: '100%',
-            background: COLORS.bg.darker,
-            color: COLORS.accent.info,
-            border: 'none',
-            padding: SPACING.inputPadding,
-            borderRadius: BORDER_RADIUS.sm,
-            fontSize: '10px',
-            cursor: 'pointer',
-            marginTop: '2px',
-            fontWeight: '500',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#344e64'}
-          onMouseLeave={(e) => e.target.style.background = '#2a3b4a'}
+          style={{ marginTop: '2px' }}
         >
           Reset Session
-        </button>
+        </Button>
       </div>
     </CollapsibleSection>
   );

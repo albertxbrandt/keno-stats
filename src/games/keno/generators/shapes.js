@@ -1,5 +1,5 @@
 import { BaseGenerator } from './base.js';
-import { getShapePredictions } from './shapesCore.js';
+import { getShapePredictions } from './shapes/shapesCore';
 
 /**
  * Shapes Generator

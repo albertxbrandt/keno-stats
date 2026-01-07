@@ -15,6 +15,7 @@ export function updateProfitLossUI() {
   const totalProfitEl = document.getElementById('total-profit-value');
   const currencySelect = document.getElementById('profit-currency-select');
 
+  if (!state.selectedCurrency) return;
   const selectedCurr = state.selectedCurrency.toLowerCase();
 
   if (sessionProfitEl) {

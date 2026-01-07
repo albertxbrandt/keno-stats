@@ -2,7 +2,7 @@
 // Single condition builder for advanced refresh rules
 
 import { useState, useEffect } from 'preact/hooks';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { NumberInput } from '@/shared/components/NumberInput';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 

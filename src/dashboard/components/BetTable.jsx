@@ -1,4 +1,5 @@
 // src/dashboard/components/BetTable.jsx
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-preact';
 import { getHits, getMisses } from '@/shared/storage/history.js';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
@@ -9,8 +10,10 @@ import { SPACING } from '@/shared/constants/styles.js';
  */
 export function BetTable({ bets, columnVisibility, sortField, sortDirection, onSort, onRowClick }) {
   const getSortIcon = (field) => {
-    if (sortField !== field) return '↕️';
-    return sortDirection === 'asc' ? '↑' : '↓';
+    if (sortField !== field) return <ArrowUpDown size={14} color={COLORS.text.tertiary} />;
+    return sortDirection === 'asc' 
+      ? <ArrowUp size={14} color={COLORS.accent.info} /> 
+      : <ArrowDown size={14} color={COLORS.accent.info} />;
   };
 
   const formatDate = (timestamp) => {
@@ -33,42 +36,58 @@ export function BetTable({ bets, columnVisibility, sortField, sortDirection, onS
           <tr>
             {columnVisibility.date && (
               <th onClick={() => onSort('date')} style={headerStyle}>
-                Date {getSortIcon('date')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Date {getSortIcon('date')}
+                </span>
               </th>
             )}
             {columnVisibility.amount && (
               <th onClick={() => onSort('amount')} style={headerStyle}>
-                Amount {getSortIcon('amount')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Amount {getSortIcon('amount')}
+                </span>
               </th>
             )}
             {columnVisibility.payout && (
               <th onClick={() => onSort('payout')} style={headerStyle}>
-                Payout {getSortIcon('payout')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Payout {getSortIcon('payout')}
+                </span>
               </th>
             )}
             {columnVisibility.multiplier && (
               <th onClick={() => onSort('multiplier')} style={headerStyle}>
-                Multiplier {getSortIcon('multiplier')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Multiplier {getSortIcon('multiplier')}
+                </span>
               </th>
             )}
             {columnVisibility.currency && (
               <th onClick={() => onSort('currency')} style={headerStyle}>
-                Currency {getSortIcon('currency')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Currency {getSortIcon('currency')}
+                </span>
               </th>
             )}
             {columnVisibility.risk && (
               <th onClick={() => onSort('risk')} style={headerStyle}>
-                Risk {getSortIcon('risk')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Risk {getSortIcon('risk')}
+                </span>
               </th>
             )}
             {columnVisibility.hits && (
               <th onClick={() => onSort('hits')} style={headerStyle}>
-                Hits {getSortIcon('hits')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Hits {getSortIcon('hits')}
+                </span>
               </th>
             )}
             {columnVisibility.misses && (
               <th onClick={() => onSort('misses')} style={headerStyle}>
-                Misses {getSortIcon('misses')}
+                <span style={{ display: 'flex', alignItems: 'center', gap: SPACING.xs }}>
+                  Misses {getSortIcon('misses')}
+                </span>
               </th>
             )}
           </tr>

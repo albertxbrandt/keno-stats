@@ -2,11 +2,13 @@
 // Pattern analysis section - find recurring number combinations
 
 import { useState } from 'preact/hooks';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
+import { Search, Radio } from 'lucide-preact';
+import { NumberInput } from '@/shared/components/NumberInput';
+import { Button } from '@/shared/components/Button';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * PatternAnalysisSection Component
@@ -36,14 +38,14 @@ export function PatternAnalysisSection() {
 
   return (
     <CollapsibleSection
-      icon="🔍"
+      icon={<Search size={14} strokeWidth={2} />}
       title="Pattern Analysis"
       defaultExpanded={false}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {/* Pattern Size Input and Analyze Button */}
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '11px', whiteSpace: 'nowrap' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm, whiteSpace: 'nowrap' }}>
             Size:
           </span>
           <NumberInput
@@ -54,57 +56,34 @@ export function PatternAnalysisSection() {
             placeholder="3-10"
             style={{ flex: 1 }}
           />
-          <button
-            onClick={handleAnalyze}
-            style={{
-              flex: 1,
-              background: COLORS.accent.warning,
-              color: '#222',
-              border: 'none',
-              padding: SPACING.inputPadding,
-              borderRadius: BORDER_RADIUS.sm,
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              fontSize: '11px',
-              transition: 'opacity 0.2s'
-            }}
-            onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-            onMouseLeave={(e) => e.target.style.opacity = '1'}
-          >
-            Analyze
-          </button>
+          <div style={{ flex: 1 }}>
+            <Button
+              variant="warning"
+              size="sm"
+              fullWidth
+              onClick={handleAnalyze}
+            >
+              Analyze
+            </Button>
+          </div>
         </div>
 
         {/* Live Analysis Toggle Button */}
-        <button
+        <Button
+          variant="success"
+          size="sm"
+          fullWidth
           onClick={handleLiveToggle}
-          style={{
-            width: '100%',
-            background: COLORS.accent.success,
-            color: COLORS.text.primary,
-            border: 'none',
-            padding: SPACING.sm,
-            borderRadius: BORDER_RADIUS.sm,
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '11px',
-            transition: 'background 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#059669'}
-          onMouseLeave={(e) => e.target.style.background = COLORS.accent.success}
+          icon={<Radio size={12} strokeWidth={2} />}
+          iconPosition="left"
         >
-          <span style={{ fontSize: '14px' }}>🔴</span>
           Start Live Analysis
-        </button>
+        </Button>
 
         {/* Info Text */}
         <div style={{
           color: COLORS.text.tertiary,
-          fontSize: '9px',
+          fontSize: FONT_SIZES.xs,
           lineHeight: '1.3',
           padding: '4px',
           background: COLORS.bg.darkest,

@@ -4,9 +4,11 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
 import { stateEvents, EVENTS } from '@/games/keno/core/stateEvents.js';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { Button } from '@/shared/components/Button';
+import { BarChart3, ChevronDown, ChevronUp } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { BORDER_RADIUS, SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
 
 /**
  * ComparisonWindow Component
@@ -55,13 +57,13 @@ export function ComparisonWindow({ onClose }) {
 
   // Calculate method stats
   const methods = [
-    { name: 'Frequency', key: 'frequency', color: '#e17055', emoji: '🔥' },
-    { name: 'Cold', key: 'cold', color: '#74b9ff', emoji: '❄️' },
-    { name: 'Mixed', key: 'mixed', color: '#a29bfe', emoji: '🔀' },
-    { name: 'Average', key: 'average', color: '#55efc4', emoji: '📊' },
-    { name: 'Momentum', key: 'momentum', color: '#fdcb6e', emoji: '⚡' },
-    { name: 'Auto', key: 'auto', color: '#00cec9', emoji: '🤖' },
-    { name: 'Shapes', key: 'shapes', color: '#fd79a8', emoji: '🔷' }
+    { name: 'Frequency', key: 'frequency', color: '#e17055' },
+    { name: 'Cold', key: 'cold', color: '#74b9ff' },
+    { name: 'Mixed', key: 'mixed', color: '#a29bfe' },
+    { name: 'Average', key: 'average', color: '#55efc4' },
+    { name: 'Momentum', key: 'momentum', color: '#fdcb6e' },
+    { name: 'Auto', key: 'auto', color: '#00cec9' },
+    { name: 'Shapes', key: 'shapes', color: '#fd79a8' }
   ];
 
   const methodStats = methods.map(method => {
@@ -80,7 +82,7 @@ export function ComparisonWindow({ onClose }) {
     };
   }).sort((a, b) => b.totalProfit - a.totalProfit);
 
-  const rankBadges = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+  const rankBadges = ['1st', '2nd', '3rd', '4th', '5th'];
 
   // Method card component
   const MethodCard = ({ method, rank }) => {
@@ -104,13 +106,13 @@ export function ComparisonWindow({ onClose }) {
         <div style={{ fontSize: '22px', fontWeight: 700, color: profitColor, marginBottom: '4px' }}>
           {method.totalProfit.toFixed(2)}x
         </div>
-        <div style={{ fontSize: '9px', color: COLORS.text.secondary }}>
+        <div style={{ fontSize: FONT_SIZES.xs, color: COLORS.text.secondary }}>
           Total Profit ({method.roundsTracked} rounds)
         </div>
-        <div style={{ fontSize: '10px', color: COLORS.text.secondary, marginTop: '6px' }}>
+        <div style={{ fontSize: FONT_SIZES.xs, color: COLORS.text.secondary, marginTop: '6px' }}>
           Avg: {method.avgProfit.toFixed(2)}x/round
         </div>
-        <div style={{ fontSize: '9px', color: COLORS.text.tertiary, marginTop: '2px' }}>
+        <div style={{ fontSize: FONT_SIZES.xs, color: COLORS.text.tertiary, marginTop: '2px' }}>
           Hits: {method.avgHits.toFixed(2)}/round
         </div>
       </div>
@@ -225,7 +227,7 @@ export function ComparisonWindow({ onClose }) {
   // Header extra content (lookback input)
   const headerExtra = (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>Lookback:</span>
+      <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.xs }}>Lookback:</span>
       <input
         type="number"
         min="10"
@@ -240,7 +242,7 @@ export function ComparisonWindow({ onClose }) {
           padding: SPACING.inputPadding,
           borderRadius: BORDER_RADIUS.sm,
           textAlign: 'center',
-          fontSize: '10px'
+          fontSize: FONT_SIZES.xs
         }}
       />
     </div>
@@ -249,7 +251,7 @@ export function ComparisonWindow({ onClose }) {
   return (
     <Modal
       title="Method Comparison"
-      icon="📊"
+      icon={<BarChart3 size={16} strokeWidth={2} />}
       onClose={onClose}
       headerExtra={headerExtra}
       defaultPosition={{ x: window.innerWidth - 520, y: 100 }}
@@ -274,21 +276,16 @@ export function ComparisonWindow({ onClose }) {
               <MethodCard key={method.key} method={method} rank={index + 3} />
             ))}
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
+            fullWidth
             onClick={() => setShowOthers(!showOthers)}
-            style={{
-              width: '100%',
-              background: '#2a3f4f',
-              color: '#74b9ff',
-              border: '1px solid #3a5f6f',
-              padding: '6px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '10px'
-            }}
+            icon={showOthers ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            iconPosition="right"
           >
-            {showOthers ? 'Show Less ▲' : 'Show More Methods ▼'}
-          </button>
+            {showOthers ? 'Show Less' : 'Show More Methods'}
+          </Button>
         </>
       )}
 
@@ -306,28 +303,28 @@ export function ComparisonWindow({ onClose }) {
 
       {/* Recent performance */}
       <div style={{ padding: '10px', background: '#14202b', borderRadius: '6px' }}>
-        <div style={{ color: '#888', fontSize: '10px', marginBottom: '6px' }}>Recent Performance:</div>
-        <div style={{ fontSize: '10px', color: '#aaa', maxHeight: '120px', overflowY: 'auto' }}>
+        <div style={{ color: '#888', fontSize: FONT_SIZES.xs, marginBottom: '6px' }}>Recent Performance:</div>
+        <div style={{ fontSize: FONT_SIZES.xs, color: '#aaa', maxHeight: '120px', overflowY: 'auto' }}>
           {recent.length === 0 ? (
             <div>No data yet. Play some rounds to see comparisons.</div>
           ) : (
             recent.map((point, idx) => (
               <div key={idx} style={{ padding: '4px 0', borderBottom: '1px solid #2a3f4f' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                  <span style={{ color: '#666', fontSize: '10px' }}>
+                  <span style={{ color: '#666', fontSize: FONT_SIZES.xs }}>
                     Round {point.round} <span style={{ color: '#555' }}>({point.difficulty || 'classic'})</span>
                   </span>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
-                    <span style={{ color: '#e17055' }}>🔥 {point.frequency.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#74b9ff' }}>❄️ {point.cold.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#a29bfe' }}>🔀 {point.mixed.profit.toFixed(1)}x</span>
-                    <span style={{ color: '#55efc4' }}>📊 {point.average.profit.toFixed(1)}x</span>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: FONT_SIZES.xs }}>
+                    <span style={{ color: '#e17055' }}>{point.frequency.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#74b9ff' }}>{point.cold.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#a29bfe' }}>{point.mixed.profit.toFixed(1)}x</span>
+                    <span style={{ color: '#55efc4' }}>{point.average.profit.toFixed(1)}x</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: '9px' }}>
-                  <span style={{ color: '#fdcb6e' }}>⚡ {point.momentum.profit.toFixed(1)}x</span>
-                  <span style={{ color: '#00cec9' }}>🤖 {point.auto.profit.toFixed(1)}x</span>
-                  <span style={{ color: '#fd79a8' }}>🔷 {point.shapes.profit.toFixed(1)}x</span>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'wrap', fontSize: FONT_SIZES.xs }}>
+                  <span style={{ color: '#fdcb6e' }}>{point.momentum.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#00cec9' }}>{point.auto.profit.toFixed(1)}x</span>
+                  <span style={{ color: '#fd79a8' }}>{point.shapes.profit.toFixed(1)}x</span>
                 </div>
               </div>
             ))

@@ -4,9 +4,10 @@
 
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { state } from '@/games/keno/core/state.js';
-import { CollapsibleSection } from '@/shared/components/CollapsibleSection.jsx';
+import { CollapsibleSection } from '@/shared/components/CollapsibleSection';
 import { initButtonPreviewHighlight } from '@/games/keno/ui/previewHighlight.js';
-import { NumberInput } from '@/shared/components/NumberInput.jsx';
+import { NumberInput } from '@/shared/components/NumberInput';
+import { Button } from '@/shared/components/Button';
 import { GeneratorPreview } from '../generator/GeneratorPreview.jsx';
 import { MethodSelector } from '../generator/MethodSelector.jsx';
 import { AutoRefreshControl } from '../generator/AutoRefreshControl.jsx';
@@ -16,7 +17,8 @@ import { saveGeneratorSettings } from '@/games/keno/core/storage.js';
 import { generateNumbers, selectPredictedNumbers } from '@/games/keno/ui/numberSelection.js';
 import { useModals } from '@/games/keno/hooks/useModals.js';
 import { COLORS } from '@/shared/constants/colors.js';
-import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
+import { SPACING, FONT_SIZES } from '@/shared/constants/styles.js';
+import { Dices, BarChart3 } from 'lucide-preact';
 
 /**
  * GeneratorSection Component
@@ -106,11 +108,10 @@ export function GeneratorSection() {
 
   return (
     <CollapsibleSection
-      title="🎲 Number Generator"
-      icon={null}
+      title="Number Generator"
+      icon={<Dices size={14} strokeWidth={2} />}
       dataSection="generator"
-      titleColor={COLORS.accent.info}
-      maxHeight={650}
+      maxHeight="none"
       defaultExpanded={true}
       pinnable={true}
     >
@@ -122,7 +123,7 @@ export function GeneratorSection() {
       }}>
         {/* Count input */}
         <div style={{ flex: 1 }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>
             Count:
           </span>
           <NumberInput
@@ -137,7 +138,7 @@ export function GeneratorSection() {
 
         {/* Sample size input (universal - used by all generators) */}
         <div style={{ flex: 1 }}>
-          <span style={{ color: COLORS.text.secondary, fontSize: '10px' }}>
+          <span style={{ color: COLORS.text.secondary, fontSize: FONT_SIZES.sm }}>
             Sample Size:
           </span>
           <NumberInput
@@ -165,42 +166,29 @@ export function GeneratorSection() {
       <GeneratorPreview />
 
       {/* Action buttons */}
-      <button
-        ref={selectButtonRef}
-        onClick={handleSelectClick}
-        id="generate-numbers-btn"
-        style={{
-          width: '100%',
-          background: COLORS.accent.info,
-          color: COLORS.text.primary,
-          border: 'none',
-          padding: SPACING.sm,
-          borderRadius: BORDER_RADIUS.sm,
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          fontSize: '12px',
-          marginTop: '0px'
-        }}
-      >
-        Select
-      </button>
+      <div ref={selectButtonRef}>
+        <Button
+          variant="primary"
+          size="md"
+          fullWidth
+          onClick={handleSelectClick}
+          id="generate-numbers-btn"
+        >
+          Select
+        </Button>
+      </div>
 
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
+        fullWidth
         onClick={handleCompareClick}
-        style={{
-          width: '100%',
-          background: COLORS.bg.darker,
-          color: COLORS.accent.info,
-          border: `1px solid ${COLORS.border.light}`,
-          padding: '4px',
-          borderRadius: BORDER_RADIUS.sm,
-          cursor: 'pointer',
-          fontSize: '9px',
-          marginTop: '4px'
-        }}
+        icon={<BarChart3 size={12} strokeWidth={2} />}
+        iconPosition="left"
+        style={{ marginTop: '4px' }}
       >
-        📊 Compare Methods
-      </button>
+        Compare Methods
+      </Button>
     </CollapsibleSection>
   );
 }

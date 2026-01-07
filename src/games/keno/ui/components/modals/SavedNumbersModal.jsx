@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
+import { Modal } from '@/shared/components/Modal';
+import { Button } from '@/shared/components/Button';
+import { Save, Info, Trash2 } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
@@ -45,34 +47,21 @@ function SavedComboCard({ combo, onSelect, onDelete, onInfo }) {
           <div style={{ color: COLORS.text.secondary, fontSize: '11px' }}>{combo.name}</div>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onInfo(combo.numbers, combo.name)}
-            style={{
-              padding: SPACING.inputPadding,
-              background: COLORS.bg.darker,
-              color: COLORS.accent.info,
-              border: 'none',
-              borderRadius: BORDER_RADIUS.sm,
-              fontSize: '11px',
-              cursor: 'pointer'
-            }}
+            icon={<Info size={12} strokeWidth={2} />}
+            iconPosition="left"
           >
-            ℹ️ Info
-          </button>
-          <button
+            Info
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
             onClick={() => onDelete(combo.id)}
-            style={{
-              padding: SPACING.inputPadding,
-              background: COLORS.accent.error,
-              color: COLORS.text.primary,
-              border: 'none',
-              borderRadius: BORDER_RADIUS.sm,
-              fontSize: '11px',
-              cursor: 'pointer'
-            }}
-          >
-            Delete
-          </button>
+            icon={<Trash2 size={12} strokeWidth={2} />}
+          />
         </div>
       </div>
       <div style={{ color: COLORS.text.tertiary, fontSize: '10px' }}>Saved: {date}</div>
@@ -102,7 +91,7 @@ export function SavedNumbersModal({ savedNumbers, onClose, onSelect, onDelete, o
   return (
     <Modal
       title="Saved Number Combinations"
-      icon="💾"
+      icon={<Save size={16} strokeWidth={2} />}
       onClose={onClose}
       defaultPosition={{ x: window.innerWidth / 2 - 250, y: 100 }}
       defaultSize={{ width: 500, height: 'auto' }}

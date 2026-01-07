@@ -70,13 +70,13 @@ export function updateGeneratorPreview() {
 
   // Update method label (if DOM exists)
   const methodNames = {
-    'frequency': '🔥 Hot',
-    'cold': '❄️ Cold',
-    'mixed': '🔀 Mixed',
-    'average': '📊 Average',
-    'momentum': '⚡ Momentum',
-    'auto': '🤖 Auto',
-    'shapes': '🔷 Shapes'
+    'frequency': 'Hot',
+    'cold': 'Cold',
+    'mixed': 'Mixed',
+    'average': 'Average',
+    'momentum': 'Momentum',
+    'auto': 'Auto',
+    'shapes': 'Shapes'
   };
   if (methodLabel) {
     methodLabel.textContent = methodNames[method] || method;
@@ -87,7 +87,13 @@ export function updateGeneratorPreview() {
     if (!autoRefresh) {
       roundsLabel.textContent = 'Manual';
       roundsLabel.style.color = COLORS.text.tertiary;
+    } else if (state.generatorAdvancedRules?.enabled) {
+      // Advanced rules: condition-based, not interval-based
+      const roundsSinceRefresh = currentRound - lastRefresh;
+      roundsLabel.textContent = `${roundsSinceRefresh} rounds (rules)`;
+      roundsLabel.style.color = COLORS.accent.warning;
     } else {
+      // Standard interval-based refresh
       const roundsSinceRefresh = currentRound - lastRefresh;
       const roundsUntilRefresh = Math.max(0, interval - roundsSinceRefresh);
       roundsLabel.textContent = `${roundsUntilRefresh}/${interval} rounds`;

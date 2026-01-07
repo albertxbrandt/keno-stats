@@ -2,13 +2,19 @@
 
 A Chrome/Firefox browser extension providing **Keno statistics tracking** and **site-wide utilities** for Stake.com.
 
-## 🎯 Two Main Features
+## 🎯 Main Features
 
 ### 🎲 Keno Stats Tracker
+
 Advanced statistics and analysis for Keno games with heatmaps, generators, and profit tracking.
 
+### 💣 Mines Stats Tracker
+
+Real-time multiplier tracking and bet history for Mines games with comprehensive statistics.
+
 ### 🛠️ Stake Tools (Site-Wide)
-Utility toolkit available across all Stake pages - coin flipper, random numbers, game picker, and more.
+
+Utility toolkit available across all Stake pages - coin flipper, random numbers, game picker, VIP calculator, and more.
 
 ## ⚠️ Disclaimer
 
@@ -80,19 +86,51 @@ Find common N-number combinations (3-10) that appear together frequently:
 ### 💾 Saved Number Sets
 
 - Save and name your favorite number combinations
-- Quick-load saved sets wi
+- Quick-load saved sets with one click
+
+## 💣 Mines Stats Tracker (Mines Pages Only)
+
+### 📊 Real-Time Statistics
+
+- **Current Multiplier Tracking**: Live multiplier bar that updates with each reveal
+- **Bet History**: Complete history of all bets with outcomes
+- **Win/Loss Tracking**: Session and total statistics
+- **Auto-Reset**: Stats reset when new game starts
+
+### 📈 Multiplier Bar
+
+- Visual progress bar showing current multiplier
+- Color-coded by risk level (green → yellow → red)
+- Updates in real-time as tiles are revealed
+- Shows exact multiplier value (e.g., "3.45x")
+
+### 🎯 Game Info Display
+
+- Mines count (difficulty level)
+- Tiles revealed count
+- Current bet amount
+- Win/loss status for completed games
+
+### 📝 Bet History Panel
+
+- Chronological list of all completed games
+- Shows: Mines count, multiplier achieved, bet amount, profit/loss
+- Color-coded profit (green) and loss (red)
+- Expandable to view full details
 
 ## 🛠️ Stake Tools (All Pages)
 
 Site-wide toolbar with quick-access utilities available on any Stake page:
 
 ### 🪙 Coin Flipper
+
 - Beautiful 3D coin flip animation
 - Heads/Tails tracking with statistics
 - History of last 20 flips
 - Persistent stats across sessions
 
 ### 🔢 Random Number Generator
+
 - Configurable min/max range (default 1-100)
 - Generate 1-100 numbers at once
 - Allow/prevent duplicates toggle
@@ -100,38 +138,64 @@ Site-wide toolbar with quick-access utilities available on any Stake page:
 - History of last 20 generations
 
 ### 🎮 Random Game Picker
+
 - Scans current page for available games
 - Slot machine shuffle animation (20 cycles)
 - Click "Play Now" to navigate instantly
 - History of last 10 picks with thumbnails
 - Auto-detects game name, image, and category
+
+### 🔮 Magic 8-Ball
+
+- Fortune teller with 20 classic responses
+- Shake animation on each use
+- Question history tracking
+- Mysterious predictions for fun decisions
+
+### 👑 VIP Calculator
+
+- Opens Stake's VIP progress modal
+- Shows wagered amount and remaining for next level
+- Floating side panel with real-time data
+- Tracks progress across 10 VIP levels (Bronze → Diamond)
+- SPA navigation (no page reload)
+
+## 🏗️ Architecture
+
 Multi-game architecture with separate modules for each feature:
 
 ```
 src/
 ├── games/
-│   └── keno/           # Keno-specific features
+│   ├── keno/           # Keno-specific features
+│   │   ├── content.js  # Entry point
+│   │   ├── core/       # State, storage, events
+│   │   ├── generators/ # Number generation strategies
+│   │   ├── storage/    # Persistence (history, settings, patterns, etc.)
+│   │   ├── ui/         # Preact components
+│   │   │   ├── components/
+│   │   │   │   ├── sections/      # Overlay sections
+│   │   │   │   ├── modals/        # Modal dialogs
+│   │   │   │   ├── generator/     # Generator sub-components
+│   │   │   │   └── shared/        # Keno-specific shared components
+│   │   │   ├── App.jsx            # Root component
+│   │   │   ├── ModalsManager.jsx  # Modal coordination
+│   │   │   └── overlayInit.js     # Initialization
+│   │   ├── utils/      # Keno-specific utilities
+│   │   ├── bridges/    # Window globals
+│   │   └── hooks/      # Preact hooks
+│   │
+│   └── mines/          # Mines-specific features
 │       ├── content.js  # Entry point
-│       ├── core/       # State, storage, events
-│       ├── generators/ # Number generation strategies
-│       ├── storage/    # Persistence (history, settings, patterns, etc.)
-│       ├── ui/         # Preact components
-│       │   ├── components/
-│       │   │   ├── sections/      # Overlay sections
-│       │   │   ├── modals/        # Modal dialogs
-│       │   │   ├── generator/     # Generator sub-components
-│       │   │   └── shared/        # Keno-specific shared components
-│       │   ├── App.jsx            # Root component
-│       │   ├── ModalsManager.jsx  # Modal coordination
-│       │   └── overlayInit.js     # Initialization
-│       ├── utils/      # Keno-specific utilities
-│       ├── bridges/    # Window globals
-│       └── hooks/      # Preact hooks
+│       ├── core/       # State management
+│       ├── ui/         # Multiplier bar and stats UI
+│       └── utils/      # Mines-specific utilities
 │
 ├── stake/              # Site-wide features
 │   ├── content.js      # Entry point
 │   ├── coordinator.js  # Game detection and routing
 │   ├── core/           # State, storage for toolbar
+│   ├── features/       # Feature modules (VIP, etc.)
 │   ├── ui/             # Toolbar and utility components
 │   │   ├── Toolbar.jsx          # Main toolbar
 │   │   ├── UtilitiesManager.jsx # Utility renderer
@@ -168,6 +232,7 @@ dist/
 interceptor.js           # Page-level data capture (MAIN world)
 eslint.config.mjs        # Code quality (ESLint v9)
 ```
+
 ## Installation
 
 1. Clone or download this repository
@@ -227,17 +292,21 @@ The UI is built with **Preact** (3KB React alternative) for maintainability and 
 - Draggable overlay with mouse and touch support
 - Modal system with centralized state management
 - Reusable shared components (ToggleSwitch, CollapsibleSection, DragHandle, etc.)
-January 2026
+  ### January 2026
 
 - 🏗️ **Major restructure**: Multi-game architecture with separate modules
-- 🛠️ **New**: Site-wide toolbar with 4 utilities (Coin Flipper, Random Numbers, Game Picker, Magic 8-Ball)
+- 💣 **New**: Mines stats tracker with multiplier bar and bet history
+- 🛠️ **New**: Site-wide toolbar with utilities (Coin Flipper, Random Numbers, Game Picker, Magic 8-Ball, VIP Calculator)
 - 🎨 **New**: Lucide Icons integration (replaced all emojis)
 - 🔧 **New**: Shared component library for consistent UI
+- 👑 **New**: VIP Calculator with floating progress panel (10 levels tracked)
 - 📦 **Improved**: Better code organization (src/games/, src/stake/, src/shared/)
 - 🎯 **Improved**: Toolbar styling matches Keno overlay design system
 - 📊 **Improved**: Coordinator system for game detection and routing
+- 🎨 **Improved**: Coin Flipper redesign with Club/Spade card suit icons and vibrant gradients
 
-### 
+###
+
 ## How It Works
 
 The extension intercepts Keno game data from Stake.com and provides statistical analysis:

@@ -1,8 +1,8 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { Modal } from '@/shared/components/Modal.jsx';
-import { ToggleSwitch } from '@/shared/components/ToggleSwitch.jsx';
-import { useUtilities } from '../hooks/useUtilities.js';
+import { Modal } from '@/shared/components/Modal';
+import { ToggleSwitch } from '@/shared/components/ToggleSwitch';
+import { useUtilities } from '../hooks/useUtilities';
 import { COLORS } from '@/shared/constants/colors.js';
 import { BORDER_RADIUS, SPACING } from '@/shared/constants/styles.js';
 
