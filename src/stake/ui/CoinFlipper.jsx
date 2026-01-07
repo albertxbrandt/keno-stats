@@ -7,7 +7,7 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { Modal } from '@/shared/components/Modal';
 import { Button } from '@/shared/components/Button';
-import { Coins } from 'lucide-preact';
+import { Coins, Club, Spade } from 'lucide-preact';
 import { COLORS } from '@/shared/constants/colors.js';
 import { SPACING } from '@/shared/constants/styles.js';
 
@@ -104,35 +104,35 @@ export function CoinFlipper({ onClose }) {
       >
         <div
           style={{
-            width: '160px',
-            height: '160px',
+            width: '180px',
+            height: '180px',
             borderRadius: '50%',
             background: isFlipping
-              ? `radial-gradient(circle at 30% 30%, ${COLORS.bg.light}, ${COLORS.bg.darker})`
+              ? 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
               : result === 'heads'
-              ? 'radial-gradient(circle at 30% 30%, #fbbf24, #d97706)'
+              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
               : result === 'tails'
-              ? 'radial-gradient(circle at 30% 30%, #94a3b8, #64748b)'
-              : `radial-gradient(circle at 30% 30%, ${COLORS.bg.light}, ${COLORS.bg.dark})`,
+              ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+              : 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: isFlipping
-              ? '0 8px 32px rgba(251, 191, 36, 0.3)'
+              ? '0 10px 40px rgba(255, 215, 0, 0.4)'
               : result === 'heads'
-              ? '0 8px 32px rgba(251, 191, 36, 0.4)'
+              ? '0 10px 40px rgba(16, 185, 129, 0.5)'
               : result === 'tails'
-              ? '0 8px 32px rgba(100, 116, 139, 0.4)'
+              ? '0 10px 40px rgba(59, 130, 246, 0.5)'
               : '0 4px 16px rgba(0, 0, 0, 0.2)',
             animation: isFlipping ? 'spin 1s ease-in-out' : 'none',
-            border: `3px solid ${
+            border: `4px solid ${
               isFlipping
-                ? 'rgba(251, 191, 36, 0.3)'
+                ? '#FFED4E'
                 : result === 'heads'
-                ? 'rgba(251, 191, 36, 0.5)'
+                ? '#34d399'
                 : result === 'tails'
-                ? 'rgba(100, 116, 139, 0.5)'
-                : COLORS.border.default
+                ? '#60a5fa'
+                : '#FFED4E'
             }`,
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -140,37 +140,17 @@ export function CoinFlipper({ onClose }) {
         >
           {/* Coin Face Design */}
           {isFlipping ? (
-            // Neutral spinning state - simple circle
-            <svg width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="25" fill="none" stroke="rgba(0, 0, 0, 0.4)" strokeWidth="3" />
-            </svg>
+            // Neutral spinning state
+            <Coins size={72} strokeWidth={2.5} color="#ffffff" />
           ) : result === 'heads' ? (
-            // Heads side - star pattern
-            <svg width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="28" fill="none" stroke="rgba(0, 0, 0, 0.5)" strokeWidth="2.5" />
-              <circle cx="40" cy="40" r="20" fill="none" stroke="rgba(0, 0, 0, 0.5)" strokeWidth="2.5" />
-              <circle cx="40" cy="40" r="7" fill="rgba(0, 0, 0, 0.6)" />
-              <circle cx="40" cy="20" r="5" fill="rgba(0, 0, 0, 0.6)" />
-              <circle cx="40" cy="60" r="5" fill="rgba(0, 0, 0, 0.6)" />
-              <circle cx="20" cy="40" r="5" fill="rgba(0, 0, 0, 0.6)" />
-              <circle cx="60" cy="40" r="5" fill="rgba(0, 0, 0, 0.6)" />
-            </svg>
+            // Heads side - Club (Green for luck)
+            <Club size={80} strokeWidth={2.5} color="#ffffff" fill="#ffffff" />
           ) : result === 'tails' ? (
-            // Tails side - cross pattern
-            <svg width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="28" fill="none" stroke="rgba(0, 0, 0, 0.5)" strokeWidth="2.5" />
-              <line x1="40" y1="20" x2="40" y2="60" stroke="rgba(0, 0, 0, 0.6)" strokeWidth="5" strokeLinecap="round" />
-              <line x1="20" y1="40" x2="60" y2="40" stroke="rgba(0, 0, 0, 0.6)" strokeWidth="5" strokeLinecap="round" />
-              <circle cx="28" cy="28" r="4" fill="rgba(0, 0, 0, 0.5)" />
-              <circle cx="52" cy="28" r="4" fill="rgba(0, 0, 0, 0.5)" />
-              <circle cx="28" cy="52" r="4" fill="rgba(0, 0, 0, 0.5)" />
-              <circle cx="52" cy="52" r="4" fill="rgba(0, 0, 0, 0.5)" />
-            </svg>
+            // Tails side - Spade (Blue)
+            <Spade size={80} strokeWidth={2.5} color="#ffffff" fill="#ffffff" />
           ) : (
-            // Default neutral state - simple circle
-            <svg width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="25" fill="none" stroke="rgba(0, 0, 0, 0.4)" strokeWidth="3" />
-            </svg>
+            // Default neutral state
+            <Coins size={72} strokeWidth={2.5} color="#ffffff" />
           )}
         </div>
 
@@ -180,11 +160,11 @@ export function CoinFlipper({ onClose }) {
             fontSize: '20px',
             fontWeight: '600',
             color: isFlipping 
-              ? COLORS.text.secondary 
+              ? '#FFD700' 
               : result === 'heads' 
-              ? '#fbbf24' 
+              ? '#10b981' 
               : result === 'tails'
-              ? '#94a3b8'
+              ? '#3b82f6'
               : COLORS.text.secondary,
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
